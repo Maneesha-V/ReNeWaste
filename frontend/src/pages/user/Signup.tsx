@@ -119,13 +119,13 @@ const Signup = () => {
           </div>
           <button
             type="submit"
-            className="w-full font-bold text-lg bg-green-600 text-white p-2 rounded hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
+            className="w-full font-bold text-lg bg-green-600 text-white p-2 rounded hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 cursor-pointer"
             disabled={loading}
           >
             {loading ? "Signing Up..." : "Sign Up"}
           </button>
         </form>
-        <div className="mt-6 text-center">
+        <div className="mt-1 text-center">
           <span className="text-sm text-green-700">Or</span>
           <GoogleSignUpButton />
         </div>
