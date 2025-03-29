@@ -1,5 +1,5 @@
 import express from "express";
-import { signup, login, logout, sendOtp, verifyOtp, resetPassword, googleSignUp } from "../controllers/user/userController";
+import { signup, login, logout, sendOtp, verifyOtp, resetPassword, googleSignUp, googleLogin } from "../controllers/user/userController";
 import { getProfile, getEditProfile, updateUserProfileHandler } from "../controllers/user/profileController"
 import { authenticateUser } from "../middlewares/authMiddware"
 
@@ -12,6 +12,7 @@ router.post("/send-otp", sendOtp)
 router.post("/verify-otp", verifyOtp)
 router.post("/reset-password",resetPassword)
 router.post("/google-signup",googleSignUp)
+router.post("/google-login",googleLogin)
 router.get("/profile", authenticateUser as express.RequestHandler, getProfile)
 router.get("/edit-profile", authenticateUser as express.RequestHandler, getEditProfile)
 router.put("/edit-profile", authenticateUser as express.RequestHandler, updateUserProfileHandler)

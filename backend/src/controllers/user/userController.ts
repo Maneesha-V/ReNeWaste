@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { googleSignUpService, loginUser, resetPasswordService, sendOtpService, signupUser, verifyOtpService } from "../../services/user/authService";
+import { googleLoginService, googleSignUpService, loginUser, resetPasswordService, sendOtpService, signupUser, verifyOtpService } from "../../services/user/authService";
 import { IUser } from "../../models/user/interfaces/userInterface"
 import { UserModel } from "../../models/user/userModel"; 
 import { findUserByEmail } from "../../repositories/user/userRepository"
@@ -110,4 +110,16 @@ try {
   console.error("Google Sign-Up Error:", error);
   res.status(500).json({ message: error.message || "Internal Server Error" });
 }
+}
+export const googleLogin = async (req: Request, res: Response):Promise<void> => {
+  try {
+    console.log("body",req.body);
+    const { email, googleId, token} = req.body;
+    const response = await googleLoginService({email, googleId, token});
+    console.log("res",response);
+    res.status(200).json(response);
+  }catch(error: any){
+    console.error("Google login error:", error);
+    res.status(500).json({ message: error.message || "Something went wrong during login" });
+  }
 }

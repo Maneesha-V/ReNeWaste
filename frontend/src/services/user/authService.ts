@@ -1,6 +1,6 @@
 import axios from "axios";
 import { toast } from "react-toastify";
-import { SignupRequest, LoginRequest } from "../../types/authTypes"
+import { SignupRequest, LoginRequest, GoogleLoginReq } from "../../types/authTypes"
 import { Auth, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 
 const API_URL = import.meta.env.VITE_API_URL; 
@@ -87,3 +87,38 @@ export const googleSignUpService = async (auth: Auth, googleProvider: GoogleAuth
     throw {message: error.response?.data?.error || "Failed to Google Sign-Up"};
   }
 }
+export const googleSignInService = async (userData: GoogleLoginReq) => {
+  try {
+    const response = await axios.post(`${API_URL}/google-login`, userData);
+    console.log("logRes", response);
+
+    if (!response.data || !response.data.user || !response.data.token) {
+      throw new Error("Invalid response from server.");
+    }
+
+    localStorage.setItem("token", response.data.token);
+    localStorage.setItem("role", response.data.user.role);
+
+    return response.data;
+  } catch (error: any) {
+    console.error("Google login error:", error);
+    throw error.response?.data?.message || "Google login failed. Please try again.";
+  }
+};
+
+// export const googleSignInService = async (userData: GoogleLoginReq) => {
+//   try {
+//     const response = await axios.post(`${API_URL}/google-login`,userData);
+//     console.log("logRes",response);
+//     if (response.data && response.data.user && response.data.token) {
+//       localStorage.setItem("token", response.data.token);
+//       localStorage.setItem("role", response.data.user.role); 
+//       return response.data;
+//     } else {
+//       throw new Error("Invalid login response. Please try again.");
+//     }
+//   } catch(error: any) {
+//     console.error("Google login error:", error);
+//     throw error.response?.data?.error || "Google login failed. Please try again.";
+//   }
+// }

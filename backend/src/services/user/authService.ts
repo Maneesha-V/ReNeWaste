@@ -1,8 +1,8 @@
 import bcrypt from "bcrypt";
 import { IUser, IUserDocument } from "../../models/user/interfaces/userInterface"
-import { createUser, deleteOtp, findOtpByEmail, findUserByEmail, saveOtp } from "../../repositories/user/userRepository";
+import { createUser, deleteOtp, findOtpByEmail, findUserByEmail, findUserByEmailGoogleId, saveOtp } from "../../repositories/user/userRepository";
 import { generateToken } from "../../utils/authUtils";
-import { SignupResponse, LoginRequest, LoginResponse } from "../../types/user/authTypes";
+import { SignupResponse, LoginRequest, LoginResponse, GoogleLoginReq, GoogleLoginResp } from "../../types/user/authTypes";
 import { generateOtp } from "../../utils/otpUtils";
 import { sendEmail } from "../../utils/mailerUtils";
 
@@ -106,4 +106,14 @@ export const googleSignUpService = async (email: string, displayName: string, ui
 
   return { user: newUser, token };
 
+}
+export const googleLoginService = async ({email, googleId, token}:GoogleLoginReq): Promise<GoogleLoginResp> => {
+  let user = await findUserByEmailGoogleId(email,googleId);
+  console.log("user",user);
+  if (!user) {
+    throw new Error("User could not be created or found");
+  }
+  const authToken = generateToken(user._id.toString()); 
+
+  return { user, token: authToken };
 }

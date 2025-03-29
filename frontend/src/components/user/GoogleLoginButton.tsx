@@ -1,8 +1,46 @@
+import { useNavigate } from "react-router-dom";
 import googleLogo from "../../assets/google_logo.png";
+import { useAppDispatch } from "../../redux/hooks";
+import { signInWithPopup } from "firebase/auth";
+import { auth, googleProvider } from "../../config/firebase";
+import { toast } from "react-toastify";
+import { googleLogin } from "../../redux/slices/user/userSlice";
+import { showErrorToast } from "../../utils/toastHandler";
 
 const GoogleLoginButton = () => {
-  const handleGoogleLogin = () => {
-    
+  const dispatch = useAppDispatch();
+  const navigate = useNavigate();
+  const handleGoogleLogin = async () => {
+    try {
+      const result = await signInWithPopup(auth, googleProvider);
+
+      const user = result.user;
+      if (!user.email) {
+        console.error("Google login failed: Email is missing.");
+        toast.error("Login failed. Please try again.");
+        return;
+      }   
+      const token = await user.getIdToken();
+      console.log("token",token);
+      const response = await dispatch(
+        googleLogin({
+          email: user.email,
+          googleId: user.uid, 
+          token,
+        })
+      );
+
+      if(googleLogin.rejected.match(response)){
+        console.error("Google login failed:",response.payload);
+        showErrorToast(response.payload);
+        return;
+      }
+      toast.success("Login successful!");
+      navigate("/home");
+    } catch(error: any){
+      console.log("error",error);   
+      toast.error(error?.message || "Google Login failed.");
+    }
   }
   return (
     <button 

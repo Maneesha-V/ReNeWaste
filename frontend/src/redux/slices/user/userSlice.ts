@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { signupUser, loginUser, logoutUser, sendOtpService, verifyOtpService, resetPasswordService, googleSignUpService } from "../../../services/user/authService";
-import { SignupRequest, LoginRequest } from "../../../types/authTypes";
+import { signupUser, loginUser, logoutUser, sendOtpService, verifyOtpService, resetPasswordService, googleSignUpService, googleSignInService } from "../../../services/user/authService";
+import { SignupRequest, LoginRequest, GoogleLoginReq } from "../../../types/authTypes";
 import { auth, googleProvider } from "../../../config/firebase";
 
 interface UserState {
@@ -8,6 +8,7 @@ interface UserState {
   loading: boolean;
   error: string | null;
   message: string | null;
+  token: string | null;
 }
 
 const initialState: UserState = {
@@ -15,6 +16,7 @@ const initialState: UserState = {
   loading: false,
   error: null,
   message: null,
+  token: null,
 };
 
 export const signup = createAsyncThunk(
@@ -97,6 +99,20 @@ export const googleSignUp = createAsyncThunk(
     } catch(error: any) {
       console.log("Google Sign-Up error:", error);  
       return rejectWithValue(error.response?.data?.message || "Google Sign-Up Failed");
+    }
+  }
+)
+export const googleLogin = createAsyncThunk<any,GoogleLoginReq,{rejectValue: string}>(
+  "user/googleLogin",
+  async(userData: GoogleLoginReq,{ rejectWithValue }) => {
+    try {
+      const response = await googleSignInService(userData)
+      console.log("resppp",response);
+      
+      return response;
+    } catch(error: any) {
+      console.log("Google Sign-In error:", error);  
+      return rejectWithValue(error || "Google Sign-In Failed");
     }
   }
 )
@@ -188,6 +204,20 @@ const userSlice = createSlice({
       })
       .addCase(googleSignUp.rejected, (state, action) => {
         state.loading = false;
+        state.error = action.payload as string;
+      })
+      .addCase(googleLogin.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(googleLogin.fulfilled, (state, action) => {
+        state.loading = false;
+        state.user = action.payload.user;
+        state.token = action.payload.token;
+      })
+      .addCase(googleLogin.rejected, (state, action) => {
+        state.loading = false;
+        state.token = null;
         state.error = action.payload as string;
       });
   },

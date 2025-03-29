@@ -10,7 +10,9 @@ export const createUser = async (userData: IUser): Promise<IUserDocument> => {
 export const findUserByEmail = async (email:string): Promise<IUserDocument | null> => {
   return await UserModel.findOne({email}).exec();
 };
-
+export const findUserByEmailGoogleId = async (email:string,googleId:string): Promise<IUserDocument | null> => {
+  return await UserModel.findOne({email,googleId}).exec();
+}
 export const findUserById = async (userId: string) => {
   return await UserModel.findById(userId).select("-password");
 };

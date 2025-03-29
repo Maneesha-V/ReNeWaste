@@ -30,3 +30,8 @@ export interface SignupResponse {
     email: string;
     password: string;
   }
+  export interface GoogleLoginReq {
+    email: string;
+    googleId: string;
+    token: string;
+  }
