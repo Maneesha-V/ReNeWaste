@@ -1,8 +1,20 @@
+import { useNavigate } from "react-router-dom";
 import googleLogo from "../../assets/google_logo.png";
+import { useAppDispatch } from "../../redux/hooks";
+import { googleSignUp } from "../../redux/slices/user/userSlice";
+import { toast } from "react-toastify";
 
 const GoogleSignUpButton = () => {
-  const handleGoogleSignUp = () => {
-    
+  const dispatch = useAppDispatch()
+  const navigate = useNavigate()
+
+  const handleGoogleSignUp = async () => {
+   try {
+    await dispatch(googleSignUp()).unwrap()
+    navigate("/home");
+   } catch(error: any){
+    toast.error(error?.message  || "Google Signup failed. Please try again.");
+   }
   };
   return (
     <div className="mt-1">

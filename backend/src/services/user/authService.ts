@@ -12,7 +12,7 @@ export const signupUser = async (userData: IUser): Promise<SignupResponse> => {
     throw new Error("Email already exists. Please use a different email.");
   }
   const salt = await bcrypt.genSalt(10);
-  const hashedPassword = await bcrypt.hash(userData.password, salt);
+  const hashedPassword = userData.password ? await bcrypt.hash(userData.password, salt) : undefined;
   const newUserData: IUser = {
     firstName: userData.firstName,
     lastName: userData.lastName,
@@ -21,6 +21,7 @@ export const signupUser = async (userData: IUser): Promise<SignupResponse> => {
     agreeToTerms: userData.agreeToTerms,
     role: userData.role,
     phone: userData.phone,
+    googleId: userData.googleId || "",
     addresses: userData.addresses || []
   };
   const newUser:IUserDocument  = await createUser(newUserData);
@@ -33,7 +34,7 @@ export const loginUser = async ({email, password}:LoginRequest): Promise<LoginRe
   if (!user) {
     throw new Error("Invalid email or password.");
   }
-  const isPasswordValid = await bcrypt.compare(password, user.password);
+  const isPasswordValid = user.password ? await bcrypt.compare(password, user.password) : false;
   if (!isPasswordValid) {
     throw new Error("Invalid email or password.");
   }
@@ -82,4 +83,27 @@ export const resetPasswordService = async (email: string, newPassword: string):P
   const hashedPassword = await bcrypt.hash(newPassword, 10);
   user.password = hashedPassword;
   await user.save();
+}
+export const googleSignUpService = async (email: string, displayName: string, uid: string):Promise<{ user: IUserDocument; token: string }> => {
+  let user = await findUserByEmail(email);
+  if (user) {
+    const token = generateToken(user._id.toString());
+    return { user, token };
+  }
+  const newUserData: IUser = {
+    firstName: displayName.split(" ")[0] || "", 
+    lastName: displayName.split(" ")[1] || "", 
+    email,
+    password: undefined,
+    agreeToTerms: true, 
+    role: "user",
+    phone: undefined,
+    googleId: uid, 
+    addresses: []
+  };
+  const newUser: IUserDocument = await createUser(newUserData);
+  const token = generateToken(newUser._id.toString());
+
+  return { user: newUser, token };
+
 }

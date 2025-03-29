@@ -5,10 +5,11 @@ export interface IUser {
     firstName: string;
     lastName: string;
     email: string;
-    password: string;
+    password?: string;
     agreeToTerms: boolean;
     role: "user" | "driver" | "superadmin" | "wasteplant";
-    phone: string;
+    phone?: string;
+    googleId?: string;
     addresses: IAddress[];
   }
 

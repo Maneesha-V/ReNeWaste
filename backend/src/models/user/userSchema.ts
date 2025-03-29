@@ -19,7 +19,7 @@ export const userSchema: Schema<IUserDocument> = new Schema(
     },
       password: { 
         type: String, 
-        required: true 
+        required: function () { return !this.googleId; }
     },
       agreeToTerms: { 
         type: Boolean, 
@@ -32,8 +32,12 @@ export const userSchema: Schema<IUserDocument> = new Schema(
     },
     phone: { 
       type: String, 
-      required: true 
+      required: function () { return !this.googleId; } 
     }, 
+    googleId: { 
+      type: String, 
+      default: null
+    },
     addresses: [AddressSchema],
     },
     { timestamps: true }

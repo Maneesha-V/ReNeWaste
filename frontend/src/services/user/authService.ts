@@ -1,6 +1,7 @@
 import axios from "axios";
 import { toast } from "react-toastify";
 import { SignupRequest, LoginRequest } from "../../types/authTypes"
+import { Auth, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 
 const API_URL = import.meta.env.VITE_API_URL; 
 
@@ -61,5 +62,28 @@ export const resetPasswordService = async (email: string,password: string) => {
   } catch (error: any){
     console.error("Error in reset password:", error.response?.data?.error || error.message);
     throw {message: error.response?.data?.error || "Failed to reset password"};
+  }
+}
+export const googleSignUpService = async (auth: Auth, googleProvider: GoogleAuthProvider) => {
+  try {
+    const result = await signInWithPopup(auth, googleProvider);
+    const { user } = result;
+    const response = await axios.post(`${API_URL}/google-signup`,
+      {
+        email: user.email,
+        displayName: user.displayName,
+        uid: user.uid,
+        // photoURL: user.photoURL,
+      }
+    )
+    console.log("resppp",response);
+    if (response.data) {
+      localStorage.setItem("token", response.data.token);
+      localStorage.setItem("role", response.data.user.role); 
+    }  
+    return response.data;
+  } catch(error: any){
+    console.error("Error in Google Sign-Up:", error.response?.data?.error || error.message);
+    throw {message: error.response?.data?.error || "Failed to Google Sign-Up"};
   }
 }

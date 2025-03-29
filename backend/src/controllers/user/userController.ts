@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { loginUser, resetPasswordService, sendOtpService, signupUser, verifyOtpService } from "../../services/user/authService";
+import { googleSignUpService, loginUser, resetPasswordService, sendOtpService, signupUser, verifyOtpService } from "../../services/user/authService";
 import { IUser } from "../../models/user/interfaces/userInterface"
 import { UserModel } from "../../models/user/userModel"; 
 import { findUserByEmail } from "../../repositories/user/userRepository"
@@ -94,5 +94,20 @@ try{
 } catch(error: any){
   console.error(error);
   res.status(500).json({ message: "Server error" });
+}
+}
+export const googleSignUp = async (req: Request, res: Response):Promise<void> => {
+try {
+  console.log("body",req.body);
+  const { email, displayName, uid } = req.body;
+  if (!email || !uid) {
+    res.status(400).json({ message: "Email and UID are required" });
+    return;
+  }
+  const {user, token} = await googleSignUpService(email, displayName, uid)
+  res.status(200).json({ message: "User signed in successfully", user, token });
+} catch(error: any){
+  console.error("Google Sign-Up Error:", error);
+  res.status(500).json({ message: error.message || "Internal Server Error" });
 }
 }

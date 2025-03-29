@@ -1,6 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { signupUser, loginUser, logoutUser, sendOtpService, verifyOtpService, resetPasswordService } from "../../../services/user/authService";
+import { signupUser, loginUser, logoutUser, sendOtpService, verifyOtpService, resetPasswordService, googleSignUpService } from "../../../services/user/authService";
 import { SignupRequest, LoginRequest } from "../../../types/authTypes";
+import { auth, googleProvider } from "../../../config/firebase";
 
 interface UserState {
   user: any;
@@ -87,6 +88,18 @@ export const resetPassword = createAsyncThunk(
     }
   }
 )
+export const googleSignUp = createAsyncThunk(
+  "user/googleSignUp",
+  async(_,{ rejectWithValue }) => {
+    try {
+      const response = await googleSignUpService(auth, googleProvider)
+      return response.data;
+    } catch(error: any) {
+      console.log("Google Sign-Up error:", error);  
+      return rejectWithValue(error.response?.data?.message || "Google Sign-Up Failed");
+    }
+  }
+)
 const userSlice = createSlice({
   name: "user",
   initialState,
@@ -162,6 +175,18 @@ const userSlice = createSlice({
         state.message = action.payload?.message;
       })
       .addCase(resetPassword.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      })
+      .addCase(googleSignUp.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(googleSignUp.fulfilled, (state, action) => {
+        state.loading = false;
+        state.user = action.payload;
+      })
+      .addCase(googleSignUp.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
       });
