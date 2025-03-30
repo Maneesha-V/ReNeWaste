@@ -1,10 +1,10 @@
 import express from "express";
 import connectDB from "./config/db";
-import userRoutes from "./routes/userRoutes";
 import cors from "cors";
 import dotenv from "dotenv";
 import bodyParser from "body-parser";
-
+import userRoutes from "./routes/userRoutes";
+import superAdminRoutes from "./routes/superAdminRoutes";
 dotenv.config();
 
 const app = express();
@@ -18,6 +18,7 @@ app.use(cors({
 connectDB();
 
 app.use("/api", userRoutes);
+app.use("/api/super-admin", superAdminRoutes);
 
 const PORT = process.env.PORT || 5001;
 

@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import UserRoutes from "./routes/UserRoutes";
+import SuperAdminRoutes from "./routes/SuperAdminRoutes";
 
 function App() {
 
@@ -10,6 +11,7 @@ function App() {
         <ToastContainer position="top-right" autoClose={5000} theme="colored" />
         <Routes>
           <Route path="/*" element={<UserRoutes />} />
+          <Route path="/super-admin/*" element={<SuperAdminRoutes />} />
         </Routes>
       </Router>
     </>
