@@ -49,8 +49,8 @@ const Login = () => {
               value={formData.email}
               onChange={handleChange}
               placeholder="Email"
+              autoComplete = "off"
               className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
-              required
             />
           </div>
           <div className="mb-4">
@@ -60,8 +60,8 @@ const Login = () => {
               value={formData.password}
               onChange={handleChange}
               placeholder="Password"
+              autoComplete="new-password"
               className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
-              required
             />
             <div className="text-right mt-1">
               <a
