@@ -9,7 +9,8 @@ export interface IUser {
     agreeToTerms: boolean;
     role: "user" | "driver" | "superadmin" | "wasteplant";
     phone?: string;
-    googleId?: string;
+    // googleId?: string;
+    googleId: string | null;
     addresses: IAddress[];
   }
 

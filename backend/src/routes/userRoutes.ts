@@ -1,19 +1,23 @@
-import express from "express";
-import { signup, login, logout, sendOtp, verifyOtp, resetPassword, googleSignUp, googleLogin } from "../controllers/user/userController";
-import { getProfile, getEditProfile, updateUserProfileHandler } from "../controllers/user/profileController"
+import { Router } from "express";
+import UserController from "../controllers/user/userController";
+import ProfileController  from "../controllers/user/profileController";
 import { authenticateUser } from "../middlewares/authMiddware"
+import { RequestHandler } from "express"; 
 
-const router = express.Router();
+const router: Router = Router();
 
-router.post("/signup", signup);
-router.post("/", login)
-router.post("/logout", logout)
-router.post("/send-otp", sendOtp)
-router.post("/verify-otp", verifyOtp)
-router.post("/reset-password",resetPassword)
-router.post("/google-signup",googleSignUp)
-router.post("/google-login",googleLogin)
-router.get("/profile", authenticateUser as express.RequestHandler, getProfile)
-router.get("/edit-profile", authenticateUser as express.RequestHandler, getEditProfile)
-router.put("/edit-profile", authenticateUser as express.RequestHandler, updateUserProfileHandler)
+router.post("/signup", UserController.signup);
+router.post("/", UserController.login)
+router.post("/logout", UserController.logout)
+router.post("/send-otp", UserController.sendOtp)
+router.post("/resend-otp",UserController.resendOtp)
+router.post("/verify-otp", UserController.verifyOtp)
+router.post("/reset-password",UserController.resetPassword)
+router.post("/google-signup",UserController.googleSignUp)
+router.post("/google-login",UserController.googleLogin)
+router.get("/profile", authenticateUser as RequestHandler, ProfileController.getProfile)
+router.get("/edit-profile", authenticateUser as RequestHandler, ProfileController.getEditProfile)
+router.put("/edit-profile", authenticateUser as RequestHandler, ProfileController.updateUserProfileHandler)
+
 export default router;
+
