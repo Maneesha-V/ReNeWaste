@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { signupUser, loginUser, logoutUser, sendOtpService, verifyOtpService, resetPasswordService, googleSignUpService, googleSignInService } from "../../../services/user/authService";
+import { signupUser, loginUser, logoutUser, sendOtpService, verifyOtpService, resetPasswordService, googleSignUpService, googleSignInService, resendOtpService } from "../../../services/user/authService";
 import { SignupRequest, LoginRequest, GoogleLoginReq } from "../../../types/authTypes";
 import { auth, googleProvider } from "../../../config/firebase";
 
@@ -59,13 +59,24 @@ export const sendOtp = createAsyncThunk(
   async(email: string, { rejectWithValue }) => {
     try{
       const response = await sendOtpService(email);
-      console.log("res",response);
       return response;
     }catch(error: any){   
       return rejectWithValue(error || "Failed to send OTP.")
     }
   }
 )
+export const resendOtp = createAsyncThunk(
+  "user/resendOtp",
+  async (email: string, { rejectWithValue }) => {
+    try {
+      const response = await resendOtpService(email)
+      console.log("res",response);
+      return response;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.error || "Failed to resend OTP");
+    }
+  }
+);
 export const verifyOtp = createAsyncThunk(
   "user/verifyOtp",
   async({ email, otp }: { email: string; otp: string }, {rejectWithValue}) => {
@@ -166,6 +177,19 @@ const userSlice = createSlice({
       })
       .addCase(sendOtp.rejected, (state, action) => {
         state.loading = false;
+        state.error = action.payload as string;
+      })
+      .addCase(resendOtp.pending, (state) => {
+        // state.loading = true;
+        state.error = null;
+        state.message = null;
+      })
+      .addCase(resendOtp.fulfilled, (state, action) => {
+        // state.loading = false;
+        state.message = action.payload?.message;
+      })
+      .addCase(resendOtp.rejected, (state, action) => {
+        // state.loading = false;
         state.error = action.payload as string;
       })
       .addCase(verifyOtp.pending, (state) => {

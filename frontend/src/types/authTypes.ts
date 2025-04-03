@@ -3,6 +3,7 @@ export interface SignupResponse {
       _id: string;
       firstName: string;
       lastName: string;
+      phone: string;
       email: string;
     };
     token: string;
@@ -21,6 +22,7 @@ export interface SignupResponse {
   export interface SignupRequest {
     firstName: string;
     lastName: string;
+    phone: string;
     email: string;
     password: string;
     agreeToTerms: boolean;
@@ -35,3 +37,12 @@ export interface SignupResponse {
     googleId: string;
     token: string;
   }
+  export type FormErrors = {
+    firstName?: string;
+    lastName?: string;
+    phone?: string;
+    email?: string;
+    password?: string;
+    agreeToTerms?: string;
+  };
+  
