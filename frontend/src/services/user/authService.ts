@@ -40,10 +40,24 @@ export const logoutUser = async () => {
 export const sendOtpService = async (email: string) => {
   try {
     const response = await axios.post(`${API_URL}/send-otp`, {email});
+    console.log("response",response);
     return response.data;     
   } catch (error: any) {
+    console.log("err",error);
+    
     console.error("Error sending OTP:", error.response?.data?.error || error.message);
     throw error.response?.data?.error || "Something went wrong while sending OTP";
+  }
+}
+export const resendOtpService = async (email: string) => {
+  try {
+    const response = await axios.post(`${API_URL}/resend-otp`, {email});
+    console.log("respp",response);
+    
+    return response.data;     
+  } catch (error: any) {
+    console.error("Error resending OTP:", error);
+    throw error.response?.data?.error || "Something went wrong while resending OTP";
   }
 }
 export const verifyOtpService = async (email: string,otp: string) => {
@@ -73,7 +87,6 @@ export const googleSignUpService = async (auth: Auth, googleProvider: GoogleAuth
         email: user.email,
         displayName: user.displayName,
         uid: user.uid,
-        // photoURL: user.photoURL,
       }
     )
     console.log("resppp",response);
