@@ -8,7 +8,7 @@ function App() {
   return (
     <>
       <Router>
-        <ToastContainer position="top-right" autoClose={5000} theme="colored" />
+        <ToastContainer position="top-right" autoClose={3000} theme="colored" />
         <Routes>
           <Route path="/*" element={<UserRoutes />} />
           <Route path="/super-admin/*" element={<SuperAdminRoutes />} />
