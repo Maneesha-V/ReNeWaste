@@ -21,6 +21,13 @@ export class WastePlantRepository implements IWastePlantRepository {
   async findWastePlantByEmail(email: string): Promise<IWastePlant | null> {
     return await WastePlantModel.findOne({ email });
   }
+  async findWastePlantByLicense(licenseNumber: string): Promise<IWastePlant | null> {
+    return await WastePlantModel.findOne({ licenseNumber });
+  }
+
+  async findWastePlantByName(plantName: string): Promise<IWastePlant | null> {
+    return await WastePlantModel.findOne({ plantName });
+  }
 
   async getAllWastePlants(): Promise<IWastePlant[]> {
     return await WastePlantModel.find();

@@ -1,14 +1,19 @@
 import { IWastePlant } from "../../models/wastePlant/interfaces/wastePlantInterface";
 import WastePlantRepository  from "../../repositories/wastePlant/wastePlantRepository";
 import { IWastePlantService } from "./interface/IWastePlantService";
+import { checkForDuplicateWastePlant } from "../../utils/wastePlantDuplicateValidator"
 
 class WastePlantService implements IWastePlantService {
   async addWastePlant(data: IWastePlant): Promise<IWastePlant> {
-    const existingPlant = await WastePlantRepository.findWastePlantByEmail(data.email);
-    if (existingPlant) {
-      throw new Error("A waste plant with this email already exists.");
-    }
-
+    // const existingPlant = await WastePlantRepository.findWastePlantByEmail(data.email);
+    // if (existingPlant) {
+    //   throw new Error("A waste plant with this email already exists.");
+    // }
+    await checkForDuplicateWastePlant({
+      email: data.email,
+      licenseNumber: data.licenseNumber,
+      plantName: data.plantName,
+    });
     return await WastePlantRepository.createWastePlant(data);
   }
 

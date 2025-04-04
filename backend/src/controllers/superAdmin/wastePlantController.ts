@@ -28,6 +28,7 @@ async addWastePlant (req: Request, res: Response): Promise<void> {
       data: newWastePlant,
     });
   } catch (error: any) {
+    console.error("err",error)
     res.status(500).json({ error: error.message || "Failed to create waste plant" });
   }
 };

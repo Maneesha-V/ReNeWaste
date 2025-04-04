@@ -2,7 +2,7 @@ import  { Schema } from "mongoose";
 import { IWastePlantDocument } from "./interfaces/wastePlantInterface";
 
 export const wastePlantSchema: Schema<IWastePlantDocument> = new Schema({
-    plantName: { type: String, required: true },
+    plantName: { type: String, required: true, unique: true },
     ownerName: { type: String, required: true },
     location: { type: String, required: true },
     city: { type: String, required: true },
