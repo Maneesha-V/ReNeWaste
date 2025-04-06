@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import UserRoutes from "./routes/UserRoutes";
 import SuperAdminRoutes from "./routes/SuperAdminRoutes";
+import WastePlantRoutes from "./routes/WastePlantRoutes";
 
 function App() {
 
@@ -12,6 +13,7 @@ function App() {
         <Routes>
           <Route path="/*" element={<UserRoutes />} />
           <Route path="/super-admin/*" element={<SuperAdminRoutes />} />
+          <Route path="/waste-plant/*" element={<WastePlantRoutes />} />
         </Routes>
       </Router>
     </>

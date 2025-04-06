@@ -18,12 +18,6 @@ class UserRepository implements IUserRepository {
     return await UserModel.findOne({ email, googleId }).exec();
   }
 
-  // async findUserById(userId: string) {
-  //   return await UserModel.findById(userId).select("-password");
-  // }
-  // async updateUserProfileById(userId: string, updatedData: IUser) {
-  //   return await UserModel.findByIdAndUpdate(userId, updatedData, { new: true });
-  // }
   async findUserById(userId: string): Promise<IUserDocument | null> {
     return await UserModel.findById(userId).select("-password");
   }

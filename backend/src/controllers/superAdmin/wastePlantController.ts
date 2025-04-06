@@ -49,7 +49,7 @@ async getWastePlantById (req: Request,res: Response): Promise<void> {
   try {
     const { id } = req.params;
     const wastePlant = await WastePlantService.getWastePlantByIdService(id);
-    console.log("data",wastePlant);
+    console.log("wastePlant",wastePlant);
     
     if (!wastePlant) {
       res.status(404).json({ message: "Waste Plant not found" });
@@ -59,6 +59,36 @@ async getWastePlantById (req: Request,res: Response): Promise<void> {
     res.status(200).json({ data: wastePlant });
   } catch (error: any) {
     console.error("Error fetching waste plant:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+}
+async updateWastePlant (req: Request,res: Response): Promise<void> {
+  try {
+    console.log("body",req.body);
+    
+    const { id } = req.params;
+
+    if (!id) {
+      res.status(400).json({ message: "Super Admin ID is required" });
+      return;
+    }
+    const updatedData = req.body;
+    if (req.file) {
+      updatedData.licenseDocumentPath = req.file.path;
+    }
+
+    if (updatedData.capacity) {
+      updatedData.capacity = Number(updatedData.capacity);
+    }
+    const updatedWastePlant = await WastePlantService.updateWastePlantByIdService(id,updatedData);
+    console.log("wastePlant",updatedWastePlant);
+    if (!updatedWastePlant) {
+      res.status(404).json({ message: "Waste plant not found" });
+      return;
+    }
+    res.status(200).json({ message: "Waste Plant updated successfully", wastePlant: updatedWastePlant });
+  } catch (error: any) {
+    console.error("Error updating waste plant:", error);
     res.status(500).json({ message: "Server error" });
   }
 }

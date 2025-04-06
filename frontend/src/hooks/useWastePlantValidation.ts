@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { formatFieldLabel } from "../utils/formatFieldLabel";
-import { ValidationErrors } from "../types/wastePlantTypes"
+import { ValidationErrors } from "../types/wastePlantTypes";
 
 export const useWastePlantValidation = () => {
   const [errors, setErrors] = useState<ValidationErrors>({});
@@ -53,6 +53,12 @@ export const useWastePlantValidation = () => {
         if (!value) error = "Password is required.";
         else if (value.length < 6)
           error = "Password must be at least 6 characters.";
+        break;
+      case "username":
+        if (!value.trim()) error = "Username is required.";
+        else if (!/^[A-Za-z0-9_]+$/.test(value))
+          error =
+            "Username can only contain letters, numbers, and underscores.";
         break;
 
       default:

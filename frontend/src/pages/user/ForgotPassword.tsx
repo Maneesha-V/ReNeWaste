@@ -23,7 +23,6 @@ const ForgotPassword = () => {
   const [resendLoading, setResendLoading] = useState(false);
   const [timer, setTimer] = useState(30); 
   const [canResend, setCanResend] = useState(false);
-  // const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const navigate = useNavigate();
   const dispatch = useAppDispatch();

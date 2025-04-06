@@ -14,7 +14,7 @@ export interface WastePlantFormData {
     password:string;
     licenseDocument?: File;
   }
-
+export type PartialWastePlantFormData = Partial<WastePlantFormData>;
 export interface ValidationErrors {
   [field: string]: string;
 }

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import Header from "../../components/superAdmin/Header";
 import Sidebar from "../../components/superAdmin/Sidebar";
-import MainContent from "../../components/superAdmin/MainContent";
+import MainContent from "../common/MainContent";
 import DashboardContent from "../../pages/superAdmin/DashboardContent";
 import Footer from "../superAdmin/Footer";
 import WastePlants from "../../pages/superAdmin/WastePlants";

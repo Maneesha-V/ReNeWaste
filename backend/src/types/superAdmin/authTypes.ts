@@ -8,3 +8,12 @@ export interface SuperAdminLoginRequest {
     admin: ISuperAdminDocument;
     token: string;
   }
+  export interface SuperAdminSignupRequest {
+    username : string;
+    email: string;
+    password: string;
+  }
+  export interface SuperAdminSignupResponse {
+    admin: ISuperAdminDocument;
+    token: string;
+  }

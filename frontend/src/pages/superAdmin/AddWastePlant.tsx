@@ -34,9 +34,7 @@ const AddWastePlant = () => {
 
   const handleBlur = (e: React.FocusEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    const valid = validateField(name, value);
-    console.log("valid",valid);
-    
+    validateField(name, value);  
   };
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -57,10 +55,8 @@ const AddWastePlant = () => {
     }
   };
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-  
+    e.preventDefault(); 
     const currentErrors: ValidationErrors = {}; 
-
     Object.entries(formData).forEach(([name, value]) => {
       if (name === "licenseDocument") {
         if(!(value instanceof File)){
@@ -72,13 +68,11 @@ const AddWastePlant = () => {
           currentErrors[name as keyof ValidationErrors] = error;
         }
       }
-    });
-    
+    }); 
     if (Object.keys(currentErrors).length > 0) {
       setErrors(currentErrors);
       return;
     }
-  
     const formDataToSend = new FormData();
     Object.entries(formData).forEach(([key, value]) => {
       if (key !== "licenseDocument" && value !== undefined && value !== null) {
@@ -87,17 +81,13 @@ const AddWastePlant = () => {
     });
     if (formData.licenseDocument instanceof File) {
       formDataToSend.append("licenseDocument", formData.licenseDocument);
-    }
-  
+    } 
     try {
       const result = await dispatch(addWastePlant(formDataToSend));
-  
-      // If the payload contains an error, show toast and return
       if (result.payload?.error) {
         toast.error(result.payload.error);
         return;
-      }
-  
+      } 
       toast.success("Waste Plant added successfully!");
       setTimeout(() => {
         navigate("/super-admin/waste-plants");
@@ -106,54 +96,6 @@ const AddWastePlant = () => {
       toast.error("Waste Plant creation failed. Please try again.");
     }
   }
-  
-  // const handleSubmit = async (e: React.FormEvent) => {
-  //   e.preventDefault();
-
-  //   const parsedData = {
-  //     ...formData,
-  //     capacity: Number(formData.capacity),
-  //     licenseDocument: formData.licenseDocument,
-  //   };
-
-  //   const result = wastePlantFormType.safeParse(parsedData);
-
-  //   if (!result.success) {
-  //     const errors = result.error.flatten().fieldErrors;
-
-  //     Object.values(errors).forEach((msg) => {
-  //       if (msg) toast.error(msg[0]);
-  //     });
-
-  //     return;
-  //   }
-  //   const formDataToSend = new FormData();
-  //   Object.entries(parsedData).forEach(([key, value]) => {
-  //     if (key !== "licenseDocument" && value !== undefined && value !== null) {
-  //       formDataToSend.append(key, value.toString());
-  //     }
-  //   });
-  //   if (parsedData.licenseDocument instanceof File) {
-  //     formDataToSend.append("licenseDocument", parsedData.licenseDocument);
-  //   }
-  //   console.log("✅ Parsed Data:", parsedData);
-
-  //   console.log("✅ FormData Contents:");
-  //   for (const pair of formDataToSend.entries()) {
-  //     console.log(`${pair[0]}:`, pair[1]);
-  //   }
-  //   try {
-  //     await dispatch(addWastePlant(formDataToSend));
-  //     toast.success("Waste Plant added successfully!");
-  //     setTimeout(() => {
-  //       navigate("/super-admin/waste-plants");
-  //     }, 2000);
-  //   } catch (error: any) {
-  //     toast.error(
-  //       error.payload || "Waste Plant creation failed. Please try again."
-  //     );
-  //   }
-  // };
 
   return (
     <div className="px-4 py-4">

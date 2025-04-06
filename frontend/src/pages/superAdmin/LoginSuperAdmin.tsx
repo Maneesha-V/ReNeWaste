@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { useAppDispatch } from "../../redux/hooks";
 import { superAdminLogin } from "../../redux/slices/superAdmin/superAdminSlice";
 
-const SuperAdminLogin = () => {
+const LoginSuperAdmin = () => {
   const [formData, setFormData] = useState<LoginRequest>({
     email : "",
     password : "",
@@ -23,8 +23,13 @@ const SuperAdminLogin = () => {
   
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+  if (!formData.email.trim() || !formData.password.trim()) {
+    toast.error("Email and password are required.");
+    return;
+  }
     try {
-      await dispatch(superAdminLogin(formData));
+      await dispatch(superAdminLogin(formData)).unwrap();
       navigate("/super-admin/dashboard")
     } catch(error: any){
       toast.error(error || "Login failed. Please try again.");
@@ -44,7 +49,6 @@ const SuperAdminLogin = () => {
               onChange={handleChange}
               placeholder="Email"
               className="w-full px-4 py-2 border border-green-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
-              required 
             />
           </div>
           <div className="mb-4">
@@ -54,8 +58,8 @@ const SuperAdminLogin = () => {
               value={formData.password}
               onChange={handleChange}
               placeholder="Password"
+              autoComplete="new-password" 
               className="w-full px-4 py-2 border border-green-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
-              required 
             />
           </div>
           <button
@@ -65,9 +69,28 @@ const SuperAdminLogin = () => {
             Login
           </button>
         </form>
+        <div className="mt-4 text-center">
+          <p className="text-sm text-gray-600">
+          <button
+              onClick={() => navigate("/forgot-password")}
+              className="text-green-600 hover:underline focus:outline-none"
+            >
+              Forgot Password?
+            </button>
+          </p>
+          <p className="text-sm text-gray-600 mt-2">
+            Don’t have an account?{" "}
+            <button
+              onClick={() => navigate("/super-admin/signup")}
+              className="text-green-600 font-medium hover:underline focus:outline-none"
+            >
+              Sign Up
+            </button>
+          </p>
+        </div>
       </div>
     </div>
   );
 };
 
-export default SuperAdminLogin;
+export default LoginSuperAdmin;

@@ -37,7 +37,7 @@ const ProfilePage = () => {
       <Breadcrumbs paths = {[{label: "Home", path: "/home"},{label: "Profile"}]} />
 
       {/* Profile Section */}
-      <div className="flex justify-center mt-3 mb-6">
+      <div className="flex justify-center pt-2 pb-6">
         <div className="bg-white rounded-lg shadow-md w-full max-w-2xl p-6">
           <div className="flex justify-between items-center mb-6">
             <h1 className="text-2xl font-bold text-gray-800">Profile</h1>

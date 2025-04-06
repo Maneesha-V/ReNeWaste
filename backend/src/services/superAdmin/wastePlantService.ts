@@ -1,3 +1,4 @@
+import bcrypt from "bcrypt";
 import { IWastePlant } from "../../models/wastePlant/interfaces/wastePlantInterface";
 import WastePlantRepository  from "../../repositories/wastePlant/wastePlantRepository";
 import { IWastePlantService } from "./interface/IWastePlantService";
@@ -5,16 +6,18 @@ import { checkForDuplicateWastePlant } from "../../utils/wastePlantDuplicateVali
 
 class WastePlantService implements IWastePlantService {
   async addWastePlant(data: IWastePlant): Promise<IWastePlant> {
-    // const existingPlant = await WastePlantRepository.findWastePlantByEmail(data.email);
-    // if (existingPlant) {
-    //   throw new Error("A waste plant with this email already exists.");
-    // }
     await checkForDuplicateWastePlant({
       email: data.email,
       licenseNumber: data.licenseNumber,
       plantName: data.plantName,
     });
-    return await WastePlantRepository.createWastePlant(data);
+     const salt = await bcrypt.genSalt(10);
+     const hashedPassword = await bcrypt.hash(data.password, salt);
+      const newData: IWastePlant = {
+        ...data,
+        password: hashedPassword
+      };
+    return await WastePlantRepository.createWastePlant(newData);
   }
 
   async getAllWastePlants(): Promise<IWastePlant[]> {
@@ -25,6 +28,13 @@ class WastePlantService implements IWastePlantService {
       return await WastePlantRepository.getWastePlantById(id);
     } catch (error) {
       throw new Error("Error fetching waste plant from service");
+    }
+  }
+  async updateWastePlantByIdService(id: string, data: any): Promise<IWastePlant | null> {
+    try {
+      return await WastePlantRepository.updateWastePlantById(id, data);
+    } catch (error) {
+      throw new Error("Error updating waste plant in service");
     }
   }
 }

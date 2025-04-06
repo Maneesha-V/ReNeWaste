@@ -2,6 +2,8 @@ import { MenuFoldOutlined, MenuUnfoldOutlined, LogoutOutlined } from '@ant-desig
 import NotificationBadge from '../common/NotificationBadge';
 import { useNavigate } from 'react-router-dom';
 import { Button, Dropdown, Menu } from 'antd';
+import { useAppDispatch } from '../../redux/hooks';
+import { superAdminLogout } from '../../redux/slices/superAdmin/superAdminSlice';
 
 type HeaderProps = {
   collapsed: boolean;
@@ -10,10 +12,10 @@ type HeaderProps = {
 
 const Header = ({ collapsed, toggleCollapse }: HeaderProps) => {
   const navigate = useNavigate();
+  const dispatch = useAppDispatch()
 
-  const handleLogout = () => {
-
-    localStorage.removeItem('authToken'); 
+  const handleLogout = async () => {
+    await dispatch(superAdminLogout());
     navigate('/super-admin'); 
   };
 

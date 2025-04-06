@@ -27,7 +27,11 @@ export interface SignupResponse {
     password: string;
     agreeToTerms: boolean;
   }
-  
+  export interface SignupSuperAdminRequest {
+    username: string;
+    email: string;
+    password: string;
+  }
   export interface LoginRequest {
     email: string;
     password: string;

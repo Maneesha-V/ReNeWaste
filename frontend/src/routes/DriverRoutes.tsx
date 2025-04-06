@@ -1,7 +1,10 @@
+import { Route, Routes } from "react-router-dom"
 
 const DriverRoutes = () => {
   return (
-    <div>DriverRoutes</div>
+    <Routes>
+      <Route path="/driver" />
+    </Routes>
   )
 }
 
