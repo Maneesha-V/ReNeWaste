@@ -6,6 +6,7 @@ import WastePlants from "../pages/superAdmin/WastePlants"
 import AddWastePlant from "../pages/superAdmin/AddWastePlant"
 import SignupSuperAdmin from "../pages/superAdmin/SignupSuperAdmin"
 import EditWastePlant from "../pages/superAdmin/EditWastePlant"
+import ForgotPassword from "../pages/superAdmin/ForgotPassword"
 
 
 const SuperAdminRoutes = () => {
@@ -13,6 +14,7 @@ const SuperAdminRoutes = () => {
     <Routes>
       <Route path="/" element={<LoginSuperAdmin />} />
       <Route path="/signup" element={<SignupSuperAdmin />} />
+      <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route element={<SuperAdminLayout />}>
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/waste-plants" element={<WastePlants />} />

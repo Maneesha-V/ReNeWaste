@@ -6,7 +6,11 @@ import {
 import {
   loginSuperAdmin,
   logoutSuperAdmin,
+  resendOtpService,
+  resetPasswordService,
+  sendOtpService,
   signupSuperAdmin,
+  verifyOtpService,
 } from "../../../services/superAdmin/authService";
 
 interface SuperAdminState {
@@ -64,6 +68,63 @@ export const superAdminLogout = createAsyncThunk(
     }
   }
 );
+export const sendOtp = createAsyncThunk(
+  "superadmin/sendOtp",
+  async (email: string, { rejectWithValue }) => {
+    try {
+      const response = await sendOtpService(email);
+      return response;
+    } catch (error: any) {
+      return rejectWithValue(error || "Failed to send OTP.");
+    }
+  }
+);
+export const resendOtp = createAsyncThunk(
+  "superadmin/resendOtp",
+  async (email: string, { rejectWithValue }) => {
+    try {
+      const response = await resendOtpService(email);
+      console.log("res", response);
+      return response;
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data?.error || "Failed to resend OTP"
+      );
+    }
+  }
+);
+export const verifyOtp = createAsyncThunk(
+  "superadmin/verifyOtp",
+  async (
+    { email, otp }: { email: string; otp: string },
+    { rejectWithValue }
+  ) => {
+    try {
+      const response = await verifyOtpService(email, otp);
+      return response;
+    } catch (error: any) {
+      console.log("OTP verification error:", error);
+      return rejectWithValue(error.message || "OTP verification failed");
+    }
+  }
+);
+export const resetPassword = createAsyncThunk(
+  "superadmin/resetPassword",
+  async (
+    { email, password }: { email: string; password: string },
+    { rejectWithValue }
+  ) => {
+    try {
+      const response = await resetPasswordService(email, password);
+      return response;
+    } catch (error: any) {
+      console.log("Reset password error:", error);
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to reset password"
+      );
+    }
+  }
+);
 
 const superAdminSlice = createSlice({
   name: "superadmin",
@@ -101,6 +162,55 @@ const superAdminSlice = createSlice({
         state.error = null;
       })
       .addCase(superAdminLogout.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      })
+      .addCase(sendOtp.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+        state.message = null;
+      })
+      .addCase(sendOtp.fulfilled, (state, action) => {
+        state.loading = false;
+        state.message = action.payload?.message;
+      })
+      .addCase(sendOtp.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      })
+      .addCase(resendOtp.pending, (state) => {
+        state.error = null;
+        state.message = null;
+      })
+      .addCase(resendOtp.fulfilled, (state, action) => {
+        state.message = action.payload?.message;
+      })
+      .addCase(resendOtp.rejected, (state, action) => {
+        state.error = action.payload as string;
+      })
+      .addCase(verifyOtp.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(verifyOtp.fulfilled, (state, action) => {
+        state.loading = false;
+        state.message = action.payload?.message;
+        state.error = null;
+      })
+      .addCase(verifyOtp.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      })
+      .addCase(resetPassword.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+        state.message = null;
+      })
+      .addCase(resetPassword.fulfilled, (state, action) => {
+        state.loading = false;
+        state.message = action.payload?.message;
+      })
+      .addCase(resetPassword.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
       });

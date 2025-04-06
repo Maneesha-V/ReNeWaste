@@ -37,46 +37,44 @@ class AuthService implements IAuthService {
     );
     return { message: "OTP sent successfully", otp };
   }
-    async resendOtpService(email: string) {
-      const wastePlant = await WastePlantRepository.findWastePlantByEmail(email);
-      if (!wastePlant) {
-        throw new Error("User not found.");
-      }
-      const otp = generateOtp();
-      console.log(`Resend OTP for ${email}:`, otp);
-      await WastePlantRepository.reSaveOtp(email, otp);
-      await sendEmail(
-        email,
-        "Your Resend OTP Code",
-        `Your Resend OTP code is: ${otp}. It will expire in 30s.`
-      );
-      return { message: "Resend OTP sent successfully", otp };
+  async resendOtpService(email: string) {
+    const wastePlant = await WastePlantRepository.findWastePlantByEmail(email);
+    if (!wastePlant) {
+      throw new Error("User not found.");
     }
-  
-    async verifyOtpService(email: string, otp: string): Promise<boolean> {
-      const storedOtp = await WastePlantRepository.findOtpByEmail(email);
-      if (!storedOtp || storedOtp.otp !== otp) return false;
-      const createdAt = storedOtp.createdAt;
-      if (!createdAt) {
-        throw new Error("OTP creation date is missing.");
-      }
-      const otpAge =
-        (new Date().getTime() - new Date(createdAt).getTime()) / 1000;
-      if (otpAge > 30) {
-        return false;
-      }
-      await WastePlantRepository.deleteOtp(email);
-      return true;
+    const otp = generateOtp();
+    console.log(`Resend OTP for ${email}:`, otp);
+    await WastePlantRepository.reSaveOtp(email, otp);
+    await sendEmail(
+      email,
+      "Your Resend OTP Code",
+      `Your Resend OTP code is: ${otp}. It will expire in 30s.`
+    );
+    return { message: "Resend OTP sent successfully", otp };
+  }
+  async verifyOtpService(email: string, otp: string): Promise<boolean> {
+    const storedOtp = await WastePlantRepository.findOtpByEmail(email);
+    if (!storedOtp || storedOtp.otp !== otp) return false;
+    const createdAt = storedOtp.createdAt;
+    if (!createdAt) {
+      throw new Error("OTP creation date is missing.");
     }
-  
-    async resetPasswordService(
-      email: string,
-      newPassword: string
-    ): Promise<void> {
-      const wastePlant = await WastePlantRepository.findWastePlantByEmail(email);
-      if (!wastePlant) throw new Error("User not found");
-      const hashedPassword = await bcrypt.hash(newPassword, 10);
-      await WastePlantRepository.updateWastePlantPassword(email, hashedPassword);
+    const otpAge =
+      (new Date().getTime() - new Date(createdAt).getTime()) / 1000;
+    if (otpAge > 30) {
+      return false;
     }
+    await WastePlantRepository.deleteOtp(email);
+    return true;
+  }
+  async resetPasswordService(
+    email: string,
+    newPassword: string
+  ): Promise<void> {
+    const wastePlant = await WastePlantRepository.findWastePlantByEmail(email);
+    if (!wastePlant) throw new Error("User not found");
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    await WastePlantRepository.updateWastePlantPassword(email, hashedPassword);
+  }
 }
 export default new AuthService();

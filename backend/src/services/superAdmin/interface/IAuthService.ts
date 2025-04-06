@@ -3,5 +3,8 @@ import { SuperAdminLoginRequest, SuperAdminLoginResponse, SuperAdminSignupReques
 export interface ISuperAdminAuthService {
     adminLoginService(data: SuperAdminLoginRequest): Promise<SuperAdminLoginResponse>;
     adminSignupService(data: SuperAdminSignupRequest): Promise<SuperAdminSignupResponse>;
-    
+    sendOtpService(email: string): Promise<{ message: string; otp: string }>;
+    resendOtpService(email: string): Promise<{ message: string; otp: string }>;
+    verifyOtpService(email: string, otp: string): Promise<boolean>;
+    resetPasswordService(email: string, newPassword: string): Promise<void>;
 }

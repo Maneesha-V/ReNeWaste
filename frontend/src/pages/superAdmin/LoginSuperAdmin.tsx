@@ -72,7 +72,7 @@ const LoginSuperAdmin = () => {
         <div className="mt-4 text-center">
           <p className="text-sm text-gray-600">
           <button
-              onClick={() => navigate("/forgot-password")}
+              onClick={() => navigate("/super-admin/forgot-password")}
               className="text-green-600 hover:underline focus:outline-none"
             >
               Forgot Password?
