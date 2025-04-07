@@ -3,6 +3,7 @@ import { ToastContainer } from "react-toastify";
 import UserRoutes from "./routes/UserRoutes";
 import SuperAdminRoutes from "./routes/SuperAdminRoutes";
 import WastePlantRoutes from "./routes/WastePlantRoutes";
+import DriverRoutes from "./routes/DriverRoutes";
 
 function App() {
 
@@ -14,6 +15,7 @@ function App() {
           <Route path="/*" element={<UserRoutes />} />
           <Route path="/super-admin/*" element={<SuperAdminRoutes />} />
           <Route path="/waste-plant/*" element={<WastePlantRoutes />} />
+          <Route path="/driver/*" element={<DriverRoutes />} />
         </Routes>
       </Router>
     </>
