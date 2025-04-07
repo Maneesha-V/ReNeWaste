@@ -1,6 +1,6 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { LoginRequest } from "../../../types/authTypes";
-import { loginDriver, resendOtpService, resetPasswordService, sendOtpService, verifyOtpService } from "../../../services/driver/authService";
+import { loginDriver, logoutDriver, resendOtpService, resetPasswordService, sendOtpService, verifyOtpService } from "../../../services/driver/authService";
 
 interface DriverState {
   driver: any;
@@ -29,6 +29,18 @@ export const driverLogin = createAsyncThunk(
     } catch (error: any) {
       console.error("err", error);
       return rejectWithValue(error);
+    }
+  }
+);
+export const driverLogout = createAsyncThunk(
+  "driver/logout",
+  async (_, { rejectWithValue }) => {
+    try {
+      await logoutDriver();
+      localStorage.removeItem("token");
+      return null;
+    } catch (error: any) {
+      return rejectWithValue("Logout failed. Please try again.");
     }
   }
 );
@@ -107,15 +119,15 @@ const driverSlice = createSlice({
         state.loading = false;
         state.error = action.payload as string;
       })
-    //   .addCase(wastePlantLogout.fulfilled, (state) => {
-    //     state.wasteplant = null;
-    //     state.loading = false;
-    //     state.error = null;
-    //   })
-    //   .addCase(wastePlantLogout.rejected, (state, action) => {
-    //     state.loading = false;
-    //     state.error = action.payload as string;
-    //   })
+      .addCase(driverLogout.fulfilled, (state) => {
+        state.driver = null;
+        state.loading = false;
+        state.error = null;
+      })
+      .addCase(driverLogout.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      })
       .addCase(sendOtp.pending, (state) => {
         state.loading = true;
         state.error = null;

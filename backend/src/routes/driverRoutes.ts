@@ -5,7 +5,7 @@ import { authenticateSuperAdmin } from "../middlewares/authMiddware";
 const router = express.Router()
 
 router.post("/",AuthController.driverLogin)
-// router.post("/logout",AuthController.wastePlantLogout)
+router.post("/logout",AuthController.driverLogout)
 router.post("/send-otp", AuthController.sendOtp)
 router.post("/resend-otp",AuthController.resendOtp)
 router.post("/verify-otp", AuthController.verifyOtp)

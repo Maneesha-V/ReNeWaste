@@ -20,6 +20,19 @@ export const loginDriver = async (driverData: LoginRequest) => {
     throw error.response?.data?.error || "Login failed. Please try again.";
   }
 };
+export const logoutDriver = async () => {
+  try {
+    const response = await axios.post(
+      `${API_URL}/logout`,
+      {},
+      { withCredentials: true }
+    );
+    return response.data;
+  } catch (error: any) {
+    console.error("err",error)
+    throw error.response?.data?.error || "Login failed. Please try again.";
+  }
+};
 export const sendOtpService = async (email: string) => {
   try {
     const response = await axios.post(`${API_URL}/send-otp`, { email });
