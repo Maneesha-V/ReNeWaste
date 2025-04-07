@@ -114,7 +114,7 @@ class SuperAdminAuthService implements ISuperAdminAuthService {
     newPassword: string
   ): Promise<void> {
     const superAdmin = await SuperAdminRepository.findAdminByEmail(email);
-    if (!superAdmin) throw new Error("User not found");
+    if (!superAdmin) throw new Error("Superadmin not found");
     const hashedPassword = await bcrypt.hash(newPassword, 10);
     await SuperAdminRepository.updateAdminPassword(email, hashedPassword);
   }
