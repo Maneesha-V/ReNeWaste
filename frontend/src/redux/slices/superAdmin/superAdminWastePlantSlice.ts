@@ -1,6 +1,5 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { createWastePlant, getWastePlantById, getWastePlants, updateWastePlantById } from "../../../services/superAdmin/wastePlantService" 
-import { WastePlantFormData } from "../../../types/wastePlantTypes";
 
 interface WastePlantState {
   wastePlant: any; 

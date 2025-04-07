@@ -1,5 +1,4 @@
 import axios from "axios";
-import { WastePlantFormData } from "../../utils/addWastePlantValidator";
 
 const API_URL = import.meta.env.VITE_SUPER_ADMIN_API_URL;
 

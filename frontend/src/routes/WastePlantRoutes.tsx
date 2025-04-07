@@ -4,7 +4,8 @@ import DashboardWastePlant from "../pages/wastePlant/DashboardWastePlant"
 import Pickups from "../pages/wastePlant/Pickups"
 import LoginWastePlant from "../pages/wastePlant/LoginWastePlant"
 import ForgotPassword from "../pages/wastePlant/ForgotPassword"
-
+import Drivers from "../pages/wastePlant/Drivers"
+import AddDriver from "../pages/wastePlant/AddDriver"
 
 const WastePlantRoutes = () => {
   return (
@@ -14,6 +15,8 @@ const WastePlantRoutes = () => {
       <Route element={<WastePlantLayout />}>
         <Route path="/dashboard" element={<DashboardWastePlant />} />
         <Route path="/pickups" element={<Pickups />} />
+        <Route path="/drivers" element={<Drivers />} />
+        <Route path="/add-driver" element={<AddDriver />} />
       </Route>    
     </Routes>
   )

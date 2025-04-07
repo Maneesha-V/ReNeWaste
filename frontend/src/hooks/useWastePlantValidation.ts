@@ -16,6 +16,7 @@ export const useWastePlantValidation = () => {
       case "city":
       case "state":
       case "contactInfo":
+      case "name":
         if (!value.trim()) error = `${label} is required.`;
         else if (!/^[A-Za-z\s]+$/.test(value))
           error = `${label} must contain only letters.`;
@@ -30,6 +31,7 @@ export const useWastePlantValidation = () => {
         break;
 
       case "contactNo":
+      case "contact":
         if (!value.trim()) error = "Contact Number is required.";
         else if (!/^\d{10}$/.test(value))
           error = "Contact Number must be 10 digits.";
@@ -40,6 +42,7 @@ export const useWastePlantValidation = () => {
         break;
 
       case "capacity":
+      case "experience":
         if (!value) error = `${label} is required.`;
         else if (isNaN(value) || value <= 0)
           error = `${label} must be a positive number.`;
