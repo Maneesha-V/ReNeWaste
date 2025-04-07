@@ -1,9 +1,5 @@
+const DashboardWastePlant = () => {
+  return <div>DashboardContent</div>;
+};
 
-
-const DashboardWastePlant  = () => {
-  return (
-    <div>DashboardContent</div>
-  )
-}
-
-export default DashboardWastePlant 
+export default DashboardWastePlant;
