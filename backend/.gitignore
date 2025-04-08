@@ -4,3 +4,9 @@
 .env.development
 .env.production
 .env.test
+
+# Ignore node_modules
+node_modules/
+
+# Ignore public folder
+public/

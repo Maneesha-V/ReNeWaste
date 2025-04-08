@@ -3,6 +3,7 @@ import connectDB from "./config/db";
 import cors from "cors";
 import dotenv from "dotenv";
 import bodyParser from "body-parser";
+import morgan from "morgan";
 import userRoutes from "./routes/userRoutes";
 import superAdminRoutes from "./routes/superAdminRoutes";
 import wastePlantRoutes from "./routes/wastePlantRoutes";
@@ -18,6 +19,8 @@ app.use(cors({
   origin: "http://localhost:5173", 
   credentials: true, 
 })); 
+
+app.use(morgan("dev"));
 
 connectDB();
 
