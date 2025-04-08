@@ -51,6 +51,62 @@ async fetchDrivers (req: Request,res: Response): Promise<void> {
     res.status(500).json({ message: "Error fetching drivers.", error });
   }
 }
+async getDriverById (req: Request,res: Response): Promise<void> {
+  try {
+    console.log(req.params);
+    
+    const { driverId } = req.params;
+    const driver = await DriverService.getDriverByIdService(driverId);
+    console.log("driver",driver);
+    
+    if (!driver) {
+      res.status(404).json({ message: "Driver not found" });
+      return;
+    }
 
+    res.status(200).json({ data: driver });
+  } catch (error: any) {
+    console.error("Error fetching Driver:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+}
+async updateDriver (req: Request,res: Response): Promise<void> {
+  try {
+    console.log("body",req.body);
+    
+    const { driverId } = req.params;
+    const { files } = req as any;
+    if (!driverId) {
+      res.status(400).json({ message: "Driver ID is required" });
+      return;
+    }
+    const updatedData = req.body;
+    if (files?.licenseFront) {
+      updatedData.licenseFront = files.licenseFront[0].path;
+    }
+
+    if (files?.licenseBack) {
+      updatedData.licenseBack = files.licenseBack[0].path;
+    }
+
+    if (updatedData.experience) {
+      updatedData.experience = Number(updatedData.experience);
+    }
+    const updatedDriver = await DriverService.updateDriverByIdService(driverId, updatedData);
+
+    if (!updatedDriver) {
+      res.status(404).json({ message: "Driver not found" });
+      return;
+    }
+    res.status(200).json({
+      success: true,
+      message: "Driver updated successfully",
+      data: updatedDriver,
+    });
+  } catch (error: any) {
+    console.error("Error updating driver:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+}
 }
 export default new DriverController();

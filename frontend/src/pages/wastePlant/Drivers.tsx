@@ -22,9 +22,9 @@ const Drivers: React.FC = () => {
     dispatch(fetchDrivers());
   }, [dispatch, token]);
 
-  const handleEdit = async (id: string) => {
+  const handleEdit = async (driverId: string) => {
     try {
-      navigate(`/waste-plant/edit-driver/${id}`);
+      navigate(`/waste-plant/edit-driver/${driverId}`);
     } catch (error) {
       console.error(error);
     }

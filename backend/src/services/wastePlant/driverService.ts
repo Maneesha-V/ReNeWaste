@@ -26,5 +26,22 @@ class DriverService implements IDriverService {
   async getAllDrivers(): Promise<IDriver[]> {
     return await DriverRepository.getAllDrivers();
   }
+  async getDriverByIdService(driverId: string): Promise<IDriver | null> {
+    try {
+      return await DriverRepository.getDriverById(driverId);
+    } catch (error) {
+      throw new Error("Error fetching driver from service");
+    }
+  }
+  async updateDriverByIdService(
+    driverId: string,
+    data: any
+  ): Promise<IDriver | null> {
+    try {
+      return await DriverRepository.updateDriverById(driverId, data);
+    } catch (error) {
+      throw new Error("Error updating driver in service");
+    }
+  }
 }
 export default new DriverService();

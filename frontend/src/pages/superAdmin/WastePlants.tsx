@@ -25,7 +25,7 @@ const WastePlants: React.FC = () => {
     try {
       navigate(`/super-admin/edit-waste-plant/${id}`)
     } catch(error: any){
-
+      console.error(error);
     }
   }
   const handleDelete = async () => {

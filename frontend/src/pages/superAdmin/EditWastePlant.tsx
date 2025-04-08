@@ -35,7 +35,7 @@ const EditWastePlant = () => {
       // setFormData(wastePlant);
       setFormData({
         ...wastePlant,
-        licenseDocument: undefined, // don't pre-fill file
+        licenseDocument: undefined, 
       });
     }
   }, [wastePlant]);
@@ -98,9 +98,6 @@ const EditWastePlant = () => {
       const result = await dispatch(
         updateWastePlant({ id, data: formDataToSend })
       );
-      console.log("Dispatch result:", result);
-console.log("Meta:", result.meta);
-console.log("Type:", result.type);
       if (result.payload?.error) {
         toast.error(result.payload.error);
         return;

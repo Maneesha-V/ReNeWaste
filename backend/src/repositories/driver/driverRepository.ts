@@ -35,5 +35,14 @@ class DriverRepository implements IDriverRepository {
       { new: true, runValidators: false }
     );
   }
+    async getDriverById(driverId: string) {
+      return await DriverModel.findById(driverId);
+    }
+   async updateDriverById(
+      driverId: string,
+      data: any
+    ): Promise<IDriver | null> {
+      return await DriverModel.findByIdAndUpdate(driverId, data, { new: true });
+    }
 }
 export default new DriverRepository();

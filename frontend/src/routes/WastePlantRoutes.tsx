@@ -6,6 +6,7 @@ import LoginWastePlant from "../pages/wastePlant/LoginWastePlant"
 import ForgotPassword from "../pages/wastePlant/ForgotPassword"
 import Drivers from "../pages/wastePlant/Drivers"
 import AddDriver from "../pages/wastePlant/AddDriver"
+import EditDriver from "../pages/wastePlant/EditDriver"
 
 const WastePlantRoutes = () => {
   return (
@@ -17,6 +18,7 @@ const WastePlantRoutes = () => {
         <Route path="/pickups" element={<Pickups />} />
         <Route path="/drivers" element={<Drivers />} />
         <Route path="/add-driver" element={<AddDriver />} />
+        <Route path="/edit-driver/:driverId" element={<EditDriver />} />
       </Route>    
     </Routes>
   )

@@ -12,7 +12,7 @@ const validateString = (value: string, fieldName: string): string[] => {
     else if (!/^[A-Za-z\s]+$/.test(value)) {
       errors.push(`${fieldName} must contain only letters.`);
     }
-    else if (value.length < 5) {
+    else if (value.length < 3) {
         errors.push(`${fieldName} must be at least 5 characters.`);
       }
   return errors;

@@ -71,7 +71,7 @@ const ProfilePage = () => {
               <span className="w-32 font-medium text-gray-700">Address:</span>
               <span className="text-gray-900">
                 {user.addresses?.[0]
-                  ? `${user.addresses[0].addressLine1}, ${user.addresses[0].addressLine2}, ${user.addresses[0].location}, ${user.addresses[0].state}, ${user.addresses[0].pincode}, ${user.addresses[0].district}`
+                  ? `${user.addresses[0].addressLine1}, ${user.addresses[0].addressLine2}, ${user.addresses[0].location}, ${user.addresses[0].district}, ${user.addresses[0].state}, ${user.addresses[0].pincode}`
                   : "No address available"}
               </span>
             </div>
