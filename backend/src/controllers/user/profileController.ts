@@ -1,10 +1,10 @@
 import { Request, Response } from "express";
-import { CustomRequest } from "../../types/user/profileTypes";
+import { ProfileRequest } from "../../types/user/profileTypes";
 import ProfileService from "../../services/user/profileService";
 import { IProfileController } from "./interface/IProfileController";
 
 class ProfileController implements IProfileController {
-  async getProfile(req: CustomRequest, res: Response): Promise<void> {
+  async getProfile(req: ProfileRequest, res: Response): Promise<void> {
     try {
       const userId = req.user?.id; 
       if (!userId) {
@@ -18,7 +18,7 @@ class ProfileController implements IProfileController {
     }
   }
 
-  async getEditProfile(req: CustomRequest, res: Response): Promise<void> {
+  async getEditProfile(req: ProfileRequest, res: Response): Promise<void> {
     try {
       const userId = req.user?.id; 
       if (!userId) {
@@ -32,7 +32,7 @@ class ProfileController implements IProfileController {
     }
   }
 
-  async updateUserProfileHandler(req: CustomRequest, res: Response): Promise<void> {
+  async updateUserProfileHandler(req: ProfileRequest, res: Response): Promise<void> {
     try {
       const userId = req.user?.id;
       if (!userId) {

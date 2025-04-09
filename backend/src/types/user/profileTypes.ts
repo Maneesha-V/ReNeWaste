@@ -1,5 +1,5 @@
 import { Request } from "express";
 
-export interface CustomRequest extends Request {
+export interface ProfileRequest extends Request {
     user?: { id: string };
   }

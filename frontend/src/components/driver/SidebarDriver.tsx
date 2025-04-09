@@ -1,4 +1,4 @@
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 import {
   DashboardOutlined,
   CarOutlined,
@@ -8,6 +8,7 @@ import {
   BarChartOutlined,
 } from '@ant-design/icons';
 import { ReactNode } from 'react';
+import { FaUserCircle } from 'react-icons/fa';
 
 type SidebarProps = {
   collapsed: boolean;
@@ -15,6 +16,7 @@ type SidebarProps = {
 };
 
 const SidebarDriver = ({ collapsed }: SidebarProps) => {
+  const navigate  = useNavigate();
   const menuItems = [
     { key: 'dashboard', icon: <DashboardOutlined />, label: 'Dashboard', path: '/driver/dashboard' },
     { key: 'pickups', icon: <InboxOutlined />, label: 'Pickups', path: '/driver/pickups' },
@@ -24,12 +26,24 @@ const SidebarDriver = ({ collapsed }: SidebarProps) => {
     { key: 'stats', icon: <BarChartOutlined />, label: 'Stats', path: '/driver/stats' },
   ];
 
+  const handleNavigation = (path: string) => {
+    navigate(path); 
+  };
+
   return (
     <aside className={`bg-gray-800 text-white transition-all duration-300 ease-in-out ${collapsed ? 'w-20' : 'w-64'}`}>
-      <div className="h-16 flex items-center justify-center border-b border-green-700">
-        <h2 className={`text-white font-semibold ${collapsed ? 'text-lg' : 'text-xl'}`}>
-          {collapsed ? 'DR' : 'Driver'}
-        </h2>
+      <div className="h-16 flex items-center justify-start border-b border-green-700 px-3">
+      <button onClick={() => handleNavigation('/driver/profile')}>
+          <FaUserCircle className="w-8 h-8 cursor-pointer hover:text-green-600" />
+        </button>
+
+        {!collapsed && (
+          <h2 className="text-white font-semibold text-xl ml-3">Driver</h2>
+        )}
+
+        {collapsed && (
+          <h2 className="text-white font-semibold text-lg ml-2">DR</h2>
+        )}
       </div>
       <nav className="p-2">
         <ul className="space-y-1">

@@ -5,6 +5,7 @@ import superAdminWastePlantReducer from "../redux/slices/superAdmin/superAdminWa
 import wasteplantReducer from "../redux/slices/wastePlant/wastePlantSlice";
 import wastePlantDriverReducer from "../redux/slices/wastePlant/wastePlantDriverSlice";
 import driverReducer from "../redux/slices/driver/driverSlice";
+import driverProfileReducer from "../redux/slices/driver/profileDriverSlice";
 
 export const store = configureStore({
     reducer : {
@@ -13,7 +14,8 @@ export const store = configureStore({
         superAdminWastePlant: superAdminWastePlantReducer,
         wasteplant: wasteplantReducer,
         wastePlantDriver: wastePlantDriverReducer,
-        driver: driverReducer
+        driver: driverReducer,
+        driverProfile: driverProfileReducer
     }
 })
 

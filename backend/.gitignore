@@ -4,6 +4,7 @@
 .env.development
 .env.production
 .env.test
+.package-lock.json
 
 # Ignore node_modules
 node_modules/

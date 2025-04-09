@@ -13,3 +13,8 @@ export type PartialDriverFormData = Partial<DriverFormData>;
 export interface ValidationErrors {
   [field: string]: string;
 }
+
+export interface UpdateDriverArgs {
+  data: FormData;
+  token: string;
+}

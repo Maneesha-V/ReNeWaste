@@ -5,7 +5,7 @@ import { getProfile } from "../../services/user/profileService";
 import { toast } from "react-toastify";
 import Header from "../../components/user/Header";
 import Footer from "../../components/user/Footer";
-import Breadcrumbs from "../../components/common/BreadCrumbs";
+import Breadcrumbs from "../../components/common/Breadcrumbs";
 
 const ProfilePage = () => {
   const navigate = useNavigate();
