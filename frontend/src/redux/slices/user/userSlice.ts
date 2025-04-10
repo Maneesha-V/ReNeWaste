@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { signupUser, loginUser, logoutUser, sendOtpService, verifyOtpService, resetPasswordService, googleSignUpService, googleSignInService, resendOtpService } from "../../../services/user/authService";
+import { signupUser, loginUser, logoutUser, sendOtpService, verifyOtpService, resetPasswordService, googleSignUpService, googleSignInService, resendOtpService, sendOtpSignupService, resendOtpSignupService, verifyOtpSignupService } from "../../../services/user/authService";
 import { SignupRequest, LoginRequest, GoogleLoginReq } from "../../../types/authTypes";
 import { auth, googleProvider } from "../../../config/firebase";
 
@@ -54,7 +54,41 @@ export const logout = createAsyncThunk(
     return rejectWithValue("Logout failed. Please try again.");
   }
 });
-
+export const sendOtpSignup = createAsyncThunk(
+  "user/sendOtpSignup",
+  async(email: string, { rejectWithValue }) => {
+    try{
+      const response = await sendOtpSignupService(email);
+      return response;
+    }catch(error: any){   
+      return rejectWithValue(error || "Failed to send OTP.")
+    }
+  }
+)
+export const resendOtpSignup = createAsyncThunk(
+  "user/resendOtpSignup",
+  async (email: string, { rejectWithValue }) => {
+    try {
+      const response = await resendOtpSignupService(email)
+      console.log("res",response);
+      return response;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.error || "Failed to resend OTP");
+    }
+  }
+);
+export const verifyOtpSignup = createAsyncThunk(
+  "user/verifyOtpSignup",
+  async({ email, otp }: { email: string; otp: string }, {rejectWithValue}) => {
+    try{
+      const response = await verifyOtpSignupService(email,otp)
+      return response;
+    }catch(error: any){
+      console.log("OTP verification error:", error);  
+      return rejectWithValue(error.message || "OTP verification failed")
+    }
+  }
+)
 export const sendOtp = createAsyncThunk(
   "user/sendOtp",
   async(email: string, { rejectWithValue }) => {
@@ -164,6 +198,45 @@ const userSlice = createSlice({
         state.error = null;
       })
       .addCase(logout.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      })
+      .addCase(sendOtpSignup.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+        state.message = null;
+      })
+      .addCase(sendOtpSignup.fulfilled, (state, action) => {
+        state.loading = false;
+        state.message = action.payload?.message;
+      })
+      .addCase(sendOtpSignup.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      })
+      .addCase(resendOtpSignup.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+        state.message = null;
+      })
+      .addCase(resendOtpSignup.fulfilled, (state, action) => {
+        state.loading = false;
+        state.message = action.payload?.message;
+      })
+      .addCase(resendOtpSignup.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      })
+      .addCase(verifyOtpSignup.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(verifyOtpSignup.fulfilled, (state, action) => {
+        state.loading = false;
+        state.message = action.payload?.message;
+        state.error = null;
+      })
+      .addCase(verifyOtpSignup.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
       })

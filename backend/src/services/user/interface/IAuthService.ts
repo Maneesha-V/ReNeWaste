@@ -4,6 +4,9 @@ import { SignupResponse, LoginRequest, LoginResponse, GoogleLoginReq, GoogleLogi
 export interface IAuthService {
   signupUser(userData: IUser): Promise<SignupResponse>;
   loginUser(loginData: LoginRequest): Promise<LoginResponse>;
+  sendOtpSignupService(email: string): Promise<{ message: string; otp: string }>;
+  resendOtpSignupService(email: string): Promise<{ message: string; otp: string }>;
+  verifyOtpSignupService(email: string, otp: string): Promise<boolean>;
   sendOtpService(email: string): Promise<{ message: string; otp: string }>;
   resendOtpService(email: string): Promise<{ message: string; otp: string }>;
   verifyOtpService(email: string, otp: string): Promise<boolean>;

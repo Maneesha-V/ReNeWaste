@@ -7,11 +7,12 @@ import EditProfile from "../pages/user/EditProfile"
 import NotFoundPage from "../pages/user/NotFoundPage"
 import ProtectedRoute from "../components/user/ProtectedRoute"
 import ForgotPassword from "../pages/user/ForgotPassword"
+import OtpVerificationWrapper from "../components/user/OtpVerificationWrapper"
 
 const UserRoutes = () => {
   return (
     <Routes>
-        <Route path="/signup" element={<Signup />} />
+        <Route path="/signup" element={<OtpVerificationWrapper  />} />
           <Route path="/" element={<Login />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route element={<ProtectedRoute />}>

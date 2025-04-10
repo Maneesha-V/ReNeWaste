@@ -2,13 +2,13 @@ import { useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import GoogleSignUpButton from "../../components/user/GoogleSignUpButton";
-import { signup } from "../../redux/slices/user/userSlice";
+import { sendOtpSignup } from "../../redux/slices/user/userSlice";
 import { useAppDispatch } from "../../redux/hooks";
 import { validateForm } from "../../utils/formValidationUtils";
 import { SignupRequest } from "../../types/authTypes";
 import useFormValidation from "../../hooks/useFormValidation";
 
-const Signup = () => {
+const Signup = ({ onSignupSuccess }: { onSignupSuccess: (formData: SignupRequest) => void }) => {
   const dispatch = useAppDispatch();
   const { loading, error } = useSelector((state: any) => state.user);
   const navigate = useNavigate();
@@ -33,9 +33,12 @@ const Signup = () => {
     if (!isValid) return;
 
     try {
-      await dispatch(signup(formData)).unwrap();
-      toast.success("Signup successful!");
-      setTimeout(() => navigate("/"), 1000);
+      // await dispatch(signup(formData)).unwrap();
+      // toast.success("Signup successful!");
+      // setTimeout(() => navigate("/"), 1000);
+      await dispatch(sendOtpSignup(formData.email)).unwrap();
+      toast.success("Signup successful! OTP sent.");
+      onSignupSuccess(formData);
     } catch (error: any) {
       toast.error(error.payload || "Signup failed. Please try again.");
     }

@@ -48,7 +48,51 @@ class AuthService implements IAuthService {
     const token = generateToken(user._id.toString());
     return { user, token };
   }
-
+  async sendOtpSignupService(email: string) {
+    const existingUser  = await UserRepository.findUserByEmail(email);
+    if (existingUser) {
+      throw new Error("User already exists.");
+    }
+    const otp = generateOtp();
+    console.log(`Generated OTP for ${email}:`, otp);
+    await UserRepository.saveOtp(email, otp);
+    await sendEmail(
+      email,
+      "Your OTP Code",
+      `Your OTP code is: ${otp}. It will expire in 30s.`
+    );
+    return { message: "OTP sent successfully", otp };
+  }
+  async resendOtpSignupService(email: string) {
+    const existingUser  = await UserRepository.findUserByEmail(email);
+    if (existingUser) {
+      throw new Error("User already exists.");
+    }
+    const otp = generateOtp();
+    console.log(`Resend OTP for ${email}:`, otp);
+    await UserRepository.reSaveOtp(email, otp);
+    await sendEmail(
+      email,
+      "Your Resend OTP Code",
+      `Your Resend OTP code is: ${otp}. It will expire in 30s.`
+    );
+    return { message: "Resend OTP sent successfully", otp };
+  }
+  async verifyOtpSignupService(email: string, otp: string): Promise<boolean> {
+    const storedOtp = await UserRepository.findOtpByEmail(email);
+    if (!storedOtp || storedOtp.otp !== otp) return false;
+    const createdAt = storedOtp.createdAt;
+    if (!createdAt) {
+      throw new Error("OTP creation date is missing.");
+    }
+    const otpAge =
+      (new Date().getTime() - new Date(createdAt).getTime()) / 1000;
+    if (otpAge > 30) {
+      return false;
+    }
+    await UserRepository.deleteOtp(email);
+    return true;
+  }
   async sendOtpService(email: string) {
     const user = await UserRepository.findUserByEmail(email);
     if (!user) {
@@ -79,7 +123,6 @@ class AuthService implements IAuthService {
     );
     return { message: "Resend OTP sent successfully", otp };
   }
-
   async verifyOtpService(email: string, otp: string): Promise<boolean> {
     const storedOtp = await UserRepository.findOtpByEmail(email);
     if (!storedOtp || storedOtp.otp !== otp) return false;
@@ -95,7 +138,6 @@ class AuthService implements IAuthService {
     await UserRepository.deleteOtp(email);
     return true;
   }
-
   async resetPasswordService(
     email: string,
     newPassword: string

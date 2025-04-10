@@ -9,6 +9,9 @@ const router: Router = Router();
 router.post("/signup", UserController.signup);
 router.post("/", UserController.login)
 router.post("/logout", UserController.logout)
+router.post("/send-otp-signup",UserController.sendOtpForSignup)
+router.post("/resend-otp-signup",UserController.resendOtpForSignup)
+router.post("/verify-otp-signup", UserController.verifyOtpForSignup)
 router.post("/send-otp", UserController.sendOtp)
 router.post("/resend-otp",UserController.resendOtp)
 router.post("/verify-otp", UserController.verifyOtp)

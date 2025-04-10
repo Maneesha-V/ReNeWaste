@@ -36,7 +36,38 @@ export const loginUser = async (userData: LoginRequest) => {
 export const logoutUser = async () => {
   return await axios.post(`${API_URL}/logout`, {}, { withCredentials: true });
 };
-
+export const sendOtpSignupService = async (email: string) => {
+  try {
+    const response = await axios.post(`${API_URL}/send-otp-signup`, {email});
+    console.log("response",response);
+    return response.data;     
+  } catch (error: any) {
+    console.log("err",error);
+    
+    console.error("Error sending OTP:", error.response?.data?.error || error.message);
+    throw error.response?.data?.error || "Something went wrong while sending OTP";
+  }
+}
+export const resendOtpSignupService = async (email: string) => {
+  try {
+    const response = await axios.post(`${API_URL}/resend-otp-signup`, {email});
+    console.log("respp",response);
+    
+    return response.data;     
+  } catch (error: any) {
+    console.error("Error resending OTP:", error);
+    throw error.response?.data?.error || "Something went wrong while resending OTP";
+  }
+}
+export const verifyOtpSignupService = async (email: string,otp: string) => {
+  try {
+    const { data } = await axios.post(`${API_URL}/verify-otp-signup`, { email, otp });
+    return data;
+  } catch (error: any) {
+    console.error("Error verifying OTP:", error.response?.data || error.message);
+    throw { message: error.response?.data?.error || error.response?.data?.message || "Failed to verify OTP" };
+  }
+}
 export const sendOtpService = async (email: string) => {
   try {
     const response = await axios.post(`${API_URL}/send-otp`, {email});
