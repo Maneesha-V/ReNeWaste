@@ -1,6 +1,7 @@
 import { Router } from "express";
 import UserController from "../controllers/user/userController";
 import ProfileController  from "../controllers/user/profileController";
+import ResidentialController from "../controllers/user/residentialController";
 import { authenticateUser } from "../middlewares/authMiddware"
 import { RequestHandler } from "express"; 
 
@@ -21,6 +22,8 @@ router.post("/google-login",UserController.googleLogin)
 router.get("/profile", authenticateUser as RequestHandler, ProfileController.getProfile)
 router.get("/edit-profile", authenticateUser as RequestHandler, ProfileController.getEditProfile)
 router.put("/edit-profile", authenticateUser as RequestHandler, ProfileController.updateUserProfileHandler)
+router.get("/residential", authenticateUser as RequestHandler, ResidentialController.getResidential)
+router.patch("/residential/pickup", authenticateUser as RequestHandler, ResidentialController.updateResidentialPickup)
 
 export default router;
 

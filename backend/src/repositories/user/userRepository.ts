@@ -24,7 +24,22 @@ class UserRepository implements IUserRepository {
   async updateUserProfileById(userId: string, updatedData: IUser): Promise<IUserDocument | null> {
     return await UserModel.findByIdAndUpdate(userId, updatedData, { new: true });
   }
-
+  async updatePartialProfileById(userId: string, updatedData: Partial<IUser>): Promise<IUserDocument | null> {
+    const updateOps: any = {};
+  
+    if (updatedData.phone) {
+      updateOps.phone = updatedData.phone;
+    }
+  
+    if (updatedData.addresses && Array.isArray(updatedData.addresses)) {
+      updateOps.$push = {
+        addresses: { $each: updatedData.addresses },
+      };
+    }
+  
+    return await UserModel.findByIdAndUpdate(userId, updateOps, { new: true });
+  }
+  
   async saveOtp(email: string, otp: string): Promise<void> {
     await OTPModel.create({ email, otp, createdAt: new Date() });
   }

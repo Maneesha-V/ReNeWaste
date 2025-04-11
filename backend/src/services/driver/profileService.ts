@@ -9,7 +9,7 @@ class ProfileService implements IProfileService {
   }
   async updateDriverProfile(driverId: string, updatedData: any) {
     const driver = await DriverRepository.getDriverById(driverId);
-    if (!driver) throw new Error("User not found");
+    if (!driver) throw new Error("Driver not found");
 
     return await DriverRepository.updateDriverById(driverId, updatedData);
   }

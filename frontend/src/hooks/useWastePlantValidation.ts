@@ -12,6 +12,9 @@ export const useWastePlantValidation = () => {
     switch (name) {
       case "plantName":
       case "ownerName":
+      case "addressLine1":
+      case "addressLine2":
+      case "district":
       case "location":
       case "city":
       case "state":
@@ -29,12 +32,31 @@ export const useWastePlantValidation = () => {
         )
           error = "Invalid email format.";
         break;
-
+      case "phone":
       case "contactNo":
       case "contact":
         if (!value.trim()) error = "Contact Number is required.";
         else if (!/^\d{10}$/.test(value))
           error = "Contact Number must be 10 digits.";
+        break;
+      case "pincode":
+        if (!value.trim()) error = "Pincode is required.";
+        else if (!/^\d{6}$/.test(value)) error = "Pincode must be 6 digits.";
+        break;
+      case "pickupTime":
+        if (!value.trim()) {
+          error = "Pickup time is required.";
+        } else {
+          const [hours, minutes] = value.split(":").map(Number);
+          const totalMinutes = hours * 60 + minutes;
+
+          const minMinutes = 9 * 60; // 09:00 AM
+          const maxMinutes = 17 * 60; // 05:00 PM
+
+          if (totalMinutes < minMinutes || totalMinutes > maxMinutes) {
+            error = "Pickup time must be between 9:00 AM and 5:00 PM.";
+          }
+        }
         break;
 
       case "licenseNumber":

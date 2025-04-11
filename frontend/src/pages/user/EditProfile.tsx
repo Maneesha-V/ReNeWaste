@@ -9,7 +9,7 @@ import { UserProfile } from "../../types/profileTypes";
 import { useProfileValidation } from "../../hooks/useProfileValidation";
 import Header from "../../components/user/Header";
 import Footer from "../../components/user/Footer";
-import Breadcrumbs from "../../components/common/BreadCrumbs";
+import Breadcrumbs from "../../components/common/Breadcrumbs";
 
 const EditProfilePage = () => {
   const navigate = useNavigate();
