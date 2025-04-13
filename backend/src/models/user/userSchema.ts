@@ -1,4 +1,4 @@
-import { Schema } from "mongoose";
+import mongoose, { Schema } from "mongoose";
 import { IUserDocument } from "./interfaces/userInterface";
 import { AddressSchema } from "./addressSchema";
 
@@ -41,9 +41,14 @@ export const userSchema: Schema<IUserDocument> = new Schema(
     googleId: {
       type: String,
       unique: true,
-      sparse: true,  // ✅ Allows multiple documents to be missing this field
+      sparse: true,  
     },
     addresses: [AddressSchema],
+    wasteplantId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'WastePlant',
+      default: null
+    }
   },
   { timestamps: true }
 );

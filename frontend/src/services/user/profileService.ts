@@ -22,7 +22,7 @@ export const updateUserProfile = async (
   token: string,
   updatedData: UserProfile
 ) => {
-  const response = await axios.put(`${API_URL}/edit-profile`, updatedData, {
+  const response = await axios.patch(`${API_URL}/edit-profile`, updatedData, {
     headers: {
       Authorization: `Bearer ${token}`,
       "Content-Type": "application/json",

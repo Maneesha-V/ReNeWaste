@@ -8,7 +8,11 @@ export const AddressSchema: Schema<IAddressDocument> = new Schema({
 },  
   addressLine2: { 
     type: String 
-},                  
+},     
+taluk: { 
+  type: String, 
+  required: true 
+},              
   location: { 
     type: String, 
     required: true 

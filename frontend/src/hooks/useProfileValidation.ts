@@ -58,7 +58,7 @@ export const useProfileValidation = () => {
   const validate = (field: string, value: string): void => {
     let errorMessages: string[] = [];
 
-    if (["firstName", "lastName", "addressLine1", "addressLine2", "location", "district", "state"].includes(field)) {
+    if (["firstName", "lastName", "addressLine1", "addressLine2","taluk", "location", "district", "state"].includes(field)) {
       errorMessages = validateString(value, field);
     } else if (["phone", "pincode"].includes(field)) {
       errorMessages = validateNumber(value, field);

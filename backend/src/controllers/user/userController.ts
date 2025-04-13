@@ -3,6 +3,7 @@ import AuthService from "../../services/user/authService";
 import { IUserController } from "./interface/IUserController";
 
 class UserController implements IUserController {
+  
   async signup(req: Request, res: Response): Promise<void> {
     console.log("body", req.body);
     try {

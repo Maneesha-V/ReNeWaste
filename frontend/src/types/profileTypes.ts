@@ -1,6 +1,7 @@
 export interface Address {
     addressLine1: string;
     addressLine2: string;
+    taluk: string;
     location: string;
     pincode: string;
     district: string;

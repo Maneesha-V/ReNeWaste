@@ -26,10 +26,10 @@ class AuthService implements IAuthService {
     const hashedPassword = userData.password
       ? await bcrypt.hash(userData.password, salt)
       : undefined;
+      
     const newUserData: IUser = {
       ...userData,
       password: hashedPassword,
-      // googleId: userData.googleId || null,
       addresses: userData.addresses || [],
     };
     if (userData.googleId) {

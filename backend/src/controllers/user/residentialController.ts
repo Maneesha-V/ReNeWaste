@@ -27,8 +27,6 @@ class ResidentialController implements IResidentialController {
           return;
         }
         const updatedData = req.body;
-        console.log(req.body);
-        
         const updatedUser = await ResidentialService.updateResidentialPickupService(userId, updatedData);
   
         if (!updatedUser) {

@@ -21,7 +21,7 @@ router.post("/google-signup",UserController.googleSignUp)
 router.post("/google-login",UserController.googleLogin)
 router.get("/profile", authenticateUser as RequestHandler, ProfileController.getProfile)
 router.get("/edit-profile", authenticateUser as RequestHandler, ProfileController.getEditProfile)
-router.put("/edit-profile", authenticateUser as RequestHandler, ProfileController.updateUserProfileHandler)
+router.patch("/edit-profile", authenticateUser as RequestHandler, ProfileController.updateUserProfileHandler)
 router.get("/residential", authenticateUser as RequestHandler, ResidentialController.getResidential)
 router.patch("/residential/pickup", authenticateUser as RequestHandler, ResidentialController.updateResidentialPickup)
 

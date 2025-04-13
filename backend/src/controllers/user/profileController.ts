@@ -40,7 +40,8 @@ class ProfileController implements IProfileController {
         return;
       }
       const updatedData = req.body;
-
+      console.log("updatedData",updatedData);
+      
       const updatedUser = await ProfileService.updateUserProfile(userId, updatedData);
 
       if (!updatedUser) {
