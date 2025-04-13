@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { createWastePlant, getWastePlantById, getWastePlants, updateWastePlantById } from "../../../services/superAdmin/wastePlantService" 
+import { createWastePlant, deleteWastePlantById, getWastePlantById, getWastePlants, updateWastePlantById } from "../../../services/superAdmin/wastePlantService" 
 
 interface WastePlantState {
   wastePlant: any; 
@@ -53,6 +53,17 @@ export const updateWastePlant = createAsyncThunk(
   async ({ id, data }: { id: string; data: FormData }, thunkAPI) => {
     try {
       const response = await updateWastePlantById(id, data)
+      return response
+    } catch (error: any) {
+      return thunkAPI.rejectWithValue(error.response.data || "Failed to update data.");
+    }
+  }
+)
+export const deleteWastePlant  = createAsyncThunk(
+  "superAdminWastePlant/deleteWastePlant ",
+  async (id: string, thunkAPI) => {
+    try {
+      const response = await deleteWastePlantById(id)
       return response
     } catch (error: any) {
       return thunkAPI.rejectWithValue(error.response.data || "Failed to update data.");
@@ -113,6 +124,9 @@ const superAdminWastePlantSlice = createSlice({
         state.loading = false;
         state.error = action.payload as string;
       })
+      .addCase(deleteWastePlant.fulfilled, (state, action) => {
+        state.wastePlant = state.wastePlant.filter((plant: any) => plant._id !== action.payload);
+      });
   },
 });
 

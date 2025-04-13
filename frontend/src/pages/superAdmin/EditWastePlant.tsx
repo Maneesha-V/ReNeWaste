@@ -35,7 +35,7 @@ const EditWastePlant = () => {
       // setFormData(wastePlant);
       setFormData({
         ...wastePlant,
-        licenseDocument: undefined, 
+        licenseDocument: undefined,
       });
     }
   }, [wastePlant]);
@@ -162,18 +162,54 @@ const EditWastePlant = () => {
             <p className="text-red-500 text-sm">{errors.location}</p>
           )}
         </div>
-
+        {/* District */}
         <div>
-          <label className="block text-gray-700">City</label>
+          <label className="block text-gray-700 font-medium">District</label>
           <input
             type="text"
-            name="city"
-            value={formData.city}
+            name="district"
+            value="Malappuram"
+            disabled
+            className="w-full border px-3 py-2 rounded-md bg-gray-100 text-gray-600"
+          />
+        </div>
+        {/* Taluk */}
+        <div>
+          <label className="block text-gray-700 font-medium">Taluk</label>
+          <select
+            name="taluk"
+            value={formData.taluk}
             onChange={handleChange}
             onBlur={handleBlur}
-            className="w-full p-2 border rounded"
+            className="w-full border px-3 py-2 rounded-md focus:ring-2 focus:ring-green-500"
+          >
+            <option value="">Select Taluk</option>
+            <option value="Tirur">Tirur</option>
+            <option value="Perinthalmanna">Perinthalmanna</option>
+            <option value="Ponnani">Ponnani</option>
+            <option value="Kondotty">Kondotty</option>
+            <option value="Tirurangadi">Tirurangadi</option>
+            <option value="Nilambur">Nilambur</option>
+            <option value="Eranad">Eranad</option>
+          </select>
+          {errors.taluk && (
+            <p className="text-red-500 text-sm">{errors.taluk}</p>
+          )}
+        </div>
+        {/* Pincode */}
+        <div>
+          <label className="block text-gray-700 font-medium">Pincode</label>
+          <input
+            type="text"
+            name="pincode"
+            value={formData.pincode}
+            onChange={handleChange}
+            onBlur={handleBlur}
+            className="w-full border px-3 py-2 rounded-md focus:ring-2 focus:ring-green-500"
           />
-          {errors.city && <p className="text-red-500 text-sm">{errors.city}</p>}
+          {errors.pincode && (
+            <p className="text-red-500 text-sm">{errors.pincode}</p>
+          )}
         </div>
 
         <div>
@@ -181,9 +217,8 @@ const EditWastePlant = () => {
           <input
             type="text"
             name="state"
-            value={formData.state}
-            onChange={handleChange}
-            onBlur={handleBlur}
+            value="Kerala"
+            disabled
             className="w-full p-2 border rounded"
           />
           {errors.state && (

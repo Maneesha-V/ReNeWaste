@@ -4,4 +4,5 @@ export interface IWastePlantService {
     addWastePlant(data: IWastePlant): Promise<IWastePlant>;
     getAllWastePlants(): Promise<IWastePlant[]>;
     getWastePlantByIdService(id: string): Promise<IWastePlant | null>;
+    deleteWastePlantByIdService(id: string): Promise<IWastePlant | null>;
   }

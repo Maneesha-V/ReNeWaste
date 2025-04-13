@@ -15,8 +15,9 @@ export const useWastePlantValidation = () => {
       case "addressLine1":
       case "addressLine2":
       case "district":
-      case "location":
+      case "taluk":
       case "city":
+      case "location":
       case "state":
       case "contactInfo":
       case "name":
@@ -58,7 +59,6 @@ export const useWastePlantValidation = () => {
           }
         }
         break;
-
       case "licenseNumber":
         if (!value.trim()) error = `${label} is required.`;
         break;

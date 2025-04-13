@@ -43,20 +43,37 @@ export const getWastePlantById = async (id: string) => {
   }
 };
 export const updateWastePlantById = async (id: string, data: FormData) => {
-    try {
-      // const token = localStorage.getItem("token");
-      const response = await axios.patch(`${API_URL}/edit-waste-plant/${id}`, data, 
-        {
-            headers: {
-              "Content-Type": "multipart/form-data",
-              // Authorization: `Bearer ${token}`
-            },
-          }
-      );
-      console.log("res", response);
-      return response.data;
-    } catch (error: any) {
-      console.error("error", error);
-      throw error;
-    }
-  };
+  try {
+    // const token = localStorage.getItem("token");
+    const response = await axios.patch(
+      `${API_URL}/edit-waste-plant/${id}`,
+      data,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+          // Authorization: `Bearer ${token}`
+        },
+      }
+    );
+    console.log("res", response);
+    return response.data;
+  } catch (error: any) {
+    console.error("error", error);
+    throw error;
+  }
+};
+export const deleteWastePlantById = async (id: string) => {
+  try {
+    const token = localStorage.getItem("token");
+    const response = await axios.delete(`${API_URL}/delete-waste-plant/${id}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    console.log("res", response);
+    return response.data;
+  } catch (error: any) {
+    console.error("error", error);
+    throw error;
+  }
+};

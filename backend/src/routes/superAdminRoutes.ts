@@ -17,6 +17,7 @@ router.post("/add-waste-plant", upload.single("licenseDocument"),WastePlantContr
 router.get("/waste-plants", authenticateSuperAdmin as RequestHandler, WastePlantController.fetchWastePlants)
 router.get("/edit-waste-plant/:id",WastePlantController.getWastePlantById)
 router.patch("/edit-waste-plant/:id", upload.single("licenseDocument"),WastePlantController.updateWastePlant)
+router.delete("/delete-waste-plant/:id", authenticateSuperAdmin as RequestHandler,WastePlantController.deleteWastePlantById)
 
 export default router;
 

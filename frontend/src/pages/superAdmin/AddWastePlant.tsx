@@ -1,26 +1,27 @@
 import { useState } from "react";
-// import {
-//   wastePlantFormType,
-//   WastePlantFormData,
-// } from "../../utils/addWastePlantValidator";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import { addWastePlant } from "../../redux/slices/superAdmin/superAdminWastePlantSlice";
 import { useAppDispatch } from "../../redux/hooks";
 import { useWastePlantValidation } from "../../hooks/useWastePlantValidation";
-import { ValidationErrors, WastePlantFormData } from "../../types/wastePlantTypes"
+import {
+  ValidationErrors,
+  WastePlantFormData,
+} from "../../types/wastePlantTypes";
 
 const AddWastePlant = () => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const { errors, validateField, setErrors } = useWastePlantValidation();
-  //   const { loading, error } = useSelector((state: any) => state.user);
+
   const [formData, setFormData] = useState<WastePlantFormData>({
     plantName: "",
     ownerName: "",
     location: "",
-    city: "",
-    state: "",
+    district: "Malappuram",
+    taluk: "",
+    pincode: "",
+    state: "Kerala",
     contactInfo: "",
     contactNo: "",
     email: "",
@@ -32,9 +33,11 @@ const AddWastePlant = () => {
     licenseDocument: undefined,
   });
 
-  const handleBlur = (e: React.FocusEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleBlur = (
+    e: React.FocusEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
     const { name, value } = e.target;
-    validateField(name, value);  
+    validateField(name, value);
   };
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -55,20 +58,20 @@ const AddWastePlant = () => {
     }
   };
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault(); 
-    const currentErrors: ValidationErrors = {}; 
+    e.preventDefault();
+    const currentErrors: ValidationErrors = {};
     Object.entries(formData).forEach(([name, value]) => {
       if (name === "licenseDocument") {
-        if(!(value instanceof File)){
+        if (!(value instanceof File)) {
           currentErrors[name] = "License Document is required.";
         }
-      } else{
+      } else {
         const error = validateField(name, value as string);
         if (error) {
           currentErrors[name as keyof ValidationErrors] = error;
         }
       }
-    }); 
+    });
     if (Object.keys(currentErrors).length > 0) {
       setErrors(currentErrors);
       return;
@@ -81,13 +84,15 @@ const AddWastePlant = () => {
     });
     if (formData.licenseDocument instanceof File) {
       formDataToSend.append("licenseDocument", formData.licenseDocument);
-    } 
+    }
+    console.log("formDataToSend", formDataToSend);
+
     try {
       const result = await dispatch(addWastePlant(formDataToSend));
       if (result.payload?.error) {
         toast.error(result.payload.error);
         return;
-      } 
+      }
       toast.success("Waste Plant added successfully!");
       setTimeout(() => {
         navigate("/super-admin/waste-plants");
@@ -95,7 +100,7 @@ const AddWastePlant = () => {
     } catch (error: any) {
       toast.error("Waste Plant creation failed. Please try again.");
     }
-  }
+  };
 
   return (
     <div className="px-4 py-4">
@@ -127,7 +132,9 @@ const AddWastePlant = () => {
               onBlur={handleBlur}
               className="w-full border px-3 py-2 rounded-md focus:ring-2 focus:ring-green-500"
             />
-            {errors.plantName && <p className="text-red-500 text-sm">{errors.plantName}</p>}
+            {errors.plantName && (
+              <p className="text-red-500 text-sm">{errors.plantName}</p>
+            )}
           </div>
 
           {/* Owner Name */}
@@ -143,14 +150,13 @@ const AddWastePlant = () => {
               onBlur={handleBlur}
               className="w-full border px-3 py-2 rounded-md focus:ring-2 focus:ring-green-500"
             />
-             {errors.ownerName && <p className="text-red-500 text-sm">{errors.ownerName}</p>}
+            {errors.ownerName && (
+              <p className="text-red-500 text-sm">{errors.ownerName}</p>
+            )}
           </div>
-
           {/* Location Address */}
           <div>
-            <label className="block text-gray-700 font-medium">
-              Location Address
-            </label>
+            <label className="block text-gray-700 font-medium">Location</label>
             <input
               type="text"
               name="location"
@@ -159,21 +165,60 @@ const AddWastePlant = () => {
               onBlur={handleBlur}
               className="w-full border px-3 py-2 rounded-md focus:ring-2 focus:ring-green-500"
             />
-            {errors.location && <p className="text-red-500 text-sm">{errors.location}</p>}
+            {errors.location && (
+              <p className="text-red-500 text-sm">{errors.location}</p>
+            )}
           </div>
 
-          {/* City */}
+          {/* Pincode */}
           <div>
-            <label className="block text-gray-700 font-medium">City</label>
+            <label className="block text-gray-700 font-medium">Pincode</label>
             <input
               type="text"
-              name="city"
-              value={formData.city}
+              name="pincode"
+              value={formData.pincode}
               onChange={handleChange}
               onBlur={handleBlur}
               className="w-full border px-3 py-2 rounded-md focus:ring-2 focus:ring-green-500"
             />
-            {errors.city && <p className="text-red-500 text-sm">{errors.city}</p>}
+            {errors.pincode && (
+              <p className="text-red-500 text-sm">{errors.pincode}</p>
+            )}
+          </div>
+
+          {/* District */}
+          <div>
+            <label className="block text-gray-700 font-medium">District</label>
+            <input
+              type="text"
+              name="district"
+              value="Malappuram"
+              readOnly
+              className="w-full border px-3 py-2 rounded-md bg-gray-100 text-gray-600"
+            />
+          </div>
+          {/* Taluk */}
+          <div>
+            <label className="block text-gray-700 font-medium">Taluk</label>
+            <select
+              name="taluk"
+              value={formData.taluk}
+              onChange={handleChange}
+              onBlur={handleBlur}
+              className="w-full border px-3 py-2 rounded-md focus:ring-2 focus:ring-green-500"
+            >
+              <option value="">Select Taluk</option>
+              <option value="Tirur">Tirur</option>
+              <option value="Perinthalmanna">Perinthalmanna</option>
+              <option value="Ponnani">Ponnani</option>
+              <option value="Kondotty">Kondotty</option>
+              <option value="Tirurangadi">Tirurangadi</option>
+              <option value="Nilambur">Nilambur</option>
+              <option value="Eranad">Eranad</option>
+            </select>
+            {errors.taluk && (
+              <p className="text-red-500 text-sm">{errors.taluk}</p>
+            )}
           </div>
 
           {/* State */}
@@ -182,12 +227,27 @@ const AddWastePlant = () => {
             <input
               type="text"
               name="state"
-              value={formData.state}
+              value="Kerala"
+              readOnly
+              className="w-full border px-3 py-2 rounded-md bg-gray-100 text-gray-600"
+            />
+          </div>
+          {/*Contact No */}
+          <div>
+            <label className="block text-gray-700 font-medium">
+              Contact No
+            </label>
+            <input
+              type="tel"
+              name="contactNo"
+              value={formData.contactNo}
               onChange={handleChange}
               onBlur={handleBlur}
               className="w-full border px-3 py-2 rounded-md focus:ring-2 focus:ring-green-500"
             />
-           {errors.state && <p className="text-red-500 text-sm">{errors.state}</p>}
+            {errors.contactNo && (
+              <p className="text-red-500 text-sm">{errors.contactNo}</p>
+            )}
           </div>
 
           {/* Contact Info */}
@@ -203,23 +263,9 @@ const AddWastePlant = () => {
               onBlur={handleBlur}
               className="w-full border px-3 py-2 rounded-md focus:ring-2 focus:ring-green-500"
             />
-            {errors.contactInfo && <p className="text-red-500 text-sm">{errors.contactInfo}</p>}
-          </div>
-
-          {/*Contact No */}
-          <div>
-            <label className="block text-gray-700 font-medium">
-              Contact No
-            </label>
-            <input
-              type="tel"
-              name="contactNo"
-              value={formData.contactNo}
-              onChange={handleChange}
-              onBlur={handleBlur}
-              className="w-full border px-3 py-2 rounded-md focus:ring-2 focus:ring-green-500"
-            />
-            {errors.contactNo && <p className="text-red-500 text-sm">{errors.contactNo}</p>}
+            {errors.contactInfo && (
+              <p className="text-red-500 text-sm">{errors.contactInfo}</p>
+            )}
           </div>
 
           {/* Email */}
@@ -233,7 +279,9 @@ const AddWastePlant = () => {
               onBlur={handleBlur}
               className="w-full border px-3 py-2 rounded-md focus:ring-2 focus:ring-green-500"
             />
-            {errors.email && <p className="text-red-500 text-sm">{errors.email}</p>}
+            {errors.email && (
+              <p className="text-red-500 text-sm">{errors.email}</p>
+            )}
           </div>
 
           {/* License Number */}
@@ -249,7 +297,9 @@ const AddWastePlant = () => {
               onBlur={handleBlur}
               className="w-full border px-3 py-2 rounded-md focus:ring-2 focus:ring-green-500"
             />
-            {errors.licenseNumber && <p className="text-red-500 text-sm">{errors.licenseNumber}</p>}
+            {errors.licenseNumber && (
+              <p className="text-red-500 text-sm">{errors.licenseNumber}</p>
+            )}
           </div>
 
           {/* License Document Upload */}
@@ -264,7 +314,9 @@ const AddWastePlant = () => {
               onBlur={handleBlur}
               className="w-full border px-3 py-2 rounded-md focus:ring-2 focus:ring-green-500"
             />
-            {errors.licenseDocument && <p className="text-red-500 text-sm">{errors.licenseDocument}</p>}
+            {errors.licenseDocument && (
+              <p className="text-red-500 text-sm">{errors.licenseDocument}</p>
+            )}
           </div>
 
           {/* Capacity */}
@@ -280,7 +332,9 @@ const AddWastePlant = () => {
               onBlur={handleBlur}
               className="w-full border px-3 py-2 rounded-md focus:ring-2 focus:ring-green-500"
             />
-            {errors.capacity && <p className="text-red-500 text-sm">{errors.capacity}</p>}
+            {errors.capacity && (
+              <p className="text-red-500 text-sm">{errors.capacity}</p>
+            )}
           </div>
 
           {/* Status */}
@@ -317,7 +371,9 @@ const AddWastePlant = () => {
               <option value="Premium">Premium</option>
               <option value="Pro">Pro</option>
             </select>
-            {errors.subscriptionPlan && <p className="text-red-500 text-sm">{errors.subscriptionPlan}</p>}
+            {errors.subscriptionPlan && (
+              <p className="text-red-500 text-sm">{errors.subscriptionPlan}</p>
+            )}
           </div>
 
           {/* Password */}
@@ -331,7 +387,9 @@ const AddWastePlant = () => {
               onBlur={handleBlur}
               className="w-full border px-3 py-2 rounded-md focus:ring-2 focus:ring-green-500"
             />
-            {errors.password && <p className="text-red-500 text-sm">{errors.password}</p>}
+            {errors.password && (
+              <p className="text-red-500 text-sm">{errors.password}</p>
+            )}
           </div>
 
           {/* Submit Button */}

@@ -3,10 +3,11 @@ import { Table, Button, Popconfirm, Spin } from "antd";
 import { EditOutlined, DeleteOutlined, PlusOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 import { useAppDispatch } from "../../redux/hooks";
-import { fetchWastePlants } from "../../redux/slices/superAdmin/superAdminWastePlantSlice";
+import { deleteWastePlant, fetchWastePlants } from "../../redux/slices/superAdmin/superAdminWastePlantSlice";
 import { useSelector } from "react-redux";
 import { RootState } from "../../redux/store";
-import Breadcrumbs from "../../components/common/BreadCrumbs";
+import Breadcrumbs from "../../components/common/Breadcrumbs";
+
 
 const WastePlants: React.FC = () => {
   const dispatch = useAppDispatch();
@@ -28,8 +29,13 @@ const WastePlants: React.FC = () => {
       console.error(error);
     }
   }
-  const handleDelete = async () => {
-    // TODO
+  const handleDelete = async (id: string) => {
+    try {
+      await dispatch(deleteWastePlant(id)).unwrap();
+      await dispatch(fetchWastePlants());
+    } catch (error: any) {
+      console.error("Delete failed:", error);
+    }
   };
 
   return (
@@ -106,11 +112,15 @@ const WastePlants: React.FC = () => {
                   </Button>
                   <Popconfirm
                     title="Are you sure you want to delete?"
-                    onConfirm={handleDelete}
+                    onConfirm={() => handleDelete(record._id)}
                     okText="Yes"
                     cancelText="No"
                   >
-                    <Button icon={<DeleteOutlined />} size="small" danger>
+                    <Button 
+                    icon={<DeleteOutlined />} 
+                    size="small" 
+                    danger
+                    >
                       Delete
                     </Button>
                   </Popconfirm>

@@ -15,6 +15,9 @@ async addWastePlant (req: Request, res: Response): Promise<void> {
     const filePath = req.file.path;
     const wastePlantData: IWastePlant = {
       ...req.body,
+      district: "Malappuram", 
+      taluk: req.body.taluk,    
+      pincode: req.body.pincode,              
       capacity: Number(req.body.capacity), 
       licenseDocumentPath: filePath,
     } as IWastePlant;
@@ -89,6 +92,23 @@ async updateWastePlant (req: Request,res: Response): Promise<void> {
     res.status(200).json({ message: "Waste Plant updated successfully", wastePlant: updatedWastePlant });
   } catch (error: any) {
     console.error("Error updating waste plant:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+}
+async deleteWastePlantById (req: Request,res: Response): Promise<void> {
+  try {
+    console.log("body",req.body);
+    const { id } = req.params;
+    const result = await WastePlantService.deleteWastePlantByIdService(id);
+
+    if (!result) {
+      res.status(404).json({ message: "Waste Plant not found" });
+      return;
+    }
+
+    res.status(200).json({ message: "Waste Plant deleted successfully" });
+  } catch (error: any) {
+    console.error("Error in deleting waste plant:", error);
     res.status(500).json({ message: "Server error" });
   }
 }

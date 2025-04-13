@@ -2,7 +2,9 @@ export interface WastePlantFormData {
     plantName: string;
     ownerName: string;
     location: string;
-    city: string;
+    district: string;
+    taluk: string;
+    pincode: string;
     state: string;
     contactInfo: string;
     contactNo: string;

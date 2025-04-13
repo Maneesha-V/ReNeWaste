@@ -4,7 +4,10 @@ export interface IWastePlant {
     plantName: string;
     ownerName: string;
     location: string;
-    city: string;
+    district: string;
+    taluk: string;
+    pincode: string;
+    // city: string;
     state: string;
     contactInfo: string;
     contactNo: string;

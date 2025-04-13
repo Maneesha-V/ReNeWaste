@@ -29,7 +29,9 @@ export class WastePlantRepository implements IWastePlantRepository {
   ): Promise<IWastePlant | null> {
     return await WastePlantModel.findOne({ licenseNumber });
   }
-
+  async findWastePlantByTaluk(taluk: string): Promise<IWastePlant | null> {
+    return await WastePlantModel.findOne({ taluk });
+  }
   async findWastePlantByName(plantName: string): Promise<IWastePlant | null> {
     return await WastePlantModel.findOne({ plantName });
   }
@@ -71,6 +73,14 @@ export class WastePlantRepository implements IWastePlantRepository {
       { $set: { password: hashedPassword } },
       { new: true, runValidators: false }
     );
+  }
+  async findByPincode(pincode: string): Promise<void> {
+    await WastePlantModel.findOne({
+      servicePincodes: pincode
+    });
+  }
+  async deleteWastePlantById(id: string) {
+    return await WastePlantModel.findByIdAndDelete(id);
   }
 }
 export default new WastePlantRepository();

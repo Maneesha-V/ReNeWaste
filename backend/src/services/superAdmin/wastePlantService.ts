@@ -37,5 +37,8 @@ class WastePlantService implements IWastePlantService {
       throw new Error("Error updating waste plant in service");
     }
   }
+  async deleteWastePlantByIdService(id: string) {
+    return await  WastePlantRepository.deleteWastePlantById(id)
+  }
 }
 export default new WastePlantService()
