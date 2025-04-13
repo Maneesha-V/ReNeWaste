@@ -85,7 +85,9 @@ export const useWastePlantValidation = () => {
           error =
             "Username can only contain letters, numbers, and underscores.";
         break;
-
+      case "services":
+        if (value.length === 0) error = "At least one service must be selected.";
+        break;
       default:
         break;
     }

@@ -24,7 +24,9 @@ const EditWastePlant = () => {
   const { wastePlant, loading } = useSelector(
     (state: RootState) => state.superAdminWastePlant
   );
-  const [formData, setFormData] = useState<PartialWastePlantFormData>({});
+  const [formData, setFormData] = useState<PartialWastePlantFormData>({
+    services: [],
+  });
 
   useEffect(() => {
     if (id) dispatch(fetchWastePlantById(id));
@@ -32,7 +34,6 @@ const EditWastePlant = () => {
 
   useEffect(() => {
     if (wastePlant) {
-      // setFormData(wastePlant);
       setFormData({
         ...wastePlant,
         licenseDocument: undefined,
@@ -51,6 +52,16 @@ const EditWastePlant = () => {
   ) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
+  const handleServiceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { value, checked } = e.target;
+    const currentServices = formData.services ?? [];
+
+    const updatedServices = checked
+      ? [...currentServices, value]
+      : currentServices.filter((service) => service !== value);
+
+    setFormData((prev) => ({ ...prev, services: updatedServices }));
+  };
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
@@ -66,6 +77,7 @@ const EditWastePlant = () => {
     e.preventDefault();
     const currentErrors: ValidationErrors = {};
     Object.entries(formData).forEach(([name, value]) => {
+      if (["district", "state"].includes(name)) return;
       if (name === "licenseDocument") {
         if (!wastePlant?.licenseDocumentPath && !(value instanceof File)) {
           currentErrors[name] = "License Document is required.";
@@ -283,6 +295,36 @@ const EditWastePlant = () => {
           />
           {errors.licenseNumber && (
             <p className="text-red-500 text-sm">{errors.licenseNumber}</p>
+          )}
+        </div>
+        {/* Services  */}
+        <div className="md:col-span-2">
+          <label className="block text-gray-700 font-medium mb-1">
+            Services Provided
+          </label>
+          <div className="flex flex-wrap gap-4">
+            {[
+              "Building Waste",
+              "Medical Waste",
+              "E-Waste",
+              "Plastic Waste",
+              "Residential Waste",
+            ].map((service) => (
+              <label key={service} className="flex items-center space-x-2">
+                <input
+                  type="checkbox"
+                  name="services"
+                  value={service}
+                  checked={formData.services?.includes(service) || false}
+                  onChange={handleServiceChange}
+                  className="form-checkbox h-4 w-4 text-green-600"
+                />
+                <span>{service}</span>
+              </label>
+            ))}
+          </div>
+          {errors.services && (
+            <p className="text-red-500 text-sm">{errors.services}</p>
           )}
         </div>
 

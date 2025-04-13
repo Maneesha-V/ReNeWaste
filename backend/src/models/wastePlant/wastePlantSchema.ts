@@ -18,6 +18,10 @@ export const wastePlantSchema: Schema<IWastePlantDocument> = new Schema({
     },
     licenseNumber: { type: String, required: true, unique: true },
     capacity: { type: Number, required: true },
+    services: {
+      type: [String],
+      required: true,
+    },
     status: { 
       type: String, 
       enum: ['Pending', 'Active', 'Inactive', 'Rejected'],

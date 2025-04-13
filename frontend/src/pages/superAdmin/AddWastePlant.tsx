@@ -31,6 +31,7 @@ const AddWastePlant = () => {
     subscriptionPlan: "",
     password: "",
     licenseDocument: undefined,
+    services: [],
   });
 
   const handleBlur = (
@@ -44,6 +45,14 @@ const AddWastePlant = () => {
   ) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
+  };
+  const handleServiceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { value, checked } = e.target;
+    const updatedServices = checked
+      ? [...formData.services, value]
+      : formData.services.filter((service) => service !== value);
+
+    setFormData((prev) => ({ ...prev, services: updatedServices }));
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -78,14 +87,21 @@ const AddWastePlant = () => {
     }
     const formDataToSend = new FormData();
     Object.entries(formData).forEach(([key, value]) => {
-      if (key !== "licenseDocument" && value !== undefined && value !== null) {
+      if (
+        key !== "licenseDocument" &&
+        key !== "services" &&
+        value !== undefined &&
+        value !== null
+      ) {
         formDataToSend.append(key, value.toString());
       }
     });
     if (formData.licenseDocument instanceof File) {
       formDataToSend.append("licenseDocument", formData.licenseDocument);
     }
-    console.log("formDataToSend", formDataToSend);
+    formData.services.forEach((service) => {
+      formDataToSend.append("services", service);
+    });
 
     try {
       const result = await dispatch(addWastePlant(formDataToSend));
@@ -316,6 +332,36 @@ const AddWastePlant = () => {
             />
             {errors.licenseDocument && (
               <p className="text-red-500 text-sm">{errors.licenseDocument}</p>
+            )}
+          </div>
+          {/* Services  */}
+          <div className="md:col-span-2">
+            <label className="block text-gray-700 font-medium mb-1">
+              Services Provided
+            </label>
+            <div className="flex flex-wrap gap-4">
+              {[
+                "Building Waste",
+                "Medical Waste",
+                "E-Waste",
+                "Plastic Waste",
+                "Residential Waste",
+              ].map((service) => (
+                <label key={service} className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    name="services"
+                    value={service}
+                    checked={formData.services.includes(service)}
+                    onChange={handleServiceChange}
+                    className="form-checkbox h-4 w-4 text-green-600"
+                  />
+                  <span>{service}</span>
+                </label>
+              ))}
+            </div>
+            {errors.services && (
+              <p className="text-red-500 text-sm">{errors.services}</p>
             )}
           </div>
 

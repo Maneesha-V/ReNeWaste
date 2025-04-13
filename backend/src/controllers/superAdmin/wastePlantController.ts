@@ -7,18 +7,29 @@ class WastePlantController implements IWastePlantController {
 
 async addWastePlant (req: Request, res: Response): Promise<void> {
   try {
+    console.log("body",req.body);
+    
     if (!req.file) {
       res.status(400).json({ error: "License document is required" });
       return;
     }
 
     const filePath = req.file.path;
+
+    let services: string[] = [];
+    if (Array.isArray(req.body.services)) {
+      services = req.body.services;
+    } else if (typeof req.body.services === "string") {
+      services = [req.body.services]; 
+    }
+
     const wastePlantData: IWastePlant = {
       ...req.body,
       district: "Malappuram", 
       taluk: req.body.taluk,    
       pincode: req.body.pincode,              
       capacity: Number(req.body.capacity), 
+      services,
       licenseDocumentPath: filePath,
     } as IWastePlant;
     console.log("wastePlantData",wastePlantData);

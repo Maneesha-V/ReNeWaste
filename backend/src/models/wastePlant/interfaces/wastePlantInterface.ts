@@ -14,6 +14,7 @@ export interface IWastePlant {
     email: string;
     licenseNumber: string;
     capacity: number;
+    services: string[]; 
     status: 'Pending' | 'Active' | 'Inactive' | 'Rejected';
     licenseDocumentPath: string;
     subscriptionPlan?: string;

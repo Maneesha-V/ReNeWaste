@@ -1,5 +1,4 @@
 import { Route, Routes } from "react-router-dom";
-import Signup from "../pages/user/Signup";
 import Login from "../pages/user/Login";
 import Home from "../pages/user/Home";
 import ProfilePage from "../pages/user/Profile";
@@ -9,6 +8,7 @@ import ProtectedRoute from "../components/user/ProtectedRoute";
 import ForgotPassword from "../pages/user/ForgotPassword";
 import OtpVerificationWrapper from "../components/user/OtpVerificationWrapper";
 import Residential from "../pages/user/Residential";
+import Commercial from "../pages/user/Commercial";
 
 const UserRoutes = () => {
   return (
@@ -21,6 +21,7 @@ const UserRoutes = () => {
         <Route path="/profile" element={<ProfilePage />} />
         <Route path="/edit-profile" element={<EditProfile />} />
         <Route path="/residential" element={<Residential />} />
+        <Route path="/residential" element={<Commercial />} />
       </Route>
       <Route path="*" element={<NotFoundPage />} />
     </Routes>
