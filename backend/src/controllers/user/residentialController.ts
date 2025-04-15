@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { ResidentialRequest } from "../../types/user/residentialTypes";
 import { IResidentialController } from "./interface/IResidentialController";
 import ResidentialService from "../../services/user/residentialService";
+import moment from "moment";
 
 class ResidentialController implements IResidentialController {
   async getResidential(req: ResidentialRequest, res: Response): Promise<void> {
@@ -26,7 +27,15 @@ class ResidentialController implements IResidentialController {
           res.status(400).json({ message: "User ID is required" });
           return;
         }
-        const updatedData = req.body;
+               const updatedData = req.body;
+               const pickupDateString = updatedData.pickupDate;
+               const formattedDate = moment(pickupDateString, 'DD-MM-YYYY').toDate(); 
+               if (isNaN(formattedDate.getTime())) {
+                 res.status(400).json({ message: "Invalid pickup date format" });
+                 return;
+               }
+           
+               updatedData.pickupDate = formattedDate;
         const updatedUser = await ResidentialService.updateResidentialPickupService(userId, updatedData);
   
         if (!updatedUser) {

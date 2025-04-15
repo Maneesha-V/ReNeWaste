@@ -1,9 +1,9 @@
-import { IPickupRequestResidentialDocument } from "../../models/pickupResidential/interfaces/pickupResInterface";
 import UserRepository from "../../repositories/user/userRepository";
-import PickupResidentialRepository from "../../repositories/pickupResidential/pickupResRepository";
+import PickupRepository from "../../repositories/pickupReq/pickupRepository";
 import { IResidentialService } from "./interface/IResidentialService";
 import { Types } from "mongoose";
 import { IAddress } from "../../models/user/interfaces/addressInterface";
+import { IPickupRequestDocument } from "../../models/pickupRequests/interfaces/pickupInterface";
 
 class ResidentialService implements IResidentialService {
   async getResidentialService(userId: string) {
@@ -39,8 +39,8 @@ class ResidentialService implements IResidentialService {
       pickupTime: updatedData.pickupTime,
       status: "Pending",
     };
-    const newPickupReq: IPickupRequestResidentialDocument =
-      await PickupResidentialRepository.createPickup(newPickuData);
+    const newPickupReq: IPickupRequestDocument =
+      await PickupRepository.createPickup(newPickuData);
     return { user: updatedUser, pickupRequest: newPickupReq };
   }
 }

@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import dayjs from "dayjs";
-import { toast } from "react-toastify";
 import residentialBannerImg from "../../assets/residential_banner_img.jpg";
 import Header from "../../components/user/Header";
 import Footer from "../../components/user/Footer";
@@ -14,21 +13,22 @@ const Residential = () => {
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const dispatch = useAppDispatch();
-  const { user, loading, error } = useSelector((state: any) => state.userResidential);
+  const { user, loading, error } = useSelector(
+    (state: any) => state.userResidential
+  );
   const token = localStorage.getItem("token");
 
   const startOfMonth = currentMonth.startOf("month");
   const endOfMonth = currentMonth.endOf("month");
   const startDay = startOfMonth.day();
   const daysInMonth = currentMonth.daysInMonth();
- 
-  console.log("token",token);
-  console.log("user",user);
+
+  console.log("token", token);
+  console.log("user", user);
   useEffect(() => {
     if (!token) return;
 
-    dispatch(getResidential(token)); 
-
+    dispatch(getResidential(token));
   }, [token, dispatch]);
 
   // useEffect(() => {
@@ -36,7 +36,7 @@ const Residential = () => {
   //     toast.error(error);
   //   }
   // }, [error]);
-  
+
   const handlePrevMonth = () => {
     setCurrentMonth(currentMonth.subtract(1, "month"));
   };
@@ -105,7 +105,7 @@ const Residential = () => {
               <div key={`empty-${idx}`}></div>
             ))}
 
-          {Array.from({ length: daysInMonth }, (_, i) => (
+          {/* {Array.from({ length: daysInMonth }, (_, i) => (
             <div
               key={i}
               className="p-2 cursor-pointer rounded hover:bg-green-100 bg-green-50"
@@ -113,11 +113,31 @@ const Residential = () => {
             >
               {i + 1}
             </div>
-          ))}
+          ))} */}
+          {Array.from({ length: daysInMonth }, (_, i) => {
+            const date = currentMonth.date(i + 1);
+            const isPastDate = date.isBefore(dayjs().startOf("day"));
+
+            return (
+              <div
+                key={i}
+                className={`p-2 rounded text-sm ${
+                  isPastDate
+                    ? "bg-gray-200 text-gray-500 cursor-not-allowed"
+                    : "cursor-pointer bg-green-50 hover:bg-green-100"
+                }`}
+                onClick={() => {
+                  if (!isPastDate) handleDateClick(i + 1);
+                }}
+              >
+                {i + 1}
+              </div>
+            );
+          })}
         </div>
       </div>
 
-       <PickupResidentialFormModal
+      <PickupResidentialFormModal
         isOpen={isFormOpen}
         onClose={() => setIsFormOpen(false)}
         selectedDate={selectedDate}

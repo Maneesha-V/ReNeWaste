@@ -1,5 +1,4 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { SignupRequest } from "../../../types/authTypes";
 import { getResidentialService, updateResidentialPickupService } from "../../../services/user/residentialService";
 import { ResidPickupReqArgs } from "../../../types/pickupTypes";
 
@@ -26,7 +25,7 @@ interface UserState {
         const response = await getResidentialService(token);
         return response.data;
       } catch (error: any) {
-        return rejectWithValue(error.response?.data?.error || "Signup failed. Please try again.");
+        return rejectWithValue(error.response?.data?.error || "Loading failed. Please try again.");
       }
     }
   );

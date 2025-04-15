@@ -21,7 +21,7 @@ const UserRoutes = () => {
         <Route path="/profile" element={<ProfilePage />} />
         <Route path="/edit-profile" element={<EditProfile />} />
         <Route path="/residential" element={<Residential />} />
-        <Route path="/residential" element={<Commercial />} />
+        <Route path="/commercial" element={<Commercial />} />
       </Route>
       <Route path="*" element={<NotFoundPage />} />
     </Routes>
