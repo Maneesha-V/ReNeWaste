@@ -10,6 +10,7 @@ export const useWastePlantValidation = () => {
     const label = formatFieldLabel(name);
 
     switch (name) {
+      case "businessName":
       case "plantName":
       case "ownerName":
       case "addressLine1":
@@ -69,7 +70,10 @@ export const useWastePlantValidation = () => {
         else if (isNaN(value) || value <= 0)
           error = `${label} must be a positive number.`;
         break;
-
+        
+      case "frequency":
+        if (!value) error = `Please select frequency.`;
+        break;
       case "subscriptionPlan":
         if (!value) error = `Please select a Subscription Plan.`;
         break;
@@ -86,7 +90,8 @@ export const useWastePlantValidation = () => {
             "Username can only contain letters, numbers, and underscores.";
         break;
       case "services":
-        if (value.length === 0) error = "At least one service must be selected.";
+        if (value.length === 0)
+          error = "At least one service must be selected.";
         break;
       default:
         break;
