@@ -308,7 +308,8 @@ const EditWastePlant = () => {
               "Medical Waste",
               "E-Waste",
               "Plastic Waste",
-              "Residential Waste",
+              "Food Waste",
+              "Residential Waste"
             ].map((service) => (
               <label key={service} className="flex items-center space-x-2">
                 <input

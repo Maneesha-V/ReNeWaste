@@ -17,10 +17,14 @@ async addWastePlant (req: Request, res: Response): Promise<void> {
     const filePath = req.file.path;
 
     let services: string[] = [];
-    if (Array.isArray(req.body.services)) {
-      services = req.body.services;
-    } else if (typeof req.body.services === "string") {
-      services = [req.body.services]; 
+    const rawServices  = req.body.services;
+ 
+    if (Array.isArray(rawServices )) {
+      services = rawServices .flatMap((s) =>
+        typeof s === "string" ? s.split(",").map((item) => item.trim()) : []
+      );
+    } else if (typeof rawServices === "string") {
+      services = rawServices.split(",").map((item) => item.trim());
     }
 
     const wastePlantData: IWastePlant = {
@@ -93,6 +97,15 @@ async updateWastePlant (req: Request,res: Response): Promise<void> {
 
     if (updatedData.capacity) {
       updatedData.capacity = Number(updatedData.capacity);
+    }
+    const rawServices = req.body.services;
+
+    if (Array.isArray(rawServices)) {
+      updatedData.services = rawServices.flatMap((s) =>
+        typeof s === "string" ? s.split(",").map((item) => item.trim()) : []
+      );
+    } else if (typeof rawServices === "string") {
+      updatedData.services = rawServices.split(",").map((item) => item.trim());
     }
     const updatedWastePlant = await WastePlantService.updateWastePlantByIdService(id,updatedData);
     console.log("wastePlant",updatedWastePlant);
