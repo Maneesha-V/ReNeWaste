@@ -27,3 +27,23 @@ export interface ResidPickupReqArgs {
   data: PartialResidPickupReq;
   token: string;
 }
+
+export interface CommPickupReq {
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  wasteType: string;
+  pickupDate: string;
+  pickupTime: string;
+  addresses: Address[];
+  service: string;
+  businessName: string;
+  frequency: string;
+}
+export type PartialCommPickupReq = Partial<CommPickupReq>;
+
+export interface CommPickupReqArgs {
+  data: PartialCommPickupReq;
+  token: string;
+}
