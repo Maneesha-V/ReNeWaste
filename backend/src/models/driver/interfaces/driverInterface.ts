@@ -1,4 +1,4 @@
-import { Document, Types } from "mongoose";
+import mongoose, { Document, Types } from "mongoose";
 
 export interface IDriver {
   name: string;
@@ -11,6 +11,8 @@ export interface IDriver {
   licenseFront: string;
   licenseBack: string;
   role: "driver" | "user" | "superadmin" | "wasteplant";
+  wasteplantId?: mongoose.Types.ObjectId;
+  assignedZone?: string;
   createdAt: Date;
   updatedAt: Date;
 }

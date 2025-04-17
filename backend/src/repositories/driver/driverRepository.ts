@@ -44,5 +44,8 @@ class DriverRepository implements IDriverRepository {
     ): Promise<IDriver | null> {
       return await DriverModel.findByIdAndUpdate(driverId, data, { new: true });
     }
+    async deleteDriverById(driverId: string) {
+        return await DriverModel.findByIdAndDelete(driverId);
+      }
 }
 export default new DriverRepository();

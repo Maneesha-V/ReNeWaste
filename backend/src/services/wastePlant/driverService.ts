@@ -43,5 +43,8 @@ class DriverService implements IDriverService {
       throw new Error("Error updating driver in service");
     }
   }
+    async deleteDriverByIdService(driverId: string) {
+      return await  DriverRepository.deleteDriverById(driverId)
+    }
 }
 export default new DriverService();

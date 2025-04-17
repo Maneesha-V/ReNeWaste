@@ -8,4 +8,5 @@ getAllDrivers(): Promise<IDriver[]>;
 updateDriverPassword(email: string, hashedPassword: string): Promise<void>;
 getDriverById(driverId: string): Promise<IDriver | null>;
 updateDriverById(driverId: string, data: any): Promise<IDriver | null>;
+deleteDriverById(driverId: string): Promise<IDriver | null>;
 }

@@ -10,6 +10,7 @@ export const getDrivers = async () => {
           Authorization: `Bearer ${token}`,
         },
       });
+      console.log("res", response);
       return response.data.data;
     } catch (error: any) {
       console.error("error", error);
@@ -17,16 +18,17 @@ export const getDrivers = async () => {
   };
   export const createDriver = async (driverData: FormData) => {
     try {
+      const token = localStorage.getItem("token");
       const response = await axios.post(
         `${API_URL}/add-driver`,
         driverData,
         {
           headers: {
+            Authorization: `Bearer ${token}`,
             "Content-Type": "multipart/form-data",
           },
         }
       );
-      console.log("res", response);
       return response.data;
     } catch (error: any) {
       console.error("Error adding driver:", error.response?.data || error);
@@ -36,7 +38,6 @@ export const getDrivers = async () => {
   export const getDriverById = async (driverId: string) => {
     try {
       const response = await axios.get(`${API_URL}/edit-driver/${driverId}`);
-      console.log("res", response);
       return response.data.data;
     } catch (error: any) {
       console.error("error", error);
@@ -53,7 +54,20 @@ export const getDrivers = async () => {
             },
           }
       );
-      console.log("res", response);
+      return response.data;
+    } catch (error: any) {
+      console.error("error", error);
+      throw error;
+    }
+  };
+  export const deleteDriverById = async (driverId: string) => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await axios.delete(`${API_URL}/delete-driver/${driverId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       return response.data;
     } catch (error: any) {
       console.error("error", error);

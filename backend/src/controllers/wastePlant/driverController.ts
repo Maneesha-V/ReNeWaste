@@ -2,11 +2,15 @@ import { Request, Response } from "express";
 import { IDriverController } from "./interface/IDriverController";
 import { IDriver } from "../../models/driver/interfaces/driverInterface";
 import DriverService from "../../services/wastePlant/driverService";
+import { ProfilePlantRequest } from "../../types/wastePlant/authTypes";
+import mongoose from "mongoose";
 
 class DriverController implements IDriverController {
 
-async addDriver (req: Request, res: Response): Promise<void> {
+async addDriver (req: ProfilePlantRequest, res: Response): Promise<void> {
   try {
+    const plantId = req.wastePlant?.plantId;
+    console.log("plantId",plantId);
     console.log("body",req.body);
     const { files } = req as any;
     console.log("files",files);
@@ -22,6 +26,7 @@ async addDriver (req: Request, res: Response): Promise<void> {
       experience: Number(req.body.experience), 
       licenseFront: licenseFrontPath,
       licenseBack: licenseBackPath,
+      wasteplantId: new mongoose.Types.ObjectId(plantId), 
     } 
     console.log("driver",driverData);
     
@@ -41,6 +46,8 @@ async addDriver (req: Request, res: Response): Promise<void> {
 async fetchDrivers (req: Request,res: Response): Promise<void> {
   try {
     const drivers = await DriverService.getAllDrivers()   
+    console.log("drivers",drivers);
+    
     res.status(200).json({
       success: true,
       message: "Fetch drivers successfully",
@@ -105,6 +112,23 @@ async updateDriver (req: Request,res: Response): Promise<void> {
     });
   } catch (error: any) {
     console.error("Error updating driver:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+}
+async deleteDriverById (req: Request,res: Response): Promise<void> {
+  try {
+    console.log("body",req.body);
+    const { driverId } = req.params;
+    const result = await DriverService.deleteDriverByIdService(driverId);
+    console.log("result-delete",result);
+    if (!result) {
+      res.status(404).json({ message: "Driver not found" });
+      return;
+    }
+
+    res.status(200).json({ message: "Driver deleted successfully" });
+  } catch (error: any) {
+    console.error("Error in deleting driver:", error);
     res.status(500).json({ message: "Server error" });
   }
 }

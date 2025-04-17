@@ -1,4 +1,4 @@
-import { Schema } from "mongoose";
+import mongoose, { Schema } from "mongoose";
 import { IDriverDocument } from "./interfaces/driverInterface";
 
 export const driverSchema: Schema<IDriverDocument> = new Schema({
@@ -13,14 +13,19 @@ export const driverSchema: Schema<IDriverDocument> = new Schema({
     default: "Active",
   },
   licenseFront: { type: String, required: true },
-  licenseBack: { type: String, required: true }, 
+  licenseBack: { type: String, required: true },
   password: { type: String, required: true },
-
   role: {
     type: String,
     enum: ["driver", "user", "superadmin", "wasteplant"],
     default: "driver",
   },
+  wasteplantId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "WastePlant",
+    default: null,
+  },
+  assignedZone: { type: String },
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },
 });

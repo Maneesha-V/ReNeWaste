@@ -4,6 +4,7 @@ import superadminReducer from "../redux/slices/superAdmin/superAdminSlice";
 import superAdminWastePlantReducer from "../redux/slices/superAdmin/superAdminWastePlantSlice";
 import wasteplantReducer from "../redux/slices/wastePlant/wastePlantSlice";
 import wastePlantDriverReducer from "../redux/slices/wastePlant/wastePlantDriverSlice";
+import wastePlantPickupReducer from "../redux/slices/wastePlant/wastePlantPickupSlice";
 import driverReducer from "../redux/slices/driver/driverSlice";
 import driverProfileReducer from "../redux/slices/driver/profileDriverSlice";
 import userResidentialReducer from "../redux/slices/user/residentialSlice";
@@ -18,6 +19,7 @@ export const store = configureStore({
         superAdminWastePlant: superAdminWastePlantReducer,
         wasteplant: wasteplantReducer,
         wastePlantDriver: wastePlantDriverReducer,
+        wastePlantPickup: wastePlantPickupReducer,
         driver: driverReducer,
         driverProfile: driverProfileReducer
     }

@@ -5,8 +5,8 @@ import { useNavigate } from "react-router-dom";
 import { useAppDispatch } from "../../redux/hooks";
 import { useSelector } from "react-redux";
 import { RootState } from "../../redux/store";
-import Breadcrumbs from "../../components/common/BreadCrumbs";
-import { fetchDrivers } from "../../redux/slices/wastePlant/wastePlantDriverSlice";
+import { deleteDriver, fetchDrivers } from "../../redux/slices/wastePlant/wastePlantDriverSlice";
+import Breadcrumbs from "../../components/common/Breadcrumbs";
 
 const Drivers: React.FC = () => {
   const dispatch = useAppDispatch();
@@ -30,8 +30,13 @@ const Drivers: React.FC = () => {
     }
   };
 
-  const handleDelete = async () => {
-    // TODO: Implement driver deletion logic
+ const handleDelete = async (driverId: string) => {
+    try {
+      await dispatch(deleteDriver(driverId)).unwrap();
+      await dispatch(fetchDrivers());
+    } catch (error: any) {
+      console.error("Delete failed:", error);
+    }
   };
 
   return (
@@ -108,7 +113,7 @@ const Drivers: React.FC = () => {
                   </Button>
                   <Popconfirm
                     title="Are you sure you want to delete?"
-                    onConfirm={handleDelete}
+                    onConfirm={() => handleDelete(record._id)}
                     okText="Yes"
                     cancelText="No"
                   >
