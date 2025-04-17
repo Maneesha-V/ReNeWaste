@@ -5,4 +5,5 @@ export interface IDriverService {
     getAllDrivers(): Promise<IDriver[]>;
     getDriverByIdService(driverId: string): Promise<IDriver | null>;
     updateDriverByIdService(driverId: string, data: any): Promise<IDriver | null>;
+    deleteDriverByIdService(driverId: string): Promise<IDriver | null>;
 }
