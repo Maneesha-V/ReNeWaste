@@ -25,6 +25,11 @@ export const driverSchema: Schema<IDriverDocument> = new Schema({
     ref: "WastePlant",
     default: null,
   },
+  assignedTruckId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Truck",
+    default: null,
+  },
   assignedZone: { type: String },
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },
