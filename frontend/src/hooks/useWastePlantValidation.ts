@@ -60,6 +60,7 @@ export const useWastePlantValidation = () => {
           }
         }
         break;
+      case "vehicleNumber":
       case "licenseNumber":
         if (!value.trim()) error = `${label} is required.`;
         break;
@@ -70,14 +71,16 @@ export const useWastePlantValidation = () => {
         else if (isNaN(value) || value <= 0)
           error = `${label} must be a positive number.`;
         break;
-        
+
       case "frequency":
         if (!value) error = `Please select frequency.`;
         break;
       case "subscriptionPlan":
         if (!value) error = `Please select a Subscription Plan.`;
         break;
-
+      case "status":
+        if (!value) error = `Please select a status.`;
+        break;
       case "password":
         if (!value) error = "Password is required.";
         else if (value.length < 6)
