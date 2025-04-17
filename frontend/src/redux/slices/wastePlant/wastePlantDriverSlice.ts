@@ -1,6 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import {
   createDriver,
+  deleteDriverById,
   getDriverById,
   getDrivers,
   updateDriverById,
@@ -64,8 +65,8 @@ export const updateDriver = createAsyncThunk(
     thunkAPI
   ) => {
     try {
-      console.log("data",data);
-      
+      console.log("data", data);
+
       const response = await updateDriverById(driverId, data);
       return response;
     } catch (error: any) {
@@ -75,7 +76,19 @@ export const updateDriver = createAsyncThunk(
     }
   }
 );
-
+export const deleteDriver = createAsyncThunk(
+  "wastePlantDriver/deleteDriver ",
+  async (driverId: string, thunkAPI) => {
+    try {
+      const response = await deleteDriverById(driverId);
+      return response;
+    } catch (error: any) {
+      return thunkAPI.rejectWithValue(
+        error.response.data || "Failed to update data."
+      );
+    }
+  }
+);
 const wastePlantDriverSlice = createSlice({
   name: "wastePlantDriver",
   initialState,
@@ -129,6 +142,11 @@ const wastePlantDriverSlice = createSlice({
       .addCase(updateDriver.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
+      })
+      .addCase(deleteDriver.fulfilled, (state, action) => {
+        state.driver = state.driver.filter(
+          (driver: any) => driver._id !== action.payload
+        );
       });
   },
 });

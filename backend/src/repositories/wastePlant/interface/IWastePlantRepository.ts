@@ -17,4 +17,5 @@ export interface IWastePlantRepository {
   findOtpByEmail(email: string): Promise<OtpRecord | null>;
   deleteOtp(email: string): Promise<void>;
   updateWastePlantPassword( email: string, hashedPassword: string): Promise<void>;
+  deleteWastePlantById(id: string): Promise<IWastePlantDocument | null>;
 }
