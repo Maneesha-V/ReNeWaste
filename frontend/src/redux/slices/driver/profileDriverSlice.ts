@@ -1,5 +1,5 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { getDriverProfile, updateProfile } from "../../../services/driver/profileService";
+import { fetchDriversService, getDriverProfile, updateProfile } from "../../../services/driver/profileService";
 import { UpdateDriverArgs } from "../../../types/driverTypes";
 
 interface DriverState {
@@ -44,6 +44,19 @@ const initialState: DriverState = {
       }
     }
   );
+  export const fetchDrivers = createAsyncThunk(
+    'driverProfile/fetchDrivers',
+    async (wastePlantId: string, { rejectWithValue }) => {
+      try {
+        const response = await fetchDriversService(wastePlantId)
+        return response.data;
+      } catch(error: any){
+        return rejectWithValue(
+          error.response?.data?.message || "Failed to fetch drivers"
+        );
+      }
+    }
+  );
 const driverProfileSlice = createSlice({
     name: "driverProfile",
     initialState,
@@ -71,6 +84,17 @@ const driverProfileSlice = createSlice({
           state.driver = action.payload.driver;
         })
         .addCase(updateDriverProfile.rejected, (state, action) => {
+          state.loading = false;
+          state.error = action.payload as string;
+        })
+        .addCase(fetchDrivers.pending, (state) => {
+          state.loading = true;
+        })
+        .addCase(fetchDrivers.fulfilled, (state, action) => {
+          state.loading = false;
+          state.driver = action.payload;
+        })
+        .addCase(fetchDrivers.rejected, (state, action) => {
           state.loading = false;
           state.error = action.payload as string;
         });

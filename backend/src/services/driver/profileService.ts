@@ -13,5 +13,8 @@ class ProfileService implements IProfileService {
 
     return await DriverRepository.updateDriverById(driverId, updatedData);
   }
+  async fetchDriversService(wastePlantId: string) {
+    return await DriverRepository.fetchDrivers(wastePlantId);
+  }
 }
 export default new ProfileService();

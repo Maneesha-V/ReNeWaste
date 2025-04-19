@@ -31,11 +31,14 @@ router.patch(
   DriverController.updateDriver
 );
 router.delete("/delete-driver/:driverId", authenticateWastePlant as RequestHandler, DriverController.deleteDriverById)
-router.get("/pickup-requests", authenticateWastePlant as RequestHandler, PickupController.getPickupRequests);
 router.get("/trucks", authenticateWastePlant as RequestHandler, TruckController.fetchTrucks);
 router.post("/add-truck", authenticateWastePlant as RequestHandler, TruckController.addTruck);
 router.get("/edit-truck/:truckId", TruckController.getTruckById);
 router.patch("/edit-truck/:truckId", authenticateWastePlant as RequestHandler, TruckController.updateTruck);
 router.delete("/delete-truck/:truckId", authenticateWastePlant as RequestHandler, TruckController.deleteTruckById)
+router.get("/pickup-requests", authenticateWastePlant as RequestHandler, PickupController.getPickupRequests);
+router.patch("/approve-pickup/:pickupReqId",authenticateWastePlant as RequestHandler, PickupController.approvePickup)
+router.put("/cancel-pickupReq/:pickupReqId",authenticateWastePlant as RequestHandler, PickupController.cancelPickup)
+router.put("/reschedule-pickup/:pickupReqId",authenticateWastePlant as RequestHandler, PickupController.reschedulePickup)
 
 export default router;

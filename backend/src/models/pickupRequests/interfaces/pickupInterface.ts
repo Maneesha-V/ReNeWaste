@@ -9,6 +9,7 @@ export interface IPickupRequest extends Document {
     originalPickupDate: Date;
     rescheduledPickupDate?: Date;
     pickupTime: string;
+    pickupId: string;
     businessName?: string;
     service?: string;
     frequency?: string;

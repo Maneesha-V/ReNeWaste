@@ -39,6 +39,11 @@ export const pickupRequestSchema: Schema<IPickupRequestDocument> = new Schema(
         type: String,
         required: true,
       },
+      pickupId: {
+        type: String,
+        required: true,
+        unique: true,
+      },
       businessName: {
         type: String,
         required: function () {
@@ -59,7 +64,7 @@ export const pickupRequestSchema: Schema<IPickupRequestDocument> = new Schema(
       },
       status: {
         type: String,
-        enum: ["Pending", "Scheduled", "Completed", "Cancelled"],
+        enum: ["Pending", "Scheduled", "Completed", "Cancelled","Scheduled"],
         default: "Pending",
       },
     },

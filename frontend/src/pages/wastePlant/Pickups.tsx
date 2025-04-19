@@ -2,14 +2,16 @@ import { useEffect, useState } from "react";
 import { Table, Button, Spin, Tag, Popconfirm } from "antd";
 import { CheckOutlined, CloseOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
-import Breadcrumbs from "../../components/common/Breadcrumbs";
-import { fetchPickupReqsts } from "../../redux/slices/wastePlant/wastePlantPickupSlice";
+import {
+  cancelPickupReq,
+  fetchPickupReqsts,
+} from "../../redux/slices/wastePlant/wastePlantPickupSlice";
 import { useAppDispatch } from "../../redux/hooks";
 import { useSelector } from "react-redux";
 import { RootState } from "../../redux/store";
 import { formatDateToDDMMYYYY } from "../../utils/formatDate";
 import AssignDriverModal from "../../components/wastePlant/AssignDriverModal";
+import ReschedulePickupModal from "../../components/wastePlant/ReschedulePickupModal";
 
 interface PickupRequest {
   _id: string;
@@ -19,20 +21,28 @@ interface PickupRequest {
   wasteType: "Residential" | "Commercial";
   originalPickupDate: string;
   pickupTime: string;
-  status: "Pending" | "Scheduled" | "Cancelled";
+  pickupId: string;
+  status: "Pending" | "Scheduled" | "Cancelled" | "Completed" | "Rescheduled";
 }
 
 const Pickups = () => {
   const [activeTab, setActiveTab] = useState<"Residential" | "Commercial">(
     "Residential"
   );
+  const [statusTab, setStatusTab] = useState<
+    "Pending" | "Scheduled" | "Completed" | "Cancelled"| "Rescheduled"
+  >("Pending");
   const [selectedPickup, setSelectedPickup] = useState<any | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
+  const [rescheduleModalVisible, setRescheduleModalVisible] = useState(false);
+  const [pickupToReschedule, setPickupToReschedule] = useState<any | null>(null);
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
-  const { pickups, loading, error } = useSelector(
+  const { loading, error } = useSelector(
     (state: RootState) => state.wastePlantPickup
   );
+  const rawPickups = useSelector((state: RootState) => state.wastePlantPickup.pickups);
+  const pickups = Array.isArray(rawPickups) ? rawPickups : rawPickups ? [rawPickups] : [];
   const token = localStorage.getItem("token");
 
   useEffect(() => {
@@ -40,18 +50,27 @@ const Pickups = () => {
       navigate("/waste-plant/");
       return;
     }
-    dispatch(fetchPickupReqsts(activeTab));
-  }, [dispatch, token, activeTab]);
+    dispatch(fetchPickupReqsts({ wasteType: activeTab, status: statusTab }));
+  }, [dispatch, token, activeTab, statusTab]);
 
   console.log("pickups", pickups);
 
-  const handleStatusUpdate = (id: string, action: "cancel") => {
-    axios
-      .patch(`/api/pickup-requests/${id}`, { status: "Cancelled" })
-      .then(() => dispatch(fetchPickupReqsts(activeTab)))
-      .catch(() => {});
+  const handleCancel = async (pickupReqId: string) => {
+    try {
+      await dispatch(
+        cancelPickupReq({ pickupReqId, status: "Cancelled" })
+      ).unwrap();
+      await dispatch(
+        fetchPickupReqsts({ wasteType: activeTab, status: statusTab })
+      );
+    } catch (error: any) {
+      console.error("Cancel failed:", error);
+    }
   };
-
+  const handleReschedule = async (pickup: PickupRequest) => {
+    setPickupToReschedule(pickup);
+    setRescheduleModalVisible(true);
+  };
   const filteredData = pickups.filter(
     (item: PickupRequest) => item.wasteType === activeTab
   );
@@ -61,33 +80,62 @@ const Pickups = () => {
       {/* Breadcrumbs and Header */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
         <div>
-          <Breadcrumbs paths={[{ label: "Pickups" }]} />
+          {/* <Breadcrumbs
+            paths={[
+              // {
+              //   label: "Scheduled Pickups",
+              //   path: "/waste-plant/scheduled-pickups",
+              // },
+              { label: "Pickups" },
+            ]}
+          /> */}
           <h1 className="text-xl font-bold text-gray-800">Pickup Requests</h1>
         </div>
       </div>
 
-      {/* Navigation Tabs */}
-      <div className="flex gap-4">
+      {/* Waste Type Tabs */}
+      <div className="flex gap-2">
         <button
-          className={`px-4 py-2 rounded-md font-medium ${
+          className={`px-4 py-2 rounded-md font-medium border transition ${
             activeTab === "Residential"
-              ? "bg-blue-600 text-white"
-              : "bg-gray-200 text-gray-800"
+              ? "bg-green-600 text-white border-green-600"
+              : "bg-white text-green-600 border-green-600 hover:bg-green-50"
           }`}
           onClick={() => setActiveTab("Residential")}
         >
           Residential
         </button>
         <button
-          className={`px-4 py-2 rounded-md font-medium ${
+          className={`px-4 py-2 rounded-md font-medium border transition ${
             activeTab === "Commercial"
-              ? "bg-blue-600 text-white"
-              : "bg-gray-200 text-gray-800"
+              ? "bg-green-600 text-white border-green-600"
+              : "bg-white text-green-600 border-green-600 hover:bg-green-50"
           }`}
           onClick={() => setActiveTab("Commercial")}
         >
           Commercial
         </button>
+      </div>
+
+      {/* Status Tabs */}
+      <div className="flex gap-2">
+        {["Pending", "Scheduled", "Completed", "Cancelled","Rescheduled"].map((status) => (
+          <button
+            key={status}
+            className={`px-4 py-2 rounded-md font-medium border transition ${
+              statusTab === status
+                ? "bg-blue-600 text-white border-blue-600"
+                : "bg-white text-blue-600 border-blue-600 hover:bg-blue-50"
+            }`}
+            onClick={() =>
+              setStatusTab(
+                status as "Pending" | "Scheduled" | "Completed" | "Cancelled" | "Rescheduled"
+              )
+            }
+          >
+            {status}
+          </button>
+        ))}
       </div>
 
       {/* Table */}
@@ -107,6 +155,11 @@ const Pickups = () => {
             pagination={{ pageSize: 10 }}
           >
             <Table.Column
+              title="Pickup ID"
+              dataIndex="pickupId"
+              key="pickupId"
+            />
+            <Table.Column
               title="User Name"
               dataIndex="userName"
               key="userName"
@@ -120,7 +173,10 @@ const Pickups = () => {
               title="Pickup Date"
               dataIndex="originalPickupDate"
               key="originalPickupDate"
-              render={(date: string) => formatDateToDDMMYYYY(date)}
+              render={(text: string,record: any) => {
+                const dateToDisplay = record.rescheduledDate || record.originalPickupDate;
+                return formatDateToDDMMYYYY(dateToDisplay);
+              }}
             />
             <Table.Column
               title="Time"
@@ -151,6 +207,20 @@ const Pickups = () => {
                 />
               </>
             )}
+            {statusTab === "Scheduled" && (
+              <>
+                <Table.Column
+                  title="Assigned Driver"
+                  dataIndex="driverName"
+                  key="driverName"
+                />
+                <Table.Column
+                  title="Assigned Zone"
+                  dataIndex="assignedZone"
+                  key="assignedZone"
+                />
+              </>
+            )}
             <Table.Column
               title="Status"
               dataIndex="status"
@@ -162,6 +232,8 @@ const Pickups = () => {
                       ? "orange"
                       : status === "Scheduled"
                       ? "green"
+                       : status === "Rescheduled"
+                      ? "blue"
                       : "red"
                   }
                 >
@@ -169,37 +241,55 @@ const Pickups = () => {
                 </Tag>
               )}
             />
-            <Table.Column
-              title="Last Action"
-              key="action"
-              render={(_: any, record: PickupRequest) =>
-                record.status === "Pending" ? (
-                  <div className="flex flex-wrap gap-2">
-                    <Button
-                      type="primary"
-                      size="small"
-                      icon={<CheckOutlined />}
-                      onClick={() => {
-                        setSelectedPickup(record);
-                        setModalVisible(true);
-                      }}
-                    >
-                      Approve
-                    </Button>
-                    <Popconfirm
-                      title="Are you sure you want to cancel this request?"
-                      onConfirm={() => handleStatusUpdate(record._id, "cancel")}
-                      okText="Yes"
-                      cancelText="No"
-                    >
-                      <Button danger size="small" icon={<CloseOutlined />}>
-                        Cancel
-                      </Button>
-                    </Popconfirm>
-                  </div>
-                ) : null
-              }
-            />
+            {(statusTab === "Pending" || statusTab === "Scheduled") && (
+              <Table.Column
+                title="Action"
+                key="action"
+                render={(_: any, record: PickupRequest) => {
+                  if (record.status === "Pending") {
+                    return (
+                      <div className="flex flex-wrap gap-2">
+                        <Button
+                          type="primary"
+                          size="small"
+                          icon={<CheckOutlined />}
+                          onClick={() => {
+                            setSelectedPickup(record);
+                            setModalVisible(true);
+                          }}
+                        >
+                          Approve
+                        </Button>
+                        <Popconfirm
+                          title="Are you sure you want to cancel this request?"
+                          onConfirm={() => handleCancel(record._id)}
+                          okText="Yes"
+                          cancelText="No"
+                        >
+                          <Button danger size="small" icon={<CloseOutlined />}>
+                            Cancel
+                          </Button>
+                        </Popconfirm>
+                      </div>
+                    );
+                  } else if (record.status === "Scheduled") {
+                    return (
+                      <Popconfirm
+                        title="Are you sure to reschedule this request?"
+                        onConfirm={() => handleReschedule(record)}
+                        okText="Yes"
+                        cancelText="No"
+                      >
+                        <Button type="dashed" size="small">
+                          Reschedule
+                        </Button>
+                      </Popconfirm>
+                    );
+                  }
+                  return null;
+                }}
+              />
+            )}
           </Table>
         </div>
       )}
@@ -207,8 +297,21 @@ const Pickups = () => {
         visible={modalVisible}
         onClose={() => setModalVisible(false)}
         pickup={selectedPickup}
-        onSuccess={() => dispatch(fetchPickupReqsts(activeTab))}
+        onSuccess={() =>
+          dispatch(
+            fetchPickupReqsts({ wasteType: activeTab, status: statusTab })
+          )
+        }
       />
+      <ReschedulePickupModal
+  visible={rescheduleModalVisible}
+  onClose={() => setRescheduleModalVisible(false)}
+  pickup={pickupToReschedule}
+  onSubmit={() => {
+    dispatch(fetchPickupReqsts({ wasteType: activeTab, status: statusTab }));
+  }}
+/>
+
     </div>
   );
 };

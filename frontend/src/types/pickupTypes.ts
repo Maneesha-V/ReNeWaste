@@ -47,3 +47,10 @@ export interface CommPickupReqArgs {
   data: PartialCommPickupReq;
   token: string;
 }
+export interface ApprovePickupPayload {
+  pickupReqId: string;
+  pickupId: string;
+  status: string;
+  driverId: string;
+  assignedZone: string;
+}

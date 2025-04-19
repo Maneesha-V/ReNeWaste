@@ -1,7 +1,10 @@
 import { Modal, Select, Input, Form, Button } from "antd";
-import { useEffect, useState } from "react";
-import axios from "axios";
+import { useEffect } from "react";
 import { useAppDispatch } from "../../redux/hooks";
+import { fetchDrivers } from "../../redux/slices/driver/profileDriverSlice";
+import { RootState } from "../../redux/store";
+import { useSelector } from "react-redux";
+import { approvePickup } from "../../redux/slices/wastePlant/wastePlantPickupSlice";
 
 interface AssignDriverModalProps {
   visible: boolean;
@@ -16,27 +19,27 @@ const AssignDriverModal = ({
   pickup,
   onSuccess,
 }: AssignDriverModalProps) => {
-  const [drivers, setDrivers] = useState([]);
   const dispatch = useAppDispatch();
+  const { driver } = useSelector((state: RootState) => state.driverProfile);
   const [form] = Form.useForm();
 
-    useEffect(() => {
-      if (visible) {
-        // Fetch drivers associated with this waste plant
-        axios.get(`/api/drivers?wastePlantId=${pickup?.wastePlantId}`).then((res) => {
-          setDrivers(res.data);
-        });
-      }
-    }, [visible, pickup]);
+  useEffect(() => {
+    if (visible && pickup?.wasteplantId) {
+      dispatch(fetchDrivers(pickup.wasteplantId));
+    }
+  }, [visible, pickup?.wasteplantId]);
 
   const handleAssign = async () => {
     try {
       const values = await form.validateFields();
-      await axios.patch(`/api/pickup-requests/${pickup._id}`, {
+      await dispatch(approvePickup({
+        pickupReqId: pickup._id,
+        pickupId: pickup.pickupId,
         status: "Scheduled",
         driverId: values.driver,
-        assignedZone: values.zone,
-      });
+        assignedZone: values.assignedZone,
+      })).unwrap(); 
+  
       onSuccess();
       onClose();
     } catch (err) {
@@ -56,7 +59,7 @@ const AssignDriverModal = ({
       <div className="mb-4 grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <p>
-            <strong>PickupID:</strong> {pickup?.userName}
+            <strong>PickupID:</strong> {pickup?.pickupId}
           </p>
           <p>
             <strong>User:</strong> {pickup?.userName}
@@ -91,12 +94,13 @@ const AssignDriverModal = ({
 
       <Form form={form} layout="vertical">
         <Form.Item
-          label="Driver"
+          label="Assign Driver"
           name="driver"
           rules={[{ required: true, message: "Please select a driver" }]}
         >
           <Select placeholder="Select Driver">
-            {drivers.map((driver: any) => (
+            {Array.isArray(driver) &&
+              driver.map((driver: any) => (
               <Select.Option key={driver._id} value={driver._id}>
                 {driver.name}
               </Select.Option>
@@ -104,7 +108,7 @@ const AssignDriverModal = ({
           </Select>
         </Form.Item>
         <Form.Item
-          label="Assigned Zone"
+          label="Assign Zone"
           name="assignedZone"
           rules={[{ required: true, message: "Please enter zone" }]}
         >

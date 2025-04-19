@@ -101,6 +101,7 @@ export const resetPassword = createAsyncThunk(
     }
   }
 );
+
 const driverSlice = createSlice({
   name: "driver",
   initialState,
@@ -176,7 +177,7 @@ const driverSlice = createSlice({
       .addCase(resetPassword.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
-      });
+      })
   },
 });
 

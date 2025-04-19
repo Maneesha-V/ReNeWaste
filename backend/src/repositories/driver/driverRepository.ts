@@ -1,3 +1,4 @@
+import { Types } from "mongoose";
 import { DriverModel } from "../../models/driver/driverModel";
 import {
   IDriver,
@@ -46,6 +47,25 @@ class DriverRepository implements IDriverRepository {
     }
     async deleteDriverById(driverId: string) {
         return await DriverModel.findByIdAndDelete(driverId);
+      }
+      async fetchDrivers(wastePlantId: string) {
+        const objectId = new Types.ObjectId(wastePlantId);
+        return await DriverModel.find({wasteplantId: objectId, status: "Active"}).sort({ name: 1 });
+      };
+      async updateDriverAssignedZone(
+        driverId: string,
+        assignedZone: string
+      ) {
+        const objectId = new Types.ObjectId(driverId);
+        return await DriverModel.findByIdAndUpdate(
+          objectId,
+          {
+            $set: {
+              assignedZone: assignedZone,
+            },
+          },
+          { new: true }
+        );
       }
 }
 export default new DriverRepository();

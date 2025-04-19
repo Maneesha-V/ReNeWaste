@@ -34,3 +34,7 @@ export const getDriverProfile = async () => {
       throw error.response?.data?.error || "Updation failed. Please try again.";
     }
   };
+  export const fetchDriversService = async(wastePlantId: string) => {
+    const response = await axios.get(`${API_URL}/drivers?wastePlantId=${wastePlantId}`);
+    return response.data;
+  }
