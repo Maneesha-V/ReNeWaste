@@ -20,3 +20,24 @@ export interface IPickupRequest extends Document {
     export interface IPickupRequestDocument extends IPickupRequest, Document {
       _id: Types.ObjectId;
     }
+
+    export  interface Address {
+      _id: string;
+      addressLine1: string;
+      addressLine2?: string;
+      taluk: string;
+      location: string;
+      state: string;
+      pincode: string;
+      district: string;
+    }
+    export interface PopulatedUser {
+      _id: Types.ObjectId;
+      firstName: string;
+      lastName: string;
+      addresses: Address[];
+    }
+
+  export type PopulatedPickup = Omit<IPickupRequestDocument, 'userId'> & {
+  userId: PopulatedUser;
+};

@@ -18,3 +18,8 @@ export interface UpdateDriverArgs {
   data: FormData;
   token: string;
 }
+
+type WasteType = "Residential" | "Commercial";
+export interface FetchPickupsParams {
+  wasteType: WasteType;
+}

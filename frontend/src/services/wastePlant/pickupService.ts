@@ -52,19 +52,6 @@ export const getPickups = async (
     return response.data.data;
   };
 
-  export const getScheduledPickups = async (wasteType: "Residential" | "Commercial") => {
-    try {
-      const token = localStorage.getItem("token");
-      const response = await axios.get(`${API_URL}/scheduled-pickups?status=Scheduled&wasteType=${wasteType}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      return response.data.data;
-    } catch (error: any) {
-      console.error("error", error);
-    }
-  };
   export const cancelPickupReqById = async (pickupReqId: string, status: string) => {
     try {
       const token = localStorage.getItem("token");

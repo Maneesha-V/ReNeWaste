@@ -3,7 +3,6 @@ import {
   approvePickupService,
   cancelPickupReqById,
   getPickups,
-  getScheduledPickups,
   reschedulePickupService,
 } from "../../../services/wastePlant/pickupService";
 import { ApprovePickupPayload } from "../../../types/pickupTypes";

@@ -10,6 +10,7 @@ import driverReducer from "../redux/slices/driver/driverSlice";
 import driverProfileReducer from "../redux/slices/driver/profileDriverSlice";
 import userResidentialReducer from "../redux/slices/user/residentialSlice";
 import userCommercialReducer from "../redux/slices/user/commercialSlice";
+import driverPickupsReducer from "../redux/slices/driver/pickupDriverSlice";
 
 export const store = configureStore({
     reducer : {
@@ -24,6 +25,7 @@ export const store = configureStore({
         wastePlantPickup: wastePlantPickupReducer,
         driver: driverReducer,
         driverProfile: driverProfileReducer,
+        driverPickups: driverPickupsReducer,
     }
 })
 
