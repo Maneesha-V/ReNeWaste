@@ -20,6 +20,13 @@ class ProfileService implements IProfileService {
         console.error(`No waste plant found for taluk: ${userTaluk}`);
         updatedData.wasteplantId = null;;
       }
+      updatedData.addresses = updatedData.addresses.map(
+        (addr: { _id?: string; [key: string]: any }) => {
+          const { _id, ...rest } = addr;
+          return { ...rest };
+        }
+      );
+      
       return await UserRepository.updateUserProfileById(userId, updatedData);
     } catch (error) {
       console.error("Service Error:", error);
