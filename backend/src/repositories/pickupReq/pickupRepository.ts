@@ -175,6 +175,7 @@ class PickupRepository implements IPickupRepository {
     const pickups = await PickupModel.find({
       driverId: driverId,
       wasteType: wasteType,
+      status: {$in: ["Scheduled", "Rescheduled"]}
     })
     .populate({
       path: "userId",
