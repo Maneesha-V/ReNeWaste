@@ -1,9 +1,11 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { getDriverPickups, markPickupService } from "../../../services/driver/pickupService";
+import { fetchEtaService, fetchPickupByIdService, getDriverPickups, markPickupService } from "../../../services/driver/pickupService";
 import { FetchPickupsParams } from "../../../types/driverTypes";
 
 interface PickupState {
   pickups: any;
+  selectedPickup: any;
+  eta: string | null;
   loading: boolean;
   message: string | null;
   error: string | null;
@@ -11,6 +13,8 @@ interface PickupState {
 
 const initialState: PickupState = {
   pickups: [],
+  selectedPickup: null, 
+  eta: null,
   loading: false,
   message: null,
   error: null,
@@ -38,6 +42,30 @@ export const markPickupCompleted = createAsyncThunk(
       }
     }
   );
+  export const fetchPickupById = createAsyncThunk(
+    "driverPickups/fetchPickupById",
+    async (pickupReqId: string, { rejectWithValue }) => {
+      try { 
+        const response = await fetchPickupByIdService(pickupReqId);
+        return response;
+      } catch (err: any) {
+        console.error("err",err);
+        return rejectWithValue(err.response?.data?.message || "Unable to fetch pickup");
+      }
+    }
+  );
+  export const fetchEta  = createAsyncThunk(
+    "driverPickups/fetchEta",
+    async ({ origin, destination, pickupReqId }: { origin: string; destination: string; pickupReqId: string }, { rejectWithValue }) => {
+      try { 
+        const response = await fetchEtaService({ origin, destination, pickupReqId});
+        return response;
+      } catch (err: any) {
+        console.error("err",err);
+        return rejectWithValue(err.response?.data?.message || "Unable to calculate ETA");
+      }
+    }
+  );
 const driverPickupSlice = createSlice({
   name: "driverPickups",
   initialState,
@@ -60,6 +88,30 @@ const driverPickupSlice = createSlice({
         state.pickups = state.pickups.map((pickup: any) =>
           pickup._id === action.payload._id ? action.payload : pickup
         );
+      })
+      .addCase(fetchPickupById.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchPickupById.fulfilled, (state, action) => {
+        state.selectedPickup = action.payload;
+        state.loading = false;
+      })
+      .addCase(fetchPickupById.rejected, (state, action) => {
+        state.error = action.payload as string;
+        state.loading = false;
+      })
+      .addCase(fetchEta.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchEta.fulfilled, (state, action) => {
+        state.loading = false;
+        state.eta = action.payload;
+      })
+      .addCase(fetchEta.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
       });
 },
 });

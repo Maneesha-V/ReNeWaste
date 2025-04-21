@@ -8,12 +8,14 @@ import {
   fetchDriverPickups,
   markPickupCompleted,
 } from "../../redux/slices/driver/pickupDriverSlice";
+import { useNavigate } from "react-router-dom";
 
 const AllotedPickups = () => {
   const [activeTab, setActiveTab] = useState<"Residential" | "Commercial">(
     "Residential"
   );
   const dispatch = useAppDispatch();
+  const navigate = useNavigate();
   const { loading, error, pickups } = useSelector(
     (state: RootState) => state.driverPickups
   );
@@ -130,7 +132,7 @@ const AllotedPickups = () => {
               title="Actions"
               render={(_: any, record: any) => (
                 <div className="flex gap-2">
-                  <Button type="default" onClick={() => alert("Track logic")}>
+                  <Button type="default" onClick={() => navigate(`/driver/track-pickup/${record._id}`)}>
                     Track
                   </Button>
                   {record.status !== "Completed" && (

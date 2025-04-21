@@ -6,6 +6,7 @@ import DashboardDriver from "../pages/driver/DashboardDriver"
 import ProfileDriver from "../pages/driver/ProfileDriver"
 import EditProfileDriver from "../pages/driver/EditProfileDriver"
 import AllotedPickups from "../pages/driver/AllotedPickups"
+import TrackPickup from "../pages/driver/TrackPickup"
 
 const DriverRoutes = () => {
   return (
@@ -17,6 +18,7 @@ const DriverRoutes = () => {
         <Route path="/profile" element={<ProfileDriver />} />
         <Route path="/edit-profile" element={<EditProfileDriver />} />
         <Route path="/alloted-pickups" element={<AllotedPickups />} />
+        <Route path="/track-pickup/:pickupReqId" element={<TrackPickup />} />
       </Route>  
     </Routes>
   )
