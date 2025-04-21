@@ -67,6 +67,15 @@ export const pickupRequestSchema: Schema<IPickupRequestDocument> = new Schema(
         enum: ["Pending", "Scheduled", "Completed", "Cancelled","Scheduled"],
         default: "Pending",
       },
+      eta: {
+        text: { type: String, default: null },
+        value: { type: Number, default: null },
+      },
+      trackingStatus: {
+        type: String,
+        enum: ["Assigned", "InTransit", "Near", "Arrived", "Completed"],
+        default: null,
+      },
     },
     {
       timestamps: true,

@@ -14,6 +14,11 @@ export interface IPickupRequest extends Document {
     service?: string;
     frequency?: string;
     status: string;
+    trackingStatus?: 'Assigned' | 'InTransit' | 'Near' | 'Arrived' | 'Completed' | null;
+    eta?: {
+      text: string | null;
+      value: number | null;
+    };
     createdAt: Date;
     updatedAt: Date;
   }

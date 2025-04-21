@@ -18,6 +18,7 @@ router.get("/profile",authenticateDriver as RequestHandler, ProfileController.ge
 router.patch("/edit-profile",authenticateDriver as RequestHandler,upload.none(),ProfileController.updateProfile)
 router.get("/drivers",ProfileController.getDriversByWastePlant)
 router.get("/alloted-pickups", authenticateDriver as RequestHandler, PickupController.getPickupRequests);
+router.get("/track-pickup/:pickupReqId", authenticateDriver as RequestHandler, PickupController.getPickupRequestById)
 
 export default router;
 

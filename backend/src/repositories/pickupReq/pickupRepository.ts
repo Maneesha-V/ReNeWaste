@@ -1,10 +1,11 @@
 import mongoose, { Types } from "mongoose";
-import { IPickupRequest, PopulatedPickup } from "../../models/pickupRequests/interfaces/pickupInterface";
+import { IPickupRequest, IPickupRequestDocument, PopulatedPickup } from "../../models/pickupRequests/interfaces/pickupInterface";
 import { PickupModel } from "../../models/pickupRequests/pickupModel";
 import { PickupFilterParams } from "../../types/wastePlant/authTypes";
-import { IPickupRepository } from "./interface/IPickupRepository";
+import { EnhancedPickup, IPickupRepository } from "./interface/IPickupRepository";
 import { IUpdatePickupRequest } from "../../types/wastePlant/pickupTypes";
 import { PickupDriverFilterParams } from "../../types/driver/pickupTypes";
+import { UserModel } from "../../models/user/userModel";
 
 class PickupRepository implements IPickupRepository {
   async getPickupById(pickupReqId: string) {
@@ -197,6 +198,44 @@ class PickupRepository implements IPickupRepository {
     
 
     return enhancedPickups;
+  }
+  async findPickupByIdAndDriver (pickupReqId: string, driverId: string) {
+    const objectIdPickup = new Types.ObjectId(pickupReqId);
+    const objectIdDriver = new Types.ObjectId(driverId);
+    const pickup = await PickupModel.findOne({ _id: objectIdPickup, driverId: objectIdDriver })
+    .lean() as EnhancedPickup;;
+    
+    if (!pickup) return null;
+
+    const user = await UserModel.findOne(
+      { _id: pickup.userId, "addresses._id": pickup.addressId },
+      { "addresses.$": 1, firstName: 1, lastName: 1 }
+    ).lean();
+
+    if (user && user.addresses?.[0]) {
+      pickup.selectedAddress = user.addresses[0];
+      pickup.userFullName = `${user.firstName} ${user.lastName}`;
+    } else {
+      pickup.selectedAddress = null;
+      pickup.userFullName = "Unknown User";
+    }
+
+    return pickup;
+
+  }
+  async updateETAAndTracking(
+    pickupReqId: string,
+    updateFields: {
+      eta: { text: string; value: number };
+      trackingStatus: 'Assigned';
+    }
+  ) {
+    const res = await PickupModel.findByIdAndUpdate(pickupReqId, {
+      eta: updateFields.eta,
+      trackingStatus: updateFields.trackingStatus
+    });
+    console.log("trackk",res);
+    
   }
 }
 export default new PickupRepository();

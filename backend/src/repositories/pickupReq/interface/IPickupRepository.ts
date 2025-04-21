@@ -3,8 +3,8 @@ import { PickupDriverFilterParams } from "../../../types/driver/pickupTypes";
 import { PickupFilterParams } from "../../../types/wastePlant/authTypes";
 import { IUpdatePickupRequest } from "../../../types/wastePlant/pickupTypes";
 export interface EnhancedPickup extends IPickupRequest {
-    userFullName: string;
-    selectedAddress: any; 
+    userFullName?: string;
+    selectedAddress?: any; 
   }
 export interface IPickupRepository {
     getPickupById(pickupReqId: string): Promise<IPickupRequestDocument>;
