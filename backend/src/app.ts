@@ -8,6 +8,7 @@ import userRoutes from "./routes/userRoutes";
 import superAdminRoutes from "./routes/superAdminRoutes";
 import wastePlantRoutes from "./routes/wastePlantRoutes";
 import driverRoutes from "./routes/driverRoutes";
+import mapsRoutes from "./routes/mapRoutes";
 
 dotenv.config();
 
@@ -28,6 +29,7 @@ app.use("/api", userRoutes);
 app.use("/api/super-admin", superAdminRoutes);
 app.use("/api/waste-plant", wastePlantRoutes);
 app.use("/api/driver", driverRoutes);
+app.use("/api/maps", mapsRoutes);
 
 const PORT = process.env.PORT || 5001;
 
