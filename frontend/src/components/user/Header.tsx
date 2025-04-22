@@ -63,7 +63,7 @@ const Header = () => {
                   Pay Now
                 </button>
                 <button
-                  onClick={() => handleNavigation("/pickup-plan")}
+                  onClick={() => handleNavigation("/pickup-plans")}
                   className="block w-full px-4 py-2 text-left hover:bg-gray-600"
                 >
                   Pickup Plan
@@ -80,7 +80,7 @@ const Header = () => {
 
           <div className="hidden md:flex items-center space-x-6">
             <button
-              onClick={() => handleNavigation("/pickup-plan")}
+              onClick={() => handleNavigation("/pickup-plans")}
               className="hover:text-green-600"
             >
               Pickup Plan

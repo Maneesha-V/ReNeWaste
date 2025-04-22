@@ -3,6 +3,7 @@ import UserController from "../controllers/user/userController";
 import ProfileController  from "../controllers/user/profileController";
 import ResidentialController from "../controllers/user/residentialController";
 import CommercialController from "../controllers/user/commercialController";
+import PickupController from "../controllers/user/pickupController";
 import { authenticateUser } from "../middlewares/authMiddware"
 import { RequestHandler } from "express"; 
 
@@ -28,5 +29,6 @@ router.patch("/residential/pickup", authenticateUser as RequestHandler, Resident
 router.get("/commercial", authenticateUser as RequestHandler, CommercialController.getCommercial)
 router.post("/commercial/service-check", authenticateUser as RequestHandler, CommercialController.checkServiceAvailable)
 router.patch("/commercial/pickup", authenticateUser as RequestHandler, CommercialController.updateCommercialPickup)
+router.get("/pickup-plans", authenticateUser as RequestHandler, PickupController.getPickupPlans)
 
 export default router;

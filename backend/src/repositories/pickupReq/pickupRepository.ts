@@ -237,5 +237,8 @@ class PickupRepository implements IPickupRepository {
     console.log("trackk",res);
     
   }
+  async getPickupPlansByUserId(userId: string) {
+    return await PickupModel.find({ userId });
+  }
 }
 export default new PickupRepository();

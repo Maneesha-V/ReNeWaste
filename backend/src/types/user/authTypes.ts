@@ -1,3 +1,4 @@
+import { Request } from "express";
 import { IUserDocument } from "../../models/user/interfaces/userInterface";
 
 export interface LoginRequest {
@@ -28,3 +29,6 @@ export interface OtpRecord {
   otp: string;
   createdAt: Date; 
 }
+export interface ProfileUserRequest extends Request {
+    user?: { id: string };
+  }

@@ -9,6 +9,7 @@ import ForgotPassword from "../pages/user/ForgotPassword";
 import OtpVerificationWrapper from "../components/user/OtpVerificationWrapper";
 import Residential from "../pages/user/Residential";
 import Commercial from "../pages/user/Commercial";
+import PickupPlans from "../pages/user/PickupPlans";
 
 const UserRoutes = () => {
   return (
@@ -22,6 +23,7 @@ const UserRoutes = () => {
         <Route path="/edit-profile" element={<EditProfile />} />
         <Route path="/residential" element={<Residential />} />
         <Route path="/commercial" element={<Commercial />} />
+        <Route path="/pickup-plans" element={<PickupPlans />} />
       </Route>
       <Route path="*" element={<NotFoundPage />} />
     </Routes>

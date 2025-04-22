@@ -19,7 +19,7 @@ export const pickupRequestSchema: Schema<IPickupRequestDocument> = new Schema(
       },
       addressId: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "Address", // or 'User.addresses', depending on how you model addresses
+        ref: "Address", 
         required: true,
       },
       wasteType: {

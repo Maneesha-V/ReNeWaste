@@ -14,4 +14,5 @@ export interface IPickupRepository {
     updatePickupRequest(pickupReqId: string, updatePayload: IUpdatePickupRequest): Promise<IPickupRequestDocument>;
     updatePickupDate(pickupReqId: string, updateData: any): Promise<IPickupRequestDocument>;
     getPickupsByDriverId(filters: PickupDriverFilterParams): Promise<EnhancedPickup[]>;
+    getPickupPlansByUserId(userId: string): Promise<IPickupRequestDocument[]>;
 }
