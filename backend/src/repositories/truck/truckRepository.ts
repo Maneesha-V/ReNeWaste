@@ -22,6 +22,14 @@ class TruckRepository implements ITruckRepository {
   async getAllTrucks(): Promise<ITruck[]> {
     return await TruckModel.find();
   }
+  async getAvailableTrucks(driverId: string): Promise<ITruck[]> {
+    const existingTruck = await TruckModel.findOne({ assignedDriver: driverId });
+    if (existingTruck) {
+      return [existingTruck]; 
+    }
+  
+    return await TruckModel.find({ assignedDriver: null });
+  }
   async getTruckById(truckId: string) {
     return await TruckModel.findById(truckId);
   }

@@ -16,6 +16,20 @@ export const getTrucks = async () => {
       console.error("error", error);
     }
   };
+  export const getAvailableTrucks = async (driverId: string) => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await axios.get(`${API_URL}/available-trucks?driverId=${driverId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      console.log("res", response);
+      return response.data.data;
+    } catch (error: any) {
+      console.error("error", error);
+    }
+  };
   export const createTruck = async (truckData: FormData) => {
     try {
       const token = localStorage.getItem("token");

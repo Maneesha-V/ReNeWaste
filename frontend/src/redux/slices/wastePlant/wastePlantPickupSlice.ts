@@ -46,6 +46,7 @@ export const approvePickup = createAsyncThunk(
       status,
       driverId,
       assignedZone,
+      assignedTruckId,
     }: ApprovePickupPayload,
     thunkAPI
   ) => {
@@ -55,7 +56,8 @@ export const approvePickup = createAsyncThunk(
         pickupId,
         status,
         driverId,
-        assignedZone
+        assignedZone,
+        assignedTruckId,
       );
       return response.data;
     } catch (error: any) {

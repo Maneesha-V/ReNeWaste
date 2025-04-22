@@ -19,7 +19,9 @@ class TruckService implements ITruckService {
   async getAllTrucks(): Promise<ITruck[]> {
     return await TruckRepository.getAllTrucks();
   }
-
+  async getAvailableTrucks(driverId: string): Promise<ITruck[]> {
+    return await TruckRepository.getAvailableTrucks(driverId);
+  }
   async getTruckByIdService(truckId: string): Promise<ITruck | null> {
     try {
       return await TruckRepository.getTruckById(truckId);

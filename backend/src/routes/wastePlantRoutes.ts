@@ -32,6 +32,7 @@ router.patch(
 );
 router.delete("/delete-driver/:driverId", authenticateWastePlant as RequestHandler, DriverController.deleteDriverById)
 router.get("/trucks", authenticateWastePlant as RequestHandler, TruckController.fetchTrucks);
+router.get("/available-trucks", authenticateWastePlant as RequestHandler, TruckController.fetchAvailableTrucks);
 router.post("/add-truck", authenticateWastePlant as RequestHandler, TruckController.addTruck);
 router.get("/edit-truck/:truckId", TruckController.getTruckById);
 router.patch("/edit-truck/:truckId", authenticateWastePlant as RequestHandler, TruckController.updateTruck);

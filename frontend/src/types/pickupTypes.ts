@@ -53,4 +53,5 @@ export interface ApprovePickupPayload {
   status: string;
   driverId: string;
   assignedZone: string;
+  assignedTruckId: string;
 }

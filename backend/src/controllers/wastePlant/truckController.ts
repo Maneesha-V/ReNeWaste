@@ -45,7 +45,26 @@ async fetchTrucks (req: Request,res: Response): Promise<void> {
     res.status(500).json({ message: "Error fetching trucks.", error });
   }
 }
+async fetchAvailableTrucks (req: Request,res: Response): Promise<void> {
+  try {
+    const { driverId } = req.query;
+    if (typeof driverId !== "string") {
+      res.status(400).json({ message: "Invalid or missing driverId" });
+      return;
+    }
 
+    const trucks = await TruckService.getAvailableTrucks(driverId)   
+    console.log("trucks",trucks);
+    res.status(200).json({
+      success: true,
+      message: "Fetch trucks successfully",
+      data: trucks,
+    });
+  }catch (error:any){
+    console.error("err",error);
+    res.status(500).json({ message: "Error fetching trucks.", error });
+  }
+}
 async getTruckById (req: Request,res: Response): Promise<void> {
   try {
     const { truckId } = req.params;

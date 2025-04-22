@@ -23,6 +23,7 @@ async addDriver (req: ProfilePlantRequest, res: Response): Promise<void> {
     const licenseBackPath = files.licenseBack[0].path;
     const driverData: IDriver = {
       ...req.body,
+      licenseNumber: req.body.licenseNumber?.trim(),
       experience: Number(req.body.experience), 
       licenseFront: licenseFrontPath,
       licenseBack: licenseBackPath,

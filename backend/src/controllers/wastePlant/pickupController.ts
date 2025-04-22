@@ -30,10 +30,10 @@ async getPickupRequests (req: ProfilePlantRequest, res: Response): Promise<void>
 
 async approvePickup(req: ProfilePlantRequest, res: Response): Promise<void> {
   try {
-    const { status, driverId, assignedZone } = req.body;
+    const { status, driverId, assignedZone, assignedTruckId } = req.body;
     const { pickupReqId } = req.params;
 
-    if (!status || !driverId || !assignedZone) {
+    if (!status || !driverId || !assignedZone || !assignedTruckId) {
       res.status(400).json({ message: "All fields are required" });
       return;
     }
@@ -43,6 +43,7 @@ async approvePickup(req: ProfilePlantRequest, res: Response): Promise<void> {
       status,
       driverId,
       assignedZone,
+      assignedTruckId
     });
 
     res.status(200).json({ message: "Pickup approved successfully", data: result });

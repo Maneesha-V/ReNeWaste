@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { createTruck, deleteTruckById, getTruckById, getTrucks, updateTruckById } from "../../../services/wastePlant/truckService";
+import { createTruck, deleteTruckById, getAvailableTrucks, getTruckById, getTrucks, updateTruckById } from "../../../services/wastePlant/truckService";
 
 
 interface TruckState {
@@ -34,6 +34,19 @@ export const fetchTrucks = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const response = await getTrucks();
+      return response;
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data || "Failed to fetch trucks"
+      );
+    }
+  }
+);
+export const fetchAvailableTrucks = createAsyncThunk(
+  "wastePlantTruck/fetchAvailableTrucks",
+  async (driverId: string, { rejectWithValue }) => {
+    try {
+      const response = await getAvailableTrucks(driverId);
       return response;
     } catch (error: any) {
       return rejectWithValue(
@@ -99,6 +112,18 @@ const wastePlantTruckSlice = createSlice({
         state.truck = action.payload;
       })
       .addCase(fetchTrucks.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      })
+      .addCase(fetchAvailableTrucks.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchAvailableTrucks.fulfilled, (state, action) => {
+        state.loading = false;
+        state.truck = action.payload;
+      })
+      .addCase(fetchAvailableTrucks.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
       })

@@ -22,14 +22,16 @@ export const getPickups = async (
     pickupId: string,
     status: string,
     driverId: string,
-    assignedZone: string ) =>{
+    assignedZone: string,
+    assignedTruckId: string ) =>{
     const token = localStorage.getItem("token");
     const response = await axios.patch(`${API_URL}/approve-pickup/${pickupReqId}`,
       {
         pickupId,
         status,
         driverId,
-        assignedZone
+        assignedZone,
+        assignedTruckId,
       }, 
       {
       headers: {

@@ -5,6 +5,7 @@ import {
   IDriverDocument,
 } from "../../models/driver/interfaces/driverInterface";
 import { IDriverRepository } from "./interface/IDriverRepository";
+import { TruckModel } from "../../models/truck/truckModel";
 
 class DriverRepository implements IDriverRepository {
   async createDriver(data: IDriver): Promise<IDriverDocument> {
@@ -52,9 +53,35 @@ class DriverRepository implements IDriverRepository {
         const objectId = new Types.ObjectId(wastePlantId);
         return await DriverModel.find({wasteplantId: objectId, status: "Active"}).sort({ name: 1 });
       };
+      async updateDriverTruckAssignedZone(
+        driverId: string,
+        assignedZone: string,
+        assignedTruckId: string
+      ){
+        const objectIdDriver = new Types.ObjectId(driverId);
+        const objectIdTruck= new Types.ObjectId( assignedTruckId);
+        await TruckModel.findByIdAndUpdate(
+          objectIdTruck,
+          {
+            $set: {
+              assignedDriver: objectIdDriver
+            }
+          }
+        )
+        return await DriverModel.findByIdAndUpdate(
+          objectIdDriver,
+          {
+            $set: {
+              assignedZone: assignedZone,
+              assignedTruckId: objectIdTruck
+            },
+          },
+          { new: true }
+        );
+      }
       async updateDriverAssignedZone(
         driverId: string,
-        assignedZone: string
+        assignedZone: string,
       ) {
         const objectId = new Types.ObjectId(driverId);
         return await DriverModel.findByIdAndUpdate(
