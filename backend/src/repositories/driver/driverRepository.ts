@@ -21,6 +21,9 @@ class DriverRepository implements IDriverRepository {
   async findDriverByEmail(email: string): Promise<IDriverDocument | null> {
     return await DriverModel.findOne({ email });
   }
+  async findDriverByName(name: string): Promise<IDriverDocument | null> {
+    return await DriverModel.findOne({ name });
+  }
   async findDriverByLicense(licenseNumber: string): Promise<IDriver | null> {
     return await DriverModel.findOne({ licenseNumber });
   }

@@ -9,6 +9,10 @@ class DriverService implements IDriverService {
     if (existingEmail) {
       throw new Error("Email already exists");
     }
+    const existingName = await DriverRepository.findDriverByName(data.name);
+    if (existingName) {
+      throw new Error("Name already exists");
+    }
     const existingLicenseNo = await DriverRepository.findDriverByLicense(
       data.licenseNumber
     );

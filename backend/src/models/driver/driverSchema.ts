@@ -19,6 +19,7 @@ export const driverSchema: Schema<IDriverDocument> = new Schema({
     type: String,
     enum: ["driver", "user", "superadmin", "wasteplant"],
     default: "driver",
+    required: true
   },
   wasteplantId: {
     type: mongoose.Schema.Types.ObjectId,

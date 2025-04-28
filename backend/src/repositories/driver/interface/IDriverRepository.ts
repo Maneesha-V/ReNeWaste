@@ -3,6 +3,7 @@ import { IDriver, IDriverDocument } from "../../../models/driver/interfaces/driv
 export interface IDriverRepository {
 createDriver(data: IDriver): Promise<IDriverDocument>;
 findDriverByEmail(email: string): Promise<IDriverDocument | null>;
+findDriverByName(name: string): Promise<IDriverDocument | null>;
 findDriverByLicense(licenseNumber: string): Promise<IDriver | null>;
 getAllDrivers(): Promise<IDriver[]>;
 updateDriverPassword(email: string, hashedPassword: string): Promise<void>;
