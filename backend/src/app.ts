@@ -4,6 +4,7 @@ import cors from "cors";
 import dotenv from "dotenv";
 import bodyParser from "body-parser";
 import morgan from "morgan";
+import cookieParser from 'cookie-parser';
 import userRoutes from "./routes/userRoutes";
 import superAdminRoutes from "./routes/superAdminRoutes";
 import wastePlantRoutes from "./routes/wastePlantRoutes";
@@ -21,6 +22,7 @@ app.use(cors({
   credentials: true, 
 })); 
 
+app.use(cookieParser());
 app.use(morgan("dev"));
 
 connectDB();
