@@ -25,6 +25,7 @@ export interface SignupResponse {
     phone: string;
     email: string;
     password: string;
+    confirmPassword: string;  
     agreeToTerms: boolean;
   }
   export interface SignupSuperAdminRequest {
@@ -47,6 +48,7 @@ export interface SignupResponse {
     phone?: string;
     email?: string;
     password?: string;
+    confirmPassword?: string;  
     agreeToTerms?: string;
   };
   

@@ -7,35 +7,41 @@ import { useAppDispatch } from "../../redux/hooks";
 import { validateForm } from "../../utils/formValidationUtils";
 import { SignupRequest } from "../../types/authTypes";
 import useFormValidation from "../../hooks/useFormValidation";
+import { useState } from "react";
 
-const Signup = ({ onSignupSuccess }: { onSignupSuccess: (formData: SignupRequest) => void }) => {
+const Signup = ({
+  onSignupSuccess,
+}: {
+  onSignupSuccess: (formData: SignupRequest) => void;
+}) => {
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const dispatch = useAppDispatch();
   const { loading, error } = useSelector((state: any) => state.user);
   const navigate = useNavigate();
 
-  const { formData, errors, handleChange, handleBlur, setErrors } = useFormValidation<SignupRequest>(
-    {
-      firstName: "",
-      lastName: "",
-      phone: "",
-      email: "",
-      password: "",
-      agreeToTerms: false,
-    },
-    validateForm
-  );
+  const { formData, errors, handleChange, handleBlur, setErrors } =
+    useFormValidation<SignupRequest>(
+      {
+        firstName: "",
+        lastName: "",
+        phone: "",
+        email: "",
+        password: "",
+        confirmPassword: "",   
+        agreeToTerms: false,
+      },
+      validateForm
+    );
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const { isValid, errors } = validateForm(formData);
     setErrors(errors);
-    
+
     if (!isValid) return;
 
     try {
-      // await dispatch(signup(formData)).unwrap();
-      // toast.success("Signup successful!");
-      // setTimeout(() => navigate("/"), 1000);
       await dispatch(sendOtpSignup(formData.email)).unwrap();
       toast.success("Signup successful! OTP sent.");
       onSignupSuccess(formData);
@@ -62,7 +68,9 @@ const Signup = ({ onSignupSuccess }: { onSignupSuccess: (formData: SignupRequest
               autoComplete="off"
               className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
             />
-            {errors.firstName && <p className="text-red-500 text-sm">{errors.firstName}</p>}
+            {errors.firstName && (
+              <p className="text-red-500 text-sm">{errors.firstName}</p>
+            )}
           </div>
 
           <div className="mb-4">
@@ -75,7 +83,9 @@ const Signup = ({ onSignupSuccess }: { onSignupSuccess: (formData: SignupRequest
               autoComplete="off"
               className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
             />
-            {errors.lastName && <p className="text-red-500 text-sm">{errors.lastName}</p>}
+            {errors.lastName && (
+              <p className="text-red-500 text-sm">{errors.lastName}</p>
+            )}
           </div>
 
           <div className="mb-4">
@@ -88,7 +98,9 @@ const Signup = ({ onSignupSuccess }: { onSignupSuccess: (formData: SignupRequest
               autoComplete="off"
               className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
             />
-            {errors.phone && <p className="text-red-500 text-sm">{errors.phone}</p>}
+            {errors.phone && (
+              <p className="text-red-500 text-sm">{errors.phone}</p>
+            )}
           </div>
 
           <div className="mb-4">
@@ -101,10 +113,12 @@ const Signup = ({ onSignupSuccess }: { onSignupSuccess: (formData: SignupRequest
               autoComplete="off"
               className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
             />
-            {errors.email && <p className="text-red-500 text-sm">{errors.email}</p>}
+            {errors.email && (
+              <p className="text-red-500 text-sm">{errors.email}</p>
+            )}
           </div>
 
-          <div className="mb-4">
+          {/* <div className="mb-4">
             <input
               name="password"
               value={formData.password}
@@ -115,6 +129,48 @@ const Signup = ({ onSignupSuccess }: { onSignupSuccess: (formData: SignupRequest
               className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
             />
             {errors.password && <p className="text-red-500 text-sm">{errors.password}</p>}
+          </div> */}
+          <div className="mb-4 relative">
+            <input
+              name="password"
+              type={showPassword ? "text" : "password"}
+              value={formData.password}
+              onChange={handleChange}
+              onBlur={handleBlur}
+              placeholder="Password"
+              autoComplete="new-password"
+              className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 pr-10"
+            />
+            <span
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-3 top-1/2 transform -translate-y-1/2 cursor-pointer text-gray-600"
+            >
+              {showPassword ? "🙈" : "👁️"}
+            </span>
+            {errors.password && (
+              <p className="text-red-500 text-sm">{errors.password}</p>
+            )}
+          </div>
+          <div className="mb-4 relative">
+            <input
+              name="confirmPassword"
+              type={showConfirmPassword ? "text" : "password"}
+              value={formData.confirmPassword}
+              onChange={handleChange}
+              onBlur={handleBlur}
+              placeholder="Confirm Password"
+              autoComplete="new-password"
+              className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 pr-10"
+            />
+            <span
+              onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+              className="absolute right-3 top-1/2 transform -translate-y-1/2 cursor-pointer text-gray-600"
+            >
+              {showConfirmPassword ? "🙈" : "👁️"}
+            </span>
+            {errors.confirmPassword && (
+              <p className="text-red-500 text-sm">{errors.confirmPassword}</p>
+            )}
           </div>
 
           <div className="mb-4">
@@ -130,7 +186,9 @@ const Signup = ({ onSignupSuccess }: { onSignupSuccess: (formData: SignupRequest
                 I agree to the terms and conditions of ReNeWaste.
               </span>
             </label>
-            {errors.agreeToTerms && <p className="text-red-500 text-sm">{errors.agreeToTerms}</p>}
+            {errors.agreeToTerms && (
+              <p className="text-red-500 text-sm">{errors.agreeToTerms}</p>
+            )}
           </div>
 
           <button

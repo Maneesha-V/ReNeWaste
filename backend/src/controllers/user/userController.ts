@@ -8,7 +8,13 @@ class UserController implements IUserController {
     console.log("body", req.body);
     try {
       const userData = req.body;
-      const { user, token } = await AuthService.signupUser(userData);
+      console.log("userData", userData);
+      if (userData.password !== userData.confirmPassword) {
+        throw new Error("Passwords do not match.");
+      }
+      const { confirmPassword, ...userWithoutConfirm } = userData;
+  
+      const { user, token } = await AuthService.signupUser(userWithoutConfirm);
       console.log("user", user);
 
       res.status(201).json({ user, token });
@@ -129,7 +135,8 @@ class UserController implements IUserController {
   async verifyOtp(req: Request, res: Response): Promise<void> {
     try {
       const { email, otp } = req.body;
-
+      console.log(req.body);
+      
       if (!email || !otp) {
         res.status(400).json({ error: "Email and OTP are required" });
         return;

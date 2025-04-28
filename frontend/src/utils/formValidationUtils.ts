@@ -30,6 +30,13 @@ export const validateForm = (values: any): { isValid: boolean; errors: FormError
     errors.password = "Password is required.";
     isValid = false;
   }
+  if (!values.confirmPassword.trim()) {
+    errors.confirmPassword = "Password is required.";
+    isValid = false;
+  } else if(values.password !== values.confirmPassword){
+    errors.confirmPassword = "Passwords do not match.";
+    isValid = false;
+  }
   if (!values.agreeToTerms) {
     errors.agreeToTerms = "You must agree to the terms.";
     isValid = false;
