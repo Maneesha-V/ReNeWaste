@@ -21,6 +21,7 @@ const AddDriver = () => {
     password: "",
     licenseFront: undefined,
     licenseBack: undefined,
+    assignedZone: "",
   });
 
   const handleBlur = (
@@ -36,7 +37,8 @@ const AddDriver = () => {
     setFormData({ ...formData, [name]: value });
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>,
+  const handleFileChange = (
+    e: React.ChangeEvent<HTMLInputElement>,
     type: "front" | "back"
   ) => {
     if (e.target.files && e.target.files[0]) {
@@ -47,9 +49,9 @@ const AddDriver = () => {
         return;
       }
 
-      if(type==="front"){
-        setFormData((prev)=>({ ...prev, licenseFront: file}))
-      } else{
+      if (type === "front") {
+        setFormData((prev) => ({ ...prev, licenseFront: file }));
+      } else {
         setFormData((prev) => ({ ...prev, licenseBack: file }));
       }
     }
@@ -60,7 +62,8 @@ const AddDriver = () => {
     Object.entries(formData).forEach(([name, value]) => {
       if (name === "licenseFront" || name === "licenseBack") {
         if (!(value instanceof File)) {
-          currentErrors[name as keyof ValidationErrors] = "This image is required.";
+          currentErrors[name as keyof ValidationErrors] =
+            "This image is required.";
         }
       } else {
         const error = validateField(name, value as string);
@@ -75,12 +78,12 @@ const AddDriver = () => {
     }
     const formDataToSend = new FormData();
     Object.entries(formData).forEach(([key, value]) => {
-        if (value instanceof File) {
-          formDataToSend.append(key, value);
-        } else if (value !== undefined && value !== null) {
-          formDataToSend.append(key, value.toString());
-        }
-      });
+      if (value instanceof File) {
+        formDataToSend.append(key, value);
+      } else if (value !== undefined && value !== null) {
+        formDataToSend.append(key, value.toString());
+      }
+    });
     try {
       const result = await dispatch(addDriver(formDataToSend));
       if (result.payload?.error) {
@@ -167,7 +170,9 @@ const AddDriver = () => {
               onBlur={handleBlur}
               className="w-full border px-3 py-2 rounded-md focus:ring-2 focus:ring-green-500"
             />
-            {errors.email && <p className="text-red-500 text-sm">{errors.email}</p>}
+            {errors.email && (
+              <p className="text-red-500 text-sm">{errors.email}</p>
+            )}
           </div>
 
           {/* Experience */}
@@ -237,8 +242,26 @@ const AddDriver = () => {
               <p className="text-red-500 text-sm">{errors.licenseBack}</p>
             )}
           </div>
-                    {/* Status */}
-                    <div>
+          {/* Assigned Zone */}
+          <div>
+            <label className="block text-gray-700 font-medium">
+              Assigned Zone
+            </label>
+            <input
+              type="text"
+              name="assignedZone"
+              value={formData.assignedZone}
+              onBlur={handleBlur}
+              onChange={handleChange}
+              className="w-full border px-3 py-2 rounded-md focus:ring-2 focus:ring-green-500"
+            />
+            {errors.assignedZone && (
+              <p className="text-red-500 text-sm">{errors.assignedZone}</p>
+            )}
+          </div>
+
+          {/* Status */}
+          <div>
             <label className="block text-gray-700 font-medium">Status</label>
             <select
               name="status"

@@ -8,6 +8,7 @@ export interface DriverFormData {
     password: string,
     licenseFront?: File,
     licenseBack?: File,
+    assignedZone: string,
   }
 export type PartialDriverFormData = Partial<DriverFormData>;
 export interface ValidationErrors {

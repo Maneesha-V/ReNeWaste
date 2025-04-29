@@ -260,6 +260,23 @@ const EditDriver = () => {
               <p className="text-red-500 text-sm">{errors.licenseBack}</p>
             )}
           </div>
+       {/* Assigned Zone */}
+       <div>
+            <label className="block text-gray-700 font-medium">
+              Assigned Zone
+            </label>
+            <input
+              type="text"
+              name="assignedZone"
+              value={formData.assignedZone}
+              onBlur={handleBlur}
+              onChange={handleChange}
+              className="w-full border px-3 py-2 rounded-md focus:ring-2 focus:ring-green-500"
+            />
+            {errors.assignedZone && (
+              <p className="text-red-500 text-sm">{errors.assignedZone}</p>
+            )}
+          </div>
 
           <div className="md:col-span-2">
             <button

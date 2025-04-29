@@ -37,7 +37,7 @@ router.post("/add-truck", authenticateWastePlant as RequestHandler, TruckControl
 router.get("/edit-truck/:truckId", TruckController.getTruckById);
 router.patch("/edit-truck/:truckId", authenticateWastePlant as RequestHandler, TruckController.updateTruck);
 router.delete("/delete-truck/:truckId", authenticateWastePlant as RequestHandler, TruckController.deleteTruckById)
-router.get("/pickup-requests", authenticateWastePlant as RequestHandler, PickupController.getPickupRequests);
+router.get("/pickups", authenticateWastePlant as RequestHandler, PickupController.getPickupRequests);
 router.patch("/approve-pickup/:pickupReqId",authenticateWastePlant as RequestHandler, PickupController.approvePickup)
 router.put("/cancel-pickupReq/:pickupReqId",authenticateWastePlant as RequestHandler, PickupController.cancelPickup)
 router.put("/reschedule-pickup/:pickupReqId",authenticateWastePlant as RequestHandler, PickupController.reschedulePickup)
