@@ -28,9 +28,10 @@ export const addWastePlant = createAsyncThunk(
 );
 export const fetchWastePlants = createAsyncThunk(
   "superAdminWastePlant/fetchWastePlants",
-  async (_, { rejectWithValue }) => {
+  async ( _, { rejectWithValue }) => {
     try {
       const response = await getWastePlants();
+      console.log("res",response);
       return response; 
     } catch (error: any) {
       return rejectWithValue(error.response?.data || "Failed to fetch waste plants");

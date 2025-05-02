@@ -1,16 +1,54 @@
 import { Request, Response } from "express";
 import SuperAdminAuthService from "../../services/superAdmin/authService";
 import { IAuthController } from "./interface/IAuthController";
+import { generateRefreshToken } from "../../utils/authUtils";
+import { MESSAGES, STATUS_CODES } from "../../utils/constantUtils";
+import jwt from "jsonwebtoken";
 
 class AuthController implements IAuthController {
+  async refreshToken(req: Request, res: Response): Promise<void> {
+    try {
+      const refreshToken = req.cookies?.refreshToken;
+      console.log("refreshToken",refreshToken);
+      
+      if (!refreshToken) {
+         res.status(401).json({ error: "No refresh token provided." });
+         return;
+      }
+      const {token} = await SuperAdminAuthService.verifyToken(refreshToken)
+      res.status(200).json({ token });
+    } catch (error: any) {
+      console.error("err", error);
+      res.status(401).json({ error: error.message });
+    }
+  }
   async superAdminLogin(req: Request, res: Response): Promise<void> {
     try {
+      
       const { email, password } = req.body;
       const { admin, token } = await SuperAdminAuthService.adminLoginService({
         email,
         password,
       });
-      res.status(200).json({ admin, token });
+      const { password: _, ...safeAdmin } = admin.toObject();
+
+      const refreshToken = await generateRefreshToken({userId: admin._id.toString(), role: admin.role})
+  
+      const cookieOptions = {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "strict" as "strict",
+        maxAge: 7 * 24 * 60 * 60 * 1000
+      };
+      res
+      .cookie("refreshToken", refreshToken,  cookieOptions )  
+      .status(200)
+      .json({
+        success: true,
+        message: "Login successful",
+        admin: safeAdmin,
+        token
+      });
     } catch (error: any) {
       console.error("err", error);
       res.status(400).json({ error: error.message });
@@ -38,14 +76,28 @@ class AuthController implements IAuthController {
   }
   async superAdminLogout(req: Request, res: Response): Promise<void> {
     try {
-      res.clearCookie("token", {
+      // res.clearCookie("token", {
+      //   httpOnly: true,
+      //   secure: true,
+      //   sameSite: "strict",
+      // });
+      // res.status(200).json({ message: "Logout successful" });
+      const cookieOptions = {
         httpOnly: true,
-        secure: true,
-        sameSite: "strict",
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "strict" as const,
+      };
+
+      res.clearCookie("refreshToken", cookieOptions);
+      res.status(200).json({
+        success: true,
+        message: "Logout successful",
       });
-      res.status(200).json({ message: "Logout successful" });
     } catch (error: any) {
-      res.status(500).json({ error: "Logout failed. Please try again." });
+      res.status(500).json({
+        success: false,
+        message: "Logout failed",
+      });
     }
   }
   async sendOtp(req: Request, res: Response): Promise<void> {

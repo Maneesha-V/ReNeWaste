@@ -1,11 +1,27 @@
-import axios from "axios";
 import { LoginRequest, SignupSuperAdminRequest } from "../../types/authTypes";
+import axiosSuperadmin from "../../api/axiosSuperadmin";
 
-const API_URL = import.meta.env.VITE_SUPER_ADMIN_API_URL;
+export const getRefreshAccessToken = async () => {
+  try {
+    const response = await axiosSuperadmin.get(`/refresh-token`);
 
+    console.log("ref-repsone", response);
+
+    return response.data;
+  } catch (error: any) {
+    throw (
+      error.response?.data?.error ||
+      "Refresh token fetching failed. Please try again."
+    );
+  }
+};
 export const loginSuperAdmin = async (superAdminData: LoginRequest) => {
   try {
-    const response = await axios.post(`${API_URL}/`, superAdminData);
+    const response = await axiosSuperadmin.post("/", superAdminData);
+
+    // const response = await axios.post(`${API_URL}/`, superAdminData);
+    console.log("res", response);
+
     if (response.data) {
       localStorage.setItem("token", response.data.token);
       localStorage.setItem("role", response.data.admin.role);
@@ -19,7 +35,7 @@ export const signupSuperAdmin = async (
   superAdminData: SignupSuperAdminRequest
 ) => {
   try {
-    const response = await axios.post(`${API_URL}/signup`, superAdminData);
+    const response = await axiosSuperadmin.post(`/signup`, superAdminData);
     if (response.data) {
       localStorage.setItem("token", response.data.token);
       localStorage.setItem("role", response.data.admin.role);
@@ -31,25 +47,19 @@ export const signupSuperAdmin = async (
 };
 export const logoutSuperAdmin = async () => {
   try {
-    const response = await axios.post(
-      `${API_URL}/logout`,
-      {},
-      { withCredentials: true }
-    );
+    const response = await axiosSuperadmin.post(`/logout`, {});
     return response.data;
   } catch (error: any) {
-    console.error("err",error)
+    console.error("err", error);
     throw error.response?.data?.error || "Login failed. Please try again.";
   }
 };
 export const sendOtpService = async (email: string) => {
   try {
-    const response = await axios.post(`${API_URL}/send-otp`, { email });
+    const response = await axiosSuperadmin.post(`/send-otp`, { email });
     console.log("response", response);
     return response.data;
   } catch (error: any) {
-    console.log("err", error);
-
     console.error(
       "Error sending OTP:",
       error.response?.data?.error || error.message
@@ -61,7 +71,7 @@ export const sendOtpService = async (email: string) => {
 };
 export const resendOtpService = async (email: string) => {
   try {
-    const response = await axios.post(`${API_URL}/resend-otp`, { email });
+    const response = await axiosSuperadmin.post(`/resend-otp`, { email });
     console.log("respp", response);
 
     return response.data;
@@ -74,7 +84,7 @@ export const resendOtpService = async (email: string) => {
 };
 export const verifyOtpService = async (email: string, otp: string) => {
   try {
-    const { data } = await axios.post(`${API_URL}/verify-otp`, { email, otp });
+    const { data } = await axiosSuperadmin.post(`/verify-otp`, { email, otp });
     return data;
   } catch (error: any) {
     console.error(
@@ -91,7 +101,7 @@ export const verifyOtpService = async (email: string, otp: string) => {
 };
 export const resetPasswordService = async (email: string, password: string) => {
   try {
-    const response = await axios.post(`${API_URL}/reset-password`, {
+    const response = await axiosSuperadmin.post(`/reset-password`, {
       email,
       password,
     });
@@ -106,4 +116,3 @@ export const resetPasswordService = async (email: string, password: string) => {
     };
   }
 };
-

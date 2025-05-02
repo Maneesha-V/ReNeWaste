@@ -102,6 +102,7 @@ const ForgotPassword = () => {
       setError("Passwords do not match");
       return;
     }
+    setError("");
     dispatch(resetPassword({ email, password: newPassword })).then(
       (res: any) => {
         if (res.payload?.message) {

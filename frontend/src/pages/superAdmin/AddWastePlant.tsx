@@ -8,6 +8,7 @@ import {
   ValidationErrors,
   WastePlantFormData,
 } from "../../types/wastePlantTypes";
+import Breadcrumbs from "../../components/common/Breadcrumbs";
 
 const AddWastePlant = () => {
   const navigate = useNavigate();
@@ -120,12 +121,12 @@ const AddWastePlant = () => {
 
   return (
     <div className="px-4 py-4">
-      {/* <Breadcrumbs
+      <Breadcrumbs
         paths={[
           { label: "Waste Plants", path: "/super-admin/waste-plants" },
           { label: "Add Waste Plant" },
         ]}
-      /> */}
+      />
       <div className="max-w-5xl mx-auto bg-white p-6 rounded-lg shadow-md">
         <h2 className="text-2xl font-bold text-center mb-6 text-green-700">
           Add Waste Plant

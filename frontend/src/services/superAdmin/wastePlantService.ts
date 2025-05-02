@@ -1,11 +1,11 @@
-import axios from "axios";
+import axiosSuperadmin from "../../api/axiosSuperadmin";
 
-const API_URL = import.meta.env.VITE_SUPER_ADMIN_API_URL;
+// const API_URL = import.meta.env.VITE_SUPER_ADMIN_API_URL;
 
 export const createWastePlant = async (wastePlantData: FormData) => {
   try {
-    const response = await axios.post(
-      `${API_URL}/add-waste-plant`,
+    const response = await axiosSuperadmin.post(
+      `/add-waste-plant`,
       wastePlantData,
       {
         headers: {
@@ -22,12 +22,7 @@ export const createWastePlant = async (wastePlantData: FormData) => {
 };
 export const getWastePlants = async () => {
   try {
-    const token = localStorage.getItem("token");
-    const response = await axios.get(`${API_URL}/waste-plants`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+    const response = await axiosSuperadmin.get(`/waste-plants`);
     return response.data.data;
   } catch (error: any) {
     console.error("error", error);
@@ -35,8 +30,7 @@ export const getWastePlants = async () => {
 };
 export const getWastePlantById = async (id: string) => {
   try {
-    const response = await axios.get(`${API_URL}/edit-waste-plant/${id}`);
-    console.log("res", response);
+    const response = await axiosSuperadmin.get(`/edit-waste-plant/${id}`);
     return response.data.data;
   } catch (error: any) {
     console.error("error", error);
@@ -45,13 +39,12 @@ export const getWastePlantById = async (id: string) => {
 export const updateWastePlantById = async (id: string, data: FormData) => {
   try {
     // const token = localStorage.getItem("token");
-    const response = await axios.patch(
-      `${API_URL}/edit-waste-plant/${id}`,
+    const response = await axiosSuperadmin.patch(
+      `/edit-waste-plant/${id}`,
       data,
       {
         headers: {
           "Content-Type": "multipart/form-data",
-          // Authorization: `Bearer ${token}`
         },
       }
     );
@@ -64,12 +57,7 @@ export const updateWastePlantById = async (id: string, data: FormData) => {
 };
 export const deleteWastePlantById = async (id: string) => {
   try {
-    const token = localStorage.getItem("token");
-    const response = await axios.delete(`${API_URL}/delete-waste-plant/${id}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+    const response = await axiosSuperadmin.delete(`/delete-waste-plant/${id}`);
     console.log("res", response);
     return response.data;
   } catch (error: any) {

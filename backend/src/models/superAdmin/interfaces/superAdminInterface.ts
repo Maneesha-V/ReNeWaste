@@ -4,7 +4,7 @@ export interface ISuperAdmin {
     username: string; 
     email: string;
     password: string;
-    role?: "user" | "driver" | "superadmin" | "wasteplant";
+    role: "user" | "driver" | "superadmin" | "wasteplant";
     createdAt?: Date;
   }
   

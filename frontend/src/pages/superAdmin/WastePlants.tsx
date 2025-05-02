@@ -13,14 +13,14 @@ const WastePlants: React.FC = () => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const { wastePlant, loading, error } = useSelector((state: RootState) => state.superAdminWastePlant);
-  const token = localStorage.getItem("token");
+ 
   useEffect(() => {
-    if (!token) {
+    if (!localStorage.getItem("token")) {
       navigate("/super-admin/");
       return;
     }
     dispatch(fetchWastePlants());
-  }, [dispatch, token]);
+  }, [dispatch, navigate]);
 
   const handleEdit = async (id: string) => {
     try {

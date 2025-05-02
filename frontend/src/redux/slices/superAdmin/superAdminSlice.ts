@@ -4,6 +4,7 @@ import {
   SignupSuperAdminRequest,
 } from "../../../types/authTypes";
 import {
+  getRefreshAccessToken,
   loginSuperAdmin,
   logoutSuperAdmin,
   resendOtpService,
@@ -29,12 +30,24 @@ const initialState: SuperAdminState = {
   token: null,
 };
 
+export const refreshAccessToken = createAsyncThunk(
+  "superadmin/refreshAccessToken",
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await getRefreshAccessToken();    
+      return response.token;
+    } catch (error: any) {
+      console.error("err", error);
+      return rejectWithValue(error);
+    }
+  }
+);
+
 export const superAdminLogin = createAsyncThunk(
   "superadmin/login",
   async (superAdminData: LoginRequest, { rejectWithValue }) => {
     try {
       const response = await loginSuperAdmin(superAdminData);
-      localStorage.setItem("token", response.token);
       return response;
     } catch (error: any) {
       console.error("err", error);
@@ -132,6 +145,10 @@ const superAdminSlice = createSlice({
   reducers: {},
   extraReducers: (builder) => {
     builder
+      .addCase(refreshAccessToken.fulfilled, (state, action) => {
+        state.token = action.payload;
+        localStorage.setItem("token", action.payload);
+      })
       .addCase(superAdminLogin.pending, (state) => {
         state.loading = true;
         state.error = null;

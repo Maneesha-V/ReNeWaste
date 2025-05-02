@@ -8,7 +8,8 @@ const superAdminSchema = new Schema<ISuperAdminDocument>({
     role: { 
         type: String, 
         enum: ["user", "driver", "superadmin", "wasteplant"], 
-        default: "superadmin" 
+        default: "superadmin",
+        required: true
     },
     createdAt: { type: Date, default: Date.now }, 
 });
