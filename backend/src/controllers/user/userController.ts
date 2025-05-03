@@ -1,9 +1,25 @@
 import { Request, Response } from "express";
 import AuthService from "../../services/user/authService";
 import { IUserController } from "./interface/IUserController";
+import { generateRefreshToken } from "../../utils/authUtils";
 
 class UserController implements IUserController {
-  
+   async refreshToken(req: Request, res: Response): Promise<void> {
+      try {
+        const refreshToken = req.cookies?.refreshToken;
+        console.log("refreshToken",refreshToken);
+        
+        if (!refreshToken) {
+           res.status(401).json({ error: "No refresh token provided." });
+           return;
+        }
+        const {token} = await AuthService.verifyToken(refreshToken)
+        res.status(200).json({ token });
+      } catch (error: any) {
+        console.error("err", error);
+        res.status(401).json({ error: error.message });
+      }
+    }
   async signup(req: Request, res: Response): Promise<void> {
     console.log("body", req.body);
     try {
@@ -29,22 +45,50 @@ class UserController implements IUserController {
       console.log("body", req.body);
       const { email, password } = req.body;
       const { user, token } = await AuthService.loginUser({ email, password });
-      res.status(200).json({ user, token });
+      const { password: _, ...safeUser } = user.toObject();
+        const refreshToken = await generateRefreshToken({userId: user._id.toString(), role: user.role})
+       
+           const cookieOptions = {
+             httpOnly: true,
+             secure: process.env.NODE_ENV === "production",
+             sameSite: "strict" as "strict",
+             maxAge: 7 * 24 * 60 * 60 * 1000
+           };
+           res
+           .cookie("refreshToken", refreshToken,  cookieOptions )  
+           .status(200)
+           .json({
+             success: true,
+             message: "Login successful",
+             user: safeUser,
+             token
+           });
     } catch (error: any) {
+      console.error("err", error);
       res.status(400).json({ error: error.message });
     }
   }
 
   async logout(req: Request, res: Response): Promise<void> {
     try {
-      res.clearCookie("token", {
+      const cookieOptions = {
         httpOnly: true,
-        secure: true,
-        sameSite: "strict",
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "strict" as const,
+      };
+
+      res.clearCookie("refreshToken", cookieOptions);
+      res.status(200).json({
+        success: true,
+        message: "Logout successful",
       });
-      res.status(200).json({ message: "Logout successful" });
+
     } catch (error: any) {
-      res.status(500).json({ error: "Logout failed. Please try again." });
+      console.error("err",error)
+     res.status(500).json({
+        success: false,
+        message: "Logout failed",
+      });
     }
   }
 

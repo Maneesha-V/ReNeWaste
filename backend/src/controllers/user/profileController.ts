@@ -2,9 +2,10 @@ import { Request, Response } from "express";
 import { ProfileRequest } from "../../types/user/profileTypes";
 import ProfileService from "../../services/user/profileService";
 import { IProfileController } from "./interface/IProfileController";
+import { AuthRequest } from "../../types/common/middTypes";
 
 class ProfileController implements IProfileController {
-  async getProfile(req: ProfileRequest, res: Response): Promise<void> {
+  async getProfile(req: AuthRequest, res: Response): Promise<void> {
     try {
       const userId = req.user?.id; 
       if (!userId) {
@@ -21,6 +22,8 @@ class ProfileController implements IProfileController {
   async getEditProfile(req: ProfileRequest, res: Response): Promise<void> {
     try {
       const userId = req.user?.id; 
+      console.log("userId",userId);
+      
       if (!userId) {
         res.status(401).json({ error: "Unauthorized" });
         return;

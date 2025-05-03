@@ -35,9 +35,10 @@ export const login = createAsyncThunk(
   async (userData: LoginRequest, {rejectWithValue}) => {
     try {
       const response = await loginUser(userData);
-      localStorage.setItem("token", response.token); 
       return response;
     } catch (error: any) {
+      console.log("err",error);
+      
       return rejectWithValue(error);
     }
   }
@@ -48,9 +49,9 @@ export const logout = createAsyncThunk(
   async (_, { rejectWithValue }) => {
   try {
     await logoutUser();
-    localStorage.removeItem("token"); 
     return null; 
   } catch (error: any) {
+    console.error("err",error)
     return rejectWithValue("Logout failed. Please try again.");
   }
 });

@@ -1,13 +1,11 @@
-import axios from "axios";
+import axiosUser from "../../api/axiosUser";
 import { toast } from "react-toastify";
 import { SignupRequest, LoginRequest, GoogleLoginReq } from "../../types/authTypes"
 import { Auth, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 
-const API_URL = import.meta.env.VITE_API_URL; 
-
 export const signupUser = async (userData: SignupRequest) => {
   try {
-    const response = await axios.post(`${API_URL}/signup`, userData);
+    const response = await axiosUser.post(`/signup`, userData);
     console.log("res",response);
     return response.data;
   } catch(error: any) {
@@ -22,7 +20,7 @@ export const signupUser = async (userData: SignupRequest) => {
 };
 export const loginUser = async (userData: LoginRequest) => {
   try {
-    const response = await axios.post(`${API_URL}/`,userData);
+    const response = await axiosUser.post(`/`,userData);
     console.log("logRes",response);
     if (response.data) {
       localStorage.setItem("token", response.data.token);
@@ -34,11 +32,15 @@ export const loginUser = async (userData: LoginRequest) => {
   }
 }
 export const logoutUser = async () => {
-  return await axios.post(`${API_URL}/logout`, {}, { withCredentials: true });
+  const response = await axiosUser.post(`/logout`, {});
+  console.log("Logout API response:", response.data); 
+  localStorage.removeItem("token"); 
+  localStorage.removeItem("role"); 
+  return response.data;
 };
 export const sendOtpSignupService = async (email: string) => {
   try {
-    const response = await axios.post(`${API_URL}/send-otp-signup`, {email});
+    const response = await axiosUser.post(`/send-otp-signup`, {email});
     console.log("response",response);
     return response.data;     
   } catch (error: any) {
@@ -50,7 +52,7 @@ export const sendOtpSignupService = async (email: string) => {
 }
 export const resendOtpSignupService = async (email: string) => {
   try {
-    const response = await axios.post(`${API_URL}/resend-otp-signup`, {email});
+    const response = await axiosUser.post(`/resend-otp-signup`, {email});
     console.log("respp",response);
     
     return response.data;     
@@ -61,7 +63,7 @@ export const resendOtpSignupService = async (email: string) => {
 }
 export const verifyOtpSignupService = async (email: string,otp: string) => {
   try {
-    const { data } = await axios.post(`${API_URL}/verify-otp-signup`, { email, otp });
+    const { data } = await axiosUser.post(`/verify-otp-signup`, { email, otp });
     return data;
   } catch (error: any) {
     console.error("Error verifying OTP:", error.response?.data || error.message);
@@ -70,7 +72,7 @@ export const verifyOtpSignupService = async (email: string,otp: string) => {
 }
 export const sendOtpService = async (email: string) => {
   try {
-    const response = await axios.post(`${API_URL}/send-otp`, {email});
+    const response = await axiosUser.post(`/send-otp`, {email});
     console.log("response",response);
     return response.data;     
   } catch (error: any) {
@@ -82,7 +84,7 @@ export const sendOtpService = async (email: string) => {
 }
 export const resendOtpService = async (email: string) => {
   try {
-    const response = await axios.post(`${API_URL}/resend-otp`, {email});
+    const response = await axiosUser.post(`/resend-otp`, {email});
     console.log("respp",response);
     
     return response.data;     
@@ -93,7 +95,7 @@ export const resendOtpService = async (email: string) => {
 }
 export const verifyOtpService = async (email: string,otp: string) => {
   try {
-    const { data } = await axios.post(`${API_URL}/verify-otp`, { email, otp });
+    const { data } = await axiosUser.post(`/verify-otp`, { email, otp });
     return data;
   } catch (error: any) {
     console.error("Error verifying OTP:", error.response?.data || error.message);
@@ -102,7 +104,7 @@ export const verifyOtpService = async (email: string,otp: string) => {
 }
 export const resetPasswordService = async (email: string,password: string) => {
   try{
-    const response = await axios.post(`${API_URL}/reset-password`, { email,password });
+    const response = await axiosUser.post(`/reset-password`, { email,password });
     return response.data;
   } catch (error: any){
     console.error("Error in reset password:", error.response?.data?.error || error.message);
@@ -113,7 +115,7 @@ export const googleSignUpService = async (auth: Auth, googleProvider: GoogleAuth
   try {
     const result = await signInWithPopup(auth, googleProvider);
     const { user } = result;
-    const response = await axios.post(`${API_URL}/google-signup`,
+    const response = await axiosUser.post(`/google-signup`,
       {
         email: user.email,
         displayName: user.displayName,
@@ -133,7 +135,7 @@ export const googleSignUpService = async (auth: Auth, googleProvider: GoogleAuth
 }
 export const googleSignInService = async (userData: GoogleLoginReq) => {
   try {
-    const response = await axios.post(`${API_URL}/google-login`, userData);
+    const response = await axiosUser.post(`/google-login`, userData);
     console.log("logRes", response);
 
     if (!response.data || !response.data.user || !response.data.token) {
@@ -150,19 +152,3 @@ export const googleSignInService = async (userData: GoogleLoginReq) => {
   }
 };
 
-// export const googleSignInService = async (userData: GoogleLoginReq) => {
-//   try {
-//     const response = await axios.post(`${API_URL}/google-login`,userData);
-//     console.log("logRes",response);
-//     if (response.data && response.data.user && response.data.token) {
-//       localStorage.setItem("token", response.data.token);
-//       localStorage.setItem("role", response.data.user.role); 
-//       return response.data;
-//     } else {
-//       throw new Error("Invalid login response. Please try again.");
-//     }
-//   } catch(error: any) {
-//     console.error("Google login error:", error);
-//     throw error.response?.data?.error || "Google login failed. Please try again.";
-//   }
-// }

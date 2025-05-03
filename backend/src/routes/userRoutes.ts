@@ -9,6 +9,7 @@ import { RequestHandler } from "express";
 
 const router: Router = Router();
 
+router.get("/refresh-token", UserController.refreshToken)
 router.post("/signup", UserController.signup);
 router.post("/", UserController.login)
 router.post("/logout", UserController.logout)
