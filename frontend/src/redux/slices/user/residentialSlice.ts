@@ -20,9 +20,9 @@ interface UserState {
   
   export const getResidential = createAsyncThunk(
     "userResidential/getResidential",
-    async (token: string, { rejectWithValue }) => {
+    async (_, { rejectWithValue }) => {
       try {
-        const response = await getResidentialService(token);
+        const response = await getResidentialService();
         return response.data;
       } catch (error: any) {
         return rejectWithValue(error.response?.data?.error || "Loading failed. Please try again.");
@@ -32,11 +32,10 @@ interface UserState {
 
    export const updateResidentialPickup = createAsyncThunk(
       "userResidential/updateResidentialPickup",
-      async ({ data, token }: ResidPickupReqArgs, thunkAPI) => {
+      async ({ data }: ResidPickupReqArgs, thunkAPI) => {
         try {
           console.log("data",data);
-          console.log("token",token);
-          const response = await updateResidentialPickupService(data, token); 
+          const response = await updateResidentialPickupService(data); 
           return response.data;
         } catch (error: any) {
           return thunkAPI.rejectWithValue(

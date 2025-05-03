@@ -28,14 +28,9 @@ const Residential = () => {
   useEffect(() => {
     if (!token) return;
 
-    dispatch(getResidential(token));
-  }, [token, dispatch]);
+    dispatch(getResidential());
+  }, [dispatch]);
 
-  // useEffect(() => {
-  //   if (error) {
-  //     toast.error(error);
-  //   }
-  // }, [error]);
 
   const handlePrevMonth = () => {
     setCurrentMonth(currentMonth.subtract(1, "month"));
