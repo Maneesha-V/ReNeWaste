@@ -10,24 +10,27 @@ import { ProfilePlantRequest } from "../types/wastePlant/authTypes";
 import { WastePlantModel } from "../models/wastePlant/wastePlantModel";
 import { AuthRequest } from "../types/common/middTypes";
 
-export const authenticateUser = async (req: ProfileRequest, res: Response, next: NextFunction) => {
+export const authenticateUser = async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
     const token = req.header("Authorization")?.replace("Bearer ", "");
     console.log("Received Token:", token); 
     if (!token) return res.status(401).json({ error: "No token, authorization denied" });
 
-    const decoded: any = jwt.verify(token, process.env.JWT_SECRET!);
-
+    const decoded: any = jwt.verify(token, process.env.JWT_SECRET!)as {
+      userId: string;
+      role: string;
+    };
+    console.log("Decoded Token:", decoded);
     const user = await UserModel.findById(new mongoose.Types.ObjectId(decoded.userId)).select("-password");
 
     if (!user) return res.status(404).json({ error: "User not found" });
 
-    req.user = { id: user._id.toString() }; 
+    req.user = { id: user._id.toString(), role: user.role }; 
     next();
   } catch (err: any) {
-    if (err.name === "TokenExpiredError") {
-      return res.status(401).json({ error: "Access token expired" });
-    }
+    // if (err.name === "TokenExpiredError") {
+    //   return res.status(401).json({ error: "Access token expired" });
+    // }
     res.status(401).json({ error: "Invalid token" });
   }
 };

@@ -76,12 +76,6 @@ class AuthController implements IAuthController {
   }
   async superAdminLogout(req: Request, res: Response): Promise<void> {
     try {
-      // res.clearCookie("token", {
-      //   httpOnly: true,
-      //   secure: true,
-      //   sameSite: "strict",
-      // });
-      // res.status(200).json({ message: "Logout successful" });
       const cookieOptions = {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",

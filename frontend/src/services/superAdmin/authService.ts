@@ -18,8 +18,6 @@ export const getRefreshAccessToken = async () => {
 export const loginSuperAdmin = async (superAdminData: LoginRequest) => {
   try {
     const response = await axiosSuperadmin.post("/", superAdminData);
-
-    // const response = await axios.post(`${API_URL}/`, superAdminData);
     console.log("res", response);
 
     if (response.data) {
@@ -48,6 +46,8 @@ export const signupSuperAdmin = async (
 export const logoutSuperAdmin = async () => {
   try {
     const response = await axiosSuperadmin.post(`/logout`, {});
+    console.log("res",response);
+    
     return response.data;
   } catch (error: any) {
     console.error("err", error);

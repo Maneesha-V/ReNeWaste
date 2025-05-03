@@ -12,9 +12,28 @@ import { ISuperAdminAuthService } from "./interface/IAuthService";
 import { ISuperAdminDocument } from "../../models/superAdmin/interfaces/superAdminInterface";
 import { generateOtp } from "../../utils/otpUtils";
 import { sendEmail } from "../../utils/mailerUtils";
+import jwt from "jsonwebtoken";
 
 class SuperAdminAuthService implements ISuperAdminAuthService {
+  async verifyToken(token: string) {
+    try {
+      const decoded = jwt.verify(token, process.env.JWT_REFRESH_SECRET!) as { userId: string, role:string };
+      const admin = await SuperAdminRepository.getSuperAdminById(decoded.userId);
+      if (!admin) {
+        throw new Error("Admin not found");
+      }
+  
+      const accessToken = jwt.sign(
+        { userId: admin._id, role: admin.role },
+        process.env.JWT_SECRET!,
+        { expiresIn: "15min" }
+      );
+      return {  token: accessToken};
 
+    } catch (error) {
+      throw new Error("Invalid or expired refresh token");
+    }
+  }
   async adminLoginService({
     email,
     password,
@@ -33,8 +52,7 @@ class SuperAdminAuthService implements ISuperAdminAuthService {
       throw new Error("Invalid email or password.");
     }
 
-    const token = generateToken(admin._id.toString());
-
+    const token = generateToken({userId:admin._id.toString(),role:admin.role});
     return { admin, token };
   }
   async adminSignupService({
@@ -60,8 +78,9 @@ class SuperAdminAuthService implements ISuperAdminAuthService {
         username,
         email,
         password: hashedPassword,
+        role: "superadmin",
       });
-    const token = generateToken(newAdmin._id.toString());
+    const token = generateToken({userId:newAdmin._id.toString(),role:newAdmin.role});
     return { admin: newAdmin, token };
   }
   async sendOtpService(email: string) {

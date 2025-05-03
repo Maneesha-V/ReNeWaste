@@ -1,8 +1,6 @@
 import axios from "axios";
 import { refreshAccessToken } from "../redux/slices/superAdmin/superAdminSlice";
 import { store } from "../redux/store";
-import { jwtDecode } from 'jwt-decode';
-
 
 const axiosSuperadmin = axios.create({
   baseURL: import.meta.env.VITE_SUPER_ADMIN_API_URL,
@@ -17,10 +15,7 @@ axiosSuperadmin.interceptors.request.use(
     console.log("config",config);
     
     const token = localStorage.getItem("token");
-    // if (token) {
-    //   const decoded = jwtDecode(token);
-    //   console.log("Decoded Token:", decoded);
-    // }
+    
     const allowedRoutes = [
       "/",
       "/signup",

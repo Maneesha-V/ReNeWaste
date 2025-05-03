@@ -2,6 +2,7 @@ import { IUser, IUserDocument } from "../../../models/user/interfaces/userInterf
 import { SignupResponse, LoginRequest, LoginResponse, GoogleLoginReq, GoogleLoginResp } from "../../../types/user/authTypes";
 
 export interface IAuthService {
+  verifyToken(token: string): Promise<{ token: string }>;
   signupUser(userData: IUser): Promise<SignupResponse>;
   loginUser(loginData: LoginRequest): Promise<LoginResponse>;
   sendOtpSignupService(email: string): Promise<{ message: string; otp: string }>;
