@@ -1,31 +1,24 @@
-import axios from "axios";
 import { PartialCommPickupReq } from "../../types/pickupTypes";
+import axiosUser from "../../api/axiosUser";
 
-const API_URL = import.meta.env.VITE_API_URL; 
-
-export const getCommercialService = async (token: string) => {
-    const response = await axios.get(`${API_URL}/commercial`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
+export const getCommercialService = async () => {
+    const response = await axiosUser.get(`/commercial`);
     return response;
   };
 export const checkAvailabilityService = async(service: string, wasteplantId: string) => {
-  const token = localStorage.getItem("token");
-  const response = await axios.post(`${API_URL}/commercial/service-check`,  
+  const response = await axiosUser.post(`/commercial/service-check`,  
     { service, wasteplantId },
     {
       headers: { 
-        Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
       },
     });
     return response;
 }
-  export const updateCommercialPickupService = async (formData: PartialCommPickupReq, token: string) => {
-    const response = await axios.patch(`${API_URL}/commercial/pickup`, formData, {
+  export const updateCommercialPickupService = async (formData: PartialCommPickupReq) => {
+    const response = await axiosUser.patch(`/commercial/pickup`, formData, {
       headers: { 
        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}` 
       },
     });
     console.log("Response:", response);

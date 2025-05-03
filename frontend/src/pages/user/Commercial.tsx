@@ -10,6 +10,7 @@ import {
   checkServiceAvailability,
   getCommercial,
 } from "../../redux/slices/user/commercialSlice";
+import { Spin } from "antd";
 
 const Commercial = () => {
   const [currentMonth, setCurrentMonth] = useState(dayjs());
@@ -36,15 +37,17 @@ const Commercial = () => {
   useEffect(() => {
     if (!token) return;
 
-    dispatch(getCommercial(token));
-  }, [token, dispatch]);
+    dispatch(getCommercial());
+  }, [dispatch]);
 
-  // useEffect(() => {
-  //   if (error) {
-  //     toast.error(error);
-  //   }
-  // }, [error]);
-
+   if (loading) {
+      return (
+        <div className="flex justify-center items-center h-64">
+          <Spin size="large" />
+        </div>
+      );
+    }
+    
   const handlePrevMonth = () => {
     setCurrentMonth(currentMonth.subtract(1, "month"));
   };

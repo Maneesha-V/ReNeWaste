@@ -25,7 +25,6 @@ export interface ValidationErrors {
 
 export interface ResidPickupReqArgs {
   data: PartialResidPickupReq;
-  token: string;
 }
 
 export interface CommPickupReq {
@@ -45,13 +44,12 @@ export type PartialCommPickupReq = Partial<CommPickupReq>;
 
 export interface CommPickupReqArgs {
   data: PartialCommPickupReq;
-  token: string;
 }
 export interface ApprovePickupPayload {
   pickupReqId: string;
   pickupId: string;
   status: string;
   driverId: string;
-  assignedZone: string;
+  // assignedZone: string;
   assignedTruckId: string;
 }

@@ -21,9 +21,9 @@ interface UserState {
   
   export const getCommercial = createAsyncThunk(
     "userCommercial/getCommercial",
-    async (token: string, { rejectWithValue }) => {
+    async (_, { rejectWithValue }) => {
       try {
-        const response = await getCommercialService(token);
+        const response = await getCommercialService();
         return response.data;
       } catch (error: any) {
         return rejectWithValue(error.response?.data?.error || "Loading failed, Please try again.");
@@ -46,11 +46,9 @@ interface UserState {
   
    export const updateCommercialPickup = createAsyncThunk(
       "userCommercial/updateCommercialPickup",
-      async ({ data, token }: CommPickupReqArgs, thunkAPI) => {
+      async ({ data }: CommPickupReqArgs, thunkAPI) => {
         try {
-          console.log("data",data);
-          console.log("token",token);
-          const response = await updateCommercialPickupService(data, token); 
+          const response = await updateCommercialPickupService(data); 
           return response.data;
         } catch (error: any) {
           return thunkAPI.rejectWithValue(

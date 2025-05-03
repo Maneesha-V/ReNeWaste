@@ -7,13 +7,14 @@ import PickupResidentialFormModal from "../../components/user/PickupResidentialF
 import { getResidential } from "../../redux/slices/user/residentialSlice";
 import { useAppDispatch } from "../../redux/hooks";
 import { useSelector } from "react-redux";
+import { Spin } from "antd";
 
 const Residential = () => {
   const [currentMonth, setCurrentMonth] = useState(dayjs());
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const dispatch = useAppDispatch();
-  const { user, loading, error } = useSelector(
+  const { user, loading } = useSelector(
     (state: any) => state.userResidential
   );
   const token = localStorage.getItem("token");
@@ -27,10 +28,16 @@ const Residential = () => {
   console.log("user", user);
   useEffect(() => {
     if (!token) return;
-
     dispatch(getResidential());
   }, [dispatch]);
-
+  
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <Spin size="large" />
+      </div>
+    );
+  }
 
   const handlePrevMonth = () => {
     setCurrentMonth(currentMonth.subtract(1, "month"));

@@ -55,7 +55,7 @@ const PickupCommercialFormModal: React.FC<PickupCommercialFormModalProps> = ({
     }
   }, [isOpen, user?.phone, user?.addresses, serviceQuery]);
   if (!isOpen || !user) return null;
-  const token: string = localStorage.getItem("token") ?? "";
+
   const fullName = `${user?.firstName || ""} ${user?.lastName || ""}`;
 
   const handleNewAddressChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -115,7 +115,7 @@ const PickupCommercialFormModal: React.FC<PickupCommercialFormModalProps> = ({
 
     try {
       const result = await dispatch(
-        updateCommercialPickup({ data: finalData, token })
+        updateCommercialPickup({ data: finalData })
       );
       if (result.payload?.error) {
         toast.error(result.payload.error);

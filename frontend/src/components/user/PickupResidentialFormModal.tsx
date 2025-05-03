@@ -19,7 +19,9 @@ const PickupResidentialFormModal: React.FC<PickupResidentialFormModalProps> = ({
   selectedDate,
   user,
 }) => {
-  const [selectedAddressIndex, setSelectedAddressIndex] = useState<number | "add-new">(0);
+  const [selectedAddressIndex, setSelectedAddressIndex] = useState<
+    number | "add-new"
+  >(0);
   const [newAddress, setNewAddress] = useState({
     addressLine1: "",
     addressLine2: "",
@@ -34,12 +36,13 @@ const PickupResidentialFormModal: React.FC<PickupResidentialFormModalProps> = ({
     pickupTime: "",
     wasteType: "Residential",
   });
+  const [pickupTimeError, setPickupTimeError] = useState("");
   const { errors, validateField, setErrors } = useWastePlantValidation();
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   useEffect(() => {
     if (!isOpen) return;
-  
+
     if (user?.addresses?.length > 0 && user?.phone) {
       setFormData((prev) => ({
         ...prev,
@@ -48,7 +51,7 @@ const PickupResidentialFormModal: React.FC<PickupResidentialFormModalProps> = ({
     }
   }, [isOpen, user?.phone, user?.addresses]);
   if (!isOpen || !user) return null;
-  const token: string = localStorage.getItem("token") ?? "";
+
   const fullName = `${user?.firstName || ""} ${user?.lastName || ""}`;
 
   const handleNewAddressChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -56,20 +59,73 @@ const PickupResidentialFormModal: React.FC<PickupResidentialFormModalProps> = ({
     setNewAddress((prev) => ({ ...prev, [name]: value }));
     validateField(name, value);
   };
+  const validatePickupTime = (value: string, selectedDateStr?: string): string => {
+    if (!value) return "Pickup time is required.";
+  
+    const [hour, minute] = value.split(":").map(Number);
+    const totalMinutes = hour * 60 + minute;
+  
+    const minTime = 9 * 60; // 9:00 AM
+    const maxTime = 18 * 60; // 6:00 PM
+  
+    if (totalMinutes < minTime || totalMinutes > maxTime) {
+      return "Pickup time must be between 9:00 AM and 6:00 PM.";
+    }
+  
+    if (selectedDateStr) {
+      const selectedDate = new Date(selectedDateStr);
+      const today = new Date();
+  
+      const isToday =
+        selectedDate.getDate() === today.getDate() &&
+        selectedDate.getMonth() === today.getMonth() &&
+        selectedDate.getFullYear() === today.getFullYear();
+  
+      if (isToday) {
+        const now = new Date();
+        const currentMinutes = now.getHours() * 60 + now.getMinutes();
+  
+        if (totalMinutes < currentMinutes) {
+          return "Pickup time cannot be earlier than the current time.";
+        }
+      }
+    }
+  
+    return "";
+  };
+  
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+    if (name === "pickupTime") {
+      const error = validatePickupTime(value);
+      setPickupTimeError(error);
+    }
   };
   const handleBlur = (
     e: React.FocusEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
     const { name, value } = e.target;
-    validateField(name, value);
+    if (name === "pickupTime") {
+      const error = validatePickupTime(value);
+      setPickupTimeError(error);
+    } else {
+      validateField(name, value);
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const currentErrors: Record<string, string> = {};
+
+    const pickupTimeValidationError = validatePickupTime(
+      formData.pickupTime ?? "", selectedDate ?? undefined
+    );
+    if (pickupTimeValidationError) {
+      currentErrors.pickupTime = pickupTimeValidationError;
+      setPickupTimeError(pickupTimeValidationError);
+    }
 
     Object.entries(formData).forEach(([name, value]) => {
       const error = validateField(name, value as string);
@@ -104,9 +160,9 @@ const PickupResidentialFormModal: React.FC<PickupResidentialFormModalProps> = ({
           : [user.addresses[selectedAddressIndex]],
     };
 
-       try {
+    try {
       const result = await dispatch(
-        updateResidentialPickup({ data: finalData, token })
+        updateResidentialPickup({ data: finalData })
       );
       if (result.payload?.error) {
         toast.error(result.payload.error);
@@ -163,27 +219,46 @@ const PickupResidentialFormModal: React.FC<PickupResidentialFormModalProps> = ({
             </div>
 
             {/* Address */}
+
             <div className="col-span-2">
               <label className="block text-sm font-medium mb-1">
                 Select Address
               </label>
-              <select
-                className="w-full p-2 border rounded"
-                value={selectedAddressIndex}
-                onChange={(e) => 
-                  setSelectedAddressIndex(
-                    e.target.value === "add-new" ? "add-new" : parseInt(e.target.value)
-                  )
-                }
-              >
-                {user.addresses?.map((addr: any, index: number) => (
-                  <option key={index} value={index.toString()}>
-                    {addr.addressLine1},{addr.addressLine2},{addr.location},{" "}
-                    {addr.pincode},{addr.district},{addr.state}
-                  </option>
-                ))}
-                <option value="add-new">+ Add New Address</option>
-              </select>
+
+              {user.addresses?.length > 0 ? (
+                // Show address dropdown if user has addresses
+                <select
+                  className="w-full p-2 border rounded"
+                  value={selectedAddressIndex}
+                  onChange={(e) =>
+                    setSelectedAddressIndex(
+                      e.target.value === "add-new"
+                        ? "add-new"
+                        : parseInt(e.target.value)
+                    )
+                  }
+                >
+                  {user.addresses.map((addr: any, index: number) => (
+                    <option key={index} value={index.toString()}>
+                      {addr.addressLine1},{addr.addressLine2},{addr.location},{" "}
+                      {addr.pincode},{addr.district},{addr.state}
+                    </option>
+                  ))}
+                  <option value="add-new">+ Add New Address</option>
+                </select>
+              ) : (
+                // Show "Add Address" button if no addresses
+                <button
+                  type="button"
+                  className="w-full p-2 border rounded bg-blue-600 text-white hover:bg-blue-700"
+                  onClick={() => {
+                    onClose(); // Close the modal
+                    navigate("/edit-profile"); // Navigate to profile page
+                  }}
+                >
+                  + Add Address
+                </button>
+              )}
             </div>
 
             {/* Show New Address Fields if "add-new" selected */}
@@ -300,14 +375,19 @@ const PickupResidentialFormModal: React.FC<PickupResidentialFormModalProps> = ({
               <label className="block text-sm font-medium mb-1">
                 Preferred Pickup Time
               </label>
-              <input type="time" 
-              name="pickupTime"
-              value={formData.pickupTime}
-              onChange={handleChange}
-              onBlur={handleBlur}
-              className="w-full p-2 border rounded" />
-              {errors.pickupTime && (
+              <input
+                type="time"
+                name="pickupTime"
+                value={formData.pickupTime}
+                onChange={handleChange}
+                onBlur={handleBlur}
+                className="w-full p-2 border rounded"
+              />
+              {/* {errors.pickupTime && (
                 <p className="text-red-500 text-sm">{errors.pickupTime}</p>
+              )} */}
+              {pickupTimeError && (
+                <p className="text-red-500 text-sm mt-1">{pickupTimeError}</p>
               )}
             </div>
 
