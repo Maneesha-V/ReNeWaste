@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { getUserPickups } from "../../../services/user/pickupService";
+import { cancelUserPickup, getUserPickups } from "../../../services/user/pickupService";
 
 interface PickupState {
   pickups: any;
@@ -30,7 +30,18 @@ export const fetchtPickupPlans = createAsyncThunk(
     }
   }
 );
-
+export const cancelPickupPlan = createAsyncThunk(
+  "userPickups/cancelPickupPlan",
+  async (pickupReqId: string, { rejectWithValue }
+  ) => {
+    try {
+      const response = await cancelUserPickup(pickupReqId);
+      return response;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data || "Failed to cancel pickup");
+    }
+  }
+);
 const userPickupSlice = createSlice({
   name: "userPickups",
   initialState,
@@ -49,6 +60,16 @@ const userPickupSlice = createSlice({
         state.loading = false;
         state.error = action.payload as string;
       })
+      .addCase(cancelPickupPlan.fulfilled, (state, action) => {
+        state.pickups = state.pickups.map((pickup: any) =>
+          pickup.pickupId === action.payload.pickupId
+            ? { ...pickup, status: 'Canceled' } 
+            : pickup
+        );
+      })
+      .addCase(cancelPickupPlan.rejected, (state, action) => {
+        state.error = action.payload as string;
+      });
 },
 });
 

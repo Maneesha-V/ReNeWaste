@@ -1,11 +1,13 @@
-import axios from "axios";
-
-const API_URL = import.meta.env.VITE_API_URL; 
+import axiosUser from "../../api/axiosUser";
 
 export const getUserPickups = async () => {
     const token = localStorage.getItem("token");
-    const response = await axios.get(`${API_URL}/pickup-plans`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+    console.log("token",token);
+    
+    const response = await axiosUser.get(`/pickup-plans`);
+      return response.data.pickups;
+  };
+  export const cancelUserPickup = async (pickupReqId: string) => {
+    const response = await axiosUser.patch(`/pickup-plans/cancel/${pickupReqId}`, {});
       return response.data.pickups;
   };
