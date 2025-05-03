@@ -13,7 +13,7 @@ const validateString = (value: string, fieldName: string): string[] => {
       errors.push(`${fieldName} must contain only letters.`);
     }
     else if (value.length < 3) {
-        errors.push(`${fieldName} must be at least 5 characters.`);
+        errors.push(`${fieldName} must be at least 3 characters.`);
       }
   return errors;
 };
