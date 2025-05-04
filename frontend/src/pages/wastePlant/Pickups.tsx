@@ -43,7 +43,7 @@ const Pickups = () => {
   );
   const rawPickups = useSelector((state: RootState) => state.wastePlantPickup.pickups);
   const pickups = Array.isArray(rawPickups) ? rawPickups : rawPickups ? [rawPickups] : [];
-  const token = localStorage.getItem("token");
+  const token = sessionStorage.getItem("wasteplant_token");
 
   useEffect(() => {
     if (!token) {

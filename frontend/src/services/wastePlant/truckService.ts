@@ -1,15 +1,8 @@
-import axios from "axios";
-
-const API_URL = import.meta.env.VITE_WASTE_PLANT_API_URL;
+import axiosWasteplant from "../../api/axiosWasteplant";
 
 export const getTrucks = async () => {
     try {
-      const token = localStorage.getItem("token");
-      const response = await axios.get(`${API_URL}/trucks`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await axiosWasteplant.get(`/trucks`);
       console.log("res", response);
       return response.data.data;
     } catch (error: any) {
@@ -18,12 +11,7 @@ export const getTrucks = async () => {
   };
   export const getAvailableTrucks = async (driverId: string) => {
     try {
-      const token = localStorage.getItem("token");
-      const response = await axios.get(`${API_URL}/available-trucks?driverId=${driverId}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await axiosWasteplant.get(`/available-trucks?driverId=${driverId}`);
       console.log("res", response);
       return response.data.data;
     } catch (error: any) {
@@ -32,13 +20,11 @@ export const getTrucks = async () => {
   };
   export const createTruck = async (truckData: FormData) => {
     try {
-      const token = localStorage.getItem("token");
-      const response = await axios.post(
-        `${API_URL}/add-truck`,
+      const response = await axiosWasteplant.post(
+        `/add-truck`,
         truckData,
         {
           headers: {
-            Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
           },
         }
@@ -51,7 +37,7 @@ export const getTrucks = async () => {
   };
   export const getTruckById = async (truckId: string) => {
     try {
-      const response = await axios.get(`${API_URL}/edit-truck/${truckId}`);
+      const response = await axiosWasteplant.get(`/edit-truck/${truckId}`);
       return response.data.data;
     } catch (error: any) {
       console.error("error", error);
@@ -59,11 +45,9 @@ export const getTrucks = async () => {
   };
   export const updateTruckById = async (truckId: string, data: FormData) => {
     try {
-      const token = localStorage.getItem("token");
-      const response = await axios.patch(`${API_URL}/edit-truck/${truckId}`, data, 
+      const response = await axiosWasteplant.patch(`/edit-truck/${truckId}`, data, 
         {
             headers: {
-            Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
             },
           }
@@ -76,12 +60,7 @@ export const getTrucks = async () => {
   };
   export const deleteTruckById = async (truckId: string) => {
     try {
-      const token = localStorage.getItem("token");
-      const response = await axios.delete(`${API_URL}/delete-truck/${truckId}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await axiosWasteplant.delete(`/delete-truck/${truckId}`);
       return response.data;
     } catch (error: any) {
       console.error("error", error);

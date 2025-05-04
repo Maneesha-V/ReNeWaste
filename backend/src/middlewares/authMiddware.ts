@@ -6,7 +6,6 @@ import mongoose from "mongoose";
 import { SuperAdminModel } from "../models/superAdmin/superAdminModel";
 import { DriverModel } from "../models/driver/driverModel";
 import { ProfileDriverRequest } from "../types/driver/authTypes";
-import { ProfilePlantRequest } from "../types/wastePlant/authTypes";
 import { WastePlantModel } from "../models/wastePlant/wastePlantModel";
 import { AuthRequest } from "../types/common/middTypes";
 
@@ -85,20 +84,23 @@ export const authenticateDriver = async (req: ProfileDriverRequest, res: Respons
     res.status(401).json({ error: "Invalid token" });
   }
 };
-export const authenticateWastePlant = async (req: ProfilePlantRequest, res: Response, next: NextFunction) => {
+export const authenticateWastePlant = async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
-    const authHeader = req.headers['authorization'];
-    const token = authHeader?.replace("Bearer ", "");
+    // const authHeader = req.headers['authorization'];
+    // const token = authHeader?.replace("Bearer ", "");
+    const token = req.header("Authorization")?.replace("Bearer ", "");
     if (!token) return res.status(401).json({ error: "No token, authorization denied" });
 
-    const decoded: any = jwt.verify(token, process.env.JWT_SECRET!);
-
+    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as {
+      userId: string;
+      role: string;
+    };
     const wastePlant = await WastePlantModel.findById(new mongoose.Types.ObjectId(decoded.userId)).select("-password");
     console.log("plant Found:", wastePlant);
     if (!wastePlant) {
       return res.status(404).json({ error: "wastePlant not found" });
     }
-    req.wastePlant = { plantId: wastePlant._id.toString() };
+    req.user = { id: wastePlant._id.toString(), role: wastePlant.role };
 
     next();
   } catch (error) {

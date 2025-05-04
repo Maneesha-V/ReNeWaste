@@ -30,8 +30,6 @@ export const wastePlantLogin = createAsyncThunk(
   async (wastePlantData: LoginRequest, { rejectWithValue }) => {
     try {
       const response = await loginWastePlant(wastePlantData);
-
-      localStorage.setItem("token", response.token);
       return response;
     } catch (error: any) {
       console.error("err", error);
@@ -44,7 +42,6 @@ export const wastePlantLogout = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       await logoutWastePlant();
-      localStorage.removeItem("token");
       return null;
     } catch (error: any) {
       return rejectWithValue("Logout failed. Please try again.");

@@ -1,9 +1,9 @@
 import { Request, Response } from "express";
-import { ProfilePlantRequest } from "../../../types/wastePlant/authTypes";
+import { AuthRequest } from "../../../types/common/middTypes";
 
 export interface IPickupController {
-    getPickupRequests (req: ProfilePlantRequest, res: Response): Promise<void>;
-    approvePickup(req: ProfilePlantRequest, res: Response): Promise<void>;
-    cancelPickup(req: ProfilePlantRequest, res: Response): Promise<void>;
-    reschedulePickup(req: ProfilePlantRequest, res: Response): Promise<void>;
+    getPickupRequests (req: AuthRequest, res: Response): Promise<void>;
+    approvePickup(req: Request, res: Response): Promise<void>;
+    cancelPickup(req: Request, res: Response): Promise<void>;
+    reschedulePickup(req: Request, res: Response): Promise<void>;
 }

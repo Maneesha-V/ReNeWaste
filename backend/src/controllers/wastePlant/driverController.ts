@@ -2,14 +2,14 @@ import { Request, Response } from "express";
 import { IDriverController } from "./interface/IDriverController";
 import { IDriver } from "../../models/driver/interfaces/driverInterface";
 import DriverService from "../../services/wastePlant/driverService";
-import { ProfilePlantRequest } from "../../types/wastePlant/authTypes";
 import mongoose from "mongoose";
+import { AuthRequest } from "../../types/common/middTypes";
 
 class DriverController implements IDriverController {
 
-async addDriver (req: ProfilePlantRequest, res: Response): Promise<void> {
+async addDriver (req: AuthRequest, res: Response): Promise<void> {
   try {
-    const plantId = req.wastePlant?.plantId;
+    const plantId = req.user?.id;
     console.log("plantId",plantId);
     console.log("body",req.body);
     const { files } = req as any;

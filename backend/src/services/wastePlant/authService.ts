@@ -5,8 +5,28 @@ import { sendEmail } from "../../utils/mailerUtils";
 import { generateOtp } from "../../utils/otpUtils";
 import { IAuthService } from "./interface/IAuthService";
 import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
 
 class AuthService implements IAuthService {
+   async verifyToken(token: string): Promise<{ token: string }> {
+        try {
+          const decoded = jwt.verify(token, process.env.JWT_REFRESH_SECRET!) as { userId: string, role:string };
+          const wastePlant = await WastePlantRepository.getWastePlantById(decoded.userId);
+          if (!wastePlant) {
+            throw new Error("Wasteplant not found");
+          }
+      
+          const accessToken = jwt.sign(
+            { userId: wastePlant._id, role: wastePlant.role },
+            process.env.JWT_SECRET!,
+            { expiresIn: "15min" }
+          );
+          return {  token: accessToken};
+    
+        } catch (error) {
+          throw new Error("Invalid or expired refresh token");
+        }
+      }
   async loginWastePlant({
     email,
     password,
@@ -19,7 +39,7 @@ class AuthService implements IAuthService {
     ) {
       throw new Error("Invalid email or password.");
     }
-    const token = generateToken(wastePlant._id.toString());
+    const token = generateToken({userId:wastePlant._id.toString(),role:wastePlant.role});
     return { wastePlant, token };
   }
   async sendOtpService(email: string) {

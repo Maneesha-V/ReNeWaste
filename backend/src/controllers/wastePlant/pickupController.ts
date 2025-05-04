@@ -1,14 +1,14 @@
 import { Request, Response } from "express";
 import PickupService from "../../services/wastePlant/pickupService";
 import { IPickupController } from "./interface/IPickupController";
-import { ProfilePlantRequest } from "../../types/wastePlant/authTypes";
+import { AuthRequest } from "../../types/common/middTypes";
 
 class PickupController implements IPickupController {
 
-async getPickupRequests (req: ProfilePlantRequest, res: Response): Promise<void> {
+async getPickupRequests (req: AuthRequest, res: Response): Promise<void> {
     try {
         const { status, wasteType } = req.query;
-        const plantId = req.wastePlant?.plantId;
+        const plantId = req.user?.id;
         console.log({ status, wasteType, plantId });
         
         const pickups = await PickupService.getPickupRequestService({
@@ -28,12 +28,12 @@ async getPickupRequests (req: ProfilePlantRequest, res: Response): Promise<void>
       }
 }
 
-async approvePickup(req: ProfilePlantRequest, res: Response): Promise<void> {
+async approvePickup(req: Request, res: Response): Promise<void> {
   try {
-    const { status, driverId, assignedZone, assignedTruckId } = req.body;
+    const { status, driverId, assignedTruckId } = req.body;
     const { pickupReqId } = req.params;
 
-    if (!status || !driverId || !assignedZone || !assignedTruckId) {
+    if (!status || !driverId || !assignedTruckId) {
       res.status(400).json({ message: "All fields are required" });
       return;
     }
@@ -42,7 +42,7 @@ async approvePickup(req: ProfilePlantRequest, res: Response): Promise<void> {
       pickupReqId,
       status,
       driverId,
-      assignedZone,
+      // assignedZone,
       assignedTruckId
     });
 
@@ -52,7 +52,7 @@ async approvePickup(req: ProfilePlantRequest, res: Response): Promise<void> {
     res.status(500).json({ message: "Server error while approving pickup" });
   }
 }
-async cancelPickup(req: ProfilePlantRequest, res: Response): Promise<void> {
+async cancelPickup(req: Request, res: Response): Promise<void> {
   try {
     const { pickupReqId } = req.params; 
     const { status } = req.body; 
@@ -68,7 +68,7 @@ async cancelPickup(req: ProfilePlantRequest, res: Response): Promise<void> {
     res.status(500).json({ message: "Failed to cancel pickup request" });
   }
 }
-async reschedulePickup(req: ProfilePlantRequest, res: Response): Promise<void> {
+async reschedulePickup(req: Request, res: Response): Promise<void> {
   try {
     const { pickupReqId } = req.params;
     const rescheduleData = req.body;

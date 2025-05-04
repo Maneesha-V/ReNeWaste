@@ -1,14 +1,14 @@
-import axios from "axios";
 import { LoginRequest } from "../../types/authTypes";
-
-const API_URL = import.meta.env.VITE_WASTE_PLANT_API_URL;
+import axiosWasteplant from "../../api/axiosWasteplant";
 
 export const loginWastePlant = async (wastePlantData: LoginRequest) => {
   try {
-    const response = await axios.post(`${API_URL}/`, wastePlantData);
+    const response = await axiosWasteplant.post(`/`, wastePlantData);
     if (response.data) {
-      localStorage.setItem("token", response.data.token);
-      localStorage.setItem("role", response.data.wastePlant.role);
+      // localStorage.setItem("token", response.data.token);
+      // localStorage.setItem("role", response.data.wastePlant.role);
+      sessionStorage.setItem("wasteplant_token", response.data.token);
+      sessionStorage.setItem("wasteplant_role", response.data.wastePlant.role);
     }
     console.log(response);
 
@@ -21,11 +21,15 @@ export const loginWastePlant = async (wastePlantData: LoginRequest) => {
 
 export const logoutWastePlant = async () => {
   try {
-    const response = await axios.post(
-      `${API_URL}/logout`,
-      {},
-      { withCredentials: true }
+    const response = await axiosWasteplant.post(
+      `/logout`,
+      {}
     );
+    // localStorage.removeItem("token"); 
+    // localStorage.removeItem("role"); 
+    sessionStorage.removeItem("wasteplant_token"); 
+    sessionStorage.removeItem("wasteplant_role"); 
+
     return response.data;
   } catch (error: any) {
     console.error("err", error);
@@ -34,7 +38,7 @@ export const logoutWastePlant = async () => {
 };
 export const sendOtpService = async (email: string) => {
   try {
-    const response = await axios.post(`${API_URL}/send-otp`, { email });
+    const response = await axiosWasteplant.post(`/send-otp`, { email });
     console.log("response", response);
     return response.data;
   } catch (error: any) {
@@ -51,7 +55,7 @@ export const sendOtpService = async (email: string) => {
 };
 export const resendOtpService = async (email: string) => {
   try {
-    const response = await axios.post(`${API_URL}/resend-otp`, { email });
+    const response = await axiosWasteplant.post(`/resend-otp`, { email });
     console.log("respp", response);
 
     return response.data;
@@ -64,7 +68,7 @@ export const resendOtpService = async (email: string) => {
 };
 export const verifyOtpService = async (email: string, otp: string) => {
   try {
-    const { data } = await axios.post(`${API_URL}/verify-otp`, { email, otp });
+    const { data } = await axiosWasteplant.post(`/verify-otp`, { email, otp });
     return data;
   } catch (error: any) {
     console.error(
@@ -81,7 +85,7 @@ export const verifyOtpService = async (email: string, otp: string) => {
 };
 export const resetPasswordService = async (email: string, password: string) => {
   try {
-    const response = await axios.post(`${API_URL}/reset-password`, {
+    const response = await axiosWasteplant.post(`/reset-password`, {
       email,
       password,
     });

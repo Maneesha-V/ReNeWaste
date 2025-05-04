@@ -4,22 +4,22 @@ import { IUserController } from "./interface/IUserController";
 import { generateRefreshToken } from "../../utils/authUtils";
 
 class UserController implements IUserController {
-   async refreshToken(req: Request, res: Response): Promise<void> {
-      try {
-        const refreshToken = req.cookies?.refreshToken;
-        console.log("refreshToken",refreshToken);
-        
-        if (!refreshToken) {
-           res.status(401).json({ error: "No refresh token provided." });
-           return;
-        }
-        const {token} = await AuthService.verifyToken(refreshToken)
-        res.status(200).json({ token });
-      } catch (error: any) {
-        console.error("err", error);
-        res.status(401).json({ error: error.message });
+  async refreshToken(req: Request, res: Response): Promise<void> {
+    try {
+      const refreshToken = req.cookies?.refreshToken;
+      console.log("refreshToken", refreshToken);
+
+      if (!refreshToken) {
+        res.status(401).json({ error: "No refresh token provided." });
+        return;
       }
+      const { token } = await AuthService.verifyToken(refreshToken);
+      res.status(200).json({ token });
+    } catch (error: any) {
+      console.error("err", error);
+      res.status(401).json({ error: error.message });
     }
+  }
   async signup(req: Request, res: Response): Promise<void> {
     console.log("body", req.body);
     try {
@@ -29,7 +29,7 @@ class UserController implements IUserController {
         throw new Error("Passwords do not match.");
       }
       const { confirmPassword, ...userWithoutConfirm } = userData;
-  
+
       const { user, token } = await AuthService.signupUser(userWithoutConfirm);
       console.log("user", user);
 
@@ -46,23 +46,23 @@ class UserController implements IUserController {
       const { email, password } = req.body;
       const { user, token } = await AuthService.loginUser({ email, password });
       const { password: _, ...safeUser } = user.toObject();
-        const refreshToken = await generateRefreshToken({userId: user._id.toString(), role: user.role})
-       
-           const cookieOptions = {
-             httpOnly: true,
-             secure: process.env.NODE_ENV === "production",
-             sameSite: "strict" as "strict",
-             maxAge: 7 * 24 * 60 * 60 * 1000
-           };
-           res
-           .cookie("refreshToken", refreshToken,  cookieOptions )  
-           .status(200)
-           .json({
-             success: true,
-             message: "Login successful",
-             user: safeUser,
-             token
-           });
+      const refreshToken = await generateRefreshToken({
+        userId: user._id.toString(),
+        role: user.role,
+      });
+
+      const cookieOptions = {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "strict" as "strict",
+        maxAge: 7 * 24 * 60 * 60 * 1000,
+      };
+      res.cookie("refreshToken", refreshToken, cookieOptions).status(200).json({
+        success: true,
+        message: "Login successful",
+        user: safeUser,
+        token,
+      });
     } catch (error: any) {
       console.error("err", error);
       res.status(400).json({ error: error.message });
@@ -82,10 +82,9 @@ class UserController implements IUserController {
         success: true,
         message: "Logout successful",
       });
-
     } catch (error: any) {
-      console.error("err",error)
-     res.status(500).json({
+      console.error("err", error);
+      res.status(500).json({
         success: false,
         message: "Logout failed",
       });
@@ -96,28 +95,28 @@ class UserController implements IUserController {
     try {
       console.log("otp-body", req.body);
       const { email } = req.body;
-      
+
       const otpResponse = await AuthService.sendOtpSignupService(email);
 
       res.status(200).json(otpResponse);
     } catch (error: any) {
       console.error("Error sending OTP:", error);
-      res.status(500).json({ error: error.message || "Internal Server Error"});
+      res.status(500).json({ error: error.message || "Internal Server Error" });
     }
   }
   async resendOtpForSignup(req: Request, res: Response): Promise<void> {
-    console.log("body",req.body);
+    console.log("body", req.body);
     try {
       const { email } = req.body;
       if (!email) {
-         res.status(400).json({ error: "Email is required" });
+        res.status(400).json({ error: "Email is required" });
       }
-  
+
       const success = await AuthService.resendOtpSignupService(email);
       if (success) {
-         res.status(200).json({ message: "OTP resent successfully" });
+        res.status(200).json({ message: "OTP resent successfully" });
       } else {
-         res.status(500).json({ error: "Failed to resend OTP" });
+        res.status(500).json({ error: "Failed to resend OTP" });
       }
     } catch (error) {
       res.status(500).json({ error: "Server error, please try again later" });
@@ -149,28 +148,28 @@ class UserController implements IUserController {
     try {
       console.log("otp-body", req.body);
       const { email } = req.body;
-      
+
       const otpResponse = await AuthService.sendOtpService(email);
 
       res.status(200).json(otpResponse);
     } catch (error: any) {
       console.error("Error sending OTP:", error);
-      res.status(500).json({ error: error.message || "Internal Server Error"});
+      res.status(500).json({ error: error.message || "Internal Server Error" });
     }
   }
   async resendOtp(req: Request, res: Response): Promise<void> {
-    console.log("body",req.body);
+    console.log("body", req.body);
     try {
       const { email } = req.body;
       if (!email) {
-         res.status(400).json({ error: "Email is required" });
+        res.status(400).json({ error: "Email is required" });
       }
-  
+
       const success = await AuthService.resendOtpService(email);
       if (success) {
-         res.status(200).json({ message: "OTP resent successfully" });
+        res.status(200).json({ message: "OTP resent successfully" });
       } else {
-         res.status(500).json({ error: "Failed to resend OTP" });
+        res.status(500).json({ error: "Failed to resend OTP" });
       }
     } catch (error) {
       res.status(500).json({ error: "Server error, please try again later" });
@@ -180,7 +179,7 @@ class UserController implements IUserController {
     try {
       const { email, otp } = req.body;
       console.log(req.body);
-      
+
       if (!email || !otp) {
         res.status(400).json({ error: "Email and OTP are required" });
         return;
@@ -223,11 +222,19 @@ class UserController implements IUserController {
         res.status(400).json({ message: "Email and UID are required" });
         return;
       }
-      const { user, token } = await AuthService.googleSignUpService(email, displayName, uid);
-      res.status(200).json({ message: "User signed in successfully", user, token });
+      const { user, token } = await AuthService.googleSignUpService(
+        email,
+        displayName,
+        uid
+      );
+      res
+        .status(200)
+        .json({ message: "User signed in successfully", user, token });
     } catch (error: any) {
       console.error("Google Sign-Up Error:", error);
-      res.status(500).json({ message: error.message || "Internal Server Error" });
+      res
+        .status(500)
+        .json({ message: error.message || "Internal Server Error" });
     }
   }
 
@@ -235,12 +242,20 @@ class UserController implements IUserController {
     try {
       console.log("body", req.body);
       const { email, googleId, token } = req.body;
-      const response = await AuthService.googleLoginService({ email, googleId, token });
+      const response = await AuthService.googleLoginService({
+        email,
+        googleId,
+        token,
+      });
       console.log("res", response);
       res.status(200).json(response);
     } catch (error: any) {
       console.error("Google login error:", error);
-      res.status(500).json({ message: error.message || "Something went wrong during login" });
+      res
+        .status(500)
+        .json({
+          message: error.message || "Something went wrong during login",
+        });
     }
   }
 }

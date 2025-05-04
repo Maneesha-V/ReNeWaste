@@ -12,16 +12,11 @@ const Trucks: React.FC = () => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const { truck, loading, error } = useSelector((state: RootState) => state.wastePlantTruck);
-  const token = localStorage.getItem("token");
   console.log("trucks",truck);
   
   useEffect(() => {
-    if (!token) {
-      navigate("/waste-plant/");
-      return;
-    }
     dispatch(fetchTrucks());
-  }, [dispatch, token]);
+  }, [dispatch]);
 
   const handleEdit = async (truckId: string) => {
     try {

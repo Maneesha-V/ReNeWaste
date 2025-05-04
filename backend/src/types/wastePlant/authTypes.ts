@@ -11,9 +11,6 @@ export interface LoginResponse {
   token: string;
 }
 
-export interface ProfilePlantRequest extends Request {
-    wastePlant?: { plantId: string };
-  }
   export interface PickupFilterParams {
     status?: string;
     wasteType?: string;

@@ -1,14 +1,14 @@
 import { Request, Response } from "express";
 import mongoose from "mongoose";
-import { ProfilePlantRequest } from "../../types/wastePlant/authTypes";
 import { ITruckController } from "./interface/ITruckController";
 import { ITruck } from "../../models/truck/interfaces/truckInterface";
 import TruckService from "../../services/wastePlant/truckService";
+import { AuthRequest } from "../../types/common/middTypes";
 class TruckController implements ITruckController {
 
-async addTruck (req: ProfilePlantRequest, res: Response): Promise<void> {
+async addTruck (req: AuthRequest, res: Response): Promise<void> {
   try {
-    const plantId = req.wastePlant?.plantId;
+    const plantId = req.user?.id;
     console.log("plantId",plantId);
     console.log("body",req.body);
 

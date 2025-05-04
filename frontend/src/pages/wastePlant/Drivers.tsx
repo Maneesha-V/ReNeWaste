@@ -12,7 +12,7 @@ const Drivers: React.FC = () => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const { driver, loading, error } = useSelector((state: RootState) => state.wastePlantDriver);
-  const token = localStorage.getItem("token");
+  const token = sessionStorage.getItem("wasteplant_token");
 
   useEffect(() => {
     if (!token) {
