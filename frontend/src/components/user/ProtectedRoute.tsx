@@ -1,8 +1,30 @@
 import { Navigate, Outlet } from "react-router-dom";
 
-const ProtectedRoute = () => {
+interface ProtectedRouteProps {
+    allowedRoles: string[];
+  }
+
+export const ProtectedRoute = ({ allowedRoles }: ProtectedRouteProps) => {
     const token = localStorage.getItem("token");
-    return token ? <Outlet /> : <Navigate to="/" replace />;
+    const storedRole = localStorage.getItem("role");
+    console.log({token,storedRole});
+
+    const isLoggedIn = !!token;
+    const role =  storedRole;
+
+    if(!isLoggedIn){
+        return <Navigate to="/" replace />
+    }
+
+    if(allowedRoles && !allowedRoles.includes(role || "")){
+        return <Navigate to="/unauthorized" replace />
+    }
+    return <Outlet />
 }
 
-export default ProtectedRoute
+export const ProtectedAuthRoute = () => {
+    const token = localStorage.getItem("token");
+    const role = localStorage.getItem("role");
+    const isLoggedIn = !!token && !!role;
+    return isLoggedIn ? <Navigate to="/home" replace /> : <Outlet />;
+  };

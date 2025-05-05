@@ -47,3 +47,15 @@ export const getPickups = async (
       throw error;
     }
   };
+
+  export const getAvailableDriversByPlace = async (location: string) => {
+    try {
+      const response = await axiosWasteplant.get(`/drivers-in-place?location=${location}`);
+      console.log("res",response);
+      
+      return response.data.data;
+    } catch (error: any) {
+      console.error("error", error);
+      throw error;
+    }
+  };

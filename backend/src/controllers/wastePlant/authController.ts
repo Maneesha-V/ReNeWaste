@@ -71,7 +71,7 @@ class AuthController implements IAuthController {
     } catch (error: any) {
       res
         .status(500)
-        .json({ success: true, message: "Logout failed. Please try again." });
+        .json({ success: false, message: "Logout failed. Please try again." });
     }
   }
   async sendOtp(req: Request, res: Response): Promise<void> {

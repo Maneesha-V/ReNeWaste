@@ -12,4 +12,5 @@ export interface IUserRepository {
   findOtpByEmail(email: string): Promise<{ email: string; otp: string } | null>;
   deleteOtp(email: string): Promise<void>;
   updateUserPassword(email: string, hashedPassword: string): Promise<void>;
+  updateAddressByIdLatLng(addressId: string, latitude: number, longitude: number): Promise<any>;
 }

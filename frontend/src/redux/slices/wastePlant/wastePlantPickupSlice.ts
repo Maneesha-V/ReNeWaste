@@ -2,6 +2,7 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import {
   approvePickupService,
   cancelPickupReqById,
+  getAvailableDriversByPlace,
   getPickups,
   reschedulePickupService,
 } from "../../../services/wastePlant/pickupService";
@@ -9,6 +10,7 @@ import { ApprovePickupPayload } from "../../../types/pickupTypes";
 
 interface PickupState {
   pickups: any;
+  driver: any;
   loading: boolean;
   message: string | null;
   error: string | null;
@@ -16,6 +18,7 @@ interface PickupState {
 
 const initialState: PickupState = {
   pickups: [],
+  driver: [],
   loading: false,
   message: null,
   error: null,
@@ -25,7 +28,12 @@ export const fetchPickupReqsts = createAsyncThunk(
   async (
     params: {
       wasteType: "Residential" | "Commercial";
-      status: "Pending" | "Scheduled" | "Completed" | "Cancelled" | "Rescheduled";
+      status:
+        | "Pending"
+        | "Scheduled"
+        | "Completed"
+        | "Cancelled"
+        | "Rescheduled";
     },
     { rejectWithValue }
   ) => {
@@ -45,7 +53,7 @@ export const approvePickup = createAsyncThunk(
       pickupId,
       status,
       driverId,
-      assignedZone,
+      // assignedZone,
       assignedTruckId,
     }: ApprovePickupPayload,
     thunkAPI
@@ -56,8 +64,8 @@ export const approvePickup = createAsyncThunk(
         pickupId,
         status,
         driverId,
-        assignedZone,
-        assignedTruckId,
+        // assignedZone,
+        assignedTruckId
       );
       return response.data;
     } catch (error: any) {
@@ -67,22 +75,23 @@ export const approvePickup = createAsyncThunk(
     }
   }
 );
-export const reschedulePickup  = createAsyncThunk(
+export const reschedulePickup = createAsyncThunk(
   "wastePlantPickup/reschedulePickup ",
   async (formData: any, { rejectWithValue }) => {
     try {
       const response = await reschedulePickupService(formData);
       return response;
     } catch (error: any) {
-      return rejectWithValue(
-        error.response?.data || "Something wrong."
-      );
+      return rejectWithValue(error.response?.data || "Something wrong.");
     }
   }
 );
 export const cancelPickupReq = createAsyncThunk(
-  "wastePlantDriver/cancelPickupReq ",
-  async ({ pickupReqId, status }: { pickupReqId: string, status: string },thunkAPI) => {
+  "wastePlantPickup/cancelPickupReq ",
+  async (
+    { pickupReqId, status }: { pickupReqId: string; status: string },
+    thunkAPI
+  ) => {
     try {
       const response = await cancelPickupReqById(pickupReqId, status);
       return response;
@@ -90,6 +99,17 @@ export const cancelPickupReq = createAsyncThunk(
       return thunkAPI.rejectWithValue(
         error.response.data || "Failed to update data."
       );
+    }
+  }
+);
+export const fetchDriversByPlace = createAsyncThunk(
+  "wastePlantPickup/fetchDriversByPlace ",
+  async (location: string, { rejectWithValue }) => {
+    try {
+      const response = await getAvailableDriversByPlace(location);
+      return response;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data || "Failed to fetch trucks");
     }
   }
 );
@@ -111,15 +131,15 @@ const wastePlantPickupSlice = createSlice({
         state.loading = false;
         state.error = action.payload as string;
       })
-      .addCase(reschedulePickup .pending, (state) => {
+      .addCase(reschedulePickup.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
-      .addCase(reschedulePickup .fulfilled, (state, action) => {
+      .addCase(reschedulePickup.fulfilled, (state, action) => {
         state.loading = false;
         state.pickups = action.payload;
       })
-      .addCase(reschedulePickup .rejected, (state, action) => {
+      .addCase(reschedulePickup.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
       })
@@ -127,6 +147,18 @@ const wastePlantPickupSlice = createSlice({
         state.pickups = state.pickups.filter(
           (pickups: any) => pickups._id !== action.payload
         );
+      })
+      .addCase(fetchDriversByPlace.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchDriversByPlace.fulfilled, (state, action) => {
+        state.loading = false;
+        state.driver = action.payload;
+      })
+      .addCase(fetchDriversByPlace.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
       });
   },
 });

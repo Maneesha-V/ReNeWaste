@@ -3,7 +3,7 @@ export interface ApprovePickupDTO {
   // pickupId: string;
   status: string;
   driverId: string;
-  assignedZone: string;
+  // assignedZone: string;
   assignedTruckId: string;
 }
 export interface IUpdatePickupRequest {

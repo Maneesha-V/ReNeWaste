@@ -1,31 +1,21 @@
 import axios from "axios";
-import { jwtDecode } from 'jwt-decode';
 
-const axiosUser = axios.create({
-  baseURL: import.meta.env.VITE_API_URL,
+const axiosDriver = axios.create({
+  baseURL: import.meta.env.VITE_DRIVER_API_URL,
   headers: {
     "Content-Type": "application/json",
   },
   withCredentials: true,
 });
 
-axiosUser.interceptors.request.use(
+axiosDriver.interceptors.request.use(
   async (config) => {
     console.log("config",config);
-    // const token = sessionStorage.getItem("user_token");
-    const token = localStorage.getItem("token");
-    // if (token) {
-    //   const decoded = jwtDecode(token);
-    //   console.log("Decoded Token:", decoded);
-    // }
+    
+    const token = sessionStorage.getItem("driver_token");
+    console.log("TOKEN IN INTERCEPTOR:", token);
     const allowedRoutes = [
       "/",
-      "/signup",
-      "/send-otp-signup",
-      "/resend-otp-signup",
-      "/verify-otp-signup",
-      "/google-signup",
-      "/google-login",
       "/send-otp",
       "/resend-otp",
       "/verify-otp",
@@ -37,7 +27,7 @@ axiosUser.interceptors.request.use(
     }
 
     if (!token) {
-      window.location.href = "/";
+      window.location.href = "/driver";
       return Promise.reject(
         new Error("No token available, redirecting to login.")
       );
@@ -50,7 +40,7 @@ axiosUser.interceptors.request.use(
     return Promise.reject(error);
   }
 );
-axiosUser.interceptors.response.use(
+axiosDriver.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
@@ -58,19 +48,18 @@ axiosUser.interceptors.response.use(
     if (error.response && error.response.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
       try {
-        const res = await axiosUser.get("/refresh-token");
+        const res = await axiosDriver.get("/refresh-token");
         console.log("res-refresh",res);
         
-        // const newAccessToken = res.data.accessToken;
         const newAccessToken = res.data.token;
-        localStorage.setItem("token", newAccessToken);
-
-        axiosUser.defaults.headers.common['Authorization'] = `Bearer ${newAccessToken}`;
+        // localStorage.setItem("token", newAccessToken);
+        sessionStorage.setItem("driver_token",newAccessToken); 
+        axiosDriver.defaults.headers.common['Authorization'] = `Bearer ${newAccessToken}`;
         originalRequest.headers['Authorization'] = `Bearer ${newAccessToken}`;
 
-        return axiosUser(originalRequest);
+        return axiosDriver(originalRequest);
       } catch (refreshError) {
-        window.location.href = "/";
+        window.location.href = "/driver";
         return Promise.reject(refreshError);
       }
     }
@@ -79,4 +68,4 @@ axiosUser.interceptors.response.use(
   }
 );
 
-export default axiosUser;
+export default axiosDriver;

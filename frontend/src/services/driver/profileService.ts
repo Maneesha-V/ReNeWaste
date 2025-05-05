@@ -1,31 +1,20 @@
-import axios from "axios";
-
-const API_URL = import.meta.env.VITE_DRIVER_API_URL;
+import axiosDriver from "../../api/axiosDriver";
 
 export const getDriverProfile = async () => {
     try {
-        const token = localStorage.getItem("token");
-
-        const response = await axios.get(`${API_URL}/profile`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-          withCredentials: true,
-        });
+        const response = await axiosDriver.get(`/profile`);
         return response.data;
     } catch (error: any) {
       console.error("err", error);
       throw error.response?.data?.error || "Login failed. Please try again.";
     }
   };
-  export const updateProfile = async (formData: FormData, token: string) => {
+  export const updateProfile = async (formData: FormData) => {
     try {
-      console.log(formData,token);
-      
-      const response = await axios.patch(`${API_URL}/edit-profile`, formData, {
+
+      const response = await axiosDriver.patch(`/edit-profile`, formData, {
         headers: {
           "Content-Type": "multipart/form-data",
-          Authorization: `Bearer ${token}`,
         },
       });
       return response.data;
@@ -35,6 +24,6 @@ export const getDriverProfile = async () => {
     }
   };
   export const fetchDriversService = async(wastePlantId: string) => {
-    const response = await axios.get(`${API_URL}/drivers?wastePlantId=${wastePlantId}`);
+    const response = await axiosDriver.get(`/drivers?wastePlantId=${wastePlantId}`);
     return response.data;
   }

@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { IWastePlant } from "../../models/wastePlant/interfaces/wastePlantInterface";
 import  WastePlantService  from "../../services/superAdmin/wastePlantService";
 import { IWastePlantController } from "./interface/IWastePlantController";
+import { AuthRequest } from "../../types/common/middTypes";
 
 class WastePlantController implements IWastePlantController {
 
@@ -50,7 +51,7 @@ async addWastePlant (req: Request, res: Response): Promise<void> {
     res.status(500).json({ error: error.message || "Failed to create waste plant" });
   }
 };
-async fetchWastePlants (req: Request,res: Response): Promise<void> {
+async fetchWastePlants (req: AuthRequest,res: Response): Promise<void> {
   try {
     const wastePlants = await WastePlantService.getAllWastePlants()   
     res.status(200).json({

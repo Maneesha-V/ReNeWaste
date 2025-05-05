@@ -15,7 +15,7 @@ const WastePlants: React.FC = () => {
   const { wastePlant, loading, error } = useSelector((state: RootState) => state.superAdminWastePlant);
  
   useEffect(() => {
-    if (!localStorage.getItem("token")) {
+    if (!sessionStorage.getItem("admin_token")) {
       navigate("/super-admin/");
       return;
     }

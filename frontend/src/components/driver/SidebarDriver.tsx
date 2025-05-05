@@ -19,7 +19,7 @@ const SidebarDriver = ({ collapsed }: SidebarProps) => {
   const navigate  = useNavigate();
   const menuItems = [
     { key: 'dashboard', icon: <DashboardOutlined />, label: 'Dashboard', path: '/driver/dashboard' },
-    { key: 'pickups', icon: <InboxOutlined />, label: 'Pickups', path: '/driver/alloted-pickups' },
+    { key: 'pickups', icon: <InboxOutlined />, label: 'Alloted Pickups', path: '/driver/alloted-pickups' },
     { key: 'assigned-trucks', icon: <CarOutlined />, label: 'Assigned Trucks', path: '/driver/assigned-trucks' },
     { key: 'pay-bills', icon: <DollarOutlined />, label: 'Pay & Bills', path: '/driver/pay-bills' },
     { key: 'reports', icon: <FileTextOutlined />, label: 'Reports', path: '/driver/reports' },

@@ -5,7 +5,6 @@ import { ProfileRequest } from "../types/user/profileTypes";
 import mongoose from "mongoose";
 import { SuperAdminModel } from "../models/superAdmin/superAdminModel";
 import { DriverModel } from "../models/driver/driverModel";
-import { ProfileDriverRequest } from "../types/driver/authTypes";
 import { WastePlantModel } from "../models/wastePlant/wastePlantModel";
 import { AuthRequest } from "../types/common/middTypes";
 
@@ -63,20 +62,22 @@ export const authenticateSuperAdmin = async (req: AuthRequest, res: Response, ne
     res.status(401).json({ error: "Invalid token" });
   }
 };
-export const authenticateDriver = async (req: ProfileDriverRequest, res: Response, next: NextFunction) => {
+export const authenticateDriver = async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
-    const authHeader = req.headers['authorization'];
-    const token = authHeader?.replace("Bearer ", "");
+    const token = req.header("Authorization")?.replace("Bearer ", "");
     if (!token) return res.status(401).json({ error: "No token, authorization denied" });
 
-    const decoded: any = jwt.verify(token, process.env.JWT_SECRET!);
+    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as {
+      userId: string;
+      role: string;
+    };
 
     const driver = await DriverModel.findById(new mongoose.Types.ObjectId(decoded.userId)).select("-password");
     console.log("driver Found:", driver);
     if (!driver) {
       return res.status(404).json({ error: "Driver not found" });
     }
-    req.driver = { driverId: driver._id.toString() };
+    req.user = { id: driver._id.toString(), role: driver.role };
 
     next();
   } catch (error) {
@@ -86,8 +87,6 @@ export const authenticateDriver = async (req: ProfileDriverRequest, res: Respons
 };
 export const authenticateWastePlant = async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
-    // const authHeader = req.headers['authorization'];
-    // const token = authHeader?.replace("Bearer ", "");
     const token = req.header("Authorization")?.replace("Bearer ", "");
     if (!token) return res.status(401).json({ error: "No token, authorization denied" });
 

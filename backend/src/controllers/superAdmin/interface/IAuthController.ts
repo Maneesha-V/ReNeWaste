@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 
 export interface IAuthController {
+  refreshToken(req: Request, res: Response): Promise<void>
   superAdminLogin(req: Request, res: Response): Promise<void>;
   superAdminSignup(req: Request, res: Response): Promise<void>;
   superAdminLogout(req: Request, res: Response): Promise<void>;

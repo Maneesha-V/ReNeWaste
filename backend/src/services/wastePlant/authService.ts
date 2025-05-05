@@ -11,7 +11,10 @@ class AuthService implements IAuthService {
    async verifyToken(token: string): Promise<{ token: string }> {
         try {
           const decoded = jwt.verify(token, process.env.JWT_REFRESH_SECRET!) as { userId: string, role:string };
+          console.log("Refresh token payload:", decoded);
           const wastePlant = await WastePlantRepository.getWastePlantById(decoded.userId);
+          console.log("wastePlant",wastePlant);
+          
           if (!wastePlant) {
             throw new Error("Wasteplant not found");
           }
@@ -24,6 +27,7 @@ class AuthService implements IAuthService {
           return {  token: accessToken};
     
         } catch (error) {
+          console.error("Refresh token error", error);
           throw new Error("Invalid or expired refresh token");
         }
       }

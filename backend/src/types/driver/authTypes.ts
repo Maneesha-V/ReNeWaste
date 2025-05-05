@@ -11,6 +11,3 @@ export interface LoginResponse {
   driver: IDriverDocument;
   token: string;
 }
-export interface ProfileDriverRequest extends Request {
-    driver?: { driverId: string };
-  }

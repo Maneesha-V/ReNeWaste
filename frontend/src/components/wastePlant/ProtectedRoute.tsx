@@ -6,8 +6,10 @@ interface ProtectedRouteProps {
 
   export const ProtectedRoute = ({ allowedRoles }: ProtectedRouteProps) => {
 
-    const token = localStorage.getItem("token");
-    const storedRole = localStorage.getItem("role");
+    // const token = localStorage.getItem("token");
+    // const storedRole = localStorage.getItem("role");
+    const token = sessionStorage.getItem("wasteplant_token");
+    const storedRole = sessionStorage.getItem("wasteplant_role");
     console.log({token, storedRole});
     
     const isLoggedIn = !!token;
@@ -25,7 +27,8 @@ interface ProtectedRouteProps {
   };
   
   export const ProtectedAuthRoute = () => {
-    const token = localStorage.getItem("token");
+    // const token = localStorage.getItem("token");
+    const token = sessionStorage.getItem("wasteplant_token");
     const isLoggedIn = !!token;
     return isLoggedIn ? <Navigate to="/waste-plant/dashboard" replace /> : <Outlet />;
   };

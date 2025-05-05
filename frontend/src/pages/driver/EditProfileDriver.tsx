@@ -26,7 +26,6 @@ const EditProfileDriver: React.FC = () => {
       });
     }
   }, [driver]);
-  const token: string = localStorage.getItem("token") ?? "";
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
     const { name, value } = e.target;
@@ -67,7 +66,7 @@ const EditProfileDriver: React.FC = () => {
 
     try {
       const result = await dispatch(
-        updateDriverProfile({ data: formDataToSend, token })
+        updateDriverProfile({ data: formDataToSend })
       );
       if (result.payload?.error) {
         toast.error(result.payload.error);

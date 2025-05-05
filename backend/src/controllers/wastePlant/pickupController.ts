@@ -9,15 +9,13 @@ async getPickupRequests (req: AuthRequest, res: Response): Promise<void> {
     try {
         const { status, wasteType } = req.query;
         const plantId = req.user?.id;
-        console.log({ status, wasteType, plantId });
-        
+   
         const pickups = await PickupService.getPickupRequestService({
             status: status as string,
             wasteType: wasteType as string,
             plantId: plantId as string,
           });
-          console.log("pickups",pickups);
-          
+   
         res.status(200).json({
           success: true,
           data: pickups,
@@ -87,6 +85,31 @@ async reschedulePickup(req: Request, res: Response): Promise<void> {
       message: error.message || "Something went wrong.",
     });
   }
+}
+async fetchDriversByPlace (req: AuthRequest, res: Response): Promise<void> {
+  try {
+      const location = req.query.location as string;
+      const plantId = req.user?.id;
+      console.log({ location, plantId });
+      if (!location) {
+        res.status(400).json({ message: "Location is required" });
+        return ;
+      }
+      if (!plantId) {
+        res.status(400).json({ message: "plantId is required" });
+        return ;
+      }
+      const drivers = await PickupService.getAvailableDriverService(location, plantId);
+        console.log("drivers",drivers);
+        
+      res.status(200).json({
+        success: true,
+        data: drivers,
+      });
+    } catch (error) {
+      console.error('Error fetching pickups:', error);
+      res.status(500).json({ message: 'Server error' });
+    }
 }
 }
 export default new PickupController();

@@ -6,26 +6,26 @@ interface ProtectedRouteProps {
 
   export const ProtectedRoute = ({ allowedRoles }: ProtectedRouteProps) => {
 
-    const token = sessionStorage.getItem("admin_token");
-    const storedRole = sessionStorage.getItem("admin_role");
+    const token = sessionStorage.getItem("driver_token");
+    const storedRole = sessionStorage.getItem("driver_role");
     console.log({token, storedRole});
     
     const isLoggedIn = !!token;
     const role =  storedRole;
   
     if (!isLoggedIn) {
-      return <Navigate to="/super-admin" replace />;
+      return <Navigate to="/driver" replace />;
     }
   
     if (allowedRoles && !allowedRoles.includes(role || "")) {
-      return <Navigate to="/super-admin/unauthorized" replace />;
+      return <Navigate to="/driver/unauthorized" replace />;
     }
   
     return <Outlet />;
   };
   
   export const ProtectedAuthRoute = () => {
-    const token = sessionStorage.getItem("admin_token");
+    const token = sessionStorage.getItem("driver_token");
     const isLoggedIn = !!token;
-    return isLoggedIn ? <Navigate to="/super-admin/dashboard" replace /> : <Outlet />;
+    return isLoggedIn ? <Navigate to="/driver/dashboard" replace /> : <Outlet />;
   };

@@ -6,4 +6,5 @@ export interface IPickupController {
     approvePickup(req: Request, res: Response): Promise<void>;
     cancelPickup(req: Request, res: Response): Promise<void>;
     reschedulePickup(req: Request, res: Response): Promise<void>;
+    fetchDriversByPlace (req: AuthRequest, res: Response): Promise<void>;
 }

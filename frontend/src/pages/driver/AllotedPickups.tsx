@@ -19,8 +19,9 @@ const AllotedPickups = () => {
   const { loading, error, pickups } = useSelector(
     (state: RootState) => state.driverPickups
   );
-  const token = localStorage.getItem("token");
-
+  const token = sessionStorage.getItem("driver_token");
+  console.log("to",token);
+  
   useEffect(() => {
     if (!token) return;
     dispatch(fetchDriverPickups({ wasteType: activeTab }));

@@ -1,8 +1,8 @@
 import { Request, Response } from "express";
-import { ProfileDriverRequest } from "../../../types/driver/authTypes";
+import { AuthRequest } from "../../../types/common/middTypes";
 
 export interface IProfileController {
-    getProfile(req: ProfileDriverRequest, res: Response): Promise<void>;
-    updateProfile(req: ProfileDriverRequest, res: Response): Promise<void>;
+    getProfile(req: AuthRequest, res: Response): Promise<void>;
+    updateProfile(req: AuthRequest, res: Response): Promise<void>;
     getDriversByWastePlant (req: Request, res: Response): Promise<void>;
 }

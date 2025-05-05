@@ -1,18 +1,17 @@
-import axios from "axios";
 import { LoginRequest } from "../../types/authTypes";
+import axiosDriver from "../../api/axiosDriver";
 
-const API_URL = import.meta.env.VITE_DRIVER_API_URL;
 
 export const loginDriver = async (driverData: LoginRequest) => {
   try {
-    const response = await axios.post(`${API_URL}/`, driverData);
+    const response = await axiosDriver.post(`/`, driverData);
     console.log("res",response);
     
     if (response.data) {
-      localStorage.setItem("token", response.data.token);
-      localStorage.setItem("role", response.data.driver.role);
+      sessionStorage.setItem("driver_token", response.data.token);
+      sessionStorage.setItem("driver_role", response.data.driver.role);
     }
-    console.log(response);
+    console.log("res",response);
 
     return response.data;
   } catch (error: any) {
@@ -22,11 +21,12 @@ export const loginDriver = async (driverData: LoginRequest) => {
 };
 export const logoutDriver = async () => {
   try {
-    const response = await axios.post(
-      `${API_URL}/logout`,
-      {},
-      { withCredentials: true }
+    const response = await axiosDriver.post(
+      `/logout`,
+      {}
     );
+    sessionStorage.removeItem("driver_token");
+    sessionStorage.removeItem("driver_role");
     return response.data;
   } catch (error: any) {
     console.error("err",error)
@@ -35,7 +35,7 @@ export const logoutDriver = async () => {
 };
 export const sendOtpService = async (email: string) => {
   try {
-    const response = await axios.post(`${API_URL}/send-otp`, { email });
+    const response = await axiosDriver.post(`/send-otp`, { email });
     console.log("response", response);
     return response.data;
   } catch (error: any) {
@@ -52,7 +52,7 @@ export const sendOtpService = async (email: string) => {
 };
 export const resendOtpService = async (email: string) => {
   try {
-    const response = await axios.post(`${API_URL}/resend-otp`, { email });
+    const response = await axiosDriver.post(`/resend-otp`, { email });
     console.log("respp", response);
 
     return response.data;
@@ -65,7 +65,7 @@ export const resendOtpService = async (email: string) => {
 };
 export const verifyOtpService = async (email: string, otp: string) => {
   try {
-    const { data } = await axios.post(`${API_URL}/verify-otp`, { email, otp });
+    const { data } = await axiosDriver.post(`/verify-otp`, { email, otp });
     return data;
   } catch (error: any) {
     console.error(
@@ -82,7 +82,7 @@ export const verifyOtpService = async (email: string, otp: string) => {
 };
 export const resetPasswordService = async (email: string, password: string) => {
   try {
-    const response = await axios.post(`${API_URL}/reset-password`, {
+    const response = await axiosDriver.post(`/reset-password`, {
       email,
       password,
     });

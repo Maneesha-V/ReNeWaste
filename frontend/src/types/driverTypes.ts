@@ -17,7 +17,6 @@ export interface ValidationErrors {
 
 export interface UpdateDriverArgs {
   data: FormData;
-  token: string;
 }
 
 type WasteType = "Residential" | "Commercial";

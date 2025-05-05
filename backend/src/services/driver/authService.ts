@@ -6,15 +6,43 @@ import { sendEmail } from "../../utils/mailerUtils";
 import { generateOtp } from "../../utils/otpUtils";
 import { IAuthService } from "./interface/IAuthService";
 import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
 
 class AuthService implements IAuthService {
+  async verifyToken(token: string): Promise<{ token: string }> {
+    try {
+      const decoded = jwt.verify(token, process.env.JWT_REFRESH_SECRET!) as {
+        userId: string;
+        role: string;
+      };
+      const driver = await DriverRepository.getDriverById(decoded.userId);
+
+      if (!driver) {
+        throw new Error("Driver not found");
+      }
+     
+      const accessToken = jwt.sign(
+        { userId: driver._id, role: driver.role },
+        process.env.JWT_SECRET!,
+        { expiresIn: "15min" }
+      );
+
+      return { token: accessToken };
+    } catch (error) {
+      console.error("err",error)
+      throw new Error("Invalid or expired refresh token");
+    }
+  }
   async loginDriver({ email, password }: LoginRequest): Promise<LoginResponse> {
     const driver = await DriverRepository.findDriverByEmail(email);
 
     if (!driver || !(await bcrypt.compare(password, driver.password || ""))) {
       throw new Error("Invalid email or password.");
     }
-    const token = generateToken(driver._id.toString());
+    const token = generateToken({
+      userId: driver._id.toString(),
+      role: driver.role,
+    });
     return { driver, token };
   }
   async sendOtpService(email: string) {

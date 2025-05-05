@@ -61,7 +61,6 @@ export const superAdminSignup = createAsyncThunk(
   async (superAdminData: SignupSuperAdminRequest, { rejectWithValue }) => {
     try {
       const response = await signupSuperAdmin(superAdminData);
-      localStorage.setItem("token", response.token);
       return response;
     } catch (error: any) {
       console.error("err", error);
@@ -74,7 +73,10 @@ export const superAdminLogout = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       await logoutSuperAdmin();
-      localStorage.removeItem("token");
+      // localStorage.removeItem("token");
+      // localStorage.removeItem("role");
+      sessionStorage.removeItem("admin_token"); 
+      sessionStorage.removeItem("admin_role"); 
       return null;
     } catch (error: any) {
       return rejectWithValue("Logout failed. Please try again.");
@@ -147,7 +149,7 @@ const superAdminSlice = createSlice({
     builder
       .addCase(refreshAccessToken.fulfilled, (state, action) => {
         state.token = action.payload;
-        localStorage.setItem("token", action.payload);
+        // localStorage.setItem("token", action.payload);
       })
       .addCase(superAdminLogin.pending, (state) => {
         state.loading = true;

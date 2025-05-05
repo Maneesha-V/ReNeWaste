@@ -1,8 +1,26 @@
 import { Request, Response } from "express";
 import { IAuthController } from "./interface/IAuthController";
 import AuthService from "../../services/driver/authService";
+import { generateRefreshToken } from "../../utils/authUtils";
+import { AuthRequest } from "../../types/common/middTypes";
 
 class AuthController implements IAuthController {
+   async refreshToken(req: AuthRequest, res: Response): Promise<void> {
+      try {
+        const refreshToken = req.cookies?.refreshToken;
+        console.log("refreshToken", refreshToken);
+  
+        if (!refreshToken) {
+          res.status(401).json({ error: "No refresh token provided." });
+          return;
+        }
+        const { token } = await AuthService.verifyToken(refreshToken);
+        res.status(200).json({ token });
+      } catch (error: any) {
+        console.error("err", error);
+        res.status(401).json({ error: error.message });
+      }
+    }
   async driverLogin(req: Request, res: Response): Promise<void> {
     try {
       console.log("body", req.body);
@@ -11,9 +29,25 @@ class AuthController implements IAuthController {
         email,
         password,
       });
-      console.log("driver", driver);
-      console.log("token", token);
-      res.status(200).json({ driver, token });
+           const { password: _, ...safeDriver } = driver.toObject();
+            const refreshToken = await generateRefreshToken({
+              userId: driver._id.toString(),
+              role: driver.role,
+            });
+      
+            const cookieOptions = {
+              httpOnly: true,
+              secure: process.env.NODE_ENV === "production",
+              sameSite: "strict" as "strict",
+              maxAge: 7 * 24 * 60 * 60 * 1000,
+            };
+            res.cookie("refreshToken", refreshToken, cookieOptions).status(200).json({
+              success: true,
+              message: "Login successful",
+              driver: safeDriver,
+              token,
+            });
+      // res.status(200).json({ driver, token });
     } catch (error: any) {
       console.error("err", error);
       res.status(400).json({ error: error.message });
@@ -21,14 +55,16 @@ class AuthController implements IAuthController {
   }
   async driverLogout(req: Request, res: Response): Promise<void> {
     try {
-      res.clearCookie("token", {
+      const cookieOptions = {
         httpOnly: true,
-        secure: true,
-        sameSite: "strict",
-      });
-      res.status(200).json({ message: "Logout successful" });
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "strict" as const,
+      };
+
+      res.clearCookie("refreshToken", cookieOptions);
+      res.status(200).json({ success: true, message: "Logout successful" });
     } catch (error: any) {
-      res.status(500).json({ error: "Logout failed. Please try again." });
+      res.status(500).json({ success: false, message: "Logout failed. Please try again." });
     }
   }
   async sendOtp(req: Request, res: Response): Promise<void> {

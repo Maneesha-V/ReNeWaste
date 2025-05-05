@@ -1,13 +1,12 @@
 import { Request, Response } from "express";
 import { IProfileController } from "./interface/IProfileController";
 import ProfileService from "../../services/driver/profileService";
-import { ProfileDriverRequest } from "../../types/driver/authTypes";
+import { AuthRequest } from "../../types/common/middTypes";
 
 class ProfileController implements IProfileController {
-  async getProfile(req: ProfileDriverRequest, res: Response): Promise<void> {
+  async getProfile(req: AuthRequest, res: Response): Promise<void> {
     try {
-      console.log("req",req.driver);
-      const driverId = req.driver?.driverId;     
+      const driverId = req.user?.id;     
       if (!driverId) {
         res.status(401).json({ error: "Unauthorized" });
         return;
@@ -18,9 +17,9 @@ class ProfileController implements IProfileController {
       res.status(400).json({ error: error.message });
     }
   }
-  async updateProfile(req: ProfileDriverRequest, res: Response): Promise<void> {
+  async updateProfile(req: AuthRequest, res: Response): Promise<void> {
     try {
-    const driverId = req.driver?.driverId;
+      const driverId = req.user?.id;   
     const updatedData = req.body;
   if (!driverId) {
     res.status(401).json({ error: "Unauthorized" });

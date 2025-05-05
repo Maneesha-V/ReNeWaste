@@ -23,8 +23,6 @@ export const driverLogin = createAsyncThunk(
   async (driverData: LoginRequest, { rejectWithValue }) => {
     try {
       const response = await loginDriver(driverData);
-
-      localStorage.setItem("token", response.token);
       return response;
     } catch (error: any) {
       console.error("err", error);
@@ -37,7 +35,6 @@ export const driverLogout = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       await logoutDriver();
-      localStorage.removeItem("token");
       return null;
     } catch (error: any) {
       return rejectWithValue("Logout failed. Please try again.");

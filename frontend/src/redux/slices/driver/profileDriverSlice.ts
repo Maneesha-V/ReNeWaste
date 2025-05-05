@@ -31,11 +31,11 @@ const initialState: DriverState = {
   );
   export const updateDriverProfile = createAsyncThunk(
     "driverProfile/updateProfile",
-    async ({ data, token }: UpdateDriverArgs, thunkAPI) => {
-      console.log(data,token);
+    async ({ data }: UpdateDriverArgs, thunkAPI) => {
+      console.log(data);
       
       try {
-        const response = await updateProfile(data, token); 
+        const response = await updateProfile(data); 
         return response;
       } catch (error: any) {
         return thunkAPI.rejectWithValue(

@@ -33,8 +33,8 @@ export const PASSWORD_RULES = {
         ALREADY_VERIFIED: "Account is already verified.",
         NO_OTP_FOUND: "No OTP found. Please request a new one.",
         BLOCKED: "Your account is blocked",
-        JWT_SECRET_MISSING:"JWT token is not configured"
-        
+        JWT_SECRET_MISSING:"JWT token is not configured",
+        NO_TOKEN: "Token not found"
       },
     },
   
