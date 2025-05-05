@@ -10,7 +10,8 @@ async requestTruckForDriver (req: AuthRequest, res: Response): Promise<void> {
         const { driverId } = req.params;
     
         const assignedTruck = await TruckService.requestTruck(driverId);
-    
+        console.log("assignedTruck",assignedTruck);
+        
         res.status(200).json({
           success: true,
           message: "Truck request sent successfully",

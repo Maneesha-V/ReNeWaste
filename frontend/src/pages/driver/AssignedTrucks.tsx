@@ -6,10 +6,12 @@ import { RootState } from '../../redux/store';
 import { toast } from 'react-toastify';
 import { fetchDriverTrucks } from '../../redux/slices/driver/truckDriverSlice';
 import { fetchDriverProfile } from '../../redux/slices/driver/profileDriverSlice';
+import { useNavigate } from 'react-router-dom';
 
 const { Title, Text } = Typography;
 
 const AssignedTrucks: React.FC = () => {
+const navigate = useNavigate();
 const dispatch = useAppDispatch();
  const { driver } = useSelector((state: RootState) => state.driverProfile);
  const { trucks } = useSelector((state: RootState) => state.driverTrucks);
@@ -60,7 +62,7 @@ const columns = [
       render: (_: any, record: any) => {
         if (record.status === 'Maintenance') {
           return (
-            <Button type="primary" onClick={() => handleRequestTruck(record._id)}>
+            <Button type="primary" onClick={() => navigate("/driver/chat")}>
               Request Truck
             </Button>
           );
@@ -95,9 +97,6 @@ const columns = [
             <Empty
               description={<Text type="secondary">No trucks are assigned</Text>}
             />
-            <Button type="primary" size="middle" onClick={() => handleRequestTruck()}>
-              Request Truck
-            </Button>
           </Space>
         )}
       </Card>
