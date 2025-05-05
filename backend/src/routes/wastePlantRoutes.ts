@@ -42,5 +42,6 @@ router.get("/pickups", authenticateWastePlant as RequestHandler, PickupControlle
 router.patch("/approve-pickup/:pickupReqId",authenticateWastePlant as RequestHandler, PickupController.approvePickup)
 router.put("/cancel-pickupReq/:pickupReqId",authenticateWastePlant as RequestHandler, PickupController.cancelPickup)
 router.put("/reschedule-pickup/:pickupReqId",authenticateWastePlant as RequestHandler, PickupController.reschedulePickup)
+router.get("/drivers-in-place", authenticateWastePlant as RequestHandler, PickupController.fetchDriversByPlace)
 
 export default router;

@@ -10,6 +10,9 @@ export const useWastePlantValidation = () => {
     const label = formatFieldLabel(name);
 
     switch (name) {
+      case "firstName":
+      case "lastName":
+      case "assignedZone":
       case "businessName":
       case "plantName":
       case "ownerName":
@@ -59,7 +62,7 @@ export const useWastePlantValidation = () => {
             error = "Pickup time must be between 9:00 AM and 5:00 PM.";
           }
         }
-        break;
+        break;   
       case "vehicleNumber":
       case "licenseNumber":
         if (!value.trim()) error = `${label} is required.`;

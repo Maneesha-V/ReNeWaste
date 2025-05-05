@@ -7,8 +7,11 @@ import { useSelector } from "react-redux";
 import {
   fetchEta,
   fetchPickupById,
+  updateAddressLatLng,
+  updateTrackingStatus,
 } from "../../redux/slices/driver/pickupDriverSlice";
 import { toast } from "react-toastify";
+import { getDistanceFromLatLonInKm } from "../../utils/mapUtils";
 
 const TrackPickup = () => {
   const { pickupReqId } = useParams<{ pickupReqId: string }>();
@@ -24,26 +27,127 @@ const TrackPickup = () => {
       dispatch(fetchPickupById(pickupReqId));
     }
   }, [dispatch, pickupReqId]);
-  console.log("picj", pickup);
 
   useEffect(() => {
     if (pickup && pickup.selectedAddress && pickup._id) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
+          console.log("position.coords",position.coords);
+          
           const { latitude, longitude } = position.coords;
           const origin = `${latitude},${longitude}`;
 
-          // const destination = `${pickup.selectedAddress.addressLine1}, ${pickup.selectedAddress.addressLine2}, ${pickup.selectedAddress.location}, ${pickup.selectedAddress.taluk}, ${pickup.selectedAddress.district}, ${pickup.selectedAddress.state}, ${pickup.selectedAddress.pincode}`;
-          const destination = `${pickup.selectedAddress.addressLine2}, ${pickup.selectedAddress.location}, ${pickup.selectedAddress.taluk}, ${pickup.selectedAddress.district}, ${pickup.selectedAddress.state}, ${pickup.selectedAddress.pincode}`;
+          const destination = `${pickup.selectedAddress.addressLine1}, ${pickup.selectedAddress.addressLine2}, ${pickup.selectedAddress.location}, ${pickup.selectedAddress.taluk}, ${pickup.selectedAddress.district}, ${pickup.selectedAddress.state}, ${pickup.selectedAddress.pincode}`;
+          // const destination = `${pickup.selectedAddress.addressLine2}, ${pickup.selectedAddress.location}, ${pickup.selectedAddress.taluk}, ${pickup.selectedAddress.district}, ${pickup.selectedAddress.state}, ${pickup.selectedAddress.pincode}`;
           dispatch(fetchEta({ origin, destination, pickupReqId: pickup._id }));
+          if (!pickup.selectedAddress.latitude || !pickup.selectedAddress.longitude) {
+            dispatch(
+              updateAddressLatLng({
+                addressId: pickup.selectedAddress._id,
+                latitude,
+                longitude,
+              })
+            );
+          }
         },
-        (err: any) => {
-          toast.error("Geolocation error:", err);
+        (err) => {
+          toast.error("Geolocation error");
+          console.error(err);
         }
       );
     }
   }, [pickup, dispatch]);
 
+  useEffect(() => {
+    let watchId: number;
+  
+    if (pickup && pickup.selectedAddress?.latitude && pickup.selectedAddress?.longitude && pickup._id) {
+      watchId = navigator.geolocation.watchPosition(
+        (position) => {
+          const { latitude, longitude } = position.coords;
+          const pickupLat = pickup.selectedAddress.latitude;
+          const pickupLng = pickup.selectedAddress.longitude;
+ 
+          const distance = getDistanceFromLatLonInKm(latitude, longitude, pickupLat, pickupLng);
+          console.log("dis",distance);
+          let newStatus: string | null = null;
+  
+          if (distance < 0.2) {
+            newStatus = "Arrived";
+          } else if (distance < 1) {
+            newStatus = "Near";
+          } else {
+            newStatus = "InTransit";
+          }
+          let lastUpdatedStatus = pickup.trackingStatus;
+
+          if (newStatus && newStatus !== lastUpdatedStatus) {
+            lastUpdatedStatus = newStatus;
+            dispatch(updateTrackingStatus({ pickupReqId: pickup._id, trackingStatus: newStatus }));
+          }
+        },
+        (error) => {
+          toast.error("Failed to track driver location");
+          console.error("WatchPosition error:", error);
+        },
+        {
+          enableHighAccuracy: true,
+          maximumAge: 10000,
+          timeout: 5000
+        }
+      );
+    }
+  
+    return () => {
+      if (watchId) navigator.geolocation.clearWatch(watchId);
+    };
+  }, [pickup, dispatch]);
+  
+  // useEffect(() => {
+  //   let watchId: number;
+  
+  //   watchId = navigator.geolocation.watchPosition(
+  //     (position) => {
+  //       const { latitude, longitude } = position.coords;
+  //       console.log("Live coords:", { latitude, longitude });
+  
+  //       if (pickup && pickup.selectedAddress?.latitude && pickup.selectedAddress?.longitude) {
+  //         const pickupLat = pickup.selectedAddress.latitude;
+  //         const pickupLng = pickup.selectedAddress.longitude;
+  
+  //         const distance = getDistanceFromLatLonInKm(latitude, longitude, pickupLat, pickupLng);
+  //         console.log("Distance to pickup:", distance);
+  
+  //         let newStatus: string | null = null;
+  //         if (distance < 0.2) {
+  //           newStatus = "Arrived";
+  //         } else if (distance < 1) {
+  //           newStatus = "Near";
+  //         } else {
+  //           newStatus = "InTransit";
+  //         }
+  
+  //         if (newStatus && newStatus !== pickup.trackingStatus) {
+  //           dispatch(updateTrackingStatus({ pickupReqId: pickup._id, trackingStatus: newStatus }));
+  //         }
+  //       }
+  //     },
+  //     (error) => {
+  //       toast.error("Failed to track driver location");
+  //       console.error("watchPosition error:", error);
+  //     },
+  //     {
+  //       enableHighAccuracy: true,
+  //       maximumAge: 0,
+  //       timeout: 5000,
+  //     }
+  //   );
+  
+  //   return () => {
+  //     if (watchId) navigator.geolocation.clearWatch(watchId);
+  //   };
+  // }, [dispatch, pickup]); // keep dispatch and pickup
+  
   const getMapsUrl = (address: any) => {
     const full = `${address?.addressLine1}, ${address?.addressLine2}, ${address?.location}, ${address?.taluk}, ${address?.district}, ${address?.state}, ${address?.pincode}`;
     return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(

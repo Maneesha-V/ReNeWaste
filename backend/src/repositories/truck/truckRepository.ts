@@ -1,3 +1,4 @@
+import { DriverModel } from "../../models/driver/driverModel";
 import {
   ITruck,
   ITruckDocument,
@@ -23,7 +24,7 @@ class TruckRepository implements ITruckRepository {
     return await TruckModel.find();
   }
   async getAvailableTrucks(driverId: string): Promise<ITruck[]> {
-    const existingTruck = await TruckModel.findOne({ assignedDriver: driverId });
+    const existingTruck = await TruckModel.findOne({ assignedDriver: driverId }).populate('wasteplantId');
     if (existingTruck) {
       return [existingTruck]; 
     }
@@ -39,5 +40,6 @@ class TruckRepository implements ITruckRepository {
   async deleteTruckById(truckId: string) {
     return await TruckModel.findByIdAndDelete(truckId);
   }
+
 }
 export default new TruckRepository();

@@ -14,6 +14,7 @@ export interface IDriver {
   wasteplantId?: mongoose.Types.ObjectId;
   assignedTruckId?: mongoose.Types.ObjectId;
   assignedZone?: string;
+  hasRequestedTruck?: boolean;
   createdAt: Date;
   updatedAt: Date;
 }

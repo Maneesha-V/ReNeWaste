@@ -32,6 +32,10 @@ export const driverSchema: Schema<IDriverDocument> = new Schema({
     default: null,
   },
   assignedZone: { type: String },
+  hasRequestedTruck: {
+    type: Boolean,
+    default: false, 
+  },
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },
 });

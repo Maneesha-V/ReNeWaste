@@ -4,20 +4,26 @@ import Home from "../pages/user/Home";
 import ProfilePage from "../pages/user/Profile";
 import EditProfile from "../pages/user/EditProfile";
 import NotFoundPage from "../pages/user/NotFoundPage";
-import ProtectedRoute from "../components/user/ProtectedRoute";
+import { ProtectedAuthRoute, ProtectedRoute} from "../components/user/ProtectedRoute";
 import ForgotPassword from "../pages/user/ForgotPassword";
 import OtpVerificationWrapper from "../components/user/OtpVerificationWrapper";
 import Residential from "../pages/user/Residential";
 import Commercial from "../pages/user/Commercial";
 import PickupPlans from "../pages/user/PickupPlans";
+import Unauthorized from "../pages/user/Unauthorized";
 
 const UserRoutes = () => {
   return (
     <Routes>
-      <Route path="/signup" element={<OtpVerificationWrapper />} />
-      <Route path="/" element={<Login />} />
-      <Route path="/forgot-password" element={<ForgotPassword />} />
-      <Route element={<ProtectedRoute />}>
+      {/* ProtectedAuthRoute */}
+      <Route element={<ProtectedAuthRoute />}>
+        <Route path="/signup" element={<OtpVerificationWrapper />} />
+        <Route path="/" element={<Login />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+      </Route>
+
+      {/* Protected routes */}
+      <Route element={<ProtectedRoute allowedRoles={["user"]} />}>
         <Route path="/home" element={<Home />} />
         <Route path="/profile" element={<ProfilePage />} />
         <Route path="/edit-profile" element={<EditProfile />} />
@@ -25,6 +31,8 @@ const UserRoutes = () => {
         <Route path="/commercial" element={<Commercial />} />
         <Route path="/pickup-plans" element={<PickupPlans />} />
       </Route>
+
+      <Route path="/unauthorized" element={<Unauthorized />} />
       <Route path="*" element={<NotFoundPage />} />
     </Routes>
   );

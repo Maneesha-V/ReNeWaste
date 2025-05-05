@@ -37,7 +37,8 @@ export const wastePlantSchema: Schema<IWastePlantDocument> = new Schema({
     role: { 
       type: String, 
       enum: ["user", "driver", "superadmin", "wasteplant"], 
-      default: "wasteplant" 
+      default: "wasteplant",
+      required: true 
   },
     createdAt: { type: Date, default: Date.now },
     updatedAt: { type: Date, default: Date.now }

@@ -7,7 +7,9 @@ export interface IAddress {
     location: string;      
     state: string;         
     pincode: string;      
-    district: string;            
+    district: string; 
+    latitude?: number;   
+    longitude?: number;  
   }
 
   export interface IAddressDocument extends IAddress, Document {

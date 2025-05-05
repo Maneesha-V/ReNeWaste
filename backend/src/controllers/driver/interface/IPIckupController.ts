@@ -1,6 +1,7 @@
 import { Response } from "express";
-import { ProfileDriverRequest } from "../../../types/driver/authTypes";
+import { AuthRequest } from "../../../types/common/middTypes";
 
 export interface IPickupController {
-    getPickupRequests (req: ProfileDriverRequest, res: Response): Promise<void>;
+    getPickupRequests (req: AuthRequest, res: Response): Promise<void>;
+    updateAddressLatLng (req: AuthRequest, res: Response): Promise<void>;
 }

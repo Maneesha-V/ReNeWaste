@@ -9,7 +9,7 @@ import { UserModel } from "../../models/user/userModel";
 
 class PickupRepository implements IPickupRepository {
   async getPickupById(pickupReqId: string) {
-    const pickup = await PickupModel.findById(pickupReqId);
+    const pickup = await PickupModel.findById(pickupReqId)
     if (!pickup) throw new Error("Pickup not found");
     return pickup;
   }
@@ -75,6 +75,8 @@ class PickupRepository implements IPickupRepository {
         (address: any) =>
           address._id.toString() === pickup.addressId?.toString()
       );
+      console.log("userAddress",userAddress);
+      
 
       const location = userAddress?.location || "Unknown";
 
@@ -238,7 +240,48 @@ class PickupRepository implements IPickupRepository {
     
   }
   async getPickupPlansByUserId(userId: string) {
-    return await PickupModel.find({ userId });
+    // return await PickupModel.find({ userId });
+    return await PickupModel.find({ userId })
+    .populate({
+      path: 'driverId',
+      select: 'name contact assignedTruckId',
+      populate: {
+        path: 'assignedTruckId',
+        select: 'name vehicleNumber'
+      }
+    })
+    .sort({ createdAt: -1, pickupTime: 1 }) 
+    .lean();
+  
+  }
+  async updateTrackingStatus(
+    pickupReqId: string,
+    trackingStatus: string
+  ): Promise<IPickupRequestDocument | null> {
+    const updatedPickup = await PickupModel.findByIdAndUpdate(
+      pickupReqId,
+      { trackingStatus },
+      { new: true }
+    );
+
+    if (!updatedPickup) {
+      throw new Error("Pickup not found");
+    }
+
+    return updatedPickup;
+  }
+  async updatePickupStatus(
+    pickupReqId: string,
+    status: string
+  ){
+    const res = await PickupModel.findOneAndUpdate(
+      { pickupReqId },
+      { status: status },
+      { new: true }
+    );
+    console.log("repo",res);
+    
+    return res;
   }
 }
 export default new PickupRepository();

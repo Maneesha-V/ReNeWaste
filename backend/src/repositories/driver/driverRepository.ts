@@ -56,9 +56,9 @@ class DriverRepository implements IDriverRepository {
         const objectId = new Types.ObjectId(wastePlantId);
         return await DriverModel.find({wasteplantId: objectId, status: "Active"}).sort({ name: 1 });
       };
-      async updateDriverTruckAssignedZone(
+      async updateDriverTruck(
         driverId: string,
-        assignedZone: string,
+        // assignedZone: string,
         assignedTruckId: string
       ){
         const objectIdDriver = new Types.ObjectId(driverId);
@@ -75,7 +75,7 @@ class DriverRepository implements IDriverRepository {
           objectIdDriver,
           {
             $set: {
-              assignedZone: assignedZone,
+              // assignedZone: assignedZone,
               assignedTruckId: objectIdTruck
             },
           },
@@ -97,5 +97,10 @@ class DriverRepository implements IDriverRepository {
           { new: true }
         );
       }
+      
+      async getDriversByLocation(location: string, plantId: string) {
+        const objectId = new Types.ObjectId(plantId);
+        return await DriverModel.find({wasteplantId: objectId, assignedZone: location}).sort({ name: 1 });
+      };
 }
 export default new DriverRepository();

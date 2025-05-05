@@ -13,7 +13,7 @@ class PickupService implements IPickupService {
   }
 
 async approvePickupService(data: ApprovePickupDTO) {
-  const { pickupReqId, status, driverId, assignedZone, assignedTruckId} = data;
+  const { pickupReqId, status, driverId, assignedTruckId} = data;
 
   const updatedPickup = await PickupRepository.updatePickupStatusAndDriver(
     pickupReqId,
@@ -22,7 +22,7 @@ async approvePickupService(data: ApprovePickupDTO) {
 
   if (!updatedPickup) throw new Error("Pickup  not found or update failed");
 
-  await DriverRepository.updateDriverTruckAssignedZone(driverId, assignedZone, assignedTruckId);
+  await DriverRepository.updateDriverTruck(driverId, assignedTruckId);
   
   return updatedPickup;
 }
@@ -56,6 +56,9 @@ async reschedulePickup(pickupReqId: string, data: ReschedulePickupDTO) {
     throw new Error("Failed to reschedule pickup");
   }
   return updatedPickup;
+}
+async getAvailableDriverService(location: string, plantId:string) {
+  return await DriverRepository.getDriversByLocation(location, plantId);
 }
 }
 export default new PickupService();

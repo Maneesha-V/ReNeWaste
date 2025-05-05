@@ -1,10 +1,10 @@
 import { Request, Response } from "express";
-import { ProfileDriverRequest } from "../../types/driver/authTypes";
 import { IMapController } from "./interface/IMapController";
 import MapService from "../../services/driver/mapService";
+import { AuthRequest } from "../../types/common/middTypes";
 
 class MapController implements IMapController {
-    async getETA(req: ProfileDriverRequest, res: Response): Promise<void> {
+    async getETA(req: AuthRequest, res: Response): Promise<void> {
         const { origin, destination, pickupReqId } = req.query;
         console.log("query",req.query);
         

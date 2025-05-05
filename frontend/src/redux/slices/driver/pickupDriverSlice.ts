@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { fetchEtaService, fetchPickupByIdService, getDriverPickups, markPickupService } from "../../../services/driver/pickupService";
+import { fetchEtaService, fetchPickupByIdService, getDriverPickups, markPickupService, updateAddressLatLngService, updateTrackingStatusService } from "../../../services/driver/pickupService";
 import { FetchPickupsParams } from "../../../types/driverTypes";
 
 interface PickupState {
@@ -27,6 +27,7 @@ export const fetchDriverPickups = createAsyncThunk(
       const response = await getDriverPickups(wasteType);
       return response;
     } catch (error: any) {
+      console.error("err",error);
       return rejectWithValue(error.response?.data || "Failed to fetch pickups");
     }
   }
@@ -63,6 +64,45 @@ export const markPickupCompleted = createAsyncThunk(
       } catch (err: any) {
         console.error("err",err);
         return rejectWithValue(err.response?.data?.message || "Unable to calculate ETA");
+      }
+    }
+  );
+  export const updateAddressLatLng  = createAsyncThunk(
+    "driverPickups/updateAddressLatLng",
+    async (
+      {
+        addressId,
+        latitude,
+        longitude,
+      }: { addressId: string; latitude: number; longitude: number }
+      , { rejectWithValue }) => {
+      try { 
+        const response = await updateAddressLatLngService({ addressId, latitude, longitude,});
+        console.log("reee",response);
+        
+        return response;
+      } catch (err: any) {
+        console.error("err",err);
+        return rejectWithValue(err.response?.data?.message || "Failed to update address location");
+      }
+    }
+  );
+  export const updateTrackingStatus  = createAsyncThunk(
+    "driverPickups/updateTrackingStatus",
+    async (
+      {
+        pickupReqId,
+        trackingStatus
+      }: { pickupReqId: string; trackingStatus: string;}
+      , { rejectWithValue }) => {
+      try { 
+        const response = await updateTrackingStatusService({ pickupReqId, trackingStatus });
+        console.log("reee",response);
+        
+        return response;
+      } catch (err: any) {
+        console.error("err",err);
+        return rejectWithValue(err.response?.data?.message || "Failed to update tracking status");
       }
     }
   );
@@ -111,6 +151,30 @@ const driverPickupSlice = createSlice({
       })
       .addCase(fetchEta.rejected, (state, action) => {
         state.loading = false;
+        state.error = action.payload as string;
+      })
+      .addCase(updateAddressLatLng.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(updateAddressLatLng.fulfilled, (state, action) => {
+        state.loading = false;
+        if (state.selectedPickup && state.selectedPickup.selectedAddress) {
+          state.selectedPickup.selectedAddress.latitude = action.payload.latitude;
+          state.selectedPickup.selectedAddress.longitude = action.payload.longitude;
+        }
+      })
+      .addCase(updateAddressLatLng.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      })
+      .addCase(updateTrackingStatus.fulfilled, (state, action) => {
+        const updatedStatus = action.payload?.trackingStatus;
+        if (state.selectedPickup && updatedStatus) {
+          state.selectedPickup.trackingStatus = updatedStatus;
+        }
+      })
+      .addCase(updateTrackingStatus.rejected, (state, action) => {
         state.error = action.payload as string;
       });
 },

@@ -1,10 +1,9 @@
 import { Modal, Select, Input, Form, Button } from "antd";
 import { useEffect, useState } from "react";
 import { useAppDispatch } from "../../redux/hooks";
-import { fetchDrivers } from "../../redux/slices/driver/profileDriverSlice";
 import { RootState } from "../../redux/store";
 import { useSelector } from "react-redux";
-import { approvePickup } from "../../redux/slices/wastePlant/wastePlantPickupSlice";
+import { approvePickup, fetchDriversByPlace } from "../../redux/slices/wastePlant/wastePlantPickupSlice";
 import { useNavigate } from "react-router-dom";
 import { fetchAvailableTrucks } from "../../redux/slices/wastePlant/wastePlantTruckSlice";
 
@@ -24,40 +23,49 @@ const AssignDriverModal = ({
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const [selectedDriver, setSelectedDriver] = useState<string | null>(null);
-  const { driver } = useSelector((state: RootState) => state.driverProfile);
+  const { driver } = useSelector((state: RootState) => state.wastePlantPickup);
   const { truck } = useSelector((state: RootState) => state.wastePlantTruck);
   const [form] = Form.useForm();
-  const token = localStorage.getItem("token");
-  console.log("trucks",truck);
+  const token = sessionStorage.getItem("wasteplant_token");
+  console.log(token);
   
+  console.log("trucks", truck);
+  console.log("drivers", driver);
+  console.log("pickup", pickup);
   useEffect(() => {
     if (!token) {
       navigate("/waste-plant/");
       return;
     }
     if (visible && pickup?.wasteplantId) {
-      dispatch(fetchDrivers(pickup.wasteplantId));
+      dispatch(fetchDriversByPlace(pickup?.location));
     }
   }, [visible, pickup?.wasteplantId, token]);
 
-    useEffect(() => {
-      if (truck.length === 1) {
-        form.setFieldValue("truck", truck[0]._id);
-      }
-    }, [truck]);
+  useEffect(() => {
+    if (truck.length === 1) {
+      form.setFieldValue("truck", truck[0]._id);
+    }
+  }, [truck]);
+
+  const filteredDrivers = Array.isArray(driver)
+    ? driver.filter((d: any) => d.assignedZone === pickup?.location)
+    : [];
+  console.log("filteredDrivers", filteredDrivers);
 
   const handleAssign = async () => {
     try {
       const values = await form.validateFields();
-      await dispatch(approvePickup({
-        pickupReqId: pickup._id,
-        pickupId: pickup.pickupId,
-        status: "Scheduled",
-        driverId: values.driver,
-        assignedZone: values.assignedZone,
-        assignedTruckId: values.truck
-      })).unwrap(); 
-  
+      await dispatch(
+        approvePickup({
+          pickupReqId: pickup._id,
+          pickupId: pickup.pickupId,
+          status: "Scheduled",
+          driverId: values.driver,
+          assignedTruckId: values.truck,
+        })
+      ).unwrap();
+
       onSuccess();
       onClose();
     } catch (err) {
@@ -102,7 +110,8 @@ const AssignDriverModal = ({
           {pickup?.userAddress && (
             <div className="text-sm text-gray-700 leading-relaxed ml-2">
               <p>{pickup.userAddress.addressLine1}</p>
-              <p>{pickup.userAddress.location}</p>
+              <p>{pickup.userAddress.addressLine2}</p>
+              {/* <p>{pickup.userAddress.location}</p> */}
               <p>{pickup.userAddress.taluk}</p>
               <p> {pickup.userAddress.pincode}</p>
             </div>
@@ -111,22 +120,34 @@ const AssignDriverModal = ({
       </div>
 
       <Form form={form} layout="vertical">
+        {/* <Form.Item
+          label="Assign Zone"
+          name="assignedZone"
+          rules={[{ required: true, message: "Please enter zone" }]}
+        >
+          <Input placeholder="Enter zone" />
+        </Form.Item> */}
 
         <Form.Item
           label="Assign Driver"
           name="driver"
           rules={[{ required: true, message: "Please select a driver" }]}
         >
-          <Select 
-          placeholder="Select Driver"
-          onChange={(value) => {
-            form.setFieldValue("driver", value);
-            setSelectedDriver(value);
-            dispatch(fetchAvailableTrucks(value)); 
-          }}
+          <Select
+            placeholder="Select Driver"
+            onChange={(value) => {
+              form.setFieldValue("driver", value);
+              setSelectedDriver(value);
+              dispatch(fetchAvailableTrucks(value));
+            }}
           >
-            {Array.isArray(driver) &&
+            {/* {Array.isArray(driver) &&
               driver.map((driver: any) => (
+              <Select.Option key={driver._id} value={driver._id}>
+                {driver.name}
+              </Select.Option>
+            ))} */}
+            {filteredDrivers.map((driver: any) => (
               <Select.Option key={driver._id} value={driver._id}>
                 {driver.name}
               </Select.Option>
@@ -135,13 +156,6 @@ const AssignDriverModal = ({
         </Form.Item>
 
         <Form.Item
-          label="Assign Zone"
-          name="assignedZone"
-          rules={[{ required: true, message: "Please enter zone" }]}
-        >
-          <Input placeholder="Enter zone" />
-        </Form.Item>
-        <Form.Item
           label="Assign Truck"
           name="truck"
           rules={[{ required: true, message: "Please select a truck" }]}
@@ -149,10 +163,10 @@ const AssignDriverModal = ({
           <Select placeholder="Select Truck">
             {Array.isArray(truck) &&
               truck.map((truck: any) => (
-              <Select.Option key={truck._id} value={truck._id}>
-                {truck.name}
-              </Select.Option>
-            ))}
+                <Select.Option key={truck._id} value={truck._id}>
+                  {truck.name}
+                </Select.Option>
+              ))}
           </Select>
         </Form.Item>
         <Form.Item>

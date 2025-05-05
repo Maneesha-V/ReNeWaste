@@ -1,5 +1,5 @@
 import  mongoose, { Document, Types } from "mongoose";
-import { IAddress } from "./addressInterface";
+import { IAddress, IAddressDocument } from "./addressInterface";
 
 export interface IUser {
     firstName: string;
@@ -10,7 +10,8 @@ export interface IUser {
     role: "user" | "driver" | "superadmin" | "wasteplant";
     phone?: string;
     googleId: string | null;
-    addresses: IAddress[];
+    // addresses: IAddress[];
+    addresses: Types.DocumentArray<IAddressDocument>
     wasteplantId?: mongoose.Types.ObjectId;
   }
 

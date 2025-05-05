@@ -132,7 +132,7 @@ const PickupPlans = () => {
   };
 
   const pendingPickups = pickups.filter((p: any) => !p.trackingStatus);
-  const assignedPickups = pickups.filter((p: any) => p.trackingStatus);
+  const proceesedPickups = pickups.filter((p: any) => p.trackingStatus);
 
   return (
     <div className="min-h-screen bg-green-100">
@@ -151,8 +151,8 @@ const PickupPlans = () => {
             <TabPane tab="Pending Pickups" key="1">
               {renderPickupCards(pendingPickups)}
             </TabPane>
-            <TabPane tab="Assigned Pickups" key="2">
-              {renderPickupCards(assignedPickups)}
+            <TabPane tab="Processed Pickups" key="2">
+              {renderPickupCards(proceesedPickups)}
             </TabPane>
           </Tabs>
         )}
@@ -170,134 +170,6 @@ const PickupPlans = () => {
   );
 };
 
-  // return (
-  //   <div className="min-h-screen bg-gray-100">
-  //     <Header />
-      
-  //     <div className="px-4 py-6 max-w-6xl mx-auto">
-  //       <h2 className="text-2xl font-semibold mb-4">Your Pickup Plans</h2>
-
-  //       {loading ? (
-  //         <div className="flex justify-center items-center h-64">
-  //           <Spin size="large" />
-  //         </div>
-  //       ) : error ? (
-  //         <div className="text-center text-red-500">{error}</div>
-  //       ) : pickups.length === 0 ? (
-  //         <Empty description="No pickup plans available." />
-  //       ) : (
-  //         <Row gutter={[16, 16]}>
-  //           {Array.isArray(pickups) &&
-  //             pickups.map((pickup: any, index: number) => (
-  //               <Col key={index} xs={24}>
-  //                 <Card
-  //                   hoverable
-  //                   title={pickup.pickupId}
-  //                   className="rounded-lg shadow-lg"
-  //                   extra={
-  //                     pickup.trackingStatus === "Assigned" ? (
-  //                       <Button
-  //                         type="primary"
-  //                         onClick={() => handleTrackClick(pickup)}
-  //                       >
-  //                         Track
-  //                       </Button>
-  //                     ) : (
-  //                       <Popconfirm
-  //                         title="Are you sure to cancel this pickup?"
-  //                         // description="This action cannot be undone."
-  //                         okText="Yes"
-  //                         cancelText="No"
-  //                         onConfirm={() => handleCancel(pickup._id)}
-  //                         okType="danger"
-  //                       >
-  //                         <Button type="default" danger>
-  //                           Cancel
-  //                         </Button>
-  //                       </Popconfirm>
-  //                       // <Button type="default" danger onClick={() => handleCancel(pickup._id)}>
-  //                       //   Cancel
-  //                       // </Button>
-  //                     )
-  //                   }
-  //                 >
-  //                   <Meta
-  //                     title={`Pickup Date: ${
-  //                       pickup.rescheduledPickupDate
-  //                         ? formatDateToDDMMYYYY(pickup.rescheduledPickupDate)
-  //                         : formatDateToDDMMYYYY(pickup.originalPickupDate)
-  //                     }`}
-  //                     description={
-  //                       <>
-  //                         <p>
-  //                           Pickup Time: {formatTimeTo12Hour(pickup.pickupTime)}
-  //                         </p>
-  //                         <p>Waste Type: {pickup.wasteType}</p>
-  //                         <p>
-  //                           Pickup Status:{" "}
-  //                           <span
-  //                             className={
-  //                               pickup.status === "Scheduled"
-  //                                 ? "text-green-600"
-  //                                 : "text-yellow-500"
-  //                             }
-  //                           >
-  //                             {pickup.status === "Scheduled"
-  //                               ? "Assigned Driver"
-  //                               : "Not Assigned Yet"}
-  //                           </span>
-  //                         </p>
-
-  //                         {pickup?.trackingStatus && (
-  //                           <>
-  //                             <p>Driver Name: {pickup?.driverId?.name}</p>
-  //                             <p>Driver Contact: {pickup?.driverId?.contact}</p>
-  //                             <p>
-  //                               Vehicle Name:{" "}
-  //                               {pickup?.driverId?.assignedTruckId?.name}
-  //                             </p>
-  //                             <p>
-  //                               Vehicle Number:{" "}
-  //                               {
-  //                                 pickup?.driverId?.assignedTruckId
-  //                                   ?.vehicleNumber
-  //                               }
-  //                             </p>
-  //                           </>
-  //                         )}
-
-  //                         {/* <p>
-  //                           Tracking Status:{" "}
-  //                           <span
-  //                             className={
-  //                               pickup.trackingStatus
-  //                                 ? "text-green-600"
-  //                                 : "text-yellow-500"
-  //                             }
-  //                           >
-  //                             {pickup.trackingStatus ?? "Not Assigned Yet"}
-  //                           </span>
-  //                         </p> */}
-  //                       </>
-  //                     }
-  //                   />
-  //                 </Card>
-  //               </Col>
-  //             ))}
-  //         </Row>
-  //       )}
-  //       <TrackModal
-  //         visible={isModalOpen}
-  //         onClose={() => setIsModalOpen(false)}
-  //         trackingStatus={selectedTrackingStatus}
-  //         pickupId={selectedPickupId}
-  //         eta={selectedEta}
-  //       />
-  //     </div>
-
-  //     <Footer />
-  //   </div>
-  // );
-
+ 
 
 export default PickupPlans;
