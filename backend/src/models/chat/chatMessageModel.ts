@@ -1,5 +1,5 @@
 import { model } from "mongoose";
-import { chatMessageSchema } from "./ChatMessageSchema";
 import { IChatMessageDocument } from "./interfaces/chatMessageInterface";
+import { chatMessageSchema } from "./chatMessageSchema";
 
 export const ChatMessageModel =  model<IChatMessageDocument>('ChatMessage', chatMessageSchema);

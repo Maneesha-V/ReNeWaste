@@ -12,6 +12,7 @@ import userResidentialReducer from "../redux/slices/user/residentialSlice";
 import userCommercialReducer from "../redux/slices/user/commercialSlice";
 import driverPickupsReducer from "../redux/slices/driver/pickupDriverSlice";
 import driverTrucksReducer from "../redux/slices/driver/truckDriverSlice";
+import driverChatsReducer from "../redux/slices/driver/chatDriverSlice";
 import userPickupReducer from "../redux/slices/user/userPickupSlice";
 import userProfileReducer from "../redux/slices/user/userProfileSlice";
 
@@ -32,6 +33,7 @@ export const store = configureStore({
         driverProfile: driverProfileReducer,
         driverPickups: driverPickupsReducer,
         driverTrucks: driverTrucksReducer,
+        driverChats: driverChatsReducer
     }
 })
 
