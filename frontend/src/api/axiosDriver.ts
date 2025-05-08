@@ -1,4 +1,5 @@
 import axios from "axios";
+import { handleDriverLogout } from "../utils/apiUtils";
 
 const axiosDriver = axios.create({
   baseURL: import.meta.env.VITE_DRIVER_API_URL,
@@ -27,7 +28,8 @@ axiosDriver.interceptors.request.use(
     }
 
     if (!token) {
-      window.location.href = "/driver";
+      // window.location.href = "/driver";
+      handleDriverLogout();
       return Promise.reject(
         new Error("No token available, redirecting to login.")
       );
@@ -59,7 +61,8 @@ axiosDriver.interceptors.response.use(
 
         return axiosDriver(originalRequest);
       } catch (refreshError) {
-        window.location.href = "/driver";
+        // window.location.href = "/driver";
+        handleDriverLogout();
         return Promise.reject(refreshError);
       }
     }

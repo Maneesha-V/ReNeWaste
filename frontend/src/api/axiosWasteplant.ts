@@ -1,5 +1,6 @@
 import axios from "axios";
 import { jwtDecode } from 'jwt-decode';
+import { handlePlantLogout } from "../utils/apiUtils";
 
 const axiosWasteplant = axios.create({
   baseURL: import.meta.env.VITE_WASTE_PLANT_API_URL,
@@ -13,7 +14,7 @@ axiosWasteplant.interceptors.request.use(
   async (config) => {
     console.log("config",config);
     
-    // const token = localStorage.getItem("token");
+    // const token = localStorage.getItem("wasteplant_token");
     const token = sessionStorage.getItem("wasteplant_token");
     // if (token) {
     //   const decoded = jwtDecode(token);
@@ -32,7 +33,8 @@ axiosWasteplant.interceptors.request.use(
     }
 
     if (!token) {
-      window.location.href = "/waste-plant";
+      handlePlantLogout();
+      // window.location.href = "/waste-plant";
       return Promise.reject(
         new Error("No token available, redirecting to login.")
       );
@@ -57,14 +59,15 @@ axiosWasteplant.interceptors.response.use(
         console.log("res-refresh",res);
         
         const newAccessToken = res.data.token;
-        // localStorage.setItem("token", newAccessToken);
+        // localStorage.setItem("wasteplant_token", newAccessToken);
         sessionStorage.setItem("wasteplant_token",newAccessToken); 
         axiosWasteplant.defaults.headers.common['Authorization'] = `Bearer ${newAccessToken}`;
         originalRequest.headers['Authorization'] = `Bearer ${newAccessToken}`;
 
         return axiosWasteplant(originalRequest);
       } catch (refreshError) {
-        window.location.href = "/waste-plant";
+        // window.location.href = "/waste-plant";
+        handlePlantLogout();
         return Promise.reject(refreshError);
       }
     }

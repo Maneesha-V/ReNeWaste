@@ -13,6 +13,7 @@ import AddTruck from "../pages/wastePlant/AddTruck";
 import EditTruck from "../pages/wastePlant/EditTruck";
 import Unauthorized from "../pages/wastePlant/Unauthorized";
 import NotFoundPage from "../pages/wastePlant/NotFoundPage";
+import WastePlantChat from "../pages/wastePlant/WastePlantChat";
 
 const WastePlantRoutes = () => {
   return (
@@ -35,6 +36,7 @@ const WastePlantRoutes = () => {
           <Route path="/trucks" element={<Trucks />} />
           <Route path="/add-truck" element={<AddTruck />} />
           <Route path="/edit-truck/:truckId" element={<EditTruck />} />
+          <Route path="/chat" element={<WastePlantChat />} />
         </Route>
       </Route>
       

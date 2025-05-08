@@ -33,7 +33,7 @@ const DriverRoutes = () => {
           <Route path="/edit-profile" element={<EditProfileDriver />} />
           <Route path="/alloted-pickups" element={<AllotedPickups />} />
           <Route path="/track-pickup/:pickupReqId" element={<TrackPickup />} />
-          <Route path="/assigned-trucks" element={<AssignedTrucks />} />
+          <Route path="/assigned-trucks" element={<AssignedTrucks />} />        
           <Route path="/chat" element={<DriverChat />} />
         </Route>
       </Route>

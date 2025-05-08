@@ -1,43 +1,32 @@
-import React, { useState, useEffect } from "react";
-import { Input, Button, Card, List, Space, Empty } from "antd";
+import React, { useEffect, useState } from "react";
+import { Card, Input, Button, List, Space, Empty } from "antd";
+import { useAppDispatch } from "../../redux/hooks";
+import { useSocket } from "../../context/SocketContext";
+import { addMessage, fetchChatMessages, fetchConversationId } from "../../redux/slices/wastePlant/wastePlantChatSlice";
 import { useSelector } from "react-redux";
 import { RootState } from "../../redux/store";
-import { useSocket } from "../../context/SocketContext";
-import { Message } from "../../types/chatTypes";
-import { fetchDriverProfile } from "../../redux/slices/driver/profileDriverSlice";
-import { useAppDispatch } from "../../redux/hooks";
-import {
-  addMessage,
-  fetchChatMessages,
-  fetchConversationId,
-} from "../../redux/slices/driver/chatDriverSlice";
 
-const DriverChat: React.FC = () => {
+
+interface Props {
+  driver: any;
+  wasteplantId: string;
+}
+
+const DriverChatWindow: React.FC<Props> = ({ driver, wasteplantId }) => {
   const dispatch = useAppDispatch();
-  const { driver } = useSelector((state: RootState) => state.driverProfile);
-  const { messages, loading } = useSelector((state: RootState) => state.driverChats)
-
+  const socket = useSocket();
+  const { messages, loading } = useSelector((state: RootState) => state.wastePlantChats)
   const [input, setInput] = useState("");
   const [conversationId, setConversationId] = useState<string | null>(null);
 
-  const socket = useSocket();
-
   useEffect(() => {
-    if (!driver) {
-      dispatch(fetchDriverProfile());
-    }
-  }, [dispatch]);
-
-  useEffect(() => {
-    if (driver && driver._id && driver.wasteplantId) {
-      dispatch(
-        fetchConversationId({
-          senderId: driver._id,
-          senderRole: "driver",
-          receiverId: driver.wasteplantId,
-          receiverRole: "wasteplant",
-        })
-      )
+    if (driver && wasteplantId) {
+      dispatch(fetchConversationId({
+        senderId: wasteplantId,
+        senderRole: "wasteplant",
+        receiverId: driver._id,
+        receiverRole: "driver",
+      }))
         .unwrap()
         .then((id) => {
           setConversationId(id);
@@ -46,14 +35,16 @@ const DriverChat: React.FC = () => {
         })
         .catch(console.error);
     }
-  }, [driver, dispatch, socket]);
+  }, [driver, wasteplantId, dispatch, socket]);
+
 
   useEffect(() => {
-    if (!conversationId || !socket) return;
-socket.on("receiveMessage", (message) => {
+    if (!socket || !conversationId) return;
+
+    socket.on("receiveMessage", (message) => {
       if (message.conversationId === conversationId) {
         const sender =
-        message.senderId === driver._id ? "driver" : "wasteplant";
+        message.senderId === wasteplantId ? "wasteplant" : "driver";
         dispatch(addMessage({ ...message, sender }));
       }
     });
@@ -61,24 +52,32 @@ socket.on("receiveMessage", (message) => {
     return () => {
       socket.off("receiveMessage");
     };
-  }, [conversationId, socket, dispatch]);
-  console.log("driver", driver);
-  console.log("messages", messages);
+  }, [socket, conversationId, dispatch]);
+
   const handleSend = () => {
     if (!input.trim() || !conversationId || !socket) return;
+
     const newMessage = {
-      senderId: driver?._id,
-      receiverId: driver?.wasteplantId,
+      senderId: wasteplantId,
+      receiverId: driver._id,
       text: input.trim(),
       conversationId,
     };
-    socket.emit("sendMessage", newMessage);
 
+    socket.emit("sendMessage", newMessage);
+    // dispatch(
+    //     addMessage({
+    //       sender: "Wasteplant",
+    //       text: input.trim(),
+    //       conversationId,
+    //     })
+    //   );
     setInput("");
   };
-
+  console.log("messages",messages);
+  
   return (
-    <Card style={{ margin: "24px", backgroundColor: "#dcf8c6" }}>
+    <Card title={`Chat with ${driver.name || "Driver"}`}>
       <div
         style={{
           maxHeight: "400px",
@@ -96,17 +95,14 @@ socket.on("receiveMessage", (message) => {
               <List.Item style={{ border: "none", padding: "4px 0" }}>
                 <div
                   className={`max-w-[70%] p-2.5 rounded-xl break-words text-left ${
-                    item.sender === "driver"
-                      ? "bg-blue-200 ml-auto"
-                      : "bg-yellow-100 mr-auto"
+                    item.sender === "wasteplant" ? "bg-green-200 ml-auto" : "bg-gray-100 mr-auto"
                   }`}
                   style={{
-                    alignSelf:
-                    item.sender === "driver" ? "flex-end" : "flex-start",
+                    alignSelf: item.sender === "wasteplant" ? "flex-end" : "flex-start",
                   }}
                 >
                   <strong>
-                    {item.sender === "driver" ? "You" : "Waste Plant"}:
+                    {item.sender === "wasteplant" ? "You" : "Driver" }:
                   </strong>{" "}
                   {item.text}
                 </div>
@@ -132,4 +128,4 @@ socket.on("receiveMessage", (message) => {
   );
 };
 
-export default DriverChat;
+export default DriverChatWindow;

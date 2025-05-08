@@ -27,8 +27,8 @@ class ChatService implements IChatService {
 
     return conversation._id.toString();
   }
-  async getChatMessageService(conversationId: string) {
-    return await ChatMsgRepository.findChatMsgByConversationId(conversationId);
+  async getChatMessageService(conversationId: string){
+    return await ChatMsgRepository.findChatMsgByConversationId(conversationId)
   }
 }
 export default new ChatService();

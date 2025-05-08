@@ -30,6 +30,8 @@ export const wastePlantLogin = createAsyncThunk(
   async (wastePlantData: LoginRequest, { rejectWithValue }) => {
     try {
       const response = await loginWastePlant(wastePlantData);
+      console.log("res",response);
+      
       return response;
     } catch (error: any) {
       console.error("err", error);

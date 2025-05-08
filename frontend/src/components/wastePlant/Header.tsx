@@ -1,4 +1,4 @@
-import { MenuFoldOutlined, MenuUnfoldOutlined, LogoutOutlined } from '@ant-design/icons';
+import { MenuFoldOutlined, MenuUnfoldOutlined, LogoutOutlined, MessageOutlined } from '@ant-design/icons';
 import NotificationBadge from '../common/NotificationBadge';
 import { useNavigate } from 'react-router-dom';
 import { Dropdown, Menu } from 'antd';
@@ -41,17 +41,16 @@ const Header = ({ collapsed, toggleCollapse }: HeaderProps) => {
         
         <div className="flex items-center space-x-4">
           <NotificationBadge count={5} />
+          <MessageOutlined
+            className="text-xl text-gray-600 cursor-pointer hover:text-green-600"
+            onClick={() => navigate("/waste-plant/chat")}
+          />
           
           <Dropdown overlay={menu} trigger={['click']}>
             <div className="flex items-center cursor-pointer">
               <div className="h-8 w-8 rounded-full bg-green-100 text-green-800 flex items-center justify-center">
                 <span className="font-medium">WP</span>
               </div>
-              {!collapsed && (
-                <div className="ml-2">
-                  <p className="text-xs text-gray-500">Waste Plant</p>
-                </div>
-              )}
             </div>
           </Dropdown>
         </div>

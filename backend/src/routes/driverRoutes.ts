@@ -1,10 +1,11 @@
 import express, { RequestHandler } from "express"
 import multer from "multer";
+import { authenticateDriver } from "../middlewares/authMiddware";
 import AuthController from "../controllers/driver/authController";
 import ProfileController from "../controllers/driver/profileController";
 import PickupController from "../controllers/driver/pickupController";
 import TruckController from "../controllers/driver/truckController";
-import { authenticateDriver } from "../middlewares/authMiddware";
+import ChatController from "../controllers/driver/chatController";
 
 const router = express.Router()
 const upload = multer();
@@ -25,6 +26,9 @@ router.patch("/address/:addressId/location", authenticateDriver as RequestHandle
 router.patch("/pickup/:pickupReqId/tracking-status", authenticateDriver as RequestHandler, PickupController.updateTrackingStatus)
 router.get("/assigned-trucks/:driverId", authenticateDriver as RequestHandler, TruckController.requestTruckForDriver)
 // router.get("/trucks-req/:driverId", authenticateDriver as RequestHandler, TruckController.requestTruckForDriver)
+router.get("/driver/chat")
+router.post("/conversation", authenticateDriver as RequestHandler, ChatController.getConversationId)
+router.post("/chat-messages", authenticateDriver as RequestHandler, ChatController.getChatMessages)
 
 export default router;
 

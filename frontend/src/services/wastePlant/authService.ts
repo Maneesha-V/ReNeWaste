@@ -5,7 +5,7 @@ export const loginWastePlant = async (wastePlantData: LoginRequest) => {
   try {
     const response = await axiosWasteplant.post(`/`, wastePlantData);
     if (response.data) {
-      // localStorage.setItem("token", response.data.token);
+      // localStorage.setItem("wasteplant_token", response.data.token);
       // localStorage.setItem("role", response.data.wastePlant.role);
       sessionStorage.setItem("wasteplant_token", response.data.token);
       sessionStorage.setItem("wasteplant_role", response.data.wastePlant.role);
@@ -25,7 +25,7 @@ export const logoutWastePlant = async () => {
       `/logout`,
       {}
     );
-    // localStorage.removeItem("token"); 
+    // localStorage.removeItem("wasteplant_token"); 
     // localStorage.removeItem("role"); 
     sessionStorage.removeItem("wasteplant_token"); 
     sessionStorage.removeItem("wasteplant_role"); 
