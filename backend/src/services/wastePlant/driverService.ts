@@ -27,8 +27,8 @@ class DriverService implements IDriverService {
     };
     return await DriverRepository.createDriver(newData);
   }
-  async getAllDrivers(): Promise<IDriver[]> {
-    return await DriverRepository.getAllDrivers();
+  async getAllDrivers(plantId: string): Promise<IDriver[]> {
+    return await DriverRepository.getAllDrivers(plantId);
   }
   async getDriverByIdService(driverId: string): Promise<IDriver | null> {
     try {

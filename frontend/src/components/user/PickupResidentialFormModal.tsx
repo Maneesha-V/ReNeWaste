@@ -73,18 +73,20 @@ const PickupResidentialFormModal: React.FC<PickupResidentialFormModalProps> = ({
     }
   
     if (selectedDateStr) {
-      const selectedDate = new Date(selectedDateStr);
+
+      const selectDate = new Date(selectedDateStr);
       const today = new Date();
   
       const isToday =
-        selectedDate.getDate() === today.getDate() &&
-        selectedDate.getMonth() === today.getMonth() &&
-        selectedDate.getFullYear() === today.getFullYear();
+        selectDate.getDate() === today.getDate() &&
+        selectDate.getMonth() === today.getMonth() &&
+        selectDate.getFullYear() === today.getFullYear();
   
       if (isToday) {
         const now = new Date();
         const currentMinutes = now.getHours() * 60 + now.getMinutes();
-  
+        console.log("totalMinutes",totalMinutes);
+         console.log("currentMinutes",currentMinutes);
         if (totalMinutes < currentMinutes) {
           return "Pickup time cannot be earlier than the current time.";
         }
@@ -99,7 +101,7 @@ const PickupResidentialFormModal: React.FC<PickupResidentialFormModalProps> = ({
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
     if (name === "pickupTime") {
-      const error = validatePickupTime(value);
+      const error = validatePickupTime(value, selectedDate ?? undefined);
       setPickupTimeError(error);
     }
   };
@@ -108,7 +110,7 @@ const PickupResidentialFormModal: React.FC<PickupResidentialFormModalProps> = ({
   ) => {
     const { name, value } = e.target;
     if (name === "pickupTime") {
-      const error = validatePickupTime(value);
+      const error = validatePickupTime(value, selectedDate ?? undefined);
       setPickupTimeError(error);
     } else {
       validateField(name, value);
@@ -125,6 +127,8 @@ const PickupResidentialFormModal: React.FC<PickupResidentialFormModalProps> = ({
     if (pickupTimeValidationError) {
       currentErrors.pickupTime = pickupTimeValidationError;
       setPickupTimeError(pickupTimeValidationError);
+      setErrors(currentErrors);
+      return;
     }
 
     Object.entries(formData).forEach(([name, value]) => {
@@ -181,7 +185,13 @@ const PickupResidentialFormModal: React.FC<PickupResidentialFormModalProps> = ({
       <div className="fixed inset-0 bg-black/30 flex items-center justify-center p-4">
         <Dialog.Panel className="bg-white rounded-lg p-6 w-full max-w-lg">
           <Dialog.Title className="text-xl font-semibold mb-4">
-            Schedule Pickup for {selectedDate}
+            Schedule Pickup for {
+              selectedDate ? (() => {
+                const [month, day, year] = selectedDate.split('-');
+                return `${day}-${month}-${year}`;
+              })()
+              : 'No date selected'
+            }
           </Dialog.Title>
           <form
             className="grid grid-cols-2 gap-x-6 gap-y-4"
@@ -383,9 +393,7 @@ const PickupResidentialFormModal: React.FC<PickupResidentialFormModalProps> = ({
                 onBlur={handleBlur}
                 className="w-full p-2 border rounded"
               />
-              {/* {errors.pickupTime && (
-                <p className="text-red-500 text-sm">{errors.pickupTime}</p>
-              )} */}
+
               {pickupTimeError && (
                 <p className="text-red-500 text-sm mt-1">{pickupTimeError}</p>
               )}

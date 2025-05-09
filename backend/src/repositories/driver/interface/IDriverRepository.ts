@@ -5,7 +5,7 @@ createDriver(data: IDriver): Promise<IDriverDocument>;
 findDriverByEmail(email: string): Promise<IDriverDocument | null>;
 findDriverByName(name: string): Promise<IDriverDocument | null>;
 findDriverByLicense(licenseNumber: string): Promise<IDriver | null>;
-getAllDrivers(): Promise<IDriver[]>;
+getAllDrivers(plantId: string): Promise<IDriver[]>;
 updateDriverPassword(email: string, hashedPassword: string): Promise<void>;
 getDriverById(driverId: string): Promise<IDriver | null>;
 updateDriverById(driverId: string, data: any): Promise<IDriver | null>;

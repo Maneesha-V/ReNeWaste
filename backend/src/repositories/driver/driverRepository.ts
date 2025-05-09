@@ -27,9 +27,9 @@ class DriverRepository implements IDriverRepository {
   async findDriverByLicense(licenseNumber: string): Promise<IDriver | null> {
     return await DriverModel.findOne({ licenseNumber });
   }
-  async getAllDrivers(): Promise<IDriver[]> {
-    return await DriverModel.find();
-  }
+  async getAllDrivers(plantId: string): Promise<IDriver[]> {
+    return await DriverModel.find({wasteplantId: plantId});
+  } 
   async updateDriverPassword(
     email: string,
     hashedPassword: string

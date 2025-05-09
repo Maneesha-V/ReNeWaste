@@ -44,9 +44,14 @@ async addDriver (req: AuthRequest, res: Response): Promise<void> {
   }
 };
 
-async fetchDrivers (req: Request,res: Response): Promise<void> {
+async fetchDrivers (req: AuthRequest,res: Response): Promise<void> {
   try {
-    const drivers = await DriverService.getAllDrivers()   
+    const plantId = req.user?.id;
+     if (!plantId) {
+      res.status(404).json({ message: "plantId not found" });
+      return;
+    }
+    const drivers = await DriverService.getAllDrivers(plantId)   
     console.log("drivers",drivers);
     
     res.status(200).json({

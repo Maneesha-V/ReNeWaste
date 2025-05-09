@@ -4,7 +4,7 @@ import { useAppDispatch } from '../../redux/hooks';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../redux/store';
 import { toast } from 'react-toastify';
-import { fetchDriverTrucks } from '../../redux/slices/driver/truckDriverSlice';
+import { fetchDriverTrucks, reqTruckByDriver } from '../../redux/slices/driver/truckDriverSlice';
 import { fetchDriverProfile } from '../../redux/slices/driver/profileDriverSlice';
 import { useNavigate } from 'react-router-dom';
 
@@ -15,6 +15,7 @@ const navigate = useNavigate();
 const dispatch = useAppDispatch();
  const { driver } = useSelector((state: RootState) => state.driverProfile);
  const { trucks } = useSelector((state: RootState) => state.driverTrucks);
+ const hasRequested  = useSelector((state: RootState) => state.driverTrucks.hasRequestedTruck);
  console.log("driver",driver);
  console.log("trucks",trucks);
 
@@ -30,11 +31,17 @@ useEffect(() => {
   }
 }, [dispatch, driver]);
 
-const handleRequestTruck = (truckId?: string) => {
-  const idToUse = truckId || driver?._id;
-  console.log('Requesting truck for:', idToUse);
-  toast.success('Truck request sent!');
+const handleRequestTruck = () => {
+  dispatch(reqTruckByDriver()) 
+  .unwrap()
+  .then(() => {
+    toast.success('Truck request sent!');
+  })
+  .catch((err) => {
+    toast.error(err.message || "Failed to send request");
+  });
 };
+
 const columns = [
   {
     title: 'Truck Name',
@@ -62,8 +69,9 @@ const columns = [
       render: (_: any, record: any) => {
         if (record.status === 'Maintenance') {
           return (
-            <Button type="primary" onClick={() => navigate("/driver/chat")}>
-              Request Truck
+            <Button type="primary" onClick={() => handleRequestTruck()}  disabled={hasRequested}>
+            {/* <Button type="primary" onClick={() => navigate("/driver/chat")}> */}
+            {hasRequested ? "Request Sent" : "Request Truck"}
             </Button>
           );
         }

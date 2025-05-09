@@ -239,9 +239,23 @@ class PickupRepository implements IPickupRepository {
     console.log("trackk",res);
     
   }
+  // async getPickupPlansByUserId(userId: string) {
+  //   // return await PickupModel.find({ userId });
+  //   return await PickupModel.find({ userId })
+  //   .populate({
+  //     path: 'driverId',
+  //     select: 'name contact assignedTruckId',
+  //     populate: {
+  //       path: 'assignedTruckId',
+  //       select: 'name vehicleNumber'
+  //     }
+  //   })
+  //   .sort({ createdAt: -1, pickupTime: 1 }) 
+  //   .lean();
+  
+  // }
   async getPickupPlansByUserId(userId: string) {
-    // return await PickupModel.find({ userId });
-    return await PickupModel.find({ userId })
+  const pickups = await PickupModel.find({ userId })
     .populate({
       path: 'driverId',
       select: 'name contact assignedTruckId',
@@ -250,10 +264,21 @@ class PickupRepository implements IPickupRepository {
         select: 'name vehicleNumber'
       }
     })
-    .sort({ createdAt: -1, pickupTime: 1 }) 
-    .lean();
-  
-  }
+    .lean(); 
+
+  const sortedPickups = pickups.sort((a, b) => {
+    const aDate = new Date(a.rescheduledPickupDate || a.originalPickupDate);
+    const bDate = new Date(b.rescheduledPickupDate || b.originalPickupDate);
+
+    const aDateTime = new Date(`${aDate.toISOString().split('T')[0]}T${a.pickupTime}:00Z`);
+    const bDateTime = new Date(`${bDate.toISOString().split('T')[0]}T${b.pickupTime}:00Z`);
+
+    return aDateTime.getTime() - bDateTime.getTime(); // ascending: earliest first
+  });
+
+  return sortedPickups;
+}
+
   async updateTrackingStatus(
     pickupReqId: string,
     trackingStatus: string

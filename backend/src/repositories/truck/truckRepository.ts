@@ -20,16 +20,16 @@ class TruckRepository implements ITruckRepository {
       throw error;
     }
   }
-  async getAllTrucks(): Promise<ITruck[]> {
-    return await TruckModel.find();
+  async getAllTrucks(plantId: string): Promise<ITruck[]> {
+    return await TruckModel.find({wasteplantId: plantId});
   }
   async getAvailableTrucks(driverId: string): Promise<ITruck[]> {
     const existingTruck = await TruckModel.findOne({ assignedDriver: driverId }).populate('wasteplantId');
     if (existingTruck) {
       return [existingTruck]; 
     }
-  
-    return [];
+    // return [];
+    return await TruckModel.find({ assignedDriver: null }).populate('wasteplantId');
   }
   async getTruckById(truckId: string) {
     return await TruckModel.findById(truckId);
@@ -39,6 +39,13 @@ class TruckRepository implements ITruckRepository {
   }
   async deleteTruckById(truckId: string) {
     return await TruckModel.findByIdAndDelete(truckId);
+  }
+  
+  async reqTruckToWastePlant( driverId: string) {
+    return await DriverModel.findByIdAndUpdate(driverId, { hasRequestedTruck: true });
+  }
+  async getMaintainanceTrucks(plantId: string) {
+    return await TruckModel.find({ wasteplantId: plantId, status: "Maintenance"}).populate('assignedDriver');
   }
 
 }

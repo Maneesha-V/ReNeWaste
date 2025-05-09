@@ -6,3 +6,7 @@ export const getAvaialbleTrucks = async (driverId: string) => {
   );
   return response.data.data;
 };
+export const reqTruck = async () => {
+  const response = await axiosDriver.post(`/req-truck`);
+  return response.data.data;
+};

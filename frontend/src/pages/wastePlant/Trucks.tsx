@@ -42,6 +42,7 @@ const Trucks: React.FC = () => {
         <div>
           <Breadcrumbs
             paths={[
+              { label: "Truck Requests", path: "/waste-plant/assign-new-truck" },
               { label: "Trucks" },
             ]}
           />

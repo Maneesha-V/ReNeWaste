@@ -4,10 +4,12 @@ import dayjs from "dayjs";
 import { RootState } from "../../redux/store";
 import { useAppDispatch } from "../../redux/hooks";
 import { useSelector } from "react-redux";
-import { fetchDrivers } from "../../redux/slices/driver/profileDriverSlice";
-import { disablePastDates, disableTimesAfterFive } from "../../utils/formatDate";
+import {
+  disablePastDates,
+  disableTimesAfterFive,
+} from "../../utils/formatDate";
 import { toast } from "react-toastify";
-import { reschedulePickup } from "../../redux/slices/wastePlant/wastePlantPickupSlice";
+import { fetchDriversByPlace, reschedulePickup } from "../../redux/slices/wastePlant/wastePlantPickupSlice";
 
 interface ReschedulePickupModalProps {
   visible: boolean;
@@ -24,7 +26,8 @@ const ReschedulePickupModal = ({
 }: ReschedulePickupModalProps) => {
   const [form] = Form.useForm();
   const dispatch = useAppDispatch();
-  const { driver} = useSelector((state: RootState) => state.driverProfile);
+  const { driver } = useSelector((state: RootState) => state.wastePlantPickup);
+  const [filteredDrivers, setFilteredDrivers] = useState<any[]>([]);
 
   useEffect(() => {
     if (pickup) {
@@ -33,38 +36,49 @@ const ReschedulePickupModal = ({
       });
     }
   }, [pickup, form]);
-    useEffect(() => {
-      if (visible && pickup?.wasteplantId) {
-        dispatch(fetchDrivers(pickup.wasteplantId));
-      }
-    }, [visible, pickup?.wasteplantId]);
+  useEffect(() => {
+    if (visible && pickup?.wasteplantId) {
+      dispatch(fetchDriversByPlace(pickup?.assignedZone));
+    }
+  }, [visible, pickup?.wasteplantId]);
+  useEffect(() => {
+    setFilteredDrivers(driver);
+  }, [driver]);
+  console.log("filteredDrivers",filteredDrivers);
+  
+  const handleZoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    form.setFieldsValue({ assignedZone: value });
+    const filtered = driver.filter(
+      (d: any) => d.assignedZone?.toLowerCase() === value.toLowerCase()
+    );
+    setFilteredDrivers(filtered);
+  };
 
-    const handleSubmit = async () => {
-      try {
-        const values = await form.validateFields();
-        const rescheduledDate = values.pickupDate
-          ? dayjs(values.pickupDate).toISOString()
-          : null;
-    
-        const formData = {
-          driverId: values.driver,
-          assignedZone: values.assignedZone,
-          status: "Rescheduled",
-          rescheduledPickupDate: rescheduledDate,
-          pickupReqId: pickup._id,
-        };
-    
-        await dispatch(reschedulePickup(formData)); // ✅ Dispatch the reschedule action
-        onSubmit(formData); // Optional if you want the parent to do something too
-        toast.success("Pickup rescheduled successfully");
-    
-        onClose();
-        form.resetFields();
-      } catch (err) {
-        toast.error("Please check all fields");
-      }
-    };
-    
+  const handleSubmit = async () => {
+    try {
+      const values = await form.validateFields();
+      const rescheduledDate = values.pickupDate
+        ? dayjs(values.pickupDate).toISOString()
+        : null;
+
+      const formData = {
+        driverId: values.driver,
+        assignedZone: values.assignedZone,
+        status: "Rescheduled",
+        rescheduledPickupDate: rescheduledDate,
+        pickupReqId: pickup._id,
+      };
+
+      await dispatch(reschedulePickup(formData));
+      toast.success("Pickup rescheduled successfully");
+
+      onClose();
+      form.resetFields();
+    } catch (err) {
+      toast.error("Please check all fields");
+    }
+  };
 
   return (
     <Modal
@@ -78,11 +92,24 @@ const ReschedulePickupModal = ({
       okText="Reschedule"
     >
       <div className="mb-4 p-2 bg-gray-50 border rounded">
-        <p><strong>User:</strong> {pickup?.userName}</p>
-        <p><strong>Location:</strong> {pickup?.location}</p>
-        <p><strong>Pickup ID:</strong> {pickup?.pickupId}</p>
-        <p><strong>Current Pickup Date:</strong> {pickup?.originalPickupDate ? dayjs(pickup.originalPickupDate).format("DD-MM-YYYY") : "Not available"}</p>
-        <p><strong>Pickup Time:</strong> {pickup?.pickupTime}</p>
+        <p>
+          <strong>User:</strong> {pickup?.userName}
+        </p>
+        <p>
+          <strong>Location:</strong> {pickup?.location}
+        </p>
+        <p>
+          <strong>Pickup ID:</strong> {pickup?.pickupId}
+        </p>
+        <p>
+          <strong>Current Pickup Date:</strong>{" "}
+          {pickup?.originalPickupDate
+            ? dayjs(pickup.originalPickupDate).format("DD-MM-YYYY")
+            : "Not available"}
+        </p>
+        <p>
+          <strong>Pickup Time:</strong> {pickup?.pickupTime}
+        </p>
       </div>
       <Form layout="vertical" form={form}>
         <Form.Item
@@ -90,29 +117,12 @@ const ReschedulePickupModal = ({
           label="New Pickup Date"
           rules={[{ required: true, message: "Please select a date" }]}
         >
-          <DatePicker 
-          style={{ width: "100%" }} 
-          format="DD-MM-YYYY HH:mm"
-          disabledDate={disablePastDates}
-          disabledTime={(current) => disableTimesAfterFive(current)}
+          <DatePicker
+            style={{ width: "100%" }}
+            format="DD-MM-YYYY HH:mm"
+            disabledDate={disablePastDates}
+            disabledTime={(current) => disableTimesAfterFive(current)}
           />
-        </Form.Item>
-
-        <Form.Item
-          name="driver"
-          label="Assign Driver"
-          rules={[{ required: true, message: "Please assign a driver" }]}
-        >
-          <Select
-            placeholder="Select a driver"
-          >
-            {Array.isArray(driver) &&
-              driver.map((driver: any) => (
-              <Select.Option key={driver._id} value={driver._id}>
-                {driver.name}
-              </Select.Option>
-            ))}
-          </Select>
         </Form.Item>
 
         <Form.Item
@@ -120,8 +130,24 @@ const ReschedulePickupModal = ({
           name="assignedZone"
           rules={[{ required: true, message: "Please enter zone" }]}
         >
-          <Input placeholder="Enter zone" />
+          <Input placeholder="Enter zone" onChange={handleZoneChange} />
         </Form.Item>
+
+        <Form.Item
+          name="driver"
+          label="Assign Driver"
+          rules={[{ required: true, message: "Please assign a driver" }]}
+        >
+          <Select placeholder="Select a driver">
+            {filteredDrivers.map((d: any) => (
+              <Select.Option key={d._id} value={d._id}>
+                {d.name}
+              </Select.Option>
+            ))}
+          </Select>
+        </Form.Item>
+       
+
       </Form>
     </Modal>
   );

@@ -89,6 +89,7 @@ export const deleteDriver = createAsyncThunk(
     }
   }
 );
+
 const wastePlantDriverSlice = createSlice({
   name: "wastePlantDriver",
   initialState,

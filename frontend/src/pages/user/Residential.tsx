@@ -48,7 +48,7 @@ const Residential = () => {
   };
 
   const handleDateClick = (day: number) => {
-    const fullDate = currentMonth.date(day).format("DD-MM-YYYY");
+    const fullDate = currentMonth.date(day).format("MM-DD-YYYY");
     setSelectedDate(fullDate);
     setIsFormOpen(true);
   };

@@ -67,3 +67,12 @@ export const getTrucks = async () => {
       throw error;
     }
   };
+  export const getTruckRequests = async () => {
+    try {
+      const response = await axiosWasteplant.get(`/pending-truck-req`);
+      console.log("res", response);
+      return response.data.data;
+    } catch (error: any) {
+      console.error("error", error);
+    }
+  };

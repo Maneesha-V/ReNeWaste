@@ -1,6 +1,7 @@
 import TruckRepository from "../../repositories/truck/truckRepository";
 import { ITruck } from "../../models/truck/interfaces/truckInterface";
 import { ITruckService } from "./interface/ITruckService";
+import  WastePlantRepository  from "../../repositories/wastePlant/wastePlantRepository";
 
 class TruckService implements ITruckService {
   async addTruck(data: ITruck): Promise<ITruck> {
@@ -16,10 +17,10 @@ class TruckService implements ITruckService {
     };
     return await TruckRepository.createTruck(newData);
   }
-  async getAllTrucks(): Promise<ITruck[]> {
-    return await TruckRepository.getAllTrucks();
+  async getAllTrucks(plantId: string): Promise<ITruck[]> {
+    return await TruckRepository.getAllTrucks(plantId);
   }
-  async getAvailableTrucks(driverId: string): Promise<ITruck[]> {
+  async getAvailableTrucks( driverId: string): Promise<ITruck[]> {
     return await TruckRepository.getAvailableTrucks(driverId);
   }
   async getTruckByIdService(truckId: string): Promise<ITruck | null> {
@@ -43,6 +44,14 @@ class TruckService implements ITruckService {
 
     async deleteTruckByIdService(truckId: string) {
       return await  TruckRepository.deleteTruckById(truckId)
+    }
+    
+    async pendingTruckReqsts(plantId: string): Promise<any> {
+      try {
+        return await TruckRepository.getMaintainanceTrucks(plantId);
+      } catch (error) {
+        throw new Error("Error fetching pending truck reqsts from service");
+      }
     }
 }
 export default new TruckService();

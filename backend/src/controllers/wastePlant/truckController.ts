@@ -31,10 +31,17 @@ async addTruck (req: AuthRequest, res: Response): Promise<void> {
   }
 };
 
-async fetchTrucks (req: Request,res: Response): Promise<void> {
+async fetchTrucks (req: AuthRequest,res: Response): Promise<void> {
   try {
-    const trucks = await TruckService.getAllTrucks()   
-
+    const plantId = req.user?.id;
+   
+    if (!plantId) {
+      res.status(400).json({ message: "Plant ID is required" });
+      return;
+    }
+    const trucks = await TruckService.getAllTrucks(plantId)   
+    console.log("trucks",trucks);
+    
     res.status(200).json({
       success: true,
       message: "Fetch trucks successfully",
@@ -45,14 +52,16 @@ async fetchTrucks (req: Request,res: Response): Promise<void> {
     res.status(500).json({ message: "Error fetching trucks.", error });
   }
 }
-async fetchAvailableTrucks (req: Request,res: Response): Promise<void> {
+async fetchAvailableTrucks (req: AuthRequest,res: Response): Promise<void> {
   try {
+   
     const { driverId } = req.query;
     if (typeof driverId !== "string") {
       res.status(400).json({ message: "Invalid or missing driverId" });
       return;
     }
-
+    console.log();
+    
     const trucks = await TruckService.getAvailableTrucks(driverId)   
     console.log("trucks",trucks);
     res.status(200).json({
@@ -123,6 +132,26 @@ async deleteTruckById (req: Request,res: Response): Promise<void> {
   } catch (error: any) {
     console.error("Error in deleting truck:", error);
     res.status(500).json({ message: "Server error" });
+  }
+}
+async getAvailableTruckReqsts (req: AuthRequest, res: Response): Promise<void> {
+  try {
+    const plantId = req.user?.id;
+    if (!plantId) {
+      res.status(400).json({ message: "Plant ID is required" });
+      return;
+    }
+    const pendingTruckReqsts = await TruckService.pendingTruckReqsts(plantId)   
+    console.log("pendingTruckReqsts",pendingTruckReqsts);
+    
+    res.status(200).json({
+      success: true,
+      message: "Fetch avaialable truck requests successfully",
+      data: pendingTruckReqsts,
+    });
+  }catch (error:any){
+    console.error("err",error);
+    res.status(500).json({ message: "Error fetching avaialable truck requests.", error });
   }
 }
 }
