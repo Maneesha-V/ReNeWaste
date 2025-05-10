@@ -3,7 +3,6 @@ import WastePlantRepository  from "../../repositories/wastePlant/wastePlantRepos
 import PickupRepository from "../../repositories/pickupReq/pickupRepository";
 import { IProfileService } from "./interface/IProfileService";
 import { IPickupRequestDocument } from "../../models/pickupRequests/interfaces/pickupInterface";
-import { ProfileRequest } from "../../types/user/profileTypes";
 
 class ProfileService implements IProfileService {
   async getUserProfile(userId: string) {
