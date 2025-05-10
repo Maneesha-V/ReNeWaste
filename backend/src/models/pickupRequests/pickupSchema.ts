@@ -1,5 +1,6 @@
 import  mongoose, { Schema } from "mongoose";
 import { IPickupRequestDocument } from "./interfaces/pickupInterface";
+import { PaymentSchema } from "./paymentSchema";
 export const pickupRequestSchema: Schema<IPickupRequestDocument> = new Schema(
     {
       userId: {
@@ -76,6 +77,7 @@ export const pickupRequestSchema: Schema<IPickupRequestDocument> = new Schema(
         enum: ["Assigned", "InTransit", "Near", "Arrived", "Completed"],
         default: null,
       },
+      payment: PaymentSchema
     },
     {
       timestamps: true,

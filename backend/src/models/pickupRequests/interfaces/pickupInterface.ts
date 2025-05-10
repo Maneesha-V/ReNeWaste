@@ -1,4 +1,5 @@
 import  mongoose, { Document, Types } from "mongoose";
+import { IPayment } from "./paymentInterface";
 
 export interface IPickupRequest extends Document {
     userId: mongoose.Types.ObjectId;
@@ -19,6 +20,7 @@ export interface IPickupRequest extends Document {
       text: string | null;
       value: number | null;
     };
+    payment: IPayment;
     createdAt: Date;
     updatedAt: Date;
   }
