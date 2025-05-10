@@ -1,7 +1,6 @@
 import { Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 import { UserModel } from "../models/user/userModel";
-import { ProfileRequest } from "../types/user/profileTypes"; 
 import mongoose from "mongoose";
 import { SuperAdminModel } from "../models/superAdmin/superAdminModel";
 import { DriverModel } from "../models/driver/driverModel";
