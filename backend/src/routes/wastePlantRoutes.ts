@@ -40,6 +40,8 @@ router.get("/edit-truck/:truckId",authenticateWastePlant as RequestHandler, Truc
 router.patch("/edit-truck/:truckId", authenticateWastePlant as RequestHandler, TruckController.updateTruck);
 router.delete("/delete-truck/:truckId", authenticateWastePlant as RequestHandler, TruckController.deleteTruckById)
 router.get("/pending-truck-req", authenticateWastePlant as RequestHandler, TruckController.getAvailableTruckReqsts)
+router.get("/trucks-for-driver", authenticateWastePlant as RequestHandler, TruckController.getTrucksForDriver)
+router.post("/assign-truck", authenticateWastePlant as RequestHandler, TruckController.assignTruckToDriver)
 
 router.get("/pickups", authenticateWastePlant as RequestHandler, PickupController.getPickupRequests);
 router.patch("/approve-pickup/:pickupReqId",authenticateWastePlant as RequestHandler, PickupController.approvePickup)

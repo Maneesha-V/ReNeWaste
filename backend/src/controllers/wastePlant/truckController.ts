@@ -54,7 +54,7 @@ async fetchTrucks (req: AuthRequest,res: Response): Promise<void> {
 }
 async fetchAvailableTrucks (req: AuthRequest,res: Response): Promise<void> {
   try {
-   
+
     const { driverId } = req.query;
     if (typeof driverId !== "string") {
       res.status(400).json({ message: "Invalid or missing driverId" });
@@ -62,7 +62,7 @@ async fetchAvailableTrucks (req: AuthRequest,res: Response): Promise<void> {
     }
     console.log();
     
-    const trucks = await TruckService.getAvailableTrucks(driverId)   
+    const trucks = await TruckService.getAvailableTrucksService(driverId)   
     console.log("trucks",trucks);
     res.status(200).json({
       success: true,
@@ -152,6 +152,52 @@ async getAvailableTruckReqsts (req: AuthRequest, res: Response): Promise<void> {
   }catch (error:any){
     console.error("err",error);
     res.status(500).json({ message: "Error fetching avaialable truck requests.", error });
+  }
+}
+
+async getTrucksForDriver (req: AuthRequest, res: Response): Promise<void> {
+  try {
+    const plantId = req.user?.id;
+    if (!plantId) {
+      res.status(400).json({ message: "Plant ID is required" });
+      return;
+    }
+    const availableTrucks = await TruckService.availableTrucksForDriver(plantId)   
+    console.log("availableTrucks",availableTrucks);
+    
+    res.status(200).json({
+      success: true,
+      message: "Fetch avaialable trucks successfully",
+      data: availableTrucks,
+    });
+  }catch (error:any){
+    console.error("err",error);
+    res.status(500).json({ message: "Error fetching avaialable trucks.", error });
+  }
+}
+async assignTruckToDriver  (req: AuthRequest, res: Response): Promise<void> {
+  try {
+    const plantId = req.user?.id;
+    const { driverId, truckId, prevTruckId } = req.body;
+    console.log("plantId",plantId);
+    console.log(req.body);
+    
+    if (!plantId || !driverId || !truckId || !prevTruckId) {
+      res.status(400).json({ message: "Missing id's are required" });
+      return;
+    }
+   
+    const updatedRequests = await TruckService.assignTruckToDriverService(plantId,driverId,truckId,prevTruckId)   
+    console.log("updatedRequest",updatedRequests);
+    
+    res.status(200).json({
+      data: updatedRequests,
+      success: true,
+      message: "Assign truck to driver successfully",
+    });
+  }catch (error:any){
+    console.error("err",error);
+    res.status(500).json({ message: "Error assigning truck to driver.", error });
   }
 }
 }

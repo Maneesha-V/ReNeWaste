@@ -1,9 +1,10 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { createTruck, deleteTruckById, getAvailableTrucks, getTruckById, getTruckRequests, getTrucks, updateTruckById } from "../../../services/wastePlant/truckService";
+import { assignTruckForDriver, createTruck, deleteTruckById, getAvailableTrucks, getTruckById, getTruckRequests, getTrucks, getTrucksForDriver, updateTruckById } from "../../../services/wastePlant/truckService";
 
 
 interface TruckState {
   truckRequests: any;
+  availableTrucks :any;
   truck: any;
   loading: boolean;
   message: string | null;
@@ -12,6 +13,7 @@ interface TruckState {
 
 const initialState: TruckState = {
   truckRequests: [],
+  availableTrucks : [],
   truck: [],
   loading: false,
   message: null,
@@ -114,6 +116,37 @@ export const fetchTruckRequests = createAsyncThunk(
     }
   }
 );
+export const fetchTrucksForDriver = createAsyncThunk(
+  "wastePlantTruck/fetchTrucksForDriver ",
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await getTrucksForDriver();
+      console.log("res-serv",response);
+      
+      return response;
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data || "Failed to fetch trucks for driver."
+      );
+    }
+  }
+);
+
+export const assignTruckToDriver = createAsyncThunk(
+  "wastePlantTruck/assignTruckToDriver ",
+  async ({ driverId, truckId, prevTruckId }: { driverId: string; truckId: string,prevTruckId: string }, { rejectWithValue }) => {
+    try {
+      const response = await assignTruckForDriver( driverId, truckId,prevTruckId);
+      console.log("res-ass",response);
+      
+      return response;
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data || "Failed to assign truck to driver."
+      );
+    }
+  }
+);
 const wastePlantTruckSlice = createSlice({
   name: "wastePlantTruck",
   initialState,
@@ -195,6 +228,31 @@ const wastePlantTruckSlice = createSlice({
         state.truckRequests = action.payload;
       })
       .addCase(fetchTruckRequests.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      })
+       .addCase(fetchTrucksForDriver.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchTrucksForDriver.fulfilled, (state, action) => {
+        state.loading = false;
+        state.error = null;
+        state.availableTrucks  = action.payload;
+      })
+      .addCase(fetchTrucksForDriver.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      })
+       .addCase(assignTruckToDriver.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(assignTruckToDriver.fulfilled, (state, action) => {
+        state.loading = false;
+        state.truckRequests = action.payload.truckRequests;
+      })
+      .addCase(assignTruckToDriver.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
       })

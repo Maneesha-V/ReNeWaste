@@ -1,7 +1,7 @@
 import TruckRepository from "../../repositories/truck/truckRepository";
 import { ITruck } from "../../models/truck/interfaces/truckInterface";
 import { ITruckService } from "./interface/ITruckService";
-import  WastePlantRepository  from "../../repositories/wastePlant/wastePlantRepository";
+import WastePlantRepository from "../../repositories/wastePlant/wastePlantRepository";
 
 class TruckService implements ITruckService {
   async addTruck(data: ITruck): Promise<ITruck> {
@@ -20,7 +20,7 @@ class TruckService implements ITruckService {
   async getAllTrucks(plantId: string): Promise<ITruck[]> {
     return await TruckRepository.getAllTrucks(plantId);
   }
-  async getAvailableTrucks( driverId: string): Promise<ITruck[]> {
+  async getAvailableTrucksService(driverId: string): Promise<ITruck[]> {
     return await TruckRepository.getAvailableTrucks(driverId);
   }
   async getTruckByIdService(truckId: string): Promise<ITruck | null> {
@@ -42,16 +42,42 @@ class TruckService implements ITruckService {
     }
   }
 
-    async deleteTruckByIdService(truckId: string) {
-      return await  TruckRepository.deleteTruckById(truckId)
+  async deleteTruckByIdService(truckId: string) {
+    return await TruckRepository.deleteTruckById(truckId);
+  }
+
+  async pendingTruckReqsts(plantId: string): Promise<any> {
+    try {
+      return await TruckRepository.getMaintainanceTrucks(plantId);
+    } catch (error) {
+      throw new Error("Error fetching pending truck reqsts from service");
     }
-    
-    async pendingTruckReqsts(plantId: string): Promise<any> {
-      try {
-        return await TruckRepository.getMaintainanceTrucks(plantId);
-      } catch (error) {
-        throw new Error("Error fetching pending truck reqsts from service");
-      }
+  }
+
+  async availableTrucksForDriver(plantId: string): Promise<any> {
+    try {
+      return await TruckRepository.activeAvailableTrucks(plantId);
+    } catch (error) {
+      throw new Error("Error fetching trucks from service");
     }
+  }
+  async assignTruckToDriverService(
+    plantId: string,
+    driverId: string,
+    truckId: string,
+    prevTruckId: string
+  ): Promise<any> {
+    const truck = await TruckRepository.getTruckById(truckId);
+    if (!truck || truck.status !== "Active") {
+      throw new Error("Selected truck is not available");
+    }
+    const updatedRequest = await TruckRepository.assignTruckToDriver(
+      plantId,
+      driverId,
+      truckId,
+      prevTruckId
+    );
+    return updatedRequest;
+  }
 }
 export default new TruckService();

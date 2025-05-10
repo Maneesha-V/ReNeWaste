@@ -24,12 +24,12 @@ class TruckRepository implements ITruckRepository {
     return await TruckModel.find({wasteplantId: plantId});
   }
   async getAvailableTrucks(driverId: string): Promise<ITruck[]> {
-    const existingTruck = await TruckModel.findOne({ assignedDriver: driverId }).populate('wasteplantId');
+    const existingTruck = await TruckModel.findOne({ assignedDriver: driverId}).populate('wasteplantId');
     if (existingTruck) {
       return [existingTruck]; 
     }
-    // return [];
-    return await TruckModel.find({ assignedDriver: null }).populate('wasteplantId');
+    return [];
+    // return await TruckModel.find({ assignedDriver: null}).populate('wasteplantId');
   }
   async getTruckById(truckId: string) {
     return await TruckModel.findById(truckId);
@@ -45,8 +45,44 @@ class TruckRepository implements ITruckRepository {
     return await DriverModel.findByIdAndUpdate(driverId, { hasRequestedTruck: true });
   }
   async getMaintainanceTrucks(plantId: string) {
-    return await TruckModel.find({ wasteplantId: plantId, status: "Maintenance"}).populate('assignedDriver');
+    const trucks = await TruckModel.find({ wasteplantId: plantId, status: "Maintenance"}).populate('assignedDriver');
+    return trucks.filter((truck) => truck.assignedDriver !== null);
   }
-
+  
+  async activeAvailableTrucks(plantId: string) {
+    return await TruckModel.find({ wasteplantId: plantId, status: "Active",assignedDriver: null});
+  }
+  async assignTruckToDriver(plantId: string, driverId: string, truckId: string, prevTruckId: string) {
+  const updatedDriver = await DriverModel.findOneAndUpdate(
+    { _id: driverId, wasteplantId: plantId },
+    {
+      $set: {
+        assignedTruckId: truckId,
+        hasRequestedTruck: false,
+      },
+    },
+    { new: true }
+  )
+  const updatedTruck = await TruckModel.findOneAndUpdate(
+    { _id: truckId },
+    {
+      $set: {
+        assignedDriver: driverId,
+      },
+    },
+    { new: true }
+  );
+  if (prevTruckId && prevTruckId !== truckId) {
+    await TruckModel.findOneAndUpdate(
+      { _id: prevTruckId },
+      {
+        $set: {
+          assignedDriver: null
+        },
+      }
+    );
+  }
+   return await this.getMaintainanceTrucks(plantId)
+  }
 }
 export default new TruckRepository();
