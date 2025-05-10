@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
-import { ResidentialRequest } from "../../../types/user/residentialTypes";
+import { AuthRequest } from "../../../types/common/middTypes";
 
 export interface IResidentialController {
-    getResidential(req: ResidentialRequest, res: Response): Promise<void>;
-    updateResidentialPickup(req: ResidentialRequest, res: Response): Promise<void>;
+    getResidential(req: AuthRequest, res: Response): Promise<void>;
+    updateResidentialPickup(req: AuthRequest, res: Response): Promise<void>;
 }

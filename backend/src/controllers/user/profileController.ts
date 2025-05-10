@@ -1,5 +1,4 @@
 import { Request, Response } from "express";
-import { ProfileRequest } from "../../types/user/profileTypes";
 import ProfileService from "../../services/user/profileService";
 import { IProfileController } from "./interface/IProfileController";
 import { AuthRequest } from "../../types/common/middTypes";
@@ -19,7 +18,7 @@ class ProfileController implements IProfileController {
     }
   }
 
-  async getEditProfile(req: ProfileRequest, res: Response): Promise<void> {
+  async getEditProfile(req: AuthRequest, res: Response): Promise<void> {
     try {
       const userId = req.user?.id; 
       console.log("userId",userId);
@@ -35,7 +34,7 @@ class ProfileController implements IProfileController {
     }
   }
 
-  async updateUserProfileHandler(req: ProfileRequest, res: Response): Promise<void> {
+  async updateUserProfileHandler(req: AuthRequest, res: Response): Promise<void> {
     try {
       const userId = req.user?.id;
       if (!userId) {

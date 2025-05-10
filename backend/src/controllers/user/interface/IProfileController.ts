@@ -1,8 +1,8 @@
 import { Request, Response } from "express";
-import { ProfileRequest } from "../../../types/user/profileTypes";
+import { AuthRequest } from "../../../types/common/middTypes";
 
 export interface IProfileController {
-  getProfile(req: ProfileRequest, res: Response): Promise<void>;
-  getEditProfile(req: ProfileRequest, res: Response): Promise<void>;
-  updateUserProfileHandler(req: ProfileRequest, res: Response): Promise<void>;
+  getProfile(req: AuthRequest, res: Response): Promise<void>;
+  getEditProfile(req: AuthRequest, res: Response): Promise<void>;
+  updateUserProfileHandler(req: AuthRequest, res: Response): Promise<void>;
 }

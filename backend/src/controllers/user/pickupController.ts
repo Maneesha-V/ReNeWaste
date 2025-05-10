@@ -1,10 +1,10 @@
 import { Request, Response } from "express";
 import PickupService from "../../services/user/pickupService";
-import { ProfileUserRequest } from "../../types/user/authTypes";
 import { IPickupController } from "./interface/IPickupController";
+import { AuthRequest } from "../../types/common/middTypes";
 
 class PickupController implements IPickupController {
-  async getPickupPlans(req: ProfileUserRequest, res: Response): Promise<void> {
+  async getPickupPlans(req: AuthRequest, res: Response): Promise<void> {
     try {
         const userId = req.user?.id; 
         console.log("user",userId);
@@ -21,7 +21,7 @@ class PickupController implements IPickupController {
       res.status(400).json({ error: error.message });
     }
   }
-  async cancelPickupPlan(req: ProfileUserRequest, res: Response): Promise<void> {
+  async cancelPickupPlan(req: AuthRequest, res: Response): Promise<void> {
     try {
       const userId = req.user?.id; 
       const { pickupReqId } = req.params;   

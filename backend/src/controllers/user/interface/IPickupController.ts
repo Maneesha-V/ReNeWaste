@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
-import { ProfileUserRequest } from "../../../types/user/authTypes";
+import { AuthRequest } from "../../../types/common/middTypes";
 
 export interface IPickupController {
-    getPickupPlans(req: ProfileUserRequest, res: Response): Promise<void>
+    getPickupPlans(req: AuthRequest, res: Response): Promise<void>
 }

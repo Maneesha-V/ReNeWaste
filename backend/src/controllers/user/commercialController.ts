@@ -2,10 +2,10 @@ import { Request, Response } from "express";
 import moment from 'moment';
 import CommercialService from "../../services/user/commercialService";
 import { ICommercialController } from "./interface/ICommercialController";
-import { CommercialRequest } from "../../types/user/commercialTypes";
+import { AuthRequest } from "../../types/common/middTypes";
 
 class CommercialController implements ICommercialController {
-  async getCommercial(req: CommercialRequest, res: Response): Promise<void> {
+  async getCommercial(req: AuthRequest, res: Response): Promise<void> {
     try {
       const userId = req.user?.id; 
       if (!userId) {
@@ -20,7 +20,7 @@ class CommercialController implements ICommercialController {
       res.status(400).json({ error: error.message });
     }
   }
-   async checkServiceAvailable(req: CommercialRequest, res: Response): Promise<void> {
+   async checkServiceAvailable(req: AuthRequest, res: Response): Promise<void> {
       try {
         const userId = req.user?.id;
         if (!userId) {
@@ -44,7 +44,7 @@ class CommercialController implements ICommercialController {
       }
     }
 
-    async updateCommercialPickup(req: CommercialRequest, res: Response): Promise<void> {
+    async updateCommercialPickup(req: AuthRequest, res: Response): Promise<void> {
       try {
         const userId = req.user?.id;
         if (!userId) {
@@ -55,7 +55,7 @@ class CommercialController implements ICommercialController {
         
         const updatedData = req.body;
         const pickupDateString = updatedData.pickupDate;
-        const formattedDate = moment(pickupDateString, 'DD-MM-YYYY').toDate(); 
+        const formattedDate = moment(pickupDateString, 'MM-DD-YYYY', true).toDate(); 
         if (isNaN(formattedDate.getTime())) {
           res.status(400).json({ message: "Invalid pickup date format" });
           return;

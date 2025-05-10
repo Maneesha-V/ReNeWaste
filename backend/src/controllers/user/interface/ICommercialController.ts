@@ -1,8 +1,8 @@
 import { Request, Response } from "express";
-import { CommercialRequest } from "../../../types/user/commercialTypes";
+import { AuthRequest } from "../../../types/common/middTypes";
 
 export interface ICommercialController {
-    getCommercial(req: CommercialRequest, res: Response): Promise<void>;
-    checkServiceAvailable(req: CommercialRequest, res: Response): Promise<void>
-    updateCommercialPickup(req: CommercialRequest, res: Response): Promise<void>
+    getCommercial(req: AuthRequest, res: Response): Promise<void>;
+    checkServiceAvailable(req: AuthRequest, res: Response): Promise<void>
+    updateCommercialPickup(req: AuthRequest, res: Response): Promise<void>
 }
