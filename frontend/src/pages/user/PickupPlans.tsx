@@ -9,19 +9,22 @@ import {
   cancelPickupPlan,
   fetchtPickupPlans,
 } from "../../redux/slices/user/userPickupSlice";
-import { Spin, Card, Row, Col, Empty, Button, Popconfirm, Tabs } from "antd";
+import { Spin, Card, Row, Col, Empty, Button, Popconfirm, Tabs, Modal } from "antd";
 import {
   formatDateToDDMMYYYY,
   formatTimeTo12Hour,
 } from "../../utils/formatDate";
 import TrackModal from "../../components/user/TrackModal";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import TabPane from "antd/es/tabs/TabPane";
+import { setPaymentData } from "../../redux/slices/user/userPaymentSlice";
+import PayNow from "./PayNow";
 
 const { Meta } = Card;
 
 const PickupPlans = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isPayNowModalOpen, setIsPayNowModalOpen] = useState(false);
   const [selectedTrackingStatus, setSelectedTrackingStatus] = useState<
     string | null
   >(null);
@@ -30,6 +33,7 @@ const PickupPlans = () => {
     text: string | null;
   } | null>(null);
   const dispatch = useAppDispatch();
+  const navigate = useNavigate();
   const { pickups, loading, error } = useSelector(
     (state: RootState) => state.userPickups
   );
@@ -62,6 +66,14 @@ const PickupPlans = () => {
       toast.error(err);
     }
   };
+  const handlePay = async (pickup: any) => {
+    console.log("pickup",pickup);
+    
+ const amount = pickup.wasteType === "Residential" ? 100 : 200;
+ dispatch(setPaymentData({ pickup, amount }));
+//  navigate("/pay-now");
+ setIsPayNowModalOpen(true);
+  }
 
   const renderPickupCards = (filteredPickups: any[]) => {
     if (filteredPickups.length === 0) {
@@ -77,7 +89,13 @@ const PickupPlans = () => {
               title={pickup.pickupId}
               className="rounded-lg shadow-lg"
               extra={
-                pickup.trackingStatus ? (
+                <>
+                { pickup.status === "Scheduled" && pickup?.payment?.status !== "Paid" &&(
+                  <Button type="primary" className="mr-2" onClick={() => handlePay(pickup)}>
+                    Pay
+                  </Button>
+                )}
+                { pickup.trackingStatus ? (
                   <Button type="primary" onClick={() => handleTrackClick(pickup)}>
                     Track
                   </Button>
@@ -94,6 +112,8 @@ const PickupPlans = () => {
                     </Button>
                   </Popconfirm>
                 )
+              }
+                </>
               }
             >
               <Meta
@@ -164,6 +184,16 @@ const PickupPlans = () => {
           pickupId={selectedPickupId}
           eta={selectedEta}
         />
+        <Modal
+  open={isPayNowModalOpen}
+  onCancel={() => setIsPayNowModalOpen(false)}
+  footer={null}
+  destroyOnClose
+  width={600}
+>
+  <PayNow onClose={() => setIsPayNowModalOpen(false)} />
+</Modal>
+
       </div>
       <Footer />
     </div>

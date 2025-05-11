@@ -28,8 +28,8 @@ class TruckRepository implements ITruckRepository {
     if (existingTruck) {
       return [existingTruck]; 
     }
-    return [];
-    // return await TruckModel.find({ assignedDriver: null}).populate('wasteplantId');
+    // return [];
+    return await TruckModel.find({ assignedDriver: null}).populate('wasteplantId');
   }
   async getTruckById(truckId: string) {
     return await TruckModel.findById(truckId);

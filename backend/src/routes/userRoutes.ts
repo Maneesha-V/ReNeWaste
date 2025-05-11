@@ -4,6 +4,7 @@ import ProfileController  from "../controllers/user/profileController";
 import ResidentialController from "../controllers/user/residentialController";
 import CommercialController from "../controllers/user/commercialController";
 import PickupController from "../controllers/user/pickupController";
+import PaymentController from "../controllers/user/paymentController";
 import { authenticateUser } from "../middlewares/authMiddware"
 import { RequestHandler } from "express"; 
 
@@ -31,5 +32,8 @@ router.get("/commercial", authenticateUser as RequestHandler, CommercialControll
 router.post("/commercial/service-check", authenticateUser as RequestHandler, CommercialController.checkServiceAvailable)
 router.patch("/commercial/pickup", authenticateUser as RequestHandler, CommercialController.updateCommercialPickup)
 router.get("/pickup-plans", authenticateUser as RequestHandler, PickupController.getPickupPlans)
-
+router.post("/payment/create-order", authenticateUser as RequestHandler, PaymentController.createPaymentOrder)
+router.post("/payment/verify", authenticateUser as RequestHandler, PaymentController.verifyPayment)
+router.get("/payments", authenticateUser as RequestHandler, PaymentController.getAllPayments)
+router.post("/payment/repay", authenticateUser as RequestHandler, PaymentController.rePayment)
 export default router;

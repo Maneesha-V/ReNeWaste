@@ -16,6 +16,7 @@ import driverTrucksReducer from "../redux/slices/driver/truckDriverSlice";
 import driverChatsReducer from "../redux/slices/driver/chatDriverSlice";
 import userPickupReducer from "../redux/slices/user/userPickupSlice";
 import userProfileReducer from "../redux/slices/user/userProfileSlice";
+import userPaymentReducer from "../redux/slices/user/userPaymentSlice";
 
 export const store = configureStore({
     reducer : {
@@ -24,6 +25,7 @@ export const store = configureStore({
         userResidential: userResidentialReducer,
         userCommercial: userCommercialReducer,
         userPickups: userPickupReducer,
+        userPayment: userPaymentReducer,
         superadmin: superadminReducer,
         superAdminWastePlant: superAdminWastePlantReducer,
         wasteplant: wasteplantReducer,

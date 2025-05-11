@@ -29,6 +29,4 @@ export interface OtpRecord {
   otp: string;
   createdAt: Date; 
 }
-export interface ProfileUserRequest extends Request {
-    user?: { id: string };
-  }
+

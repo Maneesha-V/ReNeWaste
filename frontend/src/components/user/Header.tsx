@@ -61,10 +61,10 @@ const Header = () => {
             {isMoreOpen && (
               <div className="absolute right-0 mt-2 w-48 bg-gray-700 text-white rounded-lg shadow-lg">
                 <button
-                  onClick={() => handleNavigation("/pay-now")}
+                  onClick={() => handleNavigation("/payment-history")}
                   className="block w-full px-4 py-2 text-left hover:bg-gray-600"
                 >
-                  Pay Now
+                  Payments
                 </button>
                 <button
                   onClick={() => handleNavigation("/pickup-plans")}
@@ -90,10 +90,10 @@ const Header = () => {
               Pickup Plan
             </button>
             <button
-              onClick={() => handleNavigation("/pay-now")}
+              onClick={() => handleNavigation("/payment-history")}
               className="hover:text-green-600"
             >
-              Pay Now
+              Payments
             </button>
             <button
               onClick={handleLogout}
