@@ -36,4 +36,5 @@ router.post("/payment/create-order", authenticateUser as RequestHandler, Payment
 router.post("/payment/verify", authenticateUser as RequestHandler, PaymentController.verifyPayment)
 router.get("/payments", authenticateUser as RequestHandler, PaymentController.getAllPayments)
 router.post("/payment/repay", authenticateUser as RequestHandler, PaymentController.rePayment)
+
 export default router;

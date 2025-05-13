@@ -11,8 +11,8 @@ import {
 import { formatDateToDDMMYYYY } from "../../utils/formatDate";
 import { useAppDispatch } from "../../redux/hooks";
 import { toast } from "react-toastify";
-import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
+import { useNavigate } from "react-router-dom";
 
 const Payments = () => {
   const navigate = useNavigate();
@@ -78,6 +78,7 @@ const Payments = () => {
                 text: "Your payment was verified successfully.",
                 confirmButtonColor: "#28a745",
               }).then(() => {
+                dispatch(getAllPayments());
                 navigate("/payment-history");
               });
             })

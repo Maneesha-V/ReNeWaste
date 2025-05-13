@@ -103,7 +103,7 @@ const userPaymentSlice = createSlice({
         state.loading = true;
         state.error = null;
       })
-      .addCase(verifyPayment.fulfilled, (state, action) => {
+      .addCase(verifyPayment.fulfilled, (state) => {
         state.loading = false;
         state.message = "Payment verified successfully";
       })

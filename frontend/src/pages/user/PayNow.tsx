@@ -7,214 +7,244 @@ import {
 import { useAppDispatch } from "../../redux/hooks";
 import { RootState } from "../../redux/store";
 import { useSelector } from "react-redux";
-import { createPaymentOrder, verifyPayment } from "../../redux/slices/user/userPaymentSlice";
+import {
+  createPaymentOrder,
+  verifyPayment,
+} from "../../redux/slices/user/userPaymentSlice";
 import { toast } from "react-toastify";
 import Swal from "sweetalert2";
+import { fetchtPickupPlans } from "../../redux/slices/user/userPickupSlice";
 
 type PayNowProps = {
   onClose: () => void;
 };
 
-const PayNow = ({ onClose }:PayNowProps) => {
-
+const PayNow = ({ onClose }: PayNowProps) => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
 
-const pickup = useSelector((state: RootState) => state.userPayment.pickup);
+  const pickup = useSelector((state: RootState) => state.userPayment.pickup);
   const amount = useSelector((state: RootState) => state.userPayment.amount);
 
-console.log("pickup",pickup);
-console.log("amount",amount);
-console.log("pickupId",pickup._id);
+  console.log("pickup", pickup);
+  console.log("amount", amount);
+  console.log("pickupId", pickup._id);
   useEffect(() => {
-  if (!pickup || !amount) {
-    navigate("/pickup-plans", { replace: true });
-  }
-}, [pickup, amount, navigate]);
+    if (!pickup || !amount) {
+      navigate("/pickup-plans", { replace: true });
+    }
+  }, [pickup, amount, navigate]);
 
-const pickupReqId = pickup?._id
-    useEffect(() => {
+  const pickupReqId = pickup?._id;
+  useEffect(() => {
     if (pickup && amount) {
-      console.log("Dispatching with:", { amount, pickupReqId }); 
-      dispatch(createPaymentOrder({ amount, pickupReqId }));  
+      console.log("Dispatching with:", { amount, pickupReqId });
+      dispatch(createPaymentOrder({ amount, pickupReqId }));
     }
   }, [dispatch, pickup, amount]);
-    const paymentOrder = useSelector((state: RootState) => state.userPayment.paymentOrder);
-console.log("paymentOrder", paymentOrder);
+  const paymentOrder = useSelector(
+    (state: RootState) => state.userPayment.paymentOrder
+  );
+  console.log("paymentOrder", paymentOrder);
 
+  const loadRazorpayScript = () => {
+    return new Promise((resolve, reject) => {
+      const script = document.createElement("script");
+      script.src = "https://checkout.razorpay.com/v1/checkout.js";
+      script.onload = () => resolve(true);
+      script.onerror = () => reject("Razorpay SDK failed to load.");
+      document.body.appendChild(script);
+    });
+  };
 
-
-const loadRazorpayScript = () => {
-  return new Promise((resolve, reject) => {
-    const script = document.createElement("script");
-    script.src = "https://checkout.razorpay.com/v1/checkout.js";
-    script.onload = () => resolve(true);
-    script.onerror = () => reject("Razorpay SDK failed to load.");
-    document.body.appendChild(script);
-  });
-};
-
-const handlePayment =  async () => {
+  const handlePayment = async () => {
     const res = await loadRazorpayScript();
     if (!res) {
       toast("Razorpay SDK failed to load.");
       return;
     }
-  if (paymentOrder) {
-    const options = {
-      key: import.meta.env.VITE_RAZORPAY_KEY_ID,
-      amount: paymentOrder.amount,
-      currency: paymentOrder.currency,
-      name: "Your Company Name",
-      description: "Pickup Payment",
-      order_id: paymentOrder.orderId,
-      handler: function (response: any) {
-        console.log("response",response);
-        
-        const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = response;
+    if (paymentOrder) {
+      const options = {
+        key: import.meta.env.VITE_RAZORPAY_KEY_ID,
+        amount: paymentOrder.amount,
+        currency: paymentOrder.currency,
+        name: "Your Company Name",
+        description: "Pickup Payment",
+        order_id: paymentOrder.orderId,
+        handler: function (response: any) {
+          console.log("response", response);
 
-        dispatch(
-          verifyPayment({
-            razorpay_order_id,
-            razorpay_payment_id,
-            razorpay_signature,
-            pickupReqId: paymentOrder.pickupReqId,
-            amount: paymentOrder.amount
-          })
-        )
-          .unwrap()
-          // .then(() => {
-          //   toast("Payment verified successfully!");
-          //   // navigate("/success");
-          // })
-          // .catch(() => {
-          //   toast("Payment verification failed!");
-          // });
-          .then(() => {
-  Swal.fire({
-    icon: "success",
-    title: "Payment Successful!",
-    text: "Your payment was verified successfully.",
-    confirmButtonColor: "#28a745",
-  }).then(() => {
-    onClose();
-    // navigate("/payment-history"); 
-  });
-})
-.catch(() => {
-  Swal.fire({
-    icon: "error",
-    title: "Payment Failed",
-    text: "Payment verification failed. Please try again.",
-    confirmButtonColor: "#d33",
-  });
-});
+          const { razorpay_order_id, razorpay_payment_id, razorpay_signature } =
+            response;
 
-      },
-      prefill: {
-        name: pickup?.user?.firstName + " " + pickup?.user?.lastName,
-        email: pickup?.user?.email,
-        contact: pickup?.user?.phone,
-      },
-      theme: {
-        color: "#28a745",
-      },
-    };
+          dispatch(
+            verifyPayment({
+              razorpay_order_id,
+              razorpay_payment_id,
+              razorpay_signature,
+              pickupReqId: paymentOrder.pickupReqId,
+              amount: paymentOrder.amount,
+            })
+          )
+            .unwrap()
+            .then(() => {
+              Swal.fire({
+                icon: "success",
+                title: "Payment Successful!",
+                text: "Your payment was verified successfully.",
+                confirmButtonColor: "#28a745",
+              }).then(() => {
+                onClose();
+                dispatch(fetchtPickupPlans());
+              });
+            })
+            .catch(() => {
+              Swal.fire({
+                icon: "error",
+                title: "Payment Failed",
+                text: "Payment verification failed. Please try again.",
+                confirmButtonColor: "#d33",
+              });
+            });
+        },
+        prefill: {
+          name: pickup?.user?.firstName + " " + pickup?.user?.lastName,
+          email: pickup?.user?.email,
+          contact: pickup?.user?.phone,
+        },
+        theme: {
+          color: "#28a745",
+        },
+      };
 
-    const razorpay = new (window as any).Razorpay(options);
-    razorpay.open();
-  }
-};
+      const razorpay = new (window as any).Razorpay(options);
+      razorpay.open();
+    }
+  };
 
   return (
     <div className="min-h-screen bg-green-100 flex items-center justify-center p-4">
-  <div className="w-full max-w-xl bg-white shadow-lg rounded-lg overflow-hidden border border-green-500">
-    {/* Header */}
-    <div className="bg-green-200 text-green-900 text-xl font-semibold px-6 py-4">
-      Confirm Your Payment
-    </div>
-
-    {/* Content */}
-    <div className="px-6 py-4 space-y-6">
-      {/* Pickup Details */}
-      <div>
-        <h3 className="text-lg font-semibold mb-2 text-gray-800 bg-green-100 px-2 py-1 rounded">
-          Pickup Details
-        </h3>
-        <div className="space-y-1 text-gray-700 break-words">
-          <p><span className="font-medium">Pickup ID:</span> {pickup?.pickupId}</p>
-          <p><span className="font-medium">Waste Type:</span> {pickup?.wasteType}</p>
-          <p>
-            <span className="font-medium">Pickup Date:</span>{" "}
-            {pickup?.rescheduledPickupDate
-              ? formatDateToDDMMYYYY(pickup.rescheduledPickupDate)
-              : formatDateToDDMMYYYY(pickup?.originalPickupDate)}
-          </p>
-          <p>
-            <span className="font-medium">Pickup Time:</span>{" "}
-            {pickup?.pickupTime ? formatTimeTo12Hour(pickup?.pickupTime) : "—"}
-          </p>
-           <p><span className="font-medium">Driver Name:</span> {pickup?.driverId?.name}</p>
-          <p><span className="font-medium">Driver Contact:</span> {pickup?.driverId?.contact}</p>
+      <div className="w-full max-w-xl bg-white shadow-lg rounded-lg overflow-hidden border border-green-500">
+        {/* Header */}
+        <div className="bg-green-200 text-green-900 text-xl font-semibold px-6 py-4">
+          Confirm Your Payment
         </div>
-      </div>
 
-      {/* User Details */}
-      <div>
-        <h3 className="text-lg font-semibold mb-2 text-gray-800 bg-green-100 px-2 py-1 rounded">
-          User Details
-        </h3>
-        <div className="space-y-1 text-gray-700">
-          <p>
-            <span className="font-medium">Name:</span>{" "}
-            {pickup?.user?.firstName} {pickup?.user?.lastName}
-          </p>
-          <p>
-            <span className="font-medium">Contact:</span>{" "}
-            {pickup?.user?.phone}
-          </p>
-        </div>
-      </div>
-
-      {/* Address Info */}
-      <div>
-        <h3 className="text-lg font-semibold mb-2 text-gray-800 bg-green-100 px-2 py-1 rounded">
-          Pickup Address
-        </h3>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-gray-700">
-          {/* Left Address Column */}
-          <div className="space-y-1">
-            <p><span className="font-medium">Address Line 1:</span> {pickup?.address?.addressLine1}</p>
-            <p><span className="font-medium">Address Line 2:</span> {pickup?.address?.addressLine2 || "—"}</p>
-            <p><span className="font-medium">Location:</span> {pickup?.address?.location}</p>
-            <p><span className="font-medium">Taluk:</span> {pickup?.address?.taluk}</p>
+        {/* Content */}
+        <div className="px-6 py-4 space-y-6">
+          {/* Pickup Details */}
+          <div>
+            <h3 className="text-lg font-semibold mb-2 text-gray-800 bg-green-100 px-2 py-1 rounded">
+              Pickup Details
+            </h3>
+            <div className="space-y-1 text-gray-700 break-words">
+              <p>
+                <span className="font-medium">Pickup ID:</span>{" "}
+                {pickup?.pickupId}
+              </p>
+              <p>
+                <span className="font-medium">Waste Type:</span>{" "}
+                {pickup?.wasteType}
+              </p>
+              <p>
+                <span className="font-medium">Pickup Date:</span>{" "}
+                {pickup?.rescheduledPickupDate
+                  ? formatDateToDDMMYYYY(pickup.rescheduledPickupDate)
+                  : formatDateToDDMMYYYY(pickup?.originalPickupDate)}
+              </p>
+              <p>
+                <span className="font-medium">Pickup Time:</span>{" "}
+                {pickup?.pickupTime
+                  ? formatTimeTo12Hour(pickup?.pickupTime)
+                  : "—"}
+              </p>
+              <p>
+                <span className="font-medium">Driver Name:</span>{" "}
+                {pickup?.driverId?.name}
+              </p>
+              <p>
+                <span className="font-medium">Driver Contact:</span>{" "}
+                {pickup?.driverId?.contact}
+              </p>
+            </div>
           </div>
 
-          {/* Right Address Column */}
-          <div className="space-y-1">
-            <p><span className="font-medium">District:</span> {pickup?.address?.district}</p>
-            <p><span className="font-medium">State:</span> {pickup?.address?.state}</p>
-            <p><span className="font-medium">Pincode:</span> {pickup?.address?.pincode}</p>
+          {/* User Details */}
+          <div>
+            <h3 className="text-lg font-semibold mb-2 text-gray-800 bg-green-100 px-2 py-1 rounded">
+              User Details
+            </h3>
+            <div className="space-y-1 text-gray-700">
+              <p>
+                <span className="font-medium">Name:</span>{" "}
+                {pickup?.user?.firstName} {pickup?.user?.lastName}
+              </p>
+              <p>
+                <span className="font-medium">Contact:</span>{" "}
+                {pickup?.user?.phone}
+              </p>
+            </div>
+          </div>
+
+          {/* Address Info */}
+          <div>
+            <h3 className="text-lg font-semibold mb-2 text-gray-800 bg-green-100 px-2 py-1 rounded">
+              Pickup Address
+            </h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-gray-700">
+              {/* Left Address Column */}
+              <div className="space-y-1">
+                <p>
+                  <span className="font-medium">Address Line 1:</span>{" "}
+                  {pickup?.address?.addressLine1}
+                </p>
+                <p>
+                  <span className="font-medium">Address Line 2:</span>{" "}
+                  {pickup?.address?.addressLine2 || "—"}
+                </p>
+                <p>
+                  <span className="font-medium">Location:</span>{" "}
+                  {pickup?.address?.location}
+                </p>
+                <p>
+                  <span className="font-medium">Taluk:</span>{" "}
+                  {pickup?.address?.taluk}
+                </p>
+              </div>
+
+              {/* Right Address Column */}
+              <div className="space-y-1">
+                <p>
+                  <span className="font-medium">District:</span>{" "}
+                  {pickup?.address?.district}
+                </p>
+                <p>
+                  <span className="font-medium">State:</span>{" "}
+                  {pickup?.address?.state}
+                </p>
+                <p>
+                  <span className="font-medium">Pincode:</span>{" "}
+                  {pickup?.address?.pincode}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Payment Info */}
+          <div className="text-center pt-2">
+            <p className="text-xl font-bold text-gray-900 mb-3">
+              Amount to Pay: ₹{amount}
+            </p>
+            <button
+              className="bg-green-600 hover:bg-green-700 text-white font-semibold px-6 py-2 rounded w-full"
+              onClick={handlePayment}
+            >
+              Pay ₹{amount} Now
+            </button>
           </div>
         </div>
       </div>
-
-      {/* Payment Info */}
-      <div className="text-center pt-2">
-        <p className="text-xl font-bold text-gray-900 mb-3">
-          Amount to Pay: ₹{amount}
-        </p>
-        <button
-          className="bg-green-600 hover:bg-green-700 text-white font-semibold px-6 py-2 rounded w-full"
-          onClick={handlePayment}
-        >
-          Pay ₹{amount} Now
-        </button>
-      </div>
     </div>
-  </div>
-</div>
-
   );
 };
 

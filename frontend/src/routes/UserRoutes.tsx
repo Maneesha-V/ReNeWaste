@@ -11,9 +11,8 @@ import Residential from "../pages/user/Residential";
 import Commercial from "../pages/user/Commercial";
 import PickupPlans from "../pages/user/PickupPlans";
 import Unauthorized from "../pages/user/Unauthorized";
-import PayNow from "../pages/user/PayNow";
-import ErrorBoundary from "../components/common/ErrorBoundary";
 import Payments from "../pages/user/Payments";
+import ErrorBoundary from "../components/common/ErrorBoundary";
 
 const UserRoutes = () => {
   return (
@@ -33,7 +32,6 @@ const UserRoutes = () => {
         <Route path="/residential" element={<Residential />} />
         <Route path="/commercial" element={<Commercial />} />
         <Route path="/pickup-plans" element={<PickupPlans />} />     
-        {/* <Route path="/pay-now" element={<PayNow />} /> */}
         <Route path="/payment-history" element={<Payments />} />
       </Route>
 
