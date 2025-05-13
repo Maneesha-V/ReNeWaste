@@ -57,9 +57,11 @@ export const markPickupCompleted = createAsyncThunk(
   );
   export const fetchEta  = createAsyncThunk(
     "driverPickups/fetchEta",
-    async ({ origin, destination, pickupReqId }: { origin: string; destination: string; pickupReqId: string }, { rejectWithValue }) => {
+    async ({ origin, destination, pickupReqId, addressId }: { origin: string; destination: string; pickupReqId: string; addressId: string; }, { rejectWithValue }) => {
       try { 
-        const response = await fetchEtaService({ origin, destination, pickupReqId});
+        const response = await fetchEtaService({ origin, destination, pickupReqId,addressId});
+        console.log("response",response);
+        
         return response;
       } catch (err: any) {
         console.error("err",err);

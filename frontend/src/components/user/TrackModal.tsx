@@ -1,4 +1,6 @@
 import { Modal, Steps } from "antd";
+import { useSocket } from "../../context/SocketContext";
+import { useEffect, useState } from "react";
 
 const { Step } = Steps;
 
@@ -23,13 +25,56 @@ const statusToStep = (status: string | null): number => {
     case "Completed":
       return 4;
     default:
-      return -1; 
+      return -1;
   }
 };
 
-const TrackModal = ({ visible, onClose, trackingStatus, pickupId, eta }: TrackModalProps) => {
-  const currentStep = statusToStep(trackingStatus);
+const TrackModal = ({
+  visible,
+  onClose,
+  trackingStatus,
+  pickupId,
+  eta,
+}: TrackModalProps) => {
+  const [localTrackingStatus, setLocalTrackingStatus] = useState<string | null>(
+    trackingStatus
+  );
+  const [driverLocation, setDriverLocation] = useState<{
+    latitude: number;
+    longitude: number;
+  } | null>(null);
+  const currentStep = statusToStep(localTrackingStatus);
+  const socket = useSocket();
+  useEffect(() => {
+  if (visible && trackingStatus) {
+    setLocalTrackingStatus(trackingStatus);
+  }
+}, [visible, trackingStatus]);
 
+  useEffect(() => {
+    if (!socket) return;
+    if (visible && pickupId) {
+      socket.emit("joinPickupRoom", pickupId);
+
+      socket.on("driverLocationBroadcast", ({ latitude, longitude }) => {
+        setDriverLocation({ latitude, longitude });
+        console.log("📍 Live driver location:", latitude, longitude);
+      });
+
+      socket.on("trackingStatusUpdated", (status: string) => {
+        console.log("📦 Tracking status updated:", status);
+        setLocalTrackingStatus(status);
+      });
+      return () => {
+        socket.off("driverLocationBroadcast");
+        socket.off("trackingStatusUpdated");
+        socket.emit("leavePickupRoom", pickupId);
+      };
+    }
+  }, [visible, pickupId]);
+  console.log("trackingStatus",trackingStatus);
+  console.log("localTrackingStatus",localTrackingStatus);
+  localTrackingStatus
   return (
     <Modal
       title={`Tracking - ${pickupId}`}
@@ -37,12 +82,17 @@ const TrackModal = ({ visible, onClose, trackingStatus, pickupId, eta }: TrackMo
       onCancel={onClose}
       footer={null}
     >
-        {eta?.text && currentStep >= 0 && (
+      {eta?.text && currentStep >= 0 && (
         <div className="mb-4 text-blue-600 font-medium">
           Estimated Arrival: {eta.text}
         </div>
       )}
-
+      {driverLocation && (
+        <div className="mb-3 text-green-700 font-medium">
+          Live Driver Location: Lat {driverLocation.latitude}, Lng{" "}
+          {driverLocation.longitude}
+        </div>
+      )}
       {currentStep === -1 ? (
         <div className="text-yellow-600 text-lg font-medium">
           Driver has not been assigned yet.
@@ -52,13 +102,19 @@ const TrackModal = ({ visible, onClose, trackingStatus, pickupId, eta }: TrackMo
           current={currentStep}
           direction="vertical"
           size="small"
-          status={trackingStatus === "Completed" ? "finish" : "process"}
+          status={localTrackingStatus === "Completed" ? "finish" : "process"}
         >
           <Step title="Assigned" description="Driver has been assigned." />
           <Step title="In Transit" description="Driver is on the way." />
           <Step title="Near" description="Driver is near your location." />
-          <Step title="Arrived" description="Driver has arrived at your location." />
-          <Step title="Completed" description="Pickup completed successfully." />
+          <Step
+            title="Arrived"
+            description="Driver has arrived at your location."
+          />
+          <Step
+            title="Completed"
+            description="Pickup completed successfully."
+          />
         </Steps>
       )}
     </Modal>

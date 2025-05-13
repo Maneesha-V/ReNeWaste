@@ -134,7 +134,7 @@ const AllotedPickups = () => {
               render={(_: any, record: any) => (
                 <div className="flex gap-2">
                   <Button type="default" onClick={() => navigate(`/driver/track-pickup/${record._id}`)}>
-                    Track
+                    Go
                   </Button>
                   {record.status !== "Completed" && (
                     <Button

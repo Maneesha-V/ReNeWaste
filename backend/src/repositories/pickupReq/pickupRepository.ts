@@ -44,11 +44,10 @@ class PickupRepository implements IPickupRepository {
       query.wasteType = wasteType;
     }
 
-
     const pickups = await PickupModel.find(query)
       .populate({
-        path: "userId", 
-        select: "firstName lastName addresses", 
+        path: "userId",
+        select: "firstName lastName addresses",
       })
       .populate({
         path: "driverId",
@@ -197,18 +196,20 @@ class PickupRepository implements IPickupRepository {
     pickupReqId: string,
     updateFields: {
       eta: { text: string; value: number };
-      trackingStatus: "Assigned";
+      // trackingStatus: "Assigned";
     }
   ) {
     const res = await PickupModel.findByIdAndUpdate(pickupReqId, {
       eta: updateFields.eta,
-      trackingStatus: updateFields.trackingStatus,
+      // trackingStatus: updateFields.trackingStatus,
     });
     console.log("trackk", res);
   }
-  
+
   async getPickupPlansByUserId(userId: string) {
-    const pickups = await PickupModel.find({ userId })
+    const pickups = await PickupModel.find({
+      userId: new mongoose.Types.ObjectId(userId),
+    })
       .populate({
         path: "driverId",
         select: "name contact assignedTruckId",
@@ -244,7 +245,7 @@ class PickupRepository implements IPickupRepository {
         `${bDate.toISOString().split("T")[0]}T${b.pickupTime}:00Z`
       );
 
-      return aDateTime.getTime() - bDateTime.getTime(); // ascending: earliest first
+      return aDateTime.getTime() - bDateTime.getTime();
     });
 
     return sortedPickups;
@@ -274,37 +275,53 @@ class PickupRepository implements IPickupRepository {
     );
     return res;
   }
-  async getPickupByUserIdAndPickupReqId(pickupReqId: string, userId: string) {
-    return await PickupModel.findOne(
-      { 
-      _id: pickupReqId,
-      userId: userId
+
+  async markPickupCompletedStatus(
+    pickupReqId: string
+  ): Promise<IPickupRequestDocument | null> {
+    const pickup = await PickupModel.findById(pickupReqId);
+    if (!pickup) {
+      throw new Error("Pickup not found");
     }
-    );
+    if (pickup.trackingStatus !== "Completed") {
+      throw new Error(
+        "Cannot mark pickup as completed until tracking is completed"
+      );
+    }
+    pickup.status = "Completed";
+    const updatedPickup = await pickup.save();
+
+    return updatedPickup;
+  }
+  async getPickupByUserIdAndPickupReqId(pickupReqId: string, userId: string) {
+    return await PickupModel.findOne({
+      _id: pickupReqId,
+      userId: userId,
+    });
   }
   async savePaymentDetails(
-  pickupReqId: string,
-  paymentData: any,
-  userId: string
+    pickupReqId: string,
+    paymentData: any,
+    userId: string
   ) {
-const pickup = await PickupModel.findOneAndUpdate(
-    { _id: pickupReqId, userId },
-    { $set: { payment: paymentData } },
-    { new: true }
-  );
+    const pickup = await PickupModel.findOneAndUpdate(
+      { _id: pickupReqId, userId },
+      { $set: { payment: paymentData } },
+      { new: true }
+    );
 
-  if (!pickup) {
-    throw new Error("Pickup not found or unauthorized");
+    if (!pickup) {
+      throw new Error("Pickup not found or unauthorized");
+    }
+
+    return pickup;
   }
 
-  return pickup;
-  }
-  
   async getAllPaymentsByUser(userId: string) {
     return await PickupModel.find(
       {
         userId,
-        "payment.amount": { $exists: true }, 
+        "payment.amount": { $exists: true },
       },
       {
         pickupId: 1,
@@ -314,9 +331,7 @@ const pickup = await PickupModel.findOneAndUpdate(
         rescheduledPickupDate: 1,
         status: 1,
       }
-    )
-    .sort({ createdAt: -1 }); 
+    ).sort({ createdAt: -1 });
   }
-  
 }
 export default new PickupRepository();

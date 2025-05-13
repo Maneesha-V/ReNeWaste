@@ -65,6 +65,8 @@ async updateAddressLatLng (req: AuthRequest, res: Response): Promise<void> {
 }
 async updateTrackingStatus(req: AuthRequest, res: Response): Promise<void> {
   try {
+    console.log(req.params);
+      console.log(req.body);
     const { pickupReqId } = req.params;
     const { trackingStatus } = req.body;
 
@@ -78,6 +80,24 @@ async updateTrackingStatus(req: AuthRequest, res: Response): Promise<void> {
     res.status(200).json({ success: true, data: updatedPickup });
   } catch (error: any) {
     res.status(500).json({ success: false, error: error.message || "Failed to update tracking status" });
+  }
+}
+
+async markPickupCompleted(req: AuthRequest, res: Response): Promise<void> {
+  try {
+    console.log(req.params);
+    const { pickupReqId } = req.params;
+
+    if (!pickupReqId) {
+      res.status(400).json({ error: "pickupReqId is required" });
+      return;
+    }
+
+    const updatedPickup = await PickupService.markPickupCompletedService(pickupReqId);
+
+    res.status(200).json({ success: true, data: updatedPickup });
+  } catch (error: any) {
+    res.status(500).json({ success: false, error: error.message || "Failed to update pickup completed" });
   }
 }
 }

@@ -24,5 +24,11 @@ class PickupService implements IPickupService {
   ): Promise<IPickupRequestDocument | null> {
     return await PickupRepository.updateTrackingStatus(pickupReqId, trackingStatus);
   }
+  
+   async markPickupCompletedService(
+    pickupReqId: string
+  ): Promise<IPickupRequestDocument | null> {
+    return await PickupRepository.markPickupCompletedStatus(pickupReqId);
+  }
 }
 export default new PickupService();
