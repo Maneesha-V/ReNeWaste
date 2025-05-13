@@ -91,7 +91,20 @@ class UserRepository implements IUserRepository {
   
     return updatedAddress;
   }
-  
+  async findAddressByAddressId(userId: string, addressId: string, latitude: number, longitude: number) {
+    return await UserModel.findOne(
+      {
+        _id: userId,
+        "addresses._id": addressId
+      },
+      {
+        $set: {
+          "addresses.$.latitude": latitude,
+          "addresses.$.longitude": longitude,
+        },
+      }
+    )
+  }
   
 }
 

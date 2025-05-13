@@ -35,11 +35,6 @@ export default function socketHandler(socket: Socket, io: Server) {
     console.log(`Socket ${socket.id} joined room: ${conversationId}`);
   });
 
-  // Listen for message and emit to that room
-  // socket.on("sendMessage", (data: ChatMessage) => {
-  //   console.log("📩 Message received:", data);
-  //   io.to(data.conversationId).emit("receiveMessage", data);
-  // });
   socket.on("sendMessage", async (data: ChatMessage) => {
     try {
       const { senderId, receiverId, text, conversationId } = data;
@@ -68,6 +63,29 @@ export default function socketHandler(socket: Socket, io: Server) {
       console.error("Error saving message:", error);
     }
   });
+socket.on("joinPickupRoom", (pickupReqId: string) => {
+  socket.join(pickupReqId);
+  console.log(`Socket ${socket.id} joined pickup room: ${pickupReqId}`);
+});
+
+  // Real-time location update from driver
+socket.on("driverLocationUpdate", ({ pickupReqId, latitude, longitude }) => {
+  console.log("📍 Driver location update:", { pickupReqId, latitude, longitude });
+  if (!pickupReqId || !latitude || !longitude) {
+    console.error("Invalid driver location update payload");
+    return;
+  }
+ // Send only to users in this pickup room
+   socket.to(pickupReqId).emit("driverLocationBroadcast", { latitude, longitude });
+   
+ io.to(pickupReqId).emit("trackingStatusUpdated", "InTransit");
+   socket.on("pickupCompleted", ({ pickupReqId, message }) => {
+  console.log(`✅ Pickup ${pickupReqId} completed: ${message}`);
+  io.to(pickupReqId).emit("pickupCompleteBroadcast", { pickupReqId });
+});
+
+});
+
   socket.on("disconnect", () => {
     console.log(`🔌 Client disconnected: ${socket.id}`);
   });

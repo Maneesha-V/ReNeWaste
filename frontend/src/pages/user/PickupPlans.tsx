@@ -9,7 +9,17 @@ import {
   cancelPickupPlan,
   fetchtPickupPlans,
 } from "../../redux/slices/user/userPickupSlice";
-import { Spin, Card, Row, Col, Empty, Button, Popconfirm, Tabs, Modal } from "antd";
+import {
+  Spin,
+  Card,
+  Row,
+  Col,
+  Empty,
+  Button,
+  Popconfirm,
+  Tabs,
+  Modal,
+} from "antd";
 import {
   formatDateToDDMMYYYY,
   formatTimeTo12Hour,
@@ -67,13 +77,13 @@ const PickupPlans = () => {
     }
   };
   const handlePay = async (pickup: any) => {
-    console.log("pickup",pickup);
-    
- const amount = pickup.wasteType === "Residential" ? 100 : 200;
- dispatch(setPaymentData({ pickup, amount }));
-//  navigate("/pay-now");
- setIsPayNowModalOpen(true);
-  }
+    console.log("pickup", pickup);
+
+    const amount = pickup.wasteType === "Residential" ? 100 : 200;
+    dispatch(setPaymentData({ pickup, amount }));
+    //  navigate("/pay-now");
+    setIsPayNowModalOpen(true);
+  };
 
   const renderPickupCards = (filteredPickups: any[]) => {
     if (filteredPickups.length === 0) {
@@ -90,29 +100,36 @@ const PickupPlans = () => {
               className="rounded-lg shadow-lg"
               extra={
                 <>
-                { pickup.status === "Scheduled" && pickup?.payment?.status !== "Paid" &&(
-                  <Button type="primary" className="mr-2" onClick={() => handlePay(pickup)}>
-                    Pay
-                  </Button>
-                )}
-                { pickup.trackingStatus ? (
-                  <Button type="primary" onClick={() => handleTrackClick(pickup)}>
-                    Track
-                  </Button>
-                ) : (
-                  <Popconfirm
-                    title="Are you sure to cancel this pickup?"
-                    okText="Yes"
-                    cancelText="No"
-                    onConfirm={() => handleCancel(pickup._id)}
-                    okType="danger"
-                  >
-                    <Button type="default" danger>
-                      Cancel
+                  {pickup.status === "Scheduled" &&
+                    pickup?.payment?.status !== "Paid" && (
+                      <Button
+                        type="primary"
+                        className="mr-2"
+                        onClick={() => handlePay(pickup)}
+                      >
+                        Pay
+                      </Button>
+                    )}
+                  {pickup.trackingStatus ? (
+                    <Button
+                      type="primary"
+                      onClick={() => handleTrackClick(pickup)}
+                    >
+                      Track
                     </Button>
-                  </Popconfirm>
-                )
-              }
+                  ) : (
+                    <Popconfirm
+                      title="Are you sure to cancel this pickup?"
+                      okText="Yes"
+                      cancelText="No"
+                      onConfirm={() => handleCancel(pickup._id)}
+                      okType="danger"
+                    >
+                      <Button type="default" danger>
+                        Cancel
+                      </Button>
+                    </Popconfirm>
+                  )}
                 </>
               }
             >
@@ -128,8 +145,23 @@ const PickupPlans = () => {
                     <p>Waste Type: {pickup.wasteType}</p>
                     <p>
                       Pickup Status:{" "}
-                      <span className={pickup.status === "Scheduled" ? "text-green-600" : "text-yellow-500"}>
+                      {/* <span className={pickup.status === "Scheduled" ? "text-green-600" : "text-yellow-500"}>
                         {pickup.status === "Scheduled" ? "Assigned Driver" : "Not Assigned Yet"}
+                      </span> */}
+                      <span
+                        className={
+                          pickup.status === "Scheduled"
+                            ? "text-green-600"
+                            : pickup.status === "Completed"
+                            ? "text-blue-600"
+                            : "text-yellow-500"
+                        }
+                      >
+                        {pickup.status === "Scheduled"
+                          ? "Assigned Driver"
+                          : pickup.status === "Completed"
+                          ? "Completed"
+                          : "Not Assigned Yet"}
                       </span>
                     </p>
 
@@ -137,8 +169,14 @@ const PickupPlans = () => {
                       <>
                         <p>Driver Name: {pickup?.driverId?.name}</p>
                         <p>Driver Contact: {pickup?.driverId?.contact}</p>
-                        <p>Vehicle Name: {pickup?.driverId?.assignedTruckId?.name}</p>
-                        <p>Vehicle Number: {pickup?.driverId?.assignedTruckId?.vehicleNumber}</p>
+                        <p>
+                          Vehicle Name:{" "}
+                          {pickup?.driverId?.assignedTruckId?.name}
+                        </p>
+                        <p>
+                          Vehicle Number:{" "}
+                          {pickup?.driverId?.assignedTruckId?.vehicleNumber}
+                        </p>
                       </>
                     )}
                   </>
@@ -185,21 +223,18 @@ const PickupPlans = () => {
           eta={selectedEta}
         />
         <Modal
-  open={isPayNowModalOpen}
-  onCancel={() => setIsPayNowModalOpen(false)}
-  footer={null}
-  destroyOnClose
-  width={600}
->
-  <PayNow onClose={() => setIsPayNowModalOpen(false)} />
-</Modal>
-
+          open={isPayNowModalOpen}
+          onCancel={() => setIsPayNowModalOpen(false)}
+          footer={null}
+          destroyOnClose
+          width={600}
+        >
+          <PayNow onClose={() => setIsPayNowModalOpen(false)} />
+        </Modal>
       </div>
       <Footer />
     </div>
   );
 };
-
- 
 
 export default PickupPlans;

@@ -21,6 +21,8 @@ router.get("/profile",authenticateDriver as RequestHandler, ProfileController.ge
 router.patch("/edit-profile",authenticateDriver as RequestHandler,upload.none(),ProfileController.updateProfile)
 router.get("/drivers", authenticateDriver as RequestHandler,ProfileController.getDriversByWastePlant)
 router.get("/alloted-pickups", authenticateDriver as RequestHandler, PickupController.getPickupRequests);
+router.put("/pickup-complete/:pickupReqId", authenticateDriver as RequestHandler, PickupController.markPickupCompleted)
+
 router.get("/track-pickup/:pickupReqId", authenticateDriver as RequestHandler, PickupController.getPickupRequestById)
 router.patch("/address/:addressId/location", authenticateDriver as RequestHandler, PickupController.updateAddressLatLng)
 router.patch("/pickup/:pickupReqId/tracking-status", authenticateDriver as RequestHandler, PickupController.updateTrackingStatus)
