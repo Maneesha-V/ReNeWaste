@@ -4,6 +4,7 @@ import DriverController from "../controllers/wastePlant/driverController";
 import TruckController from "../controllers/wastePlant/truckController";
 import PickupController from "../controllers/wastePlant/pickupController";
 import ChatController from "../controllers/wastePlant/chatController";
+import DropSpotController from "../controllers/wastePlant/dropSpotController";
 import { authenticateWastePlant } from "../middlewares/authMiddware";
 import uploadImages from "../middlewares/imageUploader";
 
@@ -50,5 +51,6 @@ router.put("/reschedule-pickup/:pickupReqId",authenticateWastePlant as RequestHa
 router.get("/drivers-in-place", authenticateWastePlant as RequestHandler, PickupController.fetchDriversByPlace)
 router.post("/conversation", authenticateWastePlant as RequestHandler, ChatController.getConversationId)
 router.post("/chat-messages", authenticateWastePlant as RequestHandler, ChatController.getChatMessages)
-
+router.post("/add-drop-spot", authenticateWastePlant as RequestHandler, DropSpotController.createDropSpot)
+router.get("/drop-spots", authenticateWastePlant as RequestHandler, DropSpotController.fetchDropSpots)
 export default router;

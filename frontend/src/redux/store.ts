@@ -17,6 +17,8 @@ import driverChatsReducer from "../redux/slices/driver/chatDriverSlice";
 import userPickupReducer from "../redux/slices/user/userPickupSlice";
 import userProfileReducer from "../redux/slices/user/userProfileSlice";
 import userPaymentReducer from "../redux/slices/user/userPaymentSlice";
+import wastePlantDropSpotReducer from "../redux/slices/wastePlant/wastePlantDropSpotSlice";
+import userDropSpotReducer from "../redux/slices/user/dropSpotSlice";
 
 export const store = configureStore({
     reducer : {
@@ -26,6 +28,7 @@ export const store = configureStore({
         userCommercial: userCommercialReducer,
         userPickups: userPickupReducer,
         userPayment: userPaymentReducer,
+        userDropSpot: userDropSpotReducer,
         superadmin: superadminReducer,
         superAdminWastePlant: superAdminWastePlantReducer,
         wasteplant: wasteplantReducer,
@@ -33,6 +36,7 @@ export const store = configureStore({
         wastePlantTruck: wastePlantTruckReducer,
         wastePlantPickup: wastePlantPickupReducer,
         wastePlantChats: wastePlantChatsReducer,
+        wastePlantDropSpot: wastePlantDropSpotReducer,
         driver: driverReducer,
         driverProfile: driverProfileReducer,
         driverPickups: driverPickupsReducer,

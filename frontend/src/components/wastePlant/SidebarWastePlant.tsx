@@ -7,6 +7,7 @@ import {
   DollarOutlined,
   InboxOutlined ,
   ShoppingOutlined,
+  AimOutlined,
 } from '@ant-design/icons';
 import { ReactNode } from 'react';
 
@@ -21,6 +22,7 @@ const SidebarWastePlant = ({ collapsed }: SidebarProps) => {
     { key: 'pickups', icon: <InboxOutlined  />, label: 'Pickups', path: '/waste-plant/pickups' },
     { key: 'drivers', icon: <TeamOutlined />, label: 'Drivers', path: '/waste-plant/drivers' },
     { key: 'trucks', icon: <CarOutlined />, label: 'Trucks', path: '/waste-plant/trucks' },
+    { key: 'drop-spots', icon: <AimOutlined />, label: 'Drop Spots', path: '/waste-plant/drop-spots' },
     { key: 'waste-reports', icon: <FileTextOutlined />, label: 'Waste Reports', path: '/waste-plant/waste-reports' },
     { key: 'pay-earn', icon: <DollarOutlined />, label: 'Pay & Earn', path: '/waste-plant/pay-earn' },
     { key: 'subscription', icon: <ShoppingOutlined />, label: 'Subscription', path: '/waste-plant/subscription' },
