@@ -61,6 +61,12 @@ const Header = () => {
             {isMoreOpen && (
               <div className="absolute right-0 mt-2 w-48 bg-gray-700 text-white rounded-lg shadow-lg">
                 <button
+                  onClick={() => handleNavigation("/drop-spots")}
+                  className="block w-full px-4 py-2 text-left hover:bg-gray-600"
+                >
+                  Drop Spots
+                </button>
+                <button
                   onClick={() => handleNavigation("/payment-history")}
                   className="block w-full px-4 py-2 text-left hover:bg-gray-600"
                 >
@@ -83,6 +89,12 @@ const Header = () => {
           </div>
 
           <div className="hidden md:flex items-center space-x-6">
+                        <button
+              onClick={() => handleNavigation("/drop-spots")}
+              className="hover:text-green-600"
+            >
+              Drop Spots
+            </button>
             <button
               onClick={() => handleNavigation("/pickup-plans")}
               className="hover:text-green-600"

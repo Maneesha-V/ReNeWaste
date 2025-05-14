@@ -13,6 +13,7 @@ import PickupPlans from "../pages/user/PickupPlans";
 import Unauthorized from "../pages/user/Unauthorized";
 import Payments from "../pages/user/Payments";
 import ErrorBoundary from "../components/common/ErrorBoundary";
+import DropSpotMap from "../pages/user/DropSpotMap";
 
 const UserRoutes = () => {
   return (
@@ -33,6 +34,7 @@ const UserRoutes = () => {
         <Route path="/commercial" element={<Commercial />} />
         <Route path="/pickup-plans" element={<PickupPlans />} />     
         <Route path="/payment-history" element={<Payments />} />
+        <Route path="/drop-spots" element={<DropSpotMap/>} />
       </Route>
 
       <Route path="/unauthorized" element={<Unauthorized />} />

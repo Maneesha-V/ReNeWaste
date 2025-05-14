@@ -5,6 +5,7 @@ import ResidentialController from "../controllers/user/residentialController";
 import CommercialController from "../controllers/user/commercialController";
 import PickupController from "../controllers/user/pickupController";
 import PaymentController from "../controllers/user/paymentController";
+import DropSpotController from "../controllers/user/dropSpotController";
 import { authenticateUser } from "../middlewares/authMiddware"
 import { RequestHandler } from "express"; 
 
@@ -36,5 +37,6 @@ router.post("/payment/create-order", authenticateUser as RequestHandler, Payment
 router.post("/payment/verify", authenticateUser as RequestHandler, PaymentController.verifyPayment)
 router.get("/payments", authenticateUser as RequestHandler, PaymentController.getAllPayments)
 router.post("/payment/repay", authenticateUser as RequestHandler, PaymentController.rePayment)
+router.get("/drop-spots", authenticateUser as RequestHandler, DropSpotController.fetchAllNearDropSpots)
 
 export default router;
