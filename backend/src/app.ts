@@ -20,6 +20,8 @@ dotenv.config();
 const app = express();
 const server = http.createServer(app);
 
+const PORT = process.env.PORT || 5001;
+
 // CORS for Express REST API
 app.use(cors({
   origin: "http://localhost:5173", 
@@ -53,12 +55,9 @@ app.use("/api/waste-plant", wastePlantRoutes);
 app.use("/api/driver", driverRoutes);
 app.use("/api/maps", mapsRoutes);
 
-const PORT = process.env.PORT || 5001;
-
-//	When using Express + Socket.IO
+	// When using Express + Socket.IO
 server.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
-//	When using Express alone
-// app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+
 
