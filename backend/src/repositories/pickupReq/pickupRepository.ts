@@ -233,8 +233,21 @@ class PickupRepository implements IPickupRepository {
         phone: user?.phone || "",
       };
     });
-
+    type TrackingStatus = "Pending" | "Scheduled" | "Completed" | "Cancelled";
     const sortedPickups = pickups.sort((a, b) => {
+      const statusOrder: Record<TrackingStatus, number> = {
+        Pending: 1,
+        Scheduled: 1,
+        Completed: 3,
+        Cancelled: 4,
+      };
+      const aStatusPriority = statusOrder[a.status as TrackingStatus] ?? 99;
+      const bStatusPriority = statusOrder[b.status as TrackingStatus] ?? 99;
+
+      if (aStatusPriority !== bStatusPriority) {
+        return aStatusPriority - bStatusPriority; // lower priority number comes first
+      }
+
       const aDate = new Date(a.rescheduledPickupDate || a.originalPickupDate);
       const bDate = new Date(b.rescheduledPickupDate || b.originalPickupDate);
 

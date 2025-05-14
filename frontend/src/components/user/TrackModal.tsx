@@ -46,10 +46,10 @@ const TrackModal = ({
   const currentStep = statusToStep(localTrackingStatus);
   const socket = useSocket();
   useEffect(() => {
-  if (visible && trackingStatus) {
-    setLocalTrackingStatus(trackingStatus);
-  }
-}, [visible, trackingStatus]);
+    if (visible && trackingStatus) {
+      setLocalTrackingStatus(trackingStatus);
+    }
+  }, [visible, trackingStatus]);
 
   useEffect(() => {
     if (!socket) return;
@@ -72,9 +72,8 @@ const TrackModal = ({
       };
     }
   }, [visible, pickupId]);
-  console.log("trackingStatus",trackingStatus);
-  console.log("localTrackingStatus",localTrackingStatus);
-  localTrackingStatus
+  console.log("trackingStatus", trackingStatus);
+  console.log("localTrackingStatus", localTrackingStatus);
   return (
     <Modal
       title={`Tracking - ${pickupId}`}
@@ -82,11 +81,17 @@ const TrackModal = ({
       onCancel={onClose}
       footer={null}
     >
-      {eta?.text && currentStep >= 0 && (
+      {/* {eta?.text && currentStep >= 0 && (
+        <div className="mb-4 text-blue-600 font-medium">
+          Estimated Arrival: {eta.text}
+        </div>
+      )} */}
+      {eta?.text && localTrackingStatus === "Assigned" && (
         <div className="mb-4 text-blue-600 font-medium">
           Estimated Arrival: {eta.text}
         </div>
       )}
+
       {driverLocation && (
         <div className="mb-3 text-green-700 font-medium">
           Live Driver Location: Lat {driverLocation.latitude}, Lng{" "}

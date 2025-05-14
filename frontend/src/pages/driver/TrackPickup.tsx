@@ -7,7 +7,6 @@ import { useSelector } from "react-redux";
 import {
   fetchEta,
   fetchPickupById,
-  updateAddressLatLng,
   updateTrackingStatus,
 } from "../../redux/slices/driver/pickupDriverSlice";
 import { toast } from "react-toastify";

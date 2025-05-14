@@ -43,7 +43,6 @@ const PickupPlans = () => {
     text: string | null;
   } | null>(null);
   const dispatch = useAppDispatch();
-  const navigate = useNavigate();
   const { pickups, loading, error } = useSelector(
     (state: RootState) => state.userPickups
   );
@@ -81,7 +80,6 @@ const PickupPlans = () => {
 
     const amount = pickup.wasteType === "Residential" ? 100 : 200;
     dispatch(setPaymentData({ pickup, amount }));
-    //  navigate("/pay-now");
     setIsPayNowModalOpen(true);
   };
 
@@ -115,7 +113,7 @@ const PickupPlans = () => {
                       type="primary"
                       onClick={() => handleTrackClick(pickup)}
                     >
-                      Track
+                      {pickup.trackingStatus === "Completed" ? "View" : "Track"}
                     </Button>
                   ) : (
                     <Popconfirm
