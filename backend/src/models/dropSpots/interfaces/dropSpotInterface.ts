@@ -7,7 +7,7 @@ export interface IDropSpot {
   pincode: string;
   state: string;
   district: string;
-  wasteplantId?: mongoose.Types.ObjectId;
+  wasteplantId: mongoose.Types.ObjectId;
   coordinates: {
     lat: number;
     lng: number;

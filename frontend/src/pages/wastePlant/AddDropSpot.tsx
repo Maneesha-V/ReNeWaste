@@ -3,18 +3,22 @@ import { Form, Input, Button, Card, Row, Col } from 'antd';
 import { createDropSpot } from '../../redux/slices/wastePlant/wastePlantDropSpotSlice';
 import { useAppDispatch } from '../../redux/hooks';
 import { toast } from 'react-toastify';
+import { useNavigate } from 'react-router-dom';
+import { DropSpotFormValues } from '../../types/dropSpotTypes';
 
 const AddDropSpot: React.FC = () => {
   const [form] = Form.useForm();
   const dispatch= useAppDispatch();
+const navigate = useNavigate();
 
-const onFinish = async (values: any) => {
+const onFinish = async (values: DropSpotFormValues) => {
   try {
     const resultAction = await dispatch(createDropSpot(values));
 
     if (createDropSpot.fulfilled.match(resultAction)) {
       toast.success('Drop Spot added successfully!');
       form.resetFields(); 
+      navigate('/waste-plant/drop-spots');
     } else {
       toast.error('Failed to add Drop Spot');
     }

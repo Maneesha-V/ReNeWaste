@@ -1,11 +1,19 @@
-import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import { createDropSpotService, fetchDropSpotsService } from '../../../services/wastePlant/dropSpotService';
+import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import {
+  createDropSpotService,
+  deleteDropSpotServive,
+  fetchDropSpotByIdService,
+  fetchDropSpotsService,
+  updateDropSpotServive,
+} from "../../../services/wastePlant/dropSpotService";
+import { DropSpotFormValues } from "../../../types/dropSpotTypes";
 
 interface DropSpotState {
   loading: boolean;
   error: string | null;
   success: boolean;
   dropSpots: any;
+  selectedDropSpot: any;
 }
 
 const initialState: DropSpotState = {
@@ -13,6 +21,7 @@ const initialState: DropSpotState = {
   error: null,
   success: false,
   dropSpots: [],
+  selectedDropSpot: null,
 };
 
 export const createDropSpot = createAsyncThunk(
@@ -20,12 +29,10 @@ export const createDropSpot = createAsyncThunk(
   async (dropSpotData: any, { rejectWithValue }) => {
     try {
       const response = await createDropSpotService(dropSpotData);
-      console.log(response);
-      
       return response;
     } catch (error: any) {
       return rejectWithValue(
-        error.response?.data || 'Failed to create drop spot'
+        error.response?.data || "Failed to create drop spot"
       );
     }
   }
@@ -35,8 +42,6 @@ export const fetchDropSpots = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const response = await fetchDropSpotsService();
-      console.log("ress",response);
-      
       return response;
     } catch (error: any) {
       return rejectWithValue(
@@ -45,9 +50,46 @@ export const fetchDropSpots = createAsyncThunk(
     }
   }
 );
+export const fetchDropSpotById = createAsyncThunk(
+  "wastePlantDropSpot/fetchDropSpotById",
+  async (dropSpotId: string, { rejectWithValue }) => {
+    try {
+      const response = await fetchDropSpotByIdService(dropSpotId);
+      return response;
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data || "Failed to fetch drop spot by id."
+      );
+    }
+  }
+);
+export const deleteDropSpot = createAsyncThunk(
+  "wastePlantDropSpot/deleteDropSpot ",
+  async (dropSpotId: string, thunkAPI) => {
+    try {
+      const response = await deleteDropSpotServive(dropSpotId);
+      return response;
+    } catch (error: any) {
+      return thunkAPI.rejectWithValue(
+        error.response.data || "Failed to delete drop spot."
+      );
+    }
+  }
+);
+export const updateDropSpot = createAsyncThunk(
+  "wastePlantDropSpot/updateDropSpot",
+  async ({ dropSpotId, data }: { dropSpotId: string; data: DropSpotFormValues }, thunkAPI) => {
+    try {
+       const response = await updateDropSpotServive(dropSpotId, data);
+      return response;
+    } catch (error: any) {
+      return thunkAPI.rejectWithValue(error.response.data);
+    }
+  }
+);
 
 const wastePlantDropSpotSlice = createSlice({
-  name: 'wastePlantDropSpot',
+  name: "wastePlantDropSpot",
   initialState,
   reducers: {},
   extraReducers: (builder) => {
@@ -65,18 +107,49 @@ const wastePlantDropSpotSlice = createSlice({
         state.loading = false;
         state.error = action.payload as string;
       })
-         .addCase(fetchDropSpots.pending, (state) => {
-              state.loading = true;
-              state.error = null;
-            })
-            .addCase(fetchDropSpots.fulfilled, (state, action) => {
-              state.loading = false;
-              state.dropSpots = action.payload;
-            })
-            .addCase(fetchDropSpots.rejected, (state, action) => {
-              state.loading = false;
-              state.error = action.payload as string;
-            })
+      .addCase(fetchDropSpots.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchDropSpots.fulfilled, (state, action) => {
+        state.loading = false;
+        state.dropSpots = action.payload;
+      })
+      .addCase(fetchDropSpots.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      })
+      .addCase(fetchDropSpotById.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchDropSpotById.fulfilled, (state, action) => {
+        state.loading = false;
+        console.log("act",action);
+        
+        state.selectedDropSpot = action.payload;
+      })
+      .addCase(fetchDropSpotById.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      })
+      .addCase(deleteDropSpot.fulfilled, (state, action) => {
+        state.dropSpots = state.dropSpots.filter(
+          (dropSpot: any) => dropSpot._id !== action.payload
+        );
+      })
+      .addCase(updateDropSpot.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(updateDropSpot.fulfilled, (state, action) => {
+        state.loading = false;
+        state.selectedDropSpot = action.payload;
+      })
+      .addCase(updateDropSpot.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      });
   },
 });
 

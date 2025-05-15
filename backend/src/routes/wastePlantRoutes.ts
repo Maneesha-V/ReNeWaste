@@ -53,4 +53,7 @@ router.post("/conversation", authenticateWastePlant as RequestHandler, ChatContr
 router.post("/chat-messages", authenticateWastePlant as RequestHandler, ChatController.getChatMessages)
 router.post("/add-drop-spot", authenticateWastePlant as RequestHandler, DropSpotController.createDropSpot)
 router.get("/drop-spots", authenticateWastePlant as RequestHandler, DropSpotController.fetchDropSpots)
+router.get("/edit-drop-spot/:dropSpotId", authenticateWastePlant as RequestHandler, DropSpotController.fetchDropSpotById)
+router.patch("/edit-drop-spot/:dropSpotId", authenticateWastePlant as RequestHandler, DropSpotController.updateDropSpot)
+router.delete("/delete-drop-spot/:dropSpotId", authenticateWastePlant as RequestHandler, DropSpotController.deleteDropSpotById)
 export default router;

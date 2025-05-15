@@ -6,7 +6,7 @@ import DropSpotRepository from "../../repositories/dropSpot/dropSpotRepository";
 import axios from "axios";
 
 class DropSpotService implements IDropSpotService {
-async createDropSpotService(payload: IDropSpot) {
+  async createDropSpotService(payload: IDropSpot) {
     const apiKey = process.env.GOOGLE_MAPS_API_KEY;
     try {
       const fullAddress = `${payload.addressLine}, ${payload.location}, ${payload.district}, ${payload.state}, ${payload.pincode}`;
@@ -15,8 +15,8 @@ async createDropSpotService(payload: IDropSpot) {
       )}&key=${apiKey}`;
 
       const response = await axios.get(geocodeUrl);
-      console.log("response",response);
-      
+      console.log("response", response);
+
       if (
         response.data.status === "OK" &&
         response.data.results &&
@@ -39,6 +39,43 @@ async createDropSpotService(payload: IDropSpot) {
   }
   async getAllDropSpots(wasteplantId: string): Promise<IDropSpot[]> {
     return await DropSpotRepository.getDropSpotsByWastePlantId(wasteplantId);
+  }
+  async getDropSpotByIdService(
+    dropSpotId: string,
+    wasteplantId: string
+  ): Promise<IDropSpot | null> {
+    const dropSpot = await DropSpotRepository.findDropSpotById(dropSpotId);
+    if (!dropSpot || dropSpot.wasteplantId.toString() !== wasteplantId) {
+      return null;
+    }
+    return dropSpot;
+  }
+
+  async deleteDropSpotByIdService(
+    dropSpotId: string,
+    wasteplantId: string
+  ): Promise<IDropSpot | null> {
+    return await DropSpotRepository.deleteDropSpotById(
+      dropSpotId,
+      wasteplantId
+    );
+  }
+
+  async updateDropSpotService(
+    wasteplantId: string,
+    dropSpotId: string,
+    updateData: any
+  ) {
+    const dropSpot = await DropSpotRepository.findDropSpotById(dropSpotId);
+    if (!dropSpot || dropSpot.wasteplantId.toString() !== wasteplantId) {
+      return null;
+    }
+
+    const updatedDropSpot = await DropSpotRepository.updateDropSpot(
+      dropSpotId,
+      updateData
+    );
+    return updatedDropSpot;
   }
 }
 export default new DropSpotService();
