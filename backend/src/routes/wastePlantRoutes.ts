@@ -5,6 +5,7 @@ import TruckController from "../controllers/wastePlant/truckController";
 import PickupController from "../controllers/wastePlant/pickupController";
 import ChatController from "../controllers/wastePlant/chatController";
 import DropSpotController from "../controllers/wastePlant/dropSpotController";
+import UserController from "../controllers/wastePlant/userController";
 import { authenticateWastePlant } from "../middlewares/authMiddware";
 import uploadImages from "../middlewares/imageUploader";
 
@@ -56,4 +57,7 @@ router.get("/drop-spots", authenticateWastePlant as RequestHandler, DropSpotCont
 router.get("/edit-drop-spot/:dropSpotId", authenticateWastePlant as RequestHandler, DropSpotController.fetchDropSpotById)
 router.patch("/edit-drop-spot/:dropSpotId", authenticateWastePlant as RequestHandler, DropSpotController.updateDropSpot)
 router.delete("/delete-drop-spot/:dropSpotId", authenticateWastePlant as RequestHandler, DropSpotController.deleteDropSpotById)
+router.get("/users", authenticateWastePlant as RequestHandler, UserController.fetchUsers)
+router.patch("/users/:userId/block", authenticateWastePlant as RequestHandler, UserController.userBlockStatus)
+
 export default router;

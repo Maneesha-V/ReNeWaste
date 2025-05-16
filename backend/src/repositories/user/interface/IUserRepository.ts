@@ -1,4 +1,5 @@
 import { IUser, IUserDocument } from "../../../models/user/interfaces/userInterface";
+import { PaginatedUsersResult } from "../../../types/wastePlant/userTypes";
 
 export interface IUserRepository {
   createUser(userData: IUser): Promise<IUserDocument>;
@@ -13,4 +14,7 @@ export interface IUserRepository {
   deleteOtp(email: string): Promise<void>;
   updateUserPassword(email: string, hashedPassword: string): Promise<void>;
   updateAddressByIdLatLng(addressId: string, latitude: number, longitude: number): Promise<any>;
+  findAddressByAddressId(userId: string, addressId: string, latitude: number, longitude: number): Promise<IUser | null>;
+  getUsersByWastePlantId(wasteplantId: string, page: number, limit: number, search: string): Promise<PaginatedUsersResult>;
+
 }
