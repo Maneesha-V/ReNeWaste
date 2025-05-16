@@ -74,7 +74,12 @@ axiosUser.interceptors.response.use(
         return Promise.reject(refreshError);
       }
     }
-
+ // Handle blocked user (status 403)
+    if (error.response && error.response.status === 403) {
+      localStorage.removeItem("token");
+      window.location.href = "/blocked"; 
+      return Promise.reject(error);
+    }
     return Promise.reject(error);
   }
 );

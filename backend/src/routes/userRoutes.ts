@@ -8,6 +8,7 @@ import PaymentController from "../controllers/user/paymentController";
 import DropSpotController from "../controllers/user/dropSpotController";
 import { authenticateUser } from "../middlewares/authMiddware"
 import { RequestHandler } from "express"; 
+import { checkNotBlocked } from "../middlewares/blockMiddleware";
 
 const router: Router = Router();
 
@@ -24,19 +25,19 @@ router.post("/verify-otp", UserController.verifyOtp)
 router.post("/reset-password",UserController.resetPassword)
 router.post("/google-signup",UserController.googleSignUp)
 router.post("/google-login",UserController.googleLogin)
-router.get("/profile", authenticateUser as RequestHandler, ProfileController.getProfile)
-router.get("/edit-profile", authenticateUser as RequestHandler, ProfileController.getEditProfile)
-router.patch("/edit-profile", authenticateUser as RequestHandler, ProfileController.updateUserProfileHandler)
-router.get("/residential", authenticateUser as RequestHandler, ResidentialController.getResidential)
-router.patch("/residential/pickup", authenticateUser as RequestHandler, ResidentialController.updateResidentialPickup)
-router.get("/commercial", authenticateUser as RequestHandler, CommercialController.getCommercial)
-router.post("/commercial/service-check", authenticateUser as RequestHandler, CommercialController.checkServiceAvailable)
-router.patch("/commercial/pickup", authenticateUser as RequestHandler, CommercialController.updateCommercialPickup)
-router.get("/pickup-plans", authenticateUser as RequestHandler, PickupController.getPickupPlans)
-router.post("/payment/create-order", authenticateUser as RequestHandler, PaymentController.createPaymentOrder)
-router.post("/payment/verify", authenticateUser as RequestHandler, PaymentController.verifyPayment)
-router.get("/payments", authenticateUser as RequestHandler, PaymentController.getAllPayments)
-router.post("/payment/repay", authenticateUser as RequestHandler, PaymentController.rePayment)
-router.get("/drop-spots", authenticateUser as RequestHandler, DropSpotController.fetchAllNearDropSpots)
+router.get("/profile", authenticateUser as RequestHandler, checkNotBlocked, ProfileController.getProfile)
+router.get("/edit-profile", authenticateUser as RequestHandler, checkNotBlocked, ProfileController.getEditProfile)
+router.patch("/edit-profile", authenticateUser as RequestHandler, checkNotBlocked, ProfileController.updateUserProfileHandler)
+router.get("/residential", authenticateUser as RequestHandler, checkNotBlocked, ResidentialController.getResidential)
+router.patch("/residential/pickup", authenticateUser as RequestHandler, checkNotBlocked, ResidentialController.updateResidentialPickup)
+router.get("/commercial", authenticateUser as RequestHandler, checkNotBlocked, CommercialController.getCommercial)
+router.post("/commercial/service-check", authenticateUser as RequestHandler, checkNotBlocked, CommercialController.checkServiceAvailable)
+router.patch("/commercial/pickup", authenticateUser as RequestHandler, checkNotBlocked, CommercialController.updateCommercialPickup)
+router.get("/pickup-plans", authenticateUser as RequestHandler, checkNotBlocked, PickupController.getPickupPlans)
+router.post("/payment/create-order", authenticateUser as RequestHandler, checkNotBlocked, PaymentController.createPaymentOrder)
+router.post("/payment/verify", authenticateUser as RequestHandler, checkNotBlocked, PaymentController.verifyPayment)
+router.get("/payments", authenticateUser as RequestHandler, checkNotBlocked, PaymentController.getAllPayments)
+router.post("/payment/repay", authenticateUser as RequestHandler, checkNotBlocked, PaymentController.rePayment)
+router.get("/drop-spots", authenticateUser as RequestHandler, checkNotBlocked, DropSpotController.fetchAllNearDropSpots)
 
 export default router;
