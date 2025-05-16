@@ -241,14 +241,30 @@ class UserController implements IUserController {
   async googleLogin(req: Request, res: Response): Promise<void> {
     try {
       console.log("body", req.body);
-      const { email, googleId, token } = req.body;
+      const { email, googleId } = req.body;
       const response = await AuthService.googleLoginService({
         email,
-        googleId,
+        googleId
+      });
+      const { user, token } = response;
+        const refreshToken = await generateRefreshToken({
+        userId: user._id.toString(),
+        role: user.role,
+      });
+
+      const cookieOptions = {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "strict" as "strict",
+        maxAge: 7 * 24 * 60 * 60 * 1000,
+      };
+      res.cookie("refreshToken", refreshToken, cookieOptions).status(200).json({
+        success: true,
+        message: "Login successful",
+        user,
         token,
       });
-      console.log("res", response);
-      res.status(200).json(response);
+
     } catch (error: any) {
       console.error("Google login error:", error);
       res

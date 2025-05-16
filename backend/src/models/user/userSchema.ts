@@ -48,6 +48,10 @@ export const userSchema: Schema<IUserDocument> = new Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: 'WastePlant',
       default: null
+    },
+    isBlocked: {
+      type: Boolean,
+      default: false,
     }
   },
   { timestamps: true }

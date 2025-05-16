@@ -40,7 +40,6 @@ export interface SignupResponse {
   export interface GoogleLoginReq {
     email: string;
     googleId: string;
-    token: string;
   }
   export type FormErrors = {
     firstName?: string;

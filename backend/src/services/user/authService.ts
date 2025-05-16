@@ -21,24 +21,26 @@ import jwt from "jsonwebtoken";
 
 class AuthService implements IAuthService {
   async verifyToken(token: string): Promise<{ token: string }> {
-      try {
-        const decoded = jwt.verify(token, process.env.JWT_REFRESH_SECRET!) as { userId: string, role:string };
-        const user = await UserRepository.findUserById(decoded.userId);
-        if (!user) {
-          throw new Error("USer not found");
-        }
-    
-        const accessToken = jwt.sign(
-          { userId: user._id, role: user.role },
-          process.env.JWT_SECRET!,
-          { expiresIn: "15min" }
-        );
-        return {  token: accessToken};
-  
-      } catch (error) {
-        throw new Error("Invalid or expired refresh token");
+    try {
+      const decoded = jwt.verify(token, process.env.JWT_REFRESH_SECRET!) as {
+        userId: string;
+        role: string;
+      };
+      const user = await UserRepository.findUserById(decoded.userId);
+      if (!user) {
+        throw new Error("USer not found");
       }
+
+      const accessToken = jwt.sign(
+        { userId: user._id, role: user.role },
+        process.env.JWT_SECRET!,
+        { expiresIn: "15min" }
+      );
+      return { token: accessToken };
+    } catch (error) {
+      throw new Error("Invalid or expired refresh token");
     }
+  }
   async signupUser(userData: IUser): Promise<SignupResponse> {
     const existingUser = await UserRepository.findUserByEmail(userData.email);
     if (existingUser) {
@@ -49,7 +51,7 @@ class AuthService implements IAuthService {
     const hashedPassword = userData.password
       ? await bcrypt.hash(userData.password, salt)
       : undefined;
-      
+
     const newUserData: IUser = {
       ...userData,
       password: hashedPassword,
@@ -59,7 +61,10 @@ class AuthService implements IAuthService {
       newUserData.googleId = userData.googleId;
     }
     const newUser: IUserDocument = await UserRepository.createUser(newUserData);
-    const token = generateToken({userId:newUser._id.toString(),role:newUser.role});
+    const token = generateToken({
+      userId: newUser._id.toString(),
+      role: newUser.role,
+    });
     return { user: newUser, token };
   }
 
@@ -68,11 +73,17 @@ class AuthService implements IAuthService {
     if (!user || !(await bcrypt.compare(password, user.password || ""))) {
       throw new Error("Invalid email or password.");
     }
-    const token = generateToken({userId:user._id.toString(),role:user.role});
+    if (user.isBlocked) {
+      throw new Error("Your account has been blocked by the waste plant.");
+    }
+    const token = generateToken({
+      userId: user._id.toString(),
+      role: user.role,
+    });
     return { user, token };
   }
   async sendOtpSignupService(email: string) {
-    const existingUser  = await UserRepository.findUserByEmail(email);
+    const existingUser = await UserRepository.findUserByEmail(email);
     if (existingUser) {
       throw new Error("User already exists.");
     }
@@ -87,7 +98,7 @@ class AuthService implements IAuthService {
     return { message: "OTP sent successfully", otp };
   }
   async resendOtpSignupService(email: string) {
-    const existingUser  = await UserRepository.findUserByEmail(email);
+    const existingUser = await UserRepository.findUserByEmail(email);
     if (existingUser) {
       throw new Error("User already exists.");
     }
@@ -187,10 +198,14 @@ class AuthService implements IAuthService {
         role: "user",
         phone: undefined,
         googleId: uid,
-        addresses: [] as unknown as Types.DocumentArray<IAddressDocument>
+        addresses: [] as unknown as Types.DocumentArray<IAddressDocument>,
+        isBlocked: false,
       });
     }
-    const token = generateToken({userId:user._id.toString(),role:user.role});
+    const token = generateToken({
+      userId: user._id.toString(),
+      role: user.role,
+    });
     return { user, token };
   }
 
@@ -199,8 +214,20 @@ class AuthService implements IAuthService {
     googleId,
   }: GoogleLoginReq): Promise<GoogleLoginResp> {
     const user = await UserRepository.findUserByEmailGoogleId(email, googleId);
-    if (!user) throw new Error("User could not be created or found");
-    return { user, token: generateToken({userId:user._id.toString(),role:user.role}) };
+    if (!user) {
+      throw new Error("User could not be created or found");
+    }
+
+    if (user.isBlocked) {
+      throw new Error("Your account has been blocked.");
+    }
+
+    const token = generateToken({
+      userId: user._id.toString(),
+      role: user.role,
+    });
+
+    return { user, token };
   }
 }
 

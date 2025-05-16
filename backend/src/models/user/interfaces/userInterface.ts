@@ -1,4 +1,4 @@
-import  mongoose, { Document, Types } from "mongoose";
+import  mongoose, { BooleanSchemaDefinition, Document, Types } from "mongoose";
 import { IAddress, IAddressDocument } from "./addressInterface";
 
 export interface IUser {
@@ -13,6 +13,7 @@ export interface IUser {
     // addresses: IAddress[];
     addresses: Types.DocumentArray<IAddressDocument>
     wasteplantId?: mongoose.Types.ObjectId;
+    isBlocked: boolean;
   }
 
 export interface IUserDocument extends IUser, Document {

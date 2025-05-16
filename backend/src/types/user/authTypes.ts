@@ -18,7 +18,6 @@ export interface SignupResponse {
 export interface GoogleLoginReq {
   email: string; 
   googleId: string; 
-  token: string;
 }
 export interface GoogleLoginResp {
   user: IUserDocument;

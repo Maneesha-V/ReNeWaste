@@ -5,7 +5,6 @@ import { signInWithPopup } from "firebase/auth";
 import { auth, googleProvider } from "../../config/firebase";
 import { toast } from "react-toastify";
 import { googleLogin } from "../../redux/slices/user/userSlice";
-import { showErrorToast } from "../../utils/toastHandler";
 
 const GoogleLoginButton = () => {
   const dispatch = useAppDispatch();
@@ -20,21 +19,32 @@ const GoogleLoginButton = () => {
         toast.error("Login failed. Please try again.");
         return;
       }   
-      const token = await user.getIdToken();
-      console.log("token",token);
+
       const response = await dispatch(
         googleLogin({
           email: user.email,
-          googleId: user.uid, 
-          token,
+          googleId: user.uid
+
         })
       );
 
-      if(googleLogin.rejected.match(response)){
-        console.error("Google login failed:",response.payload);
-        showErrorToast(response.payload);
-        return;
+
+       if (googleLogin.rejected.match(response)) {
+      const errorMessage =
+        response.payload ||
+        response.error?.message ||
+        "Google Login failed.";
+
+      console.error("Google login failed:", errorMessage);
+
+      if (errorMessage.includes("blocked")) {
+        toast.error("Your account has been blocked.");
+      } else {
+        toast.error(errorMessage);
       }
+
+      return;
+    }
       toast.success("Login successful!");
       navigate("/home");
     } catch(error: any){

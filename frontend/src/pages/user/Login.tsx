@@ -31,7 +31,14 @@ const Login = () => {
       await dispatch(login(formData)).unwrap();
       navigate("/home");
     } catch (error: any) {
-      toast.error(error || "Login failed. Please try again.");
+
+      const errorMessage = error?.message || error;
+
+      if (errorMessage.includes("blocked")) {
+        toast.error("Your account has been blocked.");
+      } else {
+        toast.error("Invalid email or password.");
+      }
     }
   };
 
@@ -49,7 +56,7 @@ const Login = () => {
               value={formData.email}
               onChange={handleChange}
               placeholder="Email"
-              autoComplete = "off"
+              autoComplete="off"
               className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
             />
           </div>
