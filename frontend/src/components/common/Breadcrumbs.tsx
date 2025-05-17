@@ -9,11 +9,17 @@ interface BreadcrumbsProps {
   paths: BreadcrumbItem[];
 }
 
-const Breadcrumbs: React.FC<BreadcrumbsProps> = ({ paths }) => {
+
+interface BreadcrumbsProps {
+  paths: BreadcrumbItem[];
+  fullWidth?: boolean;
+}
+
+const Breadcrumbs: React.FC<BreadcrumbsProps> = ({ paths, fullWidth }) => {
   const navigate = useNavigate();
 
   return (
-    <nav className="w-full max-w-5xl mx-auto px-4 pt-4">
+    <nav className={`${fullWidth ? "w-full px-4 pt-4" : "w-full max-w-5xl mx-auto px-4 pt-4"}`}>
       <ol className="flex text-gray-600 text-sm flex-wrap">
         {paths.map((item, index) => (
           <li
@@ -37,4 +43,5 @@ const Breadcrumbs: React.FC<BreadcrumbsProps> = ({ paths }) => {
     </nav>
   );
 };
+
 export default Breadcrumbs;

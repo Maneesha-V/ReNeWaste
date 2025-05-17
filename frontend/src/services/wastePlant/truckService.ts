@@ -1,10 +1,13 @@
 import axiosWasteplant from "../../api/axiosWasteplant";
+import { PaginationPayload } from "../../types/commonTypes";
 
-export const getTrucks = async () => {
+export const getTrucks = async ({ page, limit, search }: PaginationPayload) => {
   try {
-    const response = await axiosWasteplant.get(`/trucks`);
+    const response = await axiosWasteplant.get(`/trucks`,{
+      params: { page, limit, search },
+    });
     console.log("res", response);
-    return response.data.data;
+    return response.data;
   } catch (error: any) {
     console.error("error", error);
   }

@@ -6,12 +6,14 @@ import {
   getDrivers,
   updateDriverById,
 } from "../../../services/wastePlant/driverService";
+import { PaginationPayload } from "../../../types/commonTypes";
 
 interface DriverState {
   driver: any;
   loading: boolean;
   message: string | null;
   error: string | null;
+  total: number;
 }
 
 const initialState: DriverState = {
@@ -19,6 +21,7 @@ const initialState: DriverState = {
   loading: false,
   message: null,
   error: null,
+  total: 0,
 };
 
 export const addDriver = createAsyncThunk(
@@ -36,9 +39,9 @@ export const addDriver = createAsyncThunk(
 );
 export const fetchDrivers = createAsyncThunk(
   "wastePlantDriver/fetchDrivers",
-  async (_, { rejectWithValue }) => {
+  async ({ page, limit, search }: PaginationPayload, { rejectWithValue }) => {
     try {
-      const response = await getDrivers();
+      const response = await getDrivers({ page, limit, search });
       return response;
     } catch (error: any) {
       return rejectWithValue(
@@ -102,7 +105,8 @@ const wastePlantDriverSlice = createSlice({
       })
       .addCase(fetchDrivers.fulfilled, (state, action) => {
         state.loading = false;
-        state.driver = action.payload;
+        state.driver = action.payload.drivers;
+        state.total = action.payload.total;
       })
       .addCase(fetchDrivers.rejected, (state, action) => {
         state.loading = false;

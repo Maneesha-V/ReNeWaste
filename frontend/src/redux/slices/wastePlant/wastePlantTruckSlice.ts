@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { assignTruckForDriver, createTruck, deleteTruckById, getAvailableTrucks, getTruckById, getTruckRequests, getTrucks, getTrucksForDriver, updateTruckById } from "../../../services/wastePlant/truckService";
+import { PaginationPayload } from "../../../types/commonTypes";
 
 
 interface TruckState {
@@ -9,6 +10,7 @@ interface TruckState {
   loading: boolean;
   message: string | null;
   error: string | null;
+  total: number;
 }
 
 const initialState: TruckState = {
@@ -18,6 +20,7 @@ const initialState: TruckState = {
   loading: false,
   message: null,
   error: null,
+  total: 0,
 };
 
 export const addTruck = createAsyncThunk(
@@ -35,9 +38,9 @@ export const addTruck = createAsyncThunk(
 );
 export const fetchTrucks = createAsyncThunk(
   "wastePlantTruck/fetchTrucks",
-  async (_, { rejectWithValue }) => {
+  async ({ page, limit, search }: PaginationPayload, { rejectWithValue }) => {
     try {
-      const response = await getTrucks();
+      const response = await getTrucks({ page, limit, search });
       return response;
     } catch (error: any) {
       return rejectWithValue(
@@ -158,8 +161,11 @@ const wastePlantTruckSlice = createSlice({
         state.error = null;
       })
       .addCase(fetchTrucks.fulfilled, (state, action) => {
+        console.log("ac",action);
+        
         state.loading = false;
-        state.truck = action.payload;
+        state.truck = action.payload.trucks;
+        state.total = action.payload.total;
       })
       .addCase(fetchTrucks.rejected, (state, action) => {
         state.loading = false;

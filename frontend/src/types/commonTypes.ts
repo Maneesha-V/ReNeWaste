@@ -1,4 +1,4 @@
-export interface FetchUsersPayload {
+export interface PaginationPayload {
   page: number;
   limit: number;
   search: string;

@@ -70,6 +70,7 @@ const EditDropSpot: React.FC = () => {
     <Content>
       <div style={{ marginBottom: 16 }}>
         <Breadcrumbs
+        fullWidth
           paths={[
             { label: "Drop Spots", path: "/waste-plant/drop-spots" },
             { label: "Edit Drop Spot" },

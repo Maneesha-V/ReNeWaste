@@ -1,7 +1,7 @@
 import axiosWasteplant from "../../api/axiosWasteplant";
-import { FetchUsersPayload } from "../../types/commonTypes";
+import { PaginationPayload } from "../../types/commonTypes";
 
-  export const fetchUsersService = async ({ page, limit, search }: FetchUsersPayload) => {
+  export const fetchUsersService = async ({ page, limit, search }: PaginationPayload) => {
     try {
       const response = await axiosWasteplant.get(`/users`, {
         params: { page, limit, search },

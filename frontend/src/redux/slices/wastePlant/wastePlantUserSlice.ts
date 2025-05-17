@@ -1,6 +1,6 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { fetchUsersService, toggleUserBlockStatusService } from "../../../services/wastePlant/userService";
-import { FetchUsersPayload } from "../../../types/commonTypes";
+import { PaginationPayload } from "../../../types/commonTypes";
 
 interface UserState {
   loading: boolean;
@@ -20,7 +20,7 @@ const initialState: UserState = {
 
 export const fetchUsers = createAsyncThunk(
   "wastePlantUser/fetchUsers",
-  async ({ page, limit, search }: FetchUsersPayload, { rejectWithValue }) => {
+  async ({ page, limit, search }: PaginationPayload, { rejectWithValue }) => {
     try {
       const response = await fetchUsersService({ page, limit, search });
       return response;

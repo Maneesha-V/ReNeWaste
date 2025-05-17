@@ -1,4 +1,5 @@
 import axiosWasteplant from "../../api/axiosWasteplant";
+import { PaginationPayload } from "../../types/commonTypes";
 import { DropSpotFormValues } from "../../types/dropSpotTypes";
 
   export const createDropSpotService = async (dropSpotData: any) => {
@@ -14,10 +15,13 @@ import { DropSpotFormValues } from "../../types/dropSpotTypes";
     }
   };
   
-  export const fetchDropSpotsService = async () => {
+  export const fetchDropSpotsService = async ({ page, limit, search }: PaginationPayload) => {
     try {
-      const response = await axiosWasteplant.get(`/drop-spots`);
-      return response.data.data;
+      const response = await axiosWasteplant.get(`/drop-spots`,{
+        params: { page, limit, search },
+      });
+
+      return response.data;
     } catch (error: any) {
       console.error("error", error);
     }

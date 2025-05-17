@@ -1,10 +1,12 @@
 import axiosWasteplant from "../../api/axiosWasteplant";
+import { PaginationPayload } from "../../types/commonTypes";
 
-export const getDrivers = async () => {
+export const getDrivers = async ({ page, limit, search }: PaginationPayload) => {
     try {
-      const response = await axiosWasteplant.get(`/drivers`);
-      console.log("res", response);
-      return response.data.data;
+      const response = await axiosWasteplant.get(`/drivers`,{
+        params: { page, limit, search },
+      });
+      return response.data;
     } catch (error: any) {
       console.error("error", error);
     }

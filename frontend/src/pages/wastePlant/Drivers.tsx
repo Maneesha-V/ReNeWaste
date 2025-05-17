@@ -1,26 +1,41 @@
-import React, { useEffect } from "react";
+import React, { useCallback, useEffect } from "react";
 import { Table, Button, Popconfirm, Spin } from "antd";
 import { EditOutlined, DeleteOutlined, PlusOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 import { useAppDispatch } from "../../redux/hooks";
 import { useSelector } from "react-redux";
 import { RootState } from "../../redux/store";
-import { deleteDriver, fetchDrivers } from "../../redux/slices/wastePlant/wastePlantDriverSlice";
+import {
+  deleteDriver,
+  fetchDrivers,
+} from "../../redux/slices/wastePlant/wastePlantDriverSlice";
 import Breadcrumbs from "../../components/common/Breadcrumbs";
+import usePagination from "../../hooks/usePagination";
+import PaginationSearch from "../../components/common/PaginationSearch";
+import { debounce } from "lodash";
 
 const Drivers: React.FC = () => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
-  const { driver, loading, error } = useSelector((state: RootState) => state.wastePlantDriver);
-  const token = sessionStorage.getItem("wasteplant_token");
+  const { driver, loading, error, total } = useSelector(
+    (state: RootState) => state.wastePlantDriver
+  );
 
+  const { currentPage, setCurrentPage, pageSize, search, setSearch } =
+    usePagination();
+
+  const debouncedFetchDrivers = useCallback(
+    debounce((page: number, limit: number, query: string) => {
+      dispatch(fetchDrivers({ page, limit, search: query }));
+    }, 500),
+    [dispatch]
+  );
   useEffect(() => {
-    if (!token) {
-      navigate("/waste-plant/");
-      return;
-    }
-    dispatch(fetchDrivers());
-  }, [dispatch, token]);
+    debouncedFetchDrivers(currentPage, pageSize, search);
+    return () => {
+      debouncedFetchDrivers.cancel();
+    };
+  }, [currentPage, pageSize, search, debouncedFetchDrivers]);
 
   const handleEdit = async (driverId: string) => {
     try {
@@ -30,10 +45,12 @@ const Drivers: React.FC = () => {
     }
   };
 
- const handleDelete = async (driverId: string) => {
+  const handleDelete = async (driverId: string) => {
     try {
       await dispatch(deleteDriver(driverId)).unwrap();
-      await dispatch(fetchDrivers());
+      await dispatch(
+        fetchDrivers({ page: currentPage, limit: pageSize, search })
+      );
     } catch (error: any) {
       console.error("Delete failed:", error);
     }
@@ -44,11 +61,7 @@ const Drivers: React.FC = () => {
       {/* Breadcrumbs and Header */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
         <div>
-          <Breadcrumbs
-            paths={[
-              { label: "Drivers" },
-            ]}
-          />
+          <Breadcrumbs paths={[{ label: "Drivers" }]} />
           <h1 className="text-xl font-bold text-gray-800">Driver Management</h1>
         </div>
         <Button
@@ -62,25 +75,38 @@ const Drivers: React.FC = () => {
       </div>
 
       {/* Table */}
-      {loading ? (
-        <div className="flex justify-center items-center min-h-[200px]">
-          <Spin size="large" />
-        </div>
-      ) : error ? (
+      {error ? (
         <p className="text-red-500">{error}</p>
       ) : (
-        <div className="overflow-x-auto">
+        <div className="overflow-x-auto space-y-2">
+          <PaginationSearch
+            total={total}
+            currentPage={currentPage}
+            pageSize={pageSize}
+            onPageChange={setCurrentPage}
+            onSearchChange={setSearch}
+            searchValue={search}
+          />
+          <Spin spinning={loading}>
           <Table
             dataSource={Array.isArray(driver) ? driver : []}
             rowKey="_id"
             bordered
             className="shadow-sm"
-            pagination={{ pageSize: 10 }}
+            pagination={false}
           >
             <Table.Column title="Name" dataIndex="name" key="name" />
-            <Table.Column title="License No" dataIndex="licenseNumber" key="licenseNumber" />
+            <Table.Column
+              title="License No"
+              dataIndex="licenseNumber"
+              key="licenseNumber"
+            />
             <Table.Column title="Contact" dataIndex="contact" key="contact" />
-            <Table.Column title="Experience (years)" dataIndex="experience" key="experience" />
+            <Table.Column
+              title="Experience (years)"
+              dataIndex="experience"
+              key="experience"
+            />
             <Table.Column
               title="Status"
               dataIndex="status"
@@ -125,6 +151,7 @@ const Drivers: React.FC = () => {
               )}
             />
           </Table>
+          </Spin>
         </div>
       )}
     </div>

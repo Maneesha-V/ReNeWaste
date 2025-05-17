@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useCallback, useEffect } from "react";
 import { Table, Button, Space, Typography, Popconfirm } from "antd";
 import { useSelector } from "react-redux";
 import { RootState } from "../../redux/store";
@@ -10,26 +10,45 @@ import {
 } from "../../redux/slices/wastePlant/wastePlantDropSpotSlice";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import PaginationSearch from "../../components/common/PaginationSearch";
+import usePagination from "../../hooks/usePagination";
+import { debounce } from "lodash";
 
 const { Title } = Typography;
 
 const DropSpots: React.FC = () => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
-  const { dropSpots } = useSelector(
+  const { dropSpots, total } = useSelector(
     (state: RootState) => state.wastePlantDropSpot
+  );
+  const { currentPage, setCurrentPage, pageSize, search, setSearch } = usePagination();
+
+  const debouncedFetchDropSpots = useCallback(
+    debounce((page: number, limit: number, query: string) => {
+      dispatch(fetchDropSpots({ page, limit, search: query }));
+    }, 500),
+    [dispatch]
   );
 
   useEffect(() => {
-    dispatch(fetchDropSpots());
-  }, [dispatch]);
-  console.log("dropSpots", dropSpots);
+    debouncedFetchDropSpots(currentPage, pageSize, search);
+
+    return () => {
+      debouncedFetchDropSpots.cancel();
+    };
+  }, [currentPage, pageSize, search, debouncedFetchDropSpots]);
+
+  // useEffect(() => {
+  //   dispatch(fetchDropSpots());
+  // }, [dispatch]);
+  // console.log("dropSpots", dropSpots);
 
   const handleDelete = async (id: string) => {
     try {
       await dispatch(deleteDropSpot(id)).unwrap();
       toast.success("Drop spot deleted");
-      dispatch(fetchDropSpots());
+      dispatch(fetchDropSpots({ page: currentPage, limit: pageSize, search }));
     } catch (err) {
       toast.error("Failed to delete");
     }
@@ -111,12 +130,19 @@ const DropSpots: React.FC = () => {
           Create Drop Spot
         </Button>
       </div>
-
+      <PaginationSearch
+        total={total}
+        currentPage={currentPage}
+        pageSize={pageSize}
+        onPageChange={setCurrentPage}
+        onSearchChange={setSearch}
+        searchValue={search}
+      />
       <Table
         rowKey="_id"
         dataSource={dropSpots}
         columns={columns}
-        pagination={{ pageSize: 5 }}
+        pagination={false}
       />
     </div>
   );

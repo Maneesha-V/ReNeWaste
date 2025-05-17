@@ -21,7 +21,7 @@ const PaginationSearch: React.FC<Props> = ({
   return (
     <Space style={{ marginBottom: 16 }}>
       <Input.Search
-        placeholder="Search users..."
+        placeholder="Search ...."
         value={searchValue}
         onChange={(e) => onSearchChange(e.target.value)}
         allowClear

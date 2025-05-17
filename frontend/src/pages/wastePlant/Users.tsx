@@ -1,34 +1,47 @@
-import React, { useEffect } from "react";
+import React, { useCallback, useEffect } from "react";
 import { Table, Button, Space, Typography, Popconfirm, Tag } from "antd";
 import { RootState } from "../../redux/store";
 import { toast } from "react-toastify";
 import { useAppDispatch } from "../../redux/hooks";
 import { useSelector } from "react-redux";
-import { fetchUsers, toggleUserBlockStatus } from "../../redux/slices/wastePlant/wastePlantUserSlice";
+import {
+  fetchUsers,
+  toggleUserBlockStatus,
+} from "../../redux/slices/wastePlant/wastePlantUserSlice";
 import usePagination from "../../hooks/usePagination";
 import PaginationSearch from "../../components/common/PaginationSearch";
+import { debounce } from "lodash";
 
 const { Title } = Typography;
 
 const Users: React.FC = () => {
   const dispatch = useAppDispatch();
-  const { users, total } = useSelector((state: RootState) => state.wastePlantUser);
+  const { users, total } = useSelector(
+    (state: RootState) => state.wastePlantUser
+  );
 
-   const {
-    currentPage,
-    setCurrentPage,
-    pageSize,
-    search,
-    setSearch,
-  } = usePagination();
-  
+  const { currentPage, setCurrentPage, pageSize, search, setSearch } = usePagination();
+
+  const debouncedFetchUsers = useCallback(
+    debounce((page: number, limit: number, query: string) => {
+      dispatch(fetchUsers({ page, limit, search: query }));
+    }, 500),
+    [dispatch]
+  );
+
   useEffect(() => {
-    dispatch(fetchUsers({ page: currentPage, limit: pageSize, search }));
-  }, [dispatch, currentPage, pageSize, search]);
+    debouncedFetchUsers(currentPage, pageSize, search);
+
+    return () => {
+      debouncedFetchUsers.cancel();
+    };
+  }, [currentPage, pageSize, search, debouncedFetchUsers]);
 
   const handleToggleBlock = async (userId: string, isBlocked: boolean) => {
     try {
-      await dispatch(toggleUserBlockStatus({ userId, isBlocked: !isBlocked })).unwrap();
+      await dispatch(
+        toggleUserBlockStatus({ userId, isBlocked: !isBlocked })
+      ).unwrap();
       toast.success(`User ${isBlocked ? "unblocked" : "blocked"} successfully`);
       dispatch(fetchUsers({ page: currentPage, limit: pageSize, search }));
     } catch (err) {
@@ -57,7 +70,11 @@ const Users: React.FC = () => {
       title: "Status",
       key: "status",
       render: (_: any, record: any) =>
-        record.isBlocked ? <Tag color="red">Blocked</Tag> : <Tag color="green">Active</Tag>,
+        record.isBlocked ? (
+          <Tag color="red">Blocked</Tag>
+        ) : (
+          <Tag color="green">Active</Tag>
+        ),
     },
     {
       title: "Actions",
@@ -65,12 +82,17 @@ const Users: React.FC = () => {
       render: (_: any, record: any) => (
         <Space>
           <Popconfirm
-            title={`Are you sure you want to ${record.isBlocked ? "unblock" : "block"} this user?`}
+            title={`Are you sure you want to ${
+              record.isBlocked ? "unblock" : "block"
+            } this user?`}
             onConfirm={() => handleToggleBlock(record._id, record.isBlocked)}
             okText="Yes"
             cancelText="No"
           >
-            <Button type={record.isBlocked ? "default" : "primary"} danger={record.isBlocked}>
+            <Button
+              type={record.isBlocked ? "default" : "primary"}
+              danger={record.isBlocked}
+            >
               {record.isBlocked ? "Unblock" : "Block"}
             </Button>
           </Popconfirm>
@@ -84,8 +106,8 @@ const Users: React.FC = () => {
       <Title level={3} style={{ marginBottom: 16 }}>
         User Management
       </Title>
-      
-       <PaginationSearch
+
+      <PaginationSearch
         total={total}
         currentPage={currentPage}
         pageSize={pageSize}
@@ -94,7 +116,12 @@ const Users: React.FC = () => {
         searchValue={search}
       />
 
-      <Table rowKey="_id" dataSource={users} columns={columns} pagination={false} />
+      <Table
+        rowKey="_id"
+        dataSource={users}
+        columns={columns}
+        pagination={false}
+      />
     </div>
   );
 };

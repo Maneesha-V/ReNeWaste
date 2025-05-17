@@ -7,6 +7,7 @@ import {
   updateDropSpotServive,
 } from "../../../services/wastePlant/dropSpotService";
 import { DropSpotFormValues } from "../../../types/dropSpotTypes";
+import { PaginationPayload } from "../../../types/commonTypes";
 
 interface DropSpotState {
   loading: boolean;
@@ -14,6 +15,7 @@ interface DropSpotState {
   success: boolean;
   dropSpots: any;
   selectedDropSpot: any;
+  total: number;
 }
 
 const initialState: DropSpotState = {
@@ -22,6 +24,7 @@ const initialState: DropSpotState = {
   success: false,
   dropSpots: [],
   selectedDropSpot: null,
+  total: 0,
 };
 
 export const createDropSpot = createAsyncThunk(
@@ -39,9 +42,9 @@ export const createDropSpot = createAsyncThunk(
 );
 export const fetchDropSpots = createAsyncThunk(
   "wastePlantDropSpot/fetchDropSpots",
-  async (_, { rejectWithValue }) => {
+  async ({ page, limit, search }: PaginationPayload, { rejectWithValue }) => {
     try {
-      const response = await fetchDropSpotsService();
+      const response = await fetchDropSpotsService({ page, limit, search });
       return response;
     } catch (error: any) {
       return rejectWithValue(
@@ -113,7 +116,8 @@ const wastePlantDropSpotSlice = createSlice({
       })
       .addCase(fetchDropSpots.fulfilled, (state, action) => {
         state.loading = false;
-        state.dropSpots = action.payload;
+        state.dropSpots = action.payload.dropspots;
+        state.total = action.payload.total;
       })
       .addCase(fetchDropSpots.rejected, (state, action) => {
         state.loading = false;

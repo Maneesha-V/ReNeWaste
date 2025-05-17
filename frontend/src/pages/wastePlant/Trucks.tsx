@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useCallback, useEffect } from "react";
 import { Table, Button, Popconfirm, Spin } from "antd";
 import { EditOutlined, DeleteOutlined, PlusOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
@@ -7,17 +7,33 @@ import { useSelector } from "react-redux";
 import { RootState } from "../../redux/store";
 import Breadcrumbs from "../../components/common/Breadcrumbs";
 import { deleteTruck, fetchTrucks } from "../../redux/slices/wastePlant/wastePlantTruckSlice";
+import PaginationSearch from "../../components/common/PaginationSearch";
+import usePagination from "../../hooks/usePagination";
+import debounce from "lodash/debounce";
 
 const Trucks: React.FC = () => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
-  const { truck, loading, error } = useSelector((state: RootState) => state.wastePlantTruck);
+  const { truck, total, loading, error } = useSelector((state: RootState) => state.wastePlantTruck);
+  const { currentPage, setCurrentPage, pageSize, search, setSearch } = usePagination();
+
   console.log("trucks",truck);
   
-  useEffect(() => {
-    dispatch(fetchTrucks());
-  }, [dispatch]);
+  const debouncedFetchTrucks = useCallback(
+    debounce((page: number, limit: number, query: string) => {
+      dispatch(fetchTrucks({ page, limit, search: query }));
+    }, 500),
+    [dispatch]
+  );
 
+  useEffect(() => {
+    debouncedFetchTrucks(currentPage, pageSize, search);
+
+    return () => {
+      debouncedFetchTrucks.cancel();
+    };
+  }, [currentPage, pageSize, search, debouncedFetchTrucks]);
+  
   const handleEdit = async (truckId: string) => {
     try {
       navigate(`/waste-plant/edit-truck/${truckId}`);
@@ -29,7 +45,7 @@ const Trucks: React.FC = () => {
  const handleDelete = async (truckId: string) => {
     try {
       await dispatch(deleteTruck(truckId)).unwrap();
-      await dispatch(fetchTrucks());
+      await dispatch(fetchTrucks({ page: currentPage, limit: pageSize, search }));
     } catch (error: any) {
       console.error("Delete failed:", error);
     }
@@ -59,20 +75,25 @@ const Trucks: React.FC = () => {
       </div>
 
       {/* Table */}
-      {loading ? (
-        <div className="flex justify-center items-center min-h-[200px]">
-          <Spin size="large" />
-        </div>
-      ) : error ? (
+      {error ? (
         <p className="text-red-500">{error}</p>
       ) : (
-        <div className="overflow-x-auto">
+        <div className="overflow-x-auto space-y-2">
+          <PaginationSearch
+            total={total}
+            currentPage={currentPage}
+            pageSize={pageSize}
+            onPageChange={setCurrentPage}
+            onSearchChange={setSearch}
+            searchValue={search}
+          />   
+          <Spin spinning={loading}>      
           <Table
             dataSource={Array.isArray(truck) ? truck : []}
             rowKey="_id"
             bordered
             className="shadow-sm"
-            pagination={{ pageSize: 10 }}
+            pagination={false}
           >
             <Table.Column title="Name" dataIndex="name" key="name" />
             <Table.Column title="Vehicle No" dataIndex="vehicleNumber" key="licenseNumber" />
@@ -121,6 +142,7 @@ const Trucks: React.FC = () => {
               )}
             />
           </Table>
+          </Spin> 
         </div>
       )}
     </div>
