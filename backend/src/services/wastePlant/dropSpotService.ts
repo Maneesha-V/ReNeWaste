@@ -4,6 +4,7 @@ import { IDropSpotService } from "./interface/IDropSpotService";
 import { IDropSpot } from "../../models/dropSpots/interfaces/dropSpotInterface";
 import DropSpotRepository from "../../repositories/dropSpot/dropSpotRepository";
 import axios from "axios";
+import { PaginatedDropSpotsResult } from "../../types/wastePlant/dropspotTypes";
 
 class DropSpotService implements IDropSpotService {
   async createDropSpotService(payload: IDropSpot) {
@@ -37,8 +38,8 @@ class DropSpotService implements IDropSpotService {
       throw error;
     }
   }
-  async getAllDropSpots(wasteplantId: string): Promise<IDropSpot[]> {
-    return await DropSpotRepository.getDropSpotsByWastePlantId(wasteplantId);
+  async getAllDropSpots(wasteplantId: string, page: number, limit: number, search: string): Promise<PaginatedDropSpotsResult> {
+    return await DropSpotRepository.getDropSpotsByWastePlantId(wasteplantId, page, limit, search);
   }
   async getDropSpotByIdService(
     dropSpotId: string,

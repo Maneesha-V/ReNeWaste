@@ -1,8 +1,9 @@
 import { IDropSpot } from "../../../models/dropSpots/interfaces/dropSpotInterface";
+import { PaginatedDropSpotsResult } from "../../../types/wastePlant/dropspotTypes";
 
 export interface IDropSpotService {
   createDropSpotService(payload: IDropSpot): Promise<IDropSpot>;
-  getAllDropSpots(wasteplantId: string): Promise<IDropSpot[]>;
+  getAllDropSpots(wasteplantId: string, page: number, limit: number, search: string): Promise<PaginatedDropSpotsResult>
   getDropSpotByIdService(
     dropSpotId: string,
     wasteplantId: string

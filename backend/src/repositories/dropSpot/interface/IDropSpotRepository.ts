@@ -1,9 +1,10 @@
 import mongoose from "mongoose";
 import { IDropSpot } from "../../../models/dropSpots/interfaces/dropSpotInterface";
+import { PaginatedDropSpotsResult } from "../../../types/wastePlant/dropspotTypes";
 
 export interface IDropSpotRepository {
   createDropSpot(payload: IDropSpot): Promise<IDropSpot>;
-  getDropSpotsByWastePlantId(wasteplantId: string): Promise<IDropSpot[]>;
+  getDropSpotsByWastePlantId(wasteplantId: string , page: number, limit: number, search: string): Promise<PaginatedDropSpotsResult>;
   getDropSpotsByLocationAndWasteplant(params: {
     location: string;
     district: string;

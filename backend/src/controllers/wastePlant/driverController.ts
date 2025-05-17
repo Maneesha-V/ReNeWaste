@@ -51,13 +51,20 @@ async fetchDrivers (req: AuthRequest,res: Response): Promise<void> {
       res.status(404).json({ message: "plantId not found" });
       return;
     }
-    const drivers = await DriverService.getAllDrivers(plantId)   
-    console.log("drivers",drivers);
+console.log(req.query);
+
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 5;
+    const search = (req.query.search as string) || "";
+
+    const {drivers, total} = await DriverService.getAllDrivers(plantId, page, limit, search)   
+    console.log("drivers",drivers,total);
     
     res.status(200).json({
       success: true,
       message: "Fetch drivers successfully",
-      data: drivers,
+      drivers,
+      total
     });
   }catch (error:any){
     console.error("err",error);

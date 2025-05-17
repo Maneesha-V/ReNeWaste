@@ -39,13 +39,18 @@ async fetchTrucks (req: AuthRequest,res: Response): Promise<void> {
       res.status(400).json({ message: "Plant ID is required" });
       return;
     }
-    const trucks = await TruckService.getAllTrucks(plantId)   
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 5;
+    const search = (req.query.search as string) || "";
+
+    const { trucks, total } = await TruckService.getAllTrucks(plantId, page, limit, search)   
     console.log("trucks",trucks);
     
     res.status(200).json({
       success: true,
       message: "Fetch trucks successfully",
-      data: trucks,
+      trucks,
+      total
     });
   }catch (error:any){
     console.error("err",error);

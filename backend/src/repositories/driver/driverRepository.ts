@@ -6,6 +6,7 @@ import {
 } from "../../models/driver/interfaces/driverInterface";
 import { IDriverRepository } from "./interface/IDriverRepository";
 import { TruckModel } from "../../models/truck/truckModel";
+import { PaginatedDriversResult } from "../../types/wastePlant/driverTypes";
 
 class DriverRepository implements IDriverRepository {
   async createDriver(data: IDriver): Promise<IDriverDocument> {
@@ -27,9 +28,38 @@ class DriverRepository implements IDriverRepository {
   async findDriverByLicense(licenseNumber: string): Promise<IDriver | null> {
     return await DriverModel.findOne({ licenseNumber });
   }
-  async getAllDrivers(plantId: string): Promise<IDriver[]> {
-    return await DriverModel.find({wasteplantId: plantId});
-  } 
+  async getAllDrivers(
+    plantId: string,
+    page: number,
+    limit: number,
+    search: string
+  ): Promise<PaginatedDriversResult> {
+    const searchRegex = new RegExp(search, "i");
+    
+    const query: any = {
+      wasteplantId: plantId,
+      $or: [
+        { name: { $regex: searchRegex } },
+        { licenseNumber: { $regex: searchRegex } },
+        { contact: { $regex: searchRegex } }
+      ],
+    };
+    if (!isNaN(Number(search))) {
+  query.$or.push({ experience: Number(search) });
+}
+
+    const skip = (page - 1) * limit;
+
+    const drivers = await DriverModel.find(query)
+      .skip(skip)
+      .limit(limit)
+      .sort({ createdAt: -1 });
+
+    const total = await DriverModel.countDocuments(query);
+
+    return { drivers, total };
+    
+  }
   async updateDriverPassword(
     email: string,
     hashedPassword: string
@@ -40,67 +70,64 @@ class DriverRepository implements IDriverRepository {
       { new: true, runValidators: false }
     );
   }
-    async getDriverById(driverId: string) {
-      return await DriverModel.findById(driverId);
-    }
-   async updateDriverById(
-      driverId: string,
-      data: any
-    ): Promise<IDriver | null> {
-      return await DriverModel.findByIdAndUpdate(driverId, data, { new: true });
-    }
-    async deleteDriverById(driverId: string) {
-        return await DriverModel.findByIdAndDelete(driverId);
-      }
-      async fetchDrivers(wastePlantId: string) {
-        const objectId = new Types.ObjectId(wastePlantId);
-        return await DriverModel.find({wasteplantId: objectId, status: "Active"}).sort({ name: 1 });
-      };
-      async updateDriverTruck(
-        driverId: string,
-        // assignedZone: string,
-        assignedTruckId: string
-      ){
-        const objectIdDriver = new Types.ObjectId(driverId);
-        const objectIdTruck= new Types.ObjectId( assignedTruckId);
-        await TruckModel.findByIdAndUpdate(
-          objectIdTruck,
-          {
-            $set: {
-              assignedDriver: objectIdDriver
-            }
-          }
-        )
-        return await DriverModel.findByIdAndUpdate(
-          objectIdDriver,
-          {
-            $set: {
-              // assignedZone: assignedZone,
-              assignedTruckId: objectIdTruck
-            },
-          },
-          { new: true }
-        );
-      }
-      async updateDriverAssignedZone(
-        driverId: string,
-        assignedZone: string,
-      ) {
-        const objectId = new Types.ObjectId(driverId);
-        return await DriverModel.findByIdAndUpdate(
-          objectId,
-          {
-            $set: {
-              assignedZone: assignedZone,
-            },
-          },
-          { new: true }
-        );
-      }
-      
-      async getDriversByLocation(location: string, plantId: string) {
-        const objectId = new Types.ObjectId(plantId);
-        return await DriverModel.find({wasteplantId: objectId, assignedZone: location}).sort({ name: 1 });
-      };
+  async getDriverById(driverId: string) {
+    return await DriverModel.findById(driverId);
+  }
+  async updateDriverById(driverId: string, data: any): Promise<IDriver | null> {
+    return await DriverModel.findByIdAndUpdate(driverId, data, { new: true });
+  }
+  async deleteDriverById(driverId: string) {
+    return await DriverModel.findByIdAndDelete(driverId);
+  }
+  async fetchDrivers(wastePlantId: string) {
+    const objectId = new Types.ObjectId(wastePlantId);
+    return await DriverModel.find({
+      wasteplantId: objectId,
+      status: "Active",
+    }).sort({ name: 1 });
+  }
+  async updateDriverTruck(
+    driverId: string,
+    // assignedZone: string,
+    assignedTruckId: string
+  ) {
+    const objectIdDriver = new Types.ObjectId(driverId);
+    const objectIdTruck = new Types.ObjectId(assignedTruckId);
+    await TruckModel.findByIdAndUpdate(objectIdTruck, {
+      $set: {
+        assignedDriver: objectIdDriver,
+      },
+    });
+    return await DriverModel.findByIdAndUpdate(
+      objectIdDriver,
+      {
+        $set: {
+          // assignedZone: assignedZone,
+          assignedTruckId: objectIdTruck,
+        },
+      },
+      { new: true }
+    );
+  }
+  async updateDriverAssignedZone(driverId: string, assignedZone: string) {
+    const objectId = new Types.ObjectId(driverId);
+    return await DriverModel.findByIdAndUpdate(
+      objectId,
+      {
+        $set: {
+          assignedZone: assignedZone,
+        },
+      },
+      { new: true }
+    );
+  }
+
+  async getDriversByLocation(location: string, plantId: string) {
+    const objectId = new Types.ObjectId(plantId);
+    return await DriverModel.find({
+      wasteplantId: objectId,
+      assignedZone: location,
+    }).sort({ name: 1 });
+  }
 }
 export default new DriverRepository();

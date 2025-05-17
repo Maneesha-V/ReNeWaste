@@ -2,6 +2,7 @@ import bcrypt from "bcrypt";
 import { IDriver } from "../../models/driver/interfaces/driverInterface";
 import DriverRepository from "../../repositories/driver/driverRepository";
 import { IDriverService } from "./interface/IDriverService";
+import { PaginatedDriversResult } from "../../types/wastePlant/driverTypes";
 
 class DriverService implements IDriverService {
   async addDriver(data: IDriver): Promise<IDriver> {
@@ -27,8 +28,8 @@ class DriverService implements IDriverService {
     };
     return await DriverRepository.createDriver(newData);
   }
-  async getAllDrivers(plantId: string): Promise<IDriver[]> {
-    return await DriverRepository.getAllDrivers(plantId);
+  async getAllDrivers(plantId: string, page: number, limit: number, search: string): Promise<PaginatedDriversResult> {
+    return await DriverRepository.getAllDrivers(plantId, page, limit, search);
   }
   async getDriverByIdService(driverId: string): Promise<IDriver | null> {
     try {

@@ -2,6 +2,7 @@ import TruckRepository from "../../repositories/truck/truckRepository";
 import { ITruck } from "../../models/truck/interfaces/truckInterface";
 import { ITruckService } from "./interface/ITruckService";
 import WastePlantRepository from "../../repositories/wastePlant/wastePlantRepository";
+import { PaginatedTrucksResult } from "../../types/wastePlant/truckTypes";
 
 class TruckService implements ITruckService {
   async addTruck(data: ITruck): Promise<ITruck> {
@@ -17,8 +18,8 @@ class TruckService implements ITruckService {
     };
     return await TruckRepository.createTruck(newData);
   }
-  async getAllTrucks(plantId: string): Promise<ITruck[]> {
-    return await TruckRepository.getAllTrucks(plantId);
+  async getAllTrucks(plantId: string, page: number, limit: number, search: string): Promise<PaginatedTrucksResult> {
+    return await TruckRepository.getAllTrucks(plantId, page, limit, search);
   }
   async getAvailableTrucksService(driverId: string): Promise<ITruck[]> {
     return await TruckRepository.getAvailableTrucks(driverId);

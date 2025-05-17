@@ -39,18 +39,24 @@ class DropSpotController implements IDropSpotController {
 
   async fetchDropSpots(req: AuthRequest, res: Response): Promise<void> {
     try {
+      console.log(req.query);
+      
       const wasteplantId = req.user?.id;
       if (!wasteplantId) {
         res.status(404).json({ message: "wasteplantId not found" });
         return;
       }
-      const dropspots = await DropSpotService.getAllDropSpots(wasteplantId);
+      const page = parseInt(req.query.page as string) || 1;
+      const limit = parseInt(req.query.limit as string) || 5;
+      const search = (req.query.search as string) || "";
+      const { dropspots, total } = await DropSpotService.getAllDropSpots(wasteplantId, page, limit, search);
       console.log("dropspots", dropspots);
 
       res.status(200).json({
         success: true,
         message: "Fetch dropspots successfully",
-        data: dropspots,
+        dropspots,
+        total
       });
     } catch (error: any) {
       console.error("err", error);
