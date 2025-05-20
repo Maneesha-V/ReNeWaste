@@ -1,7 +1,9 @@
 import { IUser, IUserDocument } from "../../../models/user/interfaces/userInterface";
+import { OtpRecord } from "../../../types/user/authTypes";
 import { PaginatedUsersResult } from "../../../types/wastePlant/userTypes";
+import IBaseRepository from "../../baseRepository/interface/IBaseRepository";
 
-export interface IUserRepository {
+export interface IUserRepository extends IBaseRepository<IUserDocument> {
   createUser(userData: IUser): Promise<IUserDocument>;
   findUserByEmail(email: string): Promise<IUserDocument | null>;
   findUserByEmailGoogleId(email: string, googleId: string): Promise<IUserDocument | null>;
@@ -10,7 +12,7 @@ export interface IUserRepository {
   updatePartialProfileById(userId: string, updatedData: Partial<IUser>): Promise<IUserDocument | null>;
   saveOtp(email: string, otp: string): Promise<void>;
   reSaveOtp(email: string, otp: string): Promise<void>;
-  findOtpByEmail(email: string): Promise<{ email: string; otp: string } | null>;
+  findOtpByEmail(email: string): Promise<OtpRecord | null>;
   deleteOtp(email: string): Promise<void>;
   updateUserPassword(email: string, hashedPassword: string): Promise<void>;
   updateAddressByIdLatLng(addressId: string, latitude: number, longitude: number): Promise<any>;

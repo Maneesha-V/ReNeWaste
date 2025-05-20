@@ -3,37 +3,49 @@ import {
   IUser,
   IUserDocument,
 } from "../../models/user/interfaces/userInterface";
-import { OTPModel } from "../../models/user/otpModel";
 import { IUserRepository } from "./interface/IUserRepository";
 import { OtpRecord } from "../../types/user/authTypes";
-import mongoose from "mongoose";
 import { PaginatedUsersResult } from "../../types/wastePlant/userTypes";
+import BaseRepository from "../baseRepository/baseRepository";
+import { inject, injectable } from "inversify";
+import TYPES from "../../config/inversify/types";
+import { IOtpRepository } from "../otp/interface/IOTPRepository";
 
-class UserRepository implements IUserRepository {
+@injectable()
+export class UserRepository
+  extends BaseRepository<IUserDocument>
+  implements IUserRepository
+{
+  constructor(
+    @inject(TYPES.OtpRepository) 
+    private otpRepository: IOtpRepository
+  ) {
+    super(UserModel);
+  }
   async createUser(userData: IUser): Promise<IUserDocument> {
-    const user = new UserModel(userData);
+    const user = new this.model(userData);
     return await user.save();
   }
 
   async findUserByEmail(email: string): Promise<IUserDocument | null> {
-    return await UserModel.findOne({ email }).exec();
+    return await this.model.findOne({ email }).exec();
   }
 
   async findUserByEmailGoogleId(
     email: string,
     googleId: string
   ): Promise<IUserDocument | null> {
-    return await UserModel.findOne({ email, googleId }).exec();
+    return await this.model.findOne({ email, googleId }).exec();
   }
 
   async findUserById(userId: string): Promise<IUserDocument | null> {
-    return await UserModel.findById(userId).select("-password");
+    return await this.model.findById(userId).select("-password");
   }
   async updateUserProfileById(
     userId: string,
     updatedData: IUser
   ): Promise<IUserDocument | null> {
-    return await UserModel.findByIdAndUpdate(userId, updatedData, {
+    return await this.model.findByIdAndUpdate(userId, updatedData, {
       new: true,
     });
   }
@@ -53,30 +65,33 @@ class UserRepository implements IUserRepository {
       };
     }
 
-    return await UserModel.findByIdAndUpdate(userId, updateOps, { new: true });
+    return await this.model.findByIdAndUpdate(userId, updateOps, { new: true });
   }
 
   async saveOtp(email: string, otp: string): Promise<void> {
-    await OTPModel.create({ email, otp, createdAt: new Date() });
+    await this.otpRepository.saveOtp( email, otp);
   }
   async reSaveOtp(email: string, otp: string): Promise<void> {
-    await OTPModel.findOneAndUpdate(
-      { email },
-      { otp, createdAt: new Date() },
-      { new: true, upsert: true }
-    );
+    // await OTPModel.findOneAndUpdate(
+    //   { email },
+    //   { otp, createdAt: new Date() },
+    //   { new: true, upsert: true }
+    // );
+    await this.otpRepository.reSaveOtp(email, otp);
   }
   async findOtpByEmail(email: string): Promise<OtpRecord | null> {
-    return await OTPModel.findOne({ email });
+    // return await OTPModel.findOne({ email });
+    return await this.otpRepository.findOtpByEmail(email);
   }
   async deleteOtp(email: string): Promise<void> {
-    await OTPModel.deleteOne({ email });
+    // await OTPModel.deleteOne({ email });
+    await this.otpRepository.deleteOtp(email);
   }
   async updateUserPassword(
     email: string,
     hashedPassword: string
   ): Promise<void> {
-    await UserModel.findOneAndUpdate(
+    await this.model.findOneAndUpdate(
       { email },
       { $set: { password: hashedPassword } },
       { new: true, runValidators: false }
@@ -87,7 +102,7 @@ class UserRepository implements IUserRepository {
     latitude: number,
     longitude: number
   ): Promise<any> {
-    const updatedUser = await UserModel.findOneAndUpdate(
+    const updatedUser = await this.model.findOneAndUpdate(
       { "addresses._id": addressId },
       {
         $set: {
@@ -119,7 +134,7 @@ class UserRepository implements IUserRepository {
     latitude: number,
     longitude: number
   ): Promise<IUser | null> {
-    return await UserModel.findOne(
+    return await this.model.findOneAndUpdate(
       {
         _id: userId,
         "addresses._id": addressId,
@@ -129,8 +144,21 @@ class UserRepository implements IUserRepository {
           "addresses.$.latitude": latitude,
           "addresses.$.longitude": longitude,
         },
-      }
+      },
+      { new: true, projection: { addresses: 1 } }
     );
+    // return await this.model.findOne(
+    //   {
+    //     _id: userId,
+    //     "addresses._id": addressId,
+    //   },
+    //   {
+    //     $set: {
+    //       "addresses.$.latitude": latitude,
+    //       "addresses.$.longitude": longitude,
+    //     },
+    //   }
+    // );
   }
 
   async getUsersByWastePlantId(
@@ -150,15 +178,14 @@ class UserRepository implements IUserRepository {
     };
     const skip = (page - 1) * limit;
 
-    const users = await UserModel.find(query)
+    const users = await this.model
+      .find(query)
       .skip(skip)
       .limit(limit)
       .sort({ createdAt: -1 });
 
-    const total = await UserModel.countDocuments(query);
+    const total = await this.model.countDocuments(query);
 
     return { users, total };
   }
 }
-
-export default new UserRepository();
