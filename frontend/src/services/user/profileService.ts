@@ -3,6 +3,8 @@ import axiosUser from "../../api/axiosUser";
 
 export const getProfile = async () => {
   const response = await axiosUser.get(`/profile`);
+  console.log("res",response);
+  
   return response.data.user;
 };
 export const getEditProfile = async () => {

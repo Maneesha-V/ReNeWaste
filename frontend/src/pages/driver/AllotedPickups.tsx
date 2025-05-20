@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Table, Button, Spin, Tag, message } from "antd";
+import { Table, Button, Spin, Tag, Popconfirm } from "antd";
 import { useSelector } from "react-redux";
 import { RootState } from "../../redux/store";
 import { formatDateToDDMMYYYY } from "../../utils/formatDate";
@@ -9,6 +9,7 @@ import {
   markPickupCompleted,
 } from "../../redux/slices/driver/pickupDriverSlice";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 const AllotedPickups = () => {
   const [activeTab, setActiveTab] = useState<"Residential" | "Commercial">(
@@ -20,8 +21,8 @@ const AllotedPickups = () => {
     (state: RootState) => state.driverPickups
   );
   const token = sessionStorage.getItem("driver_token");
-  console.log("to",token);
-  
+  console.log("to", token);
+
   useEffect(() => {
     if (!token) return;
     dispatch(fetchDriverPickups({ wasteType: activeTab }));
@@ -31,10 +32,10 @@ const AllotedPickups = () => {
   const handleMarkAsCompleted = async (pickupReqId: string) => {
     try {
       await dispatch(markPickupCompleted(pickupReqId)).unwrap();
-      message.success("Marked as completed");
+      toast.success("Marked as completed");
       dispatch(fetchDriverPickups({ wasteType: activeTab }));
-    } catch (err) {
-      message.error("Failed to mark as completed");
+    } catch (err: any) {
+      toast.error(err || "Failed to mark as completed");
     }
   };
 
@@ -133,16 +134,29 @@ const AllotedPickups = () => {
               title="Actions"
               render={(_: any, record: any) => (
                 <div className="flex gap-2">
-                  <Button type="default" onClick={() => navigate(`/driver/track-pickup/${record._id}`)}>
+                  <Button
+                    type="default"
+                    onClick={() =>
+                      navigate(`/driver/track-pickup/${record._id}`)
+                    }
+                  >
                     Go
                   </Button>
                   {record.status !== "Completed" && (
-                    <Button
-                      type="primary"
-                      onClick={() => handleMarkAsCompleted(record._id)}
+                    // <Button
+                    //   type="primary"
+                    //   onClick={() => handleMarkAsCompleted(record._id)}
+                    // >
+                    //   Mark as Completed
+                    // </Button>
+                    <Popconfirm
+                      title="Are you sure you want to mark this pickup as completed?"
+                      onConfirm={() => handleMarkAsCompleted(record._id)}
+                      okText="Yes"
+                      cancelText="No"
                     >
-                      Mark as Completed
-                    </Button>
+                      <Button type="primary">Mark as Completed</Button>
+                    </Popconfirm>
                   )}
                 </div>
               )}

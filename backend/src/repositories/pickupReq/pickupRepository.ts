@@ -293,12 +293,19 @@ class PickupRepository implements IPickupRepository {
     pickupReqId: string
   ): Promise<IPickupRequestDocument | null> {
     const pickup = await PickupModel.findById(pickupReqId);
+    console.log("pickup.....",pickup);
+    
     if (!pickup) {
       throw new Error("Pickup not found");
     }
     if (pickup.trackingStatus !== "Completed") {
       throw new Error(
         "Cannot mark pickup as completed until tracking is completed"
+      );
+    }
+    if (pickup.payment.status !== "Paid") {
+      throw new Error(
+        "Cannot mark pickup as completed until payment is completed"
       );
     }
     pickup.status = "Completed";

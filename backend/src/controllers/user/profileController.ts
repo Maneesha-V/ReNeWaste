@@ -7,11 +7,15 @@ class ProfileController implements IProfileController {
   async getProfile(req: AuthRequest, res: Response): Promise<void> {
     try {
       const userId = req.user?.id; 
+      console.log("userId",userId);
+      
       if (!userId) {
         res.status(401).json({ error: "Unauthorized" });
         return;
       }    
       const user = await ProfileService.getUserProfile(userId);
+      console.log("user",user);
+      
       res.status(200).json({ user });
     } catch (error: any) {
       res.status(400).json({ error: error.message });
