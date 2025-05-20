@@ -7,6 +7,8 @@ import morgan from "morgan";
 import cookieParser from 'cookie-parser';
 import http from "http";
 import { Server } from "socket.io";
+import "reflect-metadata";
+
 import userRoutes from "./routes/userRoutes";
 import superAdminRoutes from "./routes/superAdminRoutes";
 import wastePlantRoutes from "./routes/wastePlantRoutes";
