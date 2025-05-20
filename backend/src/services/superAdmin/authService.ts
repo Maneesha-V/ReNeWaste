@@ -1,6 +1,5 @@
+import { injectable, inject } from "inversify";
 import bcrypt from "bcrypt";
-import SuperAdminRepository from "../../repositories/superAdmin/superAdminRepository";
-import UserRepository from "../../repositories/user/userRepository";
 import {
   SuperAdminLoginRequest,
   SuperAdminLoginResponse,
@@ -13,12 +12,24 @@ import { ISuperAdminDocument } from "../../models/superAdmin/interfaces/superAdm
 import { generateOtp } from "../../utils/otpUtils";
 import { sendEmail } from "../../utils/mailerUtils";
 import jwt from "jsonwebtoken";
+import TYPES from "../../config/inversify/types";
+import { ISuperAdminRepository } from "../../repositories/superAdmin/interface/ISuperAdminRepository";
+import { IUserRepository } from "../../repositories/user/interface/IUserRepository";
 
-class SuperAdminAuthService implements ISuperAdminAuthService {
+
+@injectable()
+export class SuperAdminAuthService implements ISuperAdminAuthService {
+    constructor(
+    @inject(TYPES.SuperAdminRepository)
+    private superAdminRepository: ISuperAdminRepository,
+
+    @inject(TYPES.UserRepository)
+    private userRepository: IUserRepository
+  ) {}
   async verifyToken(token: string) {
     try {
       const decoded = jwt.verify(token, process.env.JWT_REFRESH_SECRET!) as { userId: string, role:string };
-      const admin = await SuperAdminRepository.getSuperAdminById(decoded.userId);
+      const admin = await this.superAdminRepository.getSuperAdminById(decoded.userId);
       if (!admin) {
         throw new Error("Admin not found");
       }
@@ -38,7 +49,7 @@ class SuperAdminAuthService implements ISuperAdminAuthService {
     email,
     password,
   }: SuperAdminLoginRequest): Promise<SuperAdminLoginResponse> {
-    const admin = await SuperAdminRepository.findAdminByEmail(email);
+    const admin = await this.superAdminRepository.findAdminByEmail(email);
     console.log("admin", admin);
 
     if (!admin) {
@@ -60,11 +71,11 @@ class SuperAdminAuthService implements ISuperAdminAuthService {
     email,
     password,
   }: SuperAdminSignupRequest): Promise<SuperAdminSignupResponse> {
-    const existingAdmin = await SuperAdminRepository.findAdminByEmail(email);
+    const existingAdmin = await this.superAdminRepository.findAdminByEmail(email);
     if (existingAdmin) {
       throw new Error("Email already exists. Please use a different email.");
     }
-    const existingUsername = await SuperAdminRepository.findAdminByUsername(
+    const existingUsername = await this.superAdminRepository.findAdminByUsername(
       username
     );
     if (existingUsername) {
@@ -74,7 +85,7 @@ class SuperAdminAuthService implements ISuperAdminAuthService {
     const hashedPassword = await bcrypt.hash(password, salt);
 
     const newAdmin: ISuperAdminDocument =
-      await SuperAdminRepository.createAdmin({
+      await this.superAdminRepository.createAdmin({
         username,
         email,
         password: hashedPassword,
@@ -84,13 +95,13 @@ class SuperAdminAuthService implements ISuperAdminAuthService {
     return { admin: newAdmin, token };
   }
   async sendOtpService(email: string) {
-    const superAdmin = await SuperAdminRepository.findAdminByEmail(email);
+    const superAdmin = await this.superAdminRepository.findAdminByEmail(email);
     if (!superAdmin) {
       throw new Error("Superadmin  not found.");
     }
     const otp = generateOtp();
     console.log(`Generated OTP for ${email}:`, otp);
-    await UserRepository.saveOtp(email, otp);
+    await this.userRepository.saveOtp(email, otp);
     await sendEmail(
       email,
       "Your OTP Code",
@@ -99,13 +110,13 @@ class SuperAdminAuthService implements ISuperAdminAuthService {
     return { message: "OTP sent successfully", otp };
   }
   async resendOtpService(email: string) {
-    const superAdmin = await SuperAdminRepository.findAdminByEmail(email);
+    const superAdmin = await this.superAdminRepository.findAdminByEmail(email);
     if (!superAdmin) {
       throw new Error("Superadmin not found.");
     }
     const otp = generateOtp();
     console.log(`Resend OTP for ${email}:`, otp);
-    await UserRepository.reSaveOtp(email, otp);
+    await this.userRepository.reSaveOtp(email, otp);
     await sendEmail(
       email,
       "Your Resend OTP Code",
@@ -114,7 +125,7 @@ class SuperAdminAuthService implements ISuperAdminAuthService {
     return { message: "Resend OTP sent successfully", otp };
   }
   async verifyOtpService(email: string, otp: string): Promise<boolean> {
-    const storedOtp = await UserRepository.findOtpByEmail(email);
+    const storedOtp = await this.userRepository.findOtpByEmail(email);
     if (!storedOtp || storedOtp.otp !== otp) return false;
     const createdAt = storedOtp.createdAt;
     if (!createdAt) {
@@ -125,18 +136,18 @@ class SuperAdminAuthService implements ISuperAdminAuthService {
     if (otpAge > 30) {
       return false;
     }
-    await UserRepository.deleteOtp(email);
+    await this.userRepository.deleteOtp(email);
     return true;
   }
   async resetPasswordService(
     email: string,
     newPassword: string
   ): Promise<void> {
-    const superAdmin = await SuperAdminRepository.findAdminByEmail(email);
+    const superAdmin = await this.superAdminRepository.findAdminByEmail(email);
     if (!superAdmin) throw new Error("Superadmin not found");
     const hashedPassword = await bcrypt.hash(newPassword, 10);
-    await SuperAdminRepository.updateAdminPassword(email, hashedPassword);
+    await this.superAdminRepository.updateAdminPassword(email, hashedPassword);
   }
 }
 
-export default new SuperAdminAuthService();
+

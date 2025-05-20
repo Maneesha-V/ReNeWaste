@@ -1,11 +1,19 @@
 import { Request, Response } from "express";
-import SuperAdminAuthService from "../../services/superAdmin/authService";
+
 import { IAuthController } from "./interface/IAuthController";
 import { generateRefreshToken } from "../../utils/authUtils";
 import { MESSAGES, STATUS_CODES } from "../../utils/constantUtils";
 import jwt from "jsonwebtoken";
+import TYPES from "../../config/inversify/types";
+import { inject, injectable } from "inversify";
+import { ISuperAdminAuthService } from "../../services/superAdmin/interface/IAuthService";
 
-class AuthController implements IAuthController {
+@injectable()
+export class AuthController implements IAuthController {
+  constructor(
+    @inject(TYPES.SuperAdminAuthService) 
+    private authService: ISuperAdminAuthService
+  ) {}
   async refreshToken(req: Request, res: Response): Promise<void> {
     try {
       const refreshToken = req.cookies?.refreshToken;
@@ -15,7 +23,7 @@ class AuthController implements IAuthController {
          res.status(401).json({ error: "No refresh token provided." });
          return;
       }
-      const {token} = await SuperAdminAuthService.verifyToken(refreshToken)
+      const {token} = await this.authService.verifyToken(refreshToken)
       res.status(200).json({ token });
     } catch (error: any) {
       console.error("err", error);
@@ -26,7 +34,7 @@ class AuthController implements IAuthController {
     try {
       
       const { email, password } = req.body;
-      const { admin, token } = await SuperAdminAuthService.adminLoginService({
+      const { admin, token } = await this.authService.adminLoginService({
         email,
         password,
       });
@@ -63,7 +71,7 @@ class AuthController implements IAuthController {
         res.status(400).json({ error: "All fields are required." });
         return;
       }
-      const { admin, token } = await SuperAdminAuthService.adminSignupService({
+      const { admin, token } = await this.authService.adminSignupService({
         username,
         email,
         password,
@@ -99,7 +107,7 @@ class AuthController implements IAuthController {
       console.log("otp-body", req.body);
       const { email } = req.body;
 
-      const otpResponse = await SuperAdminAuthService.sendOtpService(email);
+      const otpResponse = await this.authService.sendOtpService(email);
 
       res.status(200).json(otpResponse);
     } catch (error: any) {
@@ -115,7 +123,7 @@ class AuthController implements IAuthController {
         res.status(400).json({ error: "Email is required" });
       }
 
-      const success = await SuperAdminAuthService.resendOtpService(email);
+      const success = await this.authService.resendOtpService(email);
       if (success) {
         res.status(200).json({ message: "OTP resent successfully" });
       } else {
@@ -134,7 +142,7 @@ class AuthController implements IAuthController {
         return;
       }
 
-      const isValid = await SuperAdminAuthService.verifyOtpService(email, otp);
+      const isValid = await this.authService.verifyOtpService(email, otp);
 
       if (!isValid) {
         res.status(400).json({ error: "Invalid or expired OTP" });
@@ -155,7 +163,7 @@ class AuthController implements IAuthController {
         res.status(400).json({ message: "Email and password are required" });
         return;
       }
-      await SuperAdminAuthService.resetPasswordService(email, password);
+      await this.authService.resetPasswordService(email, password);
       res.status(200).json({ message: "Password reset successfully" });
     } catch (error: any) {
       console.error(error);
@@ -163,4 +171,3 @@ class AuthController implements IAuthController {
     }
   }
 }
-export default new AuthController();
