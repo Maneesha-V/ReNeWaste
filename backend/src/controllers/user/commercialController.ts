@@ -1,10 +1,17 @@
 import { Request, Response } from "express";
 import moment from 'moment';
-import CommercialService from "../../services/user/commercialService";
 import { ICommercialController } from "./interface/ICommercialController";
 import { AuthRequest } from "../../types/common/middTypes";
+import { inject, injectable } from "inversify";
+import TYPES from "../../config/inversify/types";
+import { ICommercialService } from "../../services/user/interface/ICommercialService";
 
-class CommercialController implements ICommercialController {
+@injectable()
+export class CommercialController implements ICommercialController {
+  constructor(
+    @inject(TYPES.CommercialService)
+    private commercialService: ICommercialService
+  ){}
   async getCommercial(req: AuthRequest, res: Response): Promise<void> {
     try {
       const userId = req.user?.id; 
@@ -12,7 +19,7 @@ class CommercialController implements ICommercialController {
         res.status(401).json({ error: "Unauthorized" });
         return;
       }    
-      const user = await CommercialService.getCommercialService(userId);
+      const user = await this.commercialService.getCommercialService(userId);
       console.log("user",user);
       
       res.status(200).json({ user });
@@ -29,7 +36,7 @@ class CommercialController implements ICommercialController {
         }      
         const {service, wasteplantId} = req.body;
 
-        const available = await CommercialService.availableWasteService(service, wasteplantId);
+        const available = await this.commercialService.availableWasteService(service, wasteplantId);
         console.log("available",available);
         
         if (!available) {
@@ -63,7 +70,7 @@ class CommercialController implements ICommercialController {
     
         updatedData.pickupDate = formattedDate;
       
-        const updatedUser = await CommercialService.updateCommercialPickupService(userId, updatedData);
+        const updatedUser = await this.commercialService.updateCommercialPickupService(userId, updatedData);
         console.log("updatedUser",updatedUser);
         if (!updatedUser) {
           res.status(404).json({ message: "User not found" });
@@ -77,4 +84,3 @@ class CommercialController implements ICommercialController {
       }
     }
 }
-export default new CommercialController();

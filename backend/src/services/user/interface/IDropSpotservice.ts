@@ -1,6 +1,5 @@
-import { Request, Response } from "express";
-import { AuthRequest } from "../../../types/common/middTypes";
+import { IDropSpot } from "../../../models/dropSpots/interfaces/dropSpotInterface";
 
 export interface IDropSpotService {
-    
+    getAllNearDropSpots(userId: string): Promise<IDropSpot[]>
 }

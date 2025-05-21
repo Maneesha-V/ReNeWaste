@@ -1,9 +1,16 @@
 import { Response } from "express";
 import { AuthRequest } from "../../types/common/middTypes";
 import { IDropSpotController } from "./interface/IDropSpotController";
-import DropSpotService from "../../services/user/dropSpotService";
+import { inject, injectable } from "inversify";
+import TYPES from "../../config/inversify/types";
+import { IDropSpotService } from "../../services/user/interface/IDropSpotservice";
 
-class DropSpotController implements IDropSpotController {
+injectable()
+export class DropSpotController implements IDropSpotController {
+  constructor(
+    @inject(TYPES.UserDropSpotService)
+    private dropSpotService: IDropSpotService
+  ){}
     async fetchAllNearDropSpots (req: AuthRequest,res: Response): Promise<void> {
       try {
         const userId = req.user?.id;
@@ -11,7 +18,7 @@ class DropSpotController implements IDropSpotController {
           res.status(404).json({ message: "userId not found" });
           return;
         }
-        const dropspots = await DropSpotService.getAllNearDropSpots(userId)   
+        const dropspots = await this.dropSpotService.getAllNearDropSpots(userId)   
         console.log("dropspots",dropspots);
         
         res.status(200).json({
@@ -25,4 +32,3 @@ class DropSpotController implements IDropSpotController {
       }
     }
 }
-export default new DropSpotController();

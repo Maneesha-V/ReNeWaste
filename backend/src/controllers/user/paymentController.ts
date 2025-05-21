@@ -1,9 +1,16 @@
 import { Request, Response } from "express";
 import { AuthRequest } from "../../types/common/middTypes";
 import { IPaymentController } from "./interface/IPaymentController";
-import PaymentService from "../../services/user/paymentService";
+import { inject, injectable } from "inversify";
+import TYPES from "../../config/inversify/types";
+import { IPaymentService } from "../../services/user/interface/IPaymentService";
 
-class PaymentController implements IPaymentController {
+@injectable()
+export class PaymentController implements IPaymentController {
+  constructor(
+    @inject(TYPES.UserPaymentService)
+    private paymentService: IPaymentService
+  ){}
   async createPaymentOrder(req: AuthRequest, res: Response): Promise<void> {
     try {
       const userId = req.user?.id;
@@ -14,7 +21,7 @@ class PaymentController implements IPaymentController {
         res.status(401).json({ error: "Fields are required." });
         return;
       }
-      const paymentOrder = await PaymentService.createPaymentOrderService(
+      const paymentOrder = await this.paymentService.createPaymentOrderService(
         amount,
         pickupReqId,
         userId
@@ -40,7 +47,7 @@ class PaymentController implements IPaymentController {
         res.status(401).json({ error: "UserId is required." });
         return;
       }
-      const result = await PaymentService.verifyPaymentService(
+      const result = await this.paymentService.verifyPaymentService(
         paymentDetails,
         userId
       );
@@ -73,7 +80,7 @@ class PaymentController implements IPaymentController {
         res.status(401).json({ error: "UserId is required." });
         return;
       }
-      const payments = await PaymentService.getAllPaymentsService(userId);
+      const payments = await this.paymentService.getAllPaymentsService(userId);
       console.log("payments", payments);
 
       res.status(201).json({ success: true, payments });
@@ -98,7 +105,7 @@ class PaymentController implements IPaymentController {
       }
       const { pickupReqId, amount } = req.body;
 
-      const repaymentOrder = await PaymentService.rePaymentService(userId, pickupReqId, amount);
+      const repaymentOrder = await this.paymentService.rePaymentService(userId, pickupReqId, amount);
       console.log("repaymentOrder",repaymentOrder);
       
       res.status(200).json({
@@ -115,4 +122,4 @@ class PaymentController implements IPaymentController {
     }
   }
 }
-export default new PaymentController();
+

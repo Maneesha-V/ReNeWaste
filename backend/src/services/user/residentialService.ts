@@ -1,22 +1,31 @@
-import UserRepository from "../../repositories/user/userRepository";
-import PickupRepository from "../../repositories/pickupReq/pickupRepository";
 import { IResidentialService } from "./interface/IResidentialService";
 import { Types } from "mongoose";
 import { IAddress } from "../../models/user/interfaces/addressInterface";
 import { IPickupRequestDocument } from "../../models/pickupRequests/interfaces/pickupInterface";
+import { inject, injectable } from "inversify";
+import TYPES from "../../config/inversify/types";
+import { IUserRepository } from "../../repositories/user/interface/IUserRepository";
+import { IPickupRepository } from "../../repositories/pickupReq/interface/IPickupRepository";
 
-class ResidentialService implements IResidentialService {
+@injectable()
+export class ResidentialService implements IResidentialService {
+  constructor(
+    @inject(TYPES.UserRepository)
+    private userRepository: IUserRepository,
+    @inject(TYPES.PickupRepository)
+    private pickupRepository: IPickupRepository
+  ){}
   async getResidentialService(userId: string) {
-    const user = await UserRepository.findUserById(userId);
+    const user = await this.userRepository.findUserById(userId);
     if (!user) throw new Error("User not found");
     return user;
   }
 
   async updateResidentialPickupService(userId: string, updatedData: any) {
-    const user = await UserRepository.findUserById(userId);
+    const user = await this.userRepository.findUserById(userId);
     if (!user) throw new Error("User not found");
 
-    const updatedUser = await UserRepository.updatePartialProfileById(
+    const updatedUser = await this.userRepository.updatePartialProfileById(
       userId,
       updatedData
     );
@@ -40,8 +49,8 @@ class ResidentialService implements IResidentialService {
       status: "Pending",
     };
     const newPickupReq: IPickupRequestDocument =
-      await PickupRepository.createPickup(newPickuData);
+      await this.pickupRepository.createPickup(newPickuData);
     return { user: updatedUser, pickupRequest: newPickupReq };
   }
 }
-export default new ResidentialService();
+

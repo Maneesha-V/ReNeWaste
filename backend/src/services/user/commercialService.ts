@@ -1,30 +1,40 @@
-import UserRepository from "../../repositories/user/userRepository";
-import PickupRepository from "../../repositories/pickupReq/pickupRepository";
 import { ICommercialService } from "./interface/ICommercialService";
 import { Types } from "mongoose";
 import { IAddress } from "../../models/user/interfaces/addressInterface";
-import WastePlantRepository from "../../repositories/wastePlant/wastePlantRepository";
 import { IPickupRequestDocument } from "../../models/pickupRequests/interfaces/pickupInterface";
+import { inject, injectable } from "inversify";
+import TYPES from "../../config/inversify/types";
+import { IUserRepository } from "../../repositories/user/interface/IUserRepository";
+import { IWastePlantRepository } from "../../repositories/wastePlant/interface/IWastePlantRepository";
+import { IPickupRepository } from "../../repositories/pickupReq/interface/IPickupRepository";
 
-
-class CommercialService implements ICommercialService {
+@injectable()
+export class CommercialService implements ICommercialService {
+  constructor(
+    @inject(TYPES.UserRepository)
+    private userRepository: IUserRepository,
+    @inject(TYPES.WastePlantRepository)
+    private wastePlantRepository: IWastePlantRepository,
+    @inject(TYPES.PickupRepository)
+    private pickupRepository: IPickupRepository
+  ){}
   async getCommercialService(userId: string) {
-    const user = await UserRepository.findUserById(userId);
+    const user = await this.userRepository.findUserById(userId);
     if (!user) throw new Error("User not found");
     return user;
   }
   async availableWasteService(service: string, wasteplantId: string):Promise<boolean> {
-    const wasteplant = await WastePlantRepository.getWastePlantById(wasteplantId);
+    const wasteplant = await this.wastePlantRepository.getWastePlantById(wasteplantId);
     if (!wasteplant || !Array.isArray(wasteplant.services)) return false;
 
     return wasteplant.services.includes(service);
     
   }
   async updateCommercialPickupService(userId: string, updatedData: any) {
-    const user = await UserRepository.findUserById(userId);
+    const user = await this.userRepository.findUserById(userId);
     if (!user) throw new Error("User not found");
 
-    const updatedUser = await UserRepository.updatePartialProfileById(
+    const updatedUser = await this.userRepository.updatePartialProfileById(
       userId,
       updatedData
     );
@@ -51,8 +61,8 @@ class CommercialService implements ICommercialService {
       status: "Pending",
     };
     const newPickupReq: IPickupRequestDocument =
-      await PickupRepository.createPickup(newPickuData);
+      await this.pickupRepository.createPickup(newPickuData);
     return { user: updatedUser, pickupRequest: newPickupReq };
   }
 }
-export default new CommercialService();
+
