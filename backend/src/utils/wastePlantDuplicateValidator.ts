@@ -1,16 +1,18 @@
-import WastePlantRepository from '../repositories/wastePlant/wastePlantRepository';
+import { IWastePlantRepository } from '../repositories/wastePlant/interface/IWastePlantRepository';
 
 export async function checkForDuplicateWastePlant(data: {
   email: string;
   licenseNumber: string;
   plantName: string;
-}) {
+},
+repository: IWastePlantRepository
+): Promise<void> {
   const { email, licenseNumber, plantName } = data;
 
   const [byEmail, byLicense, byName] = await Promise.all([
-    WastePlantRepository.findWastePlantByEmail(email),
-    WastePlantRepository.findWastePlantByLicense(licenseNumber),
-    WastePlantRepository.findWastePlantByName(plantName),
+    repository.findWastePlantByEmail(email),
+    repository.findWastePlantByLicense(licenseNumber),
+    repository.findWastePlantByName(plantName),
   ]);
 
   if (byEmail) {

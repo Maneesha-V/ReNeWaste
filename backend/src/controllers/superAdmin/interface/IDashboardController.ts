@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
 
-export interface IWastePlantController {
+export interface IDashboardController {
     fetchDashboard(req: Request, res: Response): Promise<void>;
 }

@@ -1,11 +1,18 @@
 import { Request, Response } from "express";
-import DashboardService from "../../services/superAdmin/dashboardService";
+import TYPES from "../../config/inversify/types";
+import { inject, injectable } from "inversify";
+import { IDashboardService } from "../../services/superAdmin/interface/IDashboardService";
+import { IDashboardController } from "./interface/IDashboardController";
 
-class DashboardController implements DashboardController {
-
+@injectable()
+export class DashboardController implements IDashboardController {
+  constructor(
+    @inject(TYPES.SuperAdminDashboardService)
+    private dashboardService: IDashboardService
+  ){}
     async fetchDashboard(req: Request,res: Response): Promise<void> {
       try { 
-        const data = await DashboardService.fetchDashboardData();
+        const data = await this.dashboardService.fetchDashboardData();
    
         res.status(200).json({
           success: true,
@@ -18,4 +25,3 @@ class DashboardController implements DashboardController {
       }
     }
 }
-export default new DashboardController();

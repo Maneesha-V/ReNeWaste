@@ -1,5 +1,4 @@
 import { Request, Response } from "express";
-
 import { IAuthController } from "./interface/IAuthController";
 import { generateRefreshToken } from "../../utils/authUtils";
 import { MESSAGES, STATUS_CODES } from "../../utils/constantUtils";

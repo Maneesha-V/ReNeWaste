@@ -2,6 +2,8 @@ const TYPES = {
 //--controllers--
 //superadmin
   SuperAdminAuthController: Symbol.for("SuperAdminAuthController"),
+  SuperAdminPlantController: Symbol.for("SuperAdminPlantController"),
+  SuperAdminDashboardController: Symbol.for("SuperAdminDashboardController"),
 //user
   UserAuthController: Symbol.for("UserAuthController"),
   UserProfileController: Symbol.for("UserProfileController"),
@@ -17,6 +19,8 @@ const TYPES = {
 
 //superadmin
   SuperAdminAuthService: Symbol.for("SuperAdminAuthService"),
+  SuperAdminPlantService: Symbol.for("SuperAdminPlantService"),
+  SuperAdminDashboardService: Symbol.for("SuperAdminDashboardService"),
 //user
   UserAuthService: Symbol.for("UserAuthService"),
   UserProfileService: Symbol.for("UserProfileService"),

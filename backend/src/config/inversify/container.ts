@@ -2,8 +2,14 @@ import { Container } from "inversify";
 import TYPES from "./types";
 
 //-- Controllers & their interfaces --
+//superadmin
 import { AuthController } from "../../controllers/superAdmin/authController";
 import { IAuthController } from "../../controllers/superAdmin/interface/IAuthController";
+import { IWastePlantController } from "../../controllers/superAdmin/interface/IWastePlantController";
+import { WastePlantController } from "../../controllers/superAdmin/wastePlantController";
+import { IDashboardController } from "../../controllers/superAdmin/interface/IDashboardController";
+import { DashboardController } from "../../controllers/superAdmin/dashboardController";
+//user
 import { UserController } from "../../controllers/user/userController";
 import { IUserController } from "../../controllers/user/interface/IUserController";
 import { IProfileController } from "../../controllers/user/interface/IProfileController";
@@ -15,12 +21,20 @@ import { CommercialController } from "../../controllers/user/commercialControlle
 import { IPickupController } from "../../controllers/user/interface/IPickupController";
 import { PickupController } from "../../controllers/user/pickupController";
 import { IPaymentController } from "../../controllers/user/interface/IPaymentController";
-import { IDropSpotController } from "../../controllers/user/interface/IDropSpotController";
 import { PaymentController } from "../../controllers/user/paymentController";
+import { IDropSpotController } from "../../controllers/user/interface/IDropSpotController";
 import { DropSpotController } from "../../controllers/user/dropSpotController";
+
 //-- Services & their interfaces --
+//superadmin
 import { SuperAdminAuthService } from "../../services/superAdmin/authService";
 import { ISuperAdminAuthService } from "../../services/superAdmin/interface/IAuthService";
+import { IWastePlantService } from "../../services/superAdmin/interface/IWastePlantService";
+import { WastePlantService } from "../../services/superAdmin/wastePlantService";
+import { IDashboardService } from "../../services/superAdmin/interface/IDashboardService";
+import { DashboardService } from "../../services/superAdmin/dashboardService";
+
+//user
 import { IAuthService } from "../../services/user/interface/IAuthService";
 import { AuthService } from "../../services/user/authService";
 import { IResidentialService } from "../../services/user/interface/IResidentialService";
@@ -57,6 +71,8 @@ const container = new Container();
 //--Bind Controllers--
 //superadmin
 container.bind<IAuthController>(TYPES.SuperAdminAuthController).to(AuthController);
+container.bind<IWastePlantController>(TYPES.SuperAdminPlantController).to(WastePlantController);
+container.bind<IDashboardController>(TYPES.SuperAdminDashboardController).to(DashboardController);
 //user
 container.bind<IUserController>(TYPES.UserAuthController).to(UserController);
 container.bind<IProfileController>(TYPES.UserProfileController).to(ProfileController);
@@ -71,6 +87,8 @@ container.bind<IDropSpotController>(TYPES.UserDropSpotController).to(DropSpotCon
 //--Bind Services--
 //superadmin
 container.bind<ISuperAdminAuthService>(TYPES.SuperAdminAuthService).to(SuperAdminAuthService);
+container.bind<IWastePlantService>(TYPES.SuperAdminPlantService).to(WastePlantService);
+container.bind<IDashboardService>(TYPES.SuperAdminDashboardService).to(DashboardService);
 //user
 container.bind<IAuthService>(TYPES.UserAuthService).to(AuthService);
 container.bind<IProfileService>(TYPES.UserProfileService).to(ProfileService);
