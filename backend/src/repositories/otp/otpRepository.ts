@@ -3,7 +3,8 @@ import { IOtpDocument } from "../../models/user/interfaces/otpInterface";
 import { OTPModel } from "../../models/user/otpModel";
 import { OtpRecord } from "../../types/user/authTypes";
 import BaseRepository from "../baseRepository/baseRepository";
-import { IOtpRepository } from "./interface/IOTPRepository";
+import { IOtpRepository } from "./interface/IOtpRepository";
+
 
 @injectable()
 export class OtpRepository extends BaseRepository<IOtpDocument> implements IOtpRepository {

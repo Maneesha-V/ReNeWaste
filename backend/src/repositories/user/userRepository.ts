@@ -9,7 +9,7 @@ import { PaginatedUsersResult } from "../../types/wastePlant/userTypes";
 import BaseRepository from "../baseRepository/baseRepository";
 import { inject, injectable } from "inversify";
 import TYPES from "../../config/inversify/types";
-import { IOtpRepository } from "../otp/interface/IOTPRepository";
+import { IOtpRepository } from "../otp/interface/IOtpRepository";
 
 @injectable()
 export class UserRepository

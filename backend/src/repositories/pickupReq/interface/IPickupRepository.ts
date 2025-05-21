@@ -14,5 +14,16 @@ export interface IPickupRepository {
     updatePickupRequest(pickupReqId: string, updatePayload: IUpdatePickupRequest): Promise<IPickupRequestDocument>;
     updatePickupDate(pickupReqId: string, updateData: any): Promise<IPickupRequestDocument>;
     getPickupsByDriverId(filters: PickupDriverFilterParams): Promise<EnhancedPickup[]>;
+    findPickupByIdAndDriver(pickupReqId: string, driverId: string): Promise<EnhancedPickup | null>;
+    updateETAAndTracking(
+      pickupReqId: string,
+      updateFields: { eta: { text: string; value: number } }
+    ): Promise<void>;
     getPickupPlansByUserId(userId: string): Promise<IPickupRequestDocument[]>;
+    updateTrackingStatus(pickupReqId: string, trackingStatus: string): Promise<IPickupRequestDocument | null>;
+    updatePickupStatus(pickupReqId: string, status: string): Promise<IPickupRequestDocument | null>;
+    markPickupCompletedStatus(pickupReqId: string): Promise<IPickupRequestDocument | null>;
+    getPickupByUserIdAndPickupReqId(pickupReqId: string, userId: string): Promise<IPickupRequestDocument | null>;
+    savePaymentDetails(pickupReqId: string, paymentData: any, userId: string): Promise<IPickupRequestDocument>;
+    getAllPaymentsByUser(userId: string): Promise<Partial<IPickupRequest>[]>;
 }

@@ -1,15 +1,42 @@
 const TYPES = {
-//controllers
+//--controllers--
+//superadmin
   SuperAdminAuthController: Symbol.for("SuperAdminAuthController"),
+//user
+  UserAuthController: Symbol.for("UserAuthController"),
+  UserProfileController: Symbol.for("UserProfileController"),
+  ResidentialController: Symbol.for("ResidentialController"),
+  CommercialController: Symbol.for("CommercialController"),
+  UserPickupController: Symbol.for("UserPickupController"),
+  UserPaymentController: Symbol.for("UserPaymentController"),
+  UserDropSpotController: Symbol.for("UserDropSpotController"),
+//wasteplant
 
-//services
+//driver
+//--services--
+
+//superadmin
   SuperAdminAuthService: Symbol.for("SuperAdminAuthService"),
+//user
+  UserAuthService: Symbol.for("UserAuthService"),
+  UserProfileService: Symbol.for("UserProfileService"),
+  ResidentialService: Symbol.for("ResidentialService"),
+  CommercialService: Symbol.for("CommercialService"),
+  UserPickupService: Symbol.for("UserPickupService"),
+  UserPaymentService: Symbol.for("UserPaymentService"),
+  UserDropSpotService: Symbol.for("UserDropSpotService"),
+//wasteplant
 
-//repositories
-//   ISuperAdminRepository: Symbol.for("ISuperAdminRepository"),
+//driver
+
+//--repositories--
+
   SuperAdminRepository: Symbol.for("SuperAdminRepository"),
   UserRepository: Symbol.for("UserRepository"),
   OtpRepository: Symbol.for("OtpRepository"),
+  WastePlantRepository: Symbol.for("WastePlantRepository"),
+  PickupRepository: Symbol.for("PickupRepository"),
+  DropSpotRepository: Symbol.for("DropSpotRepository"),
 };
 
 export default TYPES;

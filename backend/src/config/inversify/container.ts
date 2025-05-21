@@ -4,32 +4,90 @@ import TYPES from "./types";
 //-- Controllers & their interfaces --
 import { AuthController } from "../../controllers/superAdmin/authController";
 import { IAuthController } from "../../controllers/superAdmin/interface/IAuthController";
-
-
+import { UserController } from "../../controllers/user/userController";
+import { IUserController } from "../../controllers/user/interface/IUserController";
+import { IProfileController } from "../../controllers/user/interface/IProfileController";
+import { ProfileController } from "../../controllers/user/profileController"; 
+import { IResidentialController } from "../../controllers/user/interface/IResidentialController";
+import { ResidentialController } from "../../controllers/user/residentialController";
+import { ICommercialController } from "../../controllers/user/interface/ICommercialController";
+import { CommercialController } from "../../controllers/user/commercialController";
+import { IPickupController } from "../../controllers/user/interface/IPickupController";
+import { PickupController } from "../../controllers/user/pickupController";
+import { IPaymentController } from "../../controllers/user/interface/IPaymentController";
+import { IDropSpotController } from "../../controllers/user/interface/IDropSpotController";
+import { PaymentController } from "../../controllers/user/paymentController";
+import { DropSpotController } from "../../controllers/user/dropSpotController";
 //-- Services & their interfaces --
 import { SuperAdminAuthService } from "../../services/superAdmin/authService";
 import { ISuperAdminAuthService } from "../../services/superAdmin/interface/IAuthService";
-
+import { IAuthService } from "../../services/user/interface/IAuthService";
+import { AuthService } from "../../services/user/authService";
+import { IResidentialService } from "../../services/user/interface/IResidentialService";
+import { ResidentialService } from "../../services/user/residentialService";
+import { IPickupService } from "../../services/user/interface/IPIckupService";
+import { PickupService } from "../../services/user/pickupService";
+import { ICommercialService } from "../../services/user/interface/ICommercialService";
+import { CommercialService } from "../../services/user/commercialService";
+import { IPaymentService } from "../../services/user/interface/IPaymentService";
+import { PaymentService } from "../../services/user/paymentService";
+import { IProfileService } from "../../services/user/interface/IProfileService";
+import { ProfileService } from "../../services/user/profileService";
+import { IDropSpotService } from "../../services/user/interface/IDropSpotservice";
+import { DropSpotService } from "../../services/user/dropSpotService";
 //-- Repositories & their interfaces --
 import { SuperAdminRepository } from "../../repositories/superAdmin/superAdminRepository";
 import { ISuperAdminRepository } from "../../repositories/superAdmin/interface/ISuperAdminRepository";
 import { UserRepository } from "../../repositories/user/userRepository";
 import { IUserRepository } from "../../repositories/user/interface/IUserRepository";
 import { OtpRepository } from "../../repositories/otp/otpRepository";
-import { IOtpRepository } from "../../repositories/otp/interface/IOTPRepository";
+import { IOtpRepository } from "../../repositories/otp/interface/IOtpRepository";
+import { IPickupRepository } from "../../repositories/pickupReq/interface/IPickupRepository";
+import { PickupRepository } from "../../repositories/pickupReq/pickupRepository";
+import { IDropSpotRepository } from "../../repositories/dropSpot/interface/IDropSpotRepository";
+import { DropSpotRepository } from "../../repositories/dropSpot/dropSpotRepository";
+import { IWastePlantRepository } from "../../repositories/wastePlant/interface/IWastePlantRepository";
+import { WastePlantRepository } from "../../repositories/wastePlant/wastePlantRepository";
+
+
 
 //Create the container
 const container = new Container();
 
-// Bind Controllers
+//--Bind Controllers--
+//superadmin
 container.bind<IAuthController>(TYPES.SuperAdminAuthController).to(AuthController);
+//user
+container.bind<IUserController>(TYPES.UserAuthController).to(UserController);
+container.bind<IProfileController>(TYPES.UserProfileController).to(ProfileController);
+container.bind<IResidentialController>(TYPES.ResidentialController).to(ResidentialController);
+container.bind<ICommercialController>(TYPES.CommercialController).to(CommercialController);
+container.bind<IPickupController>(TYPES.UserPickupController).to(PickupController);
+container.bind<IPaymentController>(TYPES.UserPaymentController).to(PaymentController);
+container.bind<IDropSpotController>(TYPES.UserDropSpotController).to(DropSpotController);
+//wasteplant
+//driver
 
-// Bind Services
+//--Bind Services--
+//superadmin
 container.bind<ISuperAdminAuthService>(TYPES.SuperAdminAuthService).to(SuperAdminAuthService);
+//user
+container.bind<IAuthService>(TYPES.UserAuthService).to(AuthService);
+container.bind<IProfileService>(TYPES.UserProfileService).to(ProfileService);
+container.bind<IResidentialService>(TYPES.ResidentialService).to(ResidentialService);
+container.bind<ICommercialService>(TYPES.CommercialService).to(CommercialService);
+container.bind<IPickupService>(TYPES.UserPickupService).to(PickupService);
+container.bind<IPaymentService>(TYPES.UserPaymentService).to(PaymentService);
+container.bind<IDropSpotService>(TYPES.UserDropSpotService).to(DropSpotService);
+//wasteplant
+//driver
 
-// Bind Repositories
+//--Bind Repositories--
 container.bind<ISuperAdminRepository>(TYPES.SuperAdminRepository).to(SuperAdminRepository);
 container.bind<IUserRepository>(TYPES.UserRepository).to(UserRepository);
 container.bind<IOtpRepository>(TYPES.OtpRepository).to(OtpRepository);
+container.bind<IPickupRepository>(TYPES.PickupRepository).to(PickupRepository);
+container.bind<IDropSpotRepository>(TYPES.DropSpotRepository).to(DropSpotRepository);
+container.bind<IWastePlantRepository>(TYPES.WastePlantRepository).to(WastePlantRepository);
 
 export default container;

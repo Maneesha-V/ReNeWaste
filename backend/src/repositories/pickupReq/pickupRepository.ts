@@ -12,19 +12,30 @@ import {
 } from "./interface/IPickupRepository";
 import { IUpdatePickupRequest } from "../../types/wastePlant/pickupTypes";
 import { PickupDriverFilterParams } from "../../types/driver/pickupTypes";
-import { UserModel } from "../../models/user/userModel";
+import BaseRepository from "../baseRepository/baseRepository";
+import { inject, injectable } from "inversify";
+import TYPES from "../../config/inversify/types";
+import { IUserRepository } from "../user/interface/IUserRepository";
+import { IUserDocument } from "../../models/user/interfaces/userInterface";
 
-class PickupRepository implements IPickupRepository {
+@injectable()
+export class PickupRepository extends BaseRepository<IPickupRequestDocument> implements IPickupRepository {
+  constructor(
+    @inject(TYPES.UserRepository) 
+    private userRepository: IUserRepository
+  ) {
+    super(PickupModel);
+  }
   async getPickupById(pickupReqId: string) {
-    const pickup = await PickupModel.findById(pickupReqId);
+    const pickup = await this.model.findById(pickupReqId);
     if (!pickup) throw new Error("Pickup not found");
     return pickup;
   }
   async createPickup(pickupData: Partial<IPickupRequest>) {
-    const count = await PickupModel.countDocuments();
+    const count = await this.model.countDocuments();
     const paddedId = String(count + 1).padStart(4, "0");
     const pickupId = `PUR${paddedId}`;
-    const newPickup = new PickupModel({
+    const newPickup = new this.model({
       ...pickupData,
       pickupId,
     });
@@ -44,7 +55,7 @@ class PickupRepository implements IPickupRepository {
       query.wasteType = wasteType;
     }
 
-    const pickups = await PickupModel.find(query)
+    const pickups = await this.model.find(query)
       .populate({
         path: "userId",
         select: "firstName lastName addresses",
@@ -92,7 +103,7 @@ class PickupRepository implements IPickupRepository {
     }
   ) {
     const objectId = new Types.ObjectId(pickupReqId);
-    const updated = await PickupModel.findByIdAndUpdate(
+    const updated = await this.model.findByIdAndUpdate(
       objectId,
       {
         $set: {
@@ -113,7 +124,7 @@ class PickupRepository implements IPickupRepository {
     updatePayload: IUpdatePickupRequest
   ) {
     try {
-      const updatedPickupRequest = await PickupModel.findByIdAndUpdate(
+      const updatedPickupRequest = await this.model.findByIdAndUpdate(
         pickupReqId,
         { $set: updatePayload },
         { new: true }
@@ -129,7 +140,7 @@ class PickupRepository implements IPickupRepository {
     }
   }
   async updatePickupDate(pickupReqId: string, updateData: any) {
-    const updated = await PickupModel.findByIdAndUpdate(
+    const updated = await this.model.findByIdAndUpdate(
       pickupReqId,
       updateData,
       { new: true }
@@ -143,7 +154,7 @@ class PickupRepository implements IPickupRepository {
   }
   async getPickupsByDriverId(filters: PickupDriverFilterParams) {
     const { driverId, wasteType } = filters;
-    const pickups = (await PickupModel.find({
+    const pickups = (await this.model.find({
       driverId: driverId,
       wasteType: wasteType,
       status: { $in: ["Scheduled", "Rescheduled"] },
@@ -170,17 +181,18 @@ class PickupRepository implements IPickupRepository {
   async findPickupByIdAndDriver(pickupReqId: string, driverId: string) {
     const objectIdPickup = new Types.ObjectId(pickupReqId);
     const objectIdDriver = new Types.ObjectId(driverId);
-    const pickup = (await PickupModel.findOne({
+    const pickup = (await this.model.findOne({
       _id: objectIdPickup,
       driverId: objectIdDriver,
     }).lean()) as EnhancedPickup;
 
     if (!pickup) return null;
 
-    const user = await UserModel.findOne(
+    const user = await this.userRepository.findOne(
       { _id: pickup.userId, "addresses._id": pickup.addressId },
-      { "addresses.$": 1, firstName: 1, lastName: 1 }
-    ).lean();
+      { "addresses.$": 1, firstName: 1, lastName: 1 },
+      true
+    );
 
     if (user && user.addresses?.[0]) {
       pickup.selectedAddress = user.addresses[0];
@@ -199,7 +211,7 @@ class PickupRepository implements IPickupRepository {
       // trackingStatus: "Assigned";
     }
   ) {
-    const res = await PickupModel.findByIdAndUpdate(pickupReqId, {
+    const res = await this.model.findByIdAndUpdate(pickupReqId, {
       eta: updateFields.eta,
       // trackingStatus: updateFields.trackingStatus,
     });
@@ -207,7 +219,7 @@ class PickupRepository implements IPickupRepository {
   }
 
   async getPickupPlansByUserId(userId: string) {
-    const pickups = await PickupModel.find({
+    const pickups = await this.model.find({
       userId: new mongoose.Types.ObjectId(userId),
     })
       .populate({
@@ -220,7 +232,7 @@ class PickupRepository implements IPickupRepository {
       })
       .lean();
 
-    const user = await UserModel.findById(userId).lean();
+    const user: IUserDocument = await this.userRepository.findById(userId, true);
 
     (pickups as any[]).forEach((pickup) => {
       const matchedAddress = user?.addresses?.find(
@@ -268,7 +280,7 @@ class PickupRepository implements IPickupRepository {
     pickupReqId: string,
     trackingStatus: string
   ): Promise<IPickupRequestDocument | null> {
-    const updatedPickup = await PickupModel.findByIdAndUpdate(
+    const updatedPickup = await this.model.findByIdAndUpdate(
       pickupReqId,
       { trackingStatus },
       { new: true }
@@ -281,7 +293,7 @@ class PickupRepository implements IPickupRepository {
     return updatedPickup;
   }
   async updatePickupStatus(pickupReqId: string, status: string) {
-    const res = await PickupModel.findOneAndUpdate(
+    const res = await this.model.findOneAndUpdate(
       { pickupReqId },
       { status: status },
       { new: true }
@@ -292,7 +304,7 @@ class PickupRepository implements IPickupRepository {
   async markPickupCompletedStatus(
     pickupReqId: string
   ): Promise<IPickupRequestDocument | null> {
-    const pickup = await PickupModel.findById(pickupReqId);
+    const pickup = await this.model.findById(pickupReqId);
     console.log("pickup.....",pickup);
     
     if (!pickup) {
@@ -314,7 +326,7 @@ class PickupRepository implements IPickupRepository {
     return updatedPickup;
   }
   async getPickupByUserIdAndPickupReqId(pickupReqId: string, userId: string) {
-    return await PickupModel.findOne({
+    return await this.model.findOne({
       _id: pickupReqId,
       userId: userId,
     });
@@ -324,7 +336,7 @@ class PickupRepository implements IPickupRepository {
     paymentData: any,
     userId: string
   ) {
-    const pickup = await PickupModel.findOneAndUpdate(
+    const pickup = await this.model.findOneAndUpdate(
       { _id: pickupReqId, userId },
       { $set: { payment: paymentData } },
       { new: true }
@@ -338,7 +350,7 @@ class PickupRepository implements IPickupRepository {
   }
 
   async getAllPaymentsByUser(userId: string) {
-    return await PickupModel.find(
+    return await this.model.find(
       {
         userId,
         "payment.amount": { $exists: true },
@@ -354,4 +366,4 @@ class PickupRepository implements IPickupRepository {
     ).sort({ createdAt: -1 });
   }
 }
-export default new PickupRepository();
+

@@ -12,10 +12,12 @@ export interface IWastePlantRepository {
   findWastePlantByName(plantName: string): Promise<IWastePlant | null>;
   getAllWastePlants(): Promise<IWastePlant[]>;
   getWastePlantById(id: string): Promise<IWastePlant | null>;
+  updateWastePlantById(id: string,data: any): Promise<IWastePlant | null>;
   saveOtp(email: string, otp: string): Promise<void>;
   reSaveOtp(email: string, otp: string): Promise<void>;
   findOtpByEmail(email: string): Promise<OtpRecord | null>;
   deleteOtp(email: string): Promise<void>;
   updateWastePlantPassword( email: string, hashedPassword: string): Promise<void>;
+  findByPincode(pincode: string): Promise<void>;
   deleteWastePlantById(id: string): Promise<IWastePlantDocument | null>;
 }

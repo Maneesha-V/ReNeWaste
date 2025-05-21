@@ -1,12 +1,18 @@
 import mongoose from "mongoose";
 import { DropSpotModel } from "../../models/dropSpots/dropSpotModel";
-import { IDropSpot } from "../../models/dropSpots/interfaces/dropSpotInterface";
+import { IDropSpot, IDropSpotDocument } from "../../models/dropSpots/interfaces/dropSpotInterface";
 import { IDropSpotRepository } from "./interface/IDropSpotRepository";
 import { PaginatedDropSpotsResult } from "../../types/wastePlant/dropspotTypes";
+import BaseRepository from "../baseRepository/baseRepository";
+import { injectable } from "inversify";
 
-class DropSpotRepository implements IDropSpotRepository {
+@injectable()
+export class DropSpotRepository extends BaseRepository<IDropSpotDocument>  implements IDropSpotRepository {
+  constructor() {
+    super(DropSpotModel);
+  } 
   async createDropSpot(payload: IDropSpot) {
-    const created = new DropSpotModel(payload);
+    const created = new this.model(payload);
     return await created.save();
   }
   async getDropSpotsByWastePlantId(
@@ -28,12 +34,12 @@ class DropSpotRepository implements IDropSpotRepository {
     };
     const skip = (page - 1) * limit;
 
-    const dropspots = await DropSpotModel.find(query)
+    const dropspots = await this.model.find(query)
       .skip(skip)
       .limit(limit)
       .sort({ createdAt: -1 });
 
-    const total = await DropSpotModel.countDocuments(query);
+    const total = await this.model.countDocuments(query);
 
     return { dropspots, total };
 
@@ -49,7 +55,7 @@ class DropSpotRepository implements IDropSpotRepository {
     state: string;
     wasteplantId: mongoose.Types.ObjectId;
   }): Promise<IDropSpot[]> {
-    return await DropSpotModel.find({
+    return await this.model.find({
       location,
       district,
       state,
@@ -60,22 +66,22 @@ class DropSpotRepository implements IDropSpotRepository {
   async findDropSpotById(dropSpotId: string) {
     console.log(dropSpotId);
 
-    return await DropSpotModel.findOne({
+    return await this.model.findOne({
       _id: new mongoose.Types.ObjectId(dropSpotId),
     });
   }
   async deleteDropSpotById(dropSpotId: string, wasteplantId: string) {
-    return await DropSpotModel.findOneAndDelete({
+    return await this.model.findOneAndDelete({
       _id: new mongoose.Types.ObjectId(dropSpotId),
       wasteplantId,
     });
   }
 
   async updateDropSpot(dropSpotId: string, updateData: any) {
-    return await DropSpotModel.findByIdAndUpdate(dropSpotId, updateData, {
+    return await this.model.findByIdAndUpdate(dropSpotId, updateData, {
       new: true,
     });
   }
 }
 
-export default new DropSpotRepository();
+
