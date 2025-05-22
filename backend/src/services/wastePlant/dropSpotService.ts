@@ -1,12 +1,17 @@
-import { Response } from "express";
-import { AuthRequest } from "../../types/common/middTypes";
 import { IDropSpotService } from "./interface/IDropSpotService";
 import { IDropSpot } from "../../models/dropSpots/interfaces/dropSpotInterface";
-import DropSpotRepository from "../../repositories/dropSpot/dropSpotRepository";
 import axios from "axios";
 import { PaginatedDropSpotsResult } from "../../types/wastePlant/dropspotTypes";
+import { inject, injectable } from "inversify";
+import TYPES from "../../config/inversify/types";
+import { IDropSpotRepository } from "../../repositories/dropSpot/interface/IDropSpotRepository";
 
-class DropSpotService implements IDropSpotService {
+@injectable()
+export class DropSpotService implements IDropSpotService {
+  constructor(
+    @inject(TYPES.DropSpotRepository)
+    private dropSpotRepository: IDropSpotRepository
+  ) {}
   async createDropSpotService(payload: IDropSpot) {
     const apiKey = process.env.GOOGLE_MAPS_API_KEY;
     try {
@@ -32,20 +37,30 @@ class DropSpotService implements IDropSpotService {
         throw new Error("Unable to fetch coordinates for the given address.");
       }
 
-      return await DropSpotRepository.createDropSpot(payload);
+      return await this.dropSpotRepository.createDropSpot(payload);
     } catch (error) {
       console.error("Error in createDropSpotService:", error);
       throw error;
     }
   }
-  async getAllDropSpots(wasteplantId: string, page: number, limit: number, search: string): Promise<PaginatedDropSpotsResult> {
-    return await DropSpotRepository.getDropSpotsByWastePlantId(wasteplantId, page, limit, search);
+  async getAllDropSpots(
+    wasteplantId: string,
+    page: number,
+    limit: number,
+    search: string
+  ): Promise<PaginatedDropSpotsResult> {
+    return await this.dropSpotRepository.getDropSpotsByWastePlantId(
+      wasteplantId,
+      page,
+      limit,
+      search
+    );
   }
   async getDropSpotByIdService(
     dropSpotId: string,
     wasteplantId: string
   ): Promise<IDropSpot | null> {
-    const dropSpot = await DropSpotRepository.findDropSpotById(dropSpotId);
+    const dropSpot = await this.dropSpotRepository.findDropSpotById(dropSpotId);
     if (!dropSpot || dropSpot.wasteplantId.toString() !== wasteplantId) {
       return null;
     }
@@ -56,7 +71,7 @@ class DropSpotService implements IDropSpotService {
     dropSpotId: string,
     wasteplantId: string
   ): Promise<IDropSpot | null> {
-    return await DropSpotRepository.deleteDropSpotById(
+    return await this.dropSpotRepository.deleteDropSpotById(
       dropSpotId,
       wasteplantId
     );
@@ -67,16 +82,15 @@ class DropSpotService implements IDropSpotService {
     dropSpotId: string,
     updateData: any
   ) {
-    const dropSpot = await DropSpotRepository.findDropSpotById(dropSpotId);
+    const dropSpot = await this.dropSpotRepository.findDropSpotById(dropSpotId);
     if (!dropSpot || dropSpot.wasteplantId.toString() !== wasteplantId) {
       return null;
     }
 
-    const updatedDropSpot = await DropSpotRepository.updateDropSpot(
+    const updatedDropSpot = await this.dropSpotRepository.updateDropSpot(
       dropSpotId,
       updateData
     );
     return updatedDropSpot;
   }
 }
-export default new DropSpotService();

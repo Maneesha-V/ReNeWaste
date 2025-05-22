@@ -1,63 +1,72 @@
 import express, { RequestHandler } from "express";
-import AuthController from "../controllers/wastePlant/authController";
-import DriverController from "../controllers/wastePlant/driverController";
-import TruckController from "../controllers/wastePlant/truckController";
-import PickupController from "../controllers/wastePlant/pickupController";
-import ChatController from "../controllers/wastePlant/chatController";
-import DropSpotController from "../controllers/wastePlant/dropSpotController";
-import UserController from "../controllers/wastePlant/userController";
+import { AuthController } from "../controllers/wastePlant/authController";
+import { DriverController } from "../controllers/wastePlant/driverController";
+import { TruckController } from "../controllers/wastePlant/truckController";
+import { PickupController } from "../controllers/wastePlant/pickupController";
+import { ChatController } from "../controllers/wastePlant/chatController";
+import { DropSpotController } from "../controllers/wastePlant/dropSpotController";
+import { UserController } from "../controllers/wastePlant/userController";
 import { authenticateWastePlant } from "../middlewares/authMiddware";
 import uploadImages from "../middlewares/imageUploader";
+import TYPES from "../config/inversify/types";
+import container from "../config/inversify/container";
 
 const router = express.Router();
+const plantCtrl = container.get<AuthController>(TYPES.PlantAuthController);
+const plantTruckCtrl = container.get<TruckController>(TYPES.PlantTruckController);
+const plantDriverCtrl = container.get<DriverController>(TYPES.PlantDriverController);
+const plantPickupCtrl = container.get<PickupController>(TYPES.PlantPickupController);
+const plantDropSpotCtrl = container.get<DropSpotController>(TYPES.PlantDropSpotController);
+const plantChatCtrl = container.get<ChatController>(TYPES.PlantChatController);
+const plantUserCtrl = container.get<UserController>(TYPES.PlantUserController);
 
-router.get("/refresh-token", AuthController.refreshToken)
-router.post("/", AuthController.wastePlantLogin);
-router.post("/logout", AuthController.wastePlantLogout);
-router.post("/send-otp", AuthController.sendOtp);
-router.post("/resend-otp", AuthController.resendOtp);
-router.post("/verify-otp", AuthController.verifyOtp);
-router.post("/reset-password", AuthController.resetPassword);
+router.get("/refresh-token", plantCtrl.refreshToken.bind(plantCtrl));
+router.post("/", plantCtrl.wastePlantLogin.bind(plantCtrl));
+router.post("/logout", plantCtrl.wastePlantLogout.bind(plantCtrl));
+router.post("/send-otp", plantCtrl.sendOtp.bind(plantCtrl));
+router.post("/resend-otp", plantCtrl.resendOtp.bind(plantCtrl));
+router.post("/verify-otp", plantCtrl.verifyOtp.bind(plantCtrl));
+router.post("/reset-password", plantCtrl.resetPassword.bind(plantCtrl));
 router.post("/add-driver", authenticateWastePlant as RequestHandler, uploadImages.fields([
     { name: "licenseFront", maxCount: 1 },
     { name: "licenseBack", maxCount: 1 },
   ]),
-  DriverController.addDriver
+  plantDriverCtrl.addDriver.bind(plantDriverCtrl)
 );
-router.get("/drivers",authenticateWastePlant as RequestHandler, DriverController.fetchDrivers);
-router.get("/edit-driver/:driverId",authenticateWastePlant as RequestHandler, DriverController.getDriverById);
+router.get("/drivers",authenticateWastePlant as RequestHandler, plantDriverCtrl.fetchDrivers.bind(plantDriverCtrl));
+router.get("/edit-driver/:driverId",authenticateWastePlant as RequestHandler, plantDriverCtrl.getDriverById.bind(plantDriverCtrl));
 router.patch(
   "/edit-driver/:driverId",authenticateWastePlant as RequestHandler,
   uploadImages.fields([
     { name: "licenseFront", maxCount: 1 },
     { name: "licenseBack", maxCount: 1 },
   ]),
-  DriverController.updateDriver
+  plantDriverCtrl.updateDriver.bind(plantDriverCtrl)
 );
-router.delete("/delete-driver/:driverId", authenticateWastePlant as RequestHandler, DriverController.deleteDriverById)
-router.get("/trucks", authenticateWastePlant as RequestHandler, TruckController.fetchTrucks);
-router.get("/available-trucks", authenticateWastePlant as RequestHandler, TruckController.fetchAvailableTrucks);
-router.post("/add-truck", authenticateWastePlant as RequestHandler, TruckController.addTruck);
-router.get("/edit-truck/:truckId",authenticateWastePlant as RequestHandler, TruckController.getTruckById);
-router.patch("/edit-truck/:truckId", authenticateWastePlant as RequestHandler, TruckController.updateTruck);
-router.delete("/delete-truck/:truckId", authenticateWastePlant as RequestHandler, TruckController.deleteTruckById)
-router.get("/pending-truck-req", authenticateWastePlant as RequestHandler, TruckController.getAvailableTruckReqsts)
-router.get("/trucks-for-driver", authenticateWastePlant as RequestHandler, TruckController.getTrucksForDriver)
-router.post("/assign-truck", authenticateWastePlant as RequestHandler, TruckController.assignTruckToDriver)
+router.delete("/delete-driver/:driverId", authenticateWastePlant as RequestHandler, plantDriverCtrl.deleteDriverById.bind(plantDriverCtrl))
+router.get("/trucks", authenticateWastePlant as RequestHandler, plantTruckCtrl.fetchTrucks.bind(plantTruckCtrl));
+router.get("/available-trucks", authenticateWastePlant as RequestHandler, plantTruckCtrl.fetchAvailableTrucks.bind(plantTruckCtrl));
+router.post("/add-truck", authenticateWastePlant as RequestHandler, plantTruckCtrl.addTruck.bind(plantTruckCtrl));
+router.get("/edit-truck/:truckId",authenticateWastePlant as RequestHandler, plantTruckCtrl.getTruckById.bind(plantTruckCtrl));
+router.patch("/edit-truck/:truckId", authenticateWastePlant as RequestHandler, plantTruckCtrl.updateTruck.bind(plantTruckCtrl));
+router.delete("/delete-truck/:truckId", authenticateWastePlant as RequestHandler, plantTruckCtrl.deleteTruckById.bind(plantTruckCtrl))
+router.get("/pending-truck-req", authenticateWastePlant as RequestHandler, plantTruckCtrl.getAvailableTruckReqsts.bind(plantTruckCtrl))
+router.get("/trucks-for-driver", authenticateWastePlant as RequestHandler, plantTruckCtrl.getTrucksForDriver.bind(plantTruckCtrl))
+router.post("/assign-truck", authenticateWastePlant as RequestHandler, plantTruckCtrl.assignTruckToDriver.bind(plantTruckCtrl))
 
-router.get("/pickups", authenticateWastePlant as RequestHandler, PickupController.getPickupRequests);
-router.patch("/approve-pickup/:pickupReqId",authenticateWastePlant as RequestHandler, PickupController.approvePickup)
-router.put("/cancel-pickupReq/:pickupReqId",authenticateWastePlant as RequestHandler, PickupController.cancelPickup)
-router.put("/reschedule-pickup/:pickupReqId",authenticateWastePlant as RequestHandler, PickupController.reschedulePickup)
-router.get("/drivers-in-place", authenticateWastePlant as RequestHandler, PickupController.fetchDriversByPlace)
-router.post("/conversation", authenticateWastePlant as RequestHandler, ChatController.getConversationId)
-router.post("/chat-messages", authenticateWastePlant as RequestHandler, ChatController.getChatMessages)
-router.post("/add-drop-spot", authenticateWastePlant as RequestHandler, DropSpotController.createDropSpot)
-router.get("/drop-spots", authenticateWastePlant as RequestHandler, DropSpotController.fetchDropSpots)
-router.get("/edit-drop-spot/:dropSpotId", authenticateWastePlant as RequestHandler, DropSpotController.fetchDropSpotById)
-router.patch("/edit-drop-spot/:dropSpotId", authenticateWastePlant as RequestHandler, DropSpotController.updateDropSpot)
-router.delete("/delete-drop-spot/:dropSpotId", authenticateWastePlant as RequestHandler, DropSpotController.deleteDropSpotById)
-router.get("/users", authenticateWastePlant as RequestHandler, UserController.fetchUsers)
-router.patch("/users/:userId/block", authenticateWastePlant as RequestHandler, UserController.userBlockStatus)
+router.get("/pickups", authenticateWastePlant as RequestHandler, plantPickupCtrl.getPickupRequests.bind(plantPickupCtrl));
+router.patch("/approve-pickup/:pickupReqId",authenticateWastePlant as RequestHandler, plantPickupCtrl.approvePickup.bind(plantPickupCtrl))
+router.put("/cancel-pickupReq/:pickupReqId",authenticateWastePlant as RequestHandler, plantPickupCtrl.cancelPickup.bind(plantPickupCtrl))
+router.put("/reschedule-pickup/:pickupReqId",authenticateWastePlant as RequestHandler, plantPickupCtrl.reschedulePickup.bind(plantPickupCtrl))
+router.get("/drivers-in-place", authenticateWastePlant as RequestHandler, plantPickupCtrl.fetchDriversByPlace.bind(plantPickupCtrl))
+router.post("/conversation", authenticateWastePlant as RequestHandler, plantChatCtrl.getConversationId.bind(plantChatCtrl))
+router.post("/chat-messages", authenticateWastePlant as RequestHandler, plantChatCtrl.getChatMessages.bind(plantChatCtrl))
+router.post("/add-drop-spot", authenticateWastePlant as RequestHandler, plantDropSpotCtrl.createDropSpot.bind(plantDropSpotCtrl))
+router.get("/drop-spots", authenticateWastePlant as RequestHandler, plantDropSpotCtrl.fetchDropSpots.bind(plantDropSpotCtrl))
+router.get("/edit-drop-spot/:dropSpotId", authenticateWastePlant as RequestHandler, plantDropSpotCtrl.fetchDropSpotById.bind(plantDropSpotCtrl))
+router.patch("/edit-drop-spot/:dropSpotId", authenticateWastePlant as RequestHandler, plantDropSpotCtrl.updateDropSpot.bind(plantDropSpotCtrl))
+router.delete("/delete-drop-spot/:dropSpotId", authenticateWastePlant as RequestHandler, plantDropSpotCtrl.deleteDropSpotById.bind(plantDropSpotCtrl))
+router.get("/users", authenticateWastePlant as RequestHandler, plantUserCtrl.fetchUsers.bind(plantUserCtrl))
+router.patch("/users/:userId/block", authenticateWastePlant as RequestHandler, plantUserCtrl.userBlockStatus.bind(plantUserCtrl))
 
 export default router;

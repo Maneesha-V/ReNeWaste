@@ -7,5 +7,5 @@ export interface IChatService {
         receiverId: string,
         receiverRole: ParticipantRole
     ): Promise<string>;
-    
+    getChatMessageService(conversationId: string): Promise<any>;
 }

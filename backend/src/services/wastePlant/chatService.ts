@@ -1,9 +1,18 @@
 import { IChatService } from "./interface/IChatService";
-import ConversationRepository from "../../repositories/chat/conversationRepository";
-import ChatMsgRepository from "../../repositories/chat/chatMsgRepository";
 import { ParticipantRole } from "../../models/chat/interfaces/conversationInterface";
+import { inject, injectable } from "inversify";
+import TYPES from "../../config/inversify/types";
+import { IChatMsgRepository } from "../../repositories/chat/interface/IChatMsgRepository";
+import { IConversationRepository } from "../../repositories/chat/interface/IConversation";
 
-class ChatService implements IChatService {
+@injectable()
+export class ChatService implements IChatService {
+  constructor(
+    @inject(TYPES.ChatMsgRepository)
+    private chatMsgRepository: IChatMsgRepository,
+    @inject(TYPES.ConversationRepository)
+    private convestnRepository: IConversationRepository
+  ) {}
   async getOrCreateConversationId(
     senderId: string,
     senderRole: ParticipantRole,
@@ -11,13 +20,13 @@ class ChatService implements IChatService {
     receiverRole: ParticipantRole
   ): Promise<string> {
     let conversation =
-      await ConversationRepository.findConversationByParticipants(
+      await this.convestnRepository.findConversationByParticipants(
         senderId,
         receiverId
       );
 
     if (!conversation) {
-      conversation = await ConversationRepository.createConversation(
+      conversation = await this.convestnRepository.createConversation(
         senderId,
         senderRole,
         receiverId,
@@ -27,8 +36,9 @@ class ChatService implements IChatService {
 
     return conversation._id.toString();
   }
-  async getChatMessageService(conversationId: string){
-    return await ChatMsgRepository.findChatMsgByConversationId(conversationId)
+  async getChatMessageService(conversationId: string) {
+    return await this.chatMsgRepository.findChatMsgByConversationId(
+      conversationId
+    );
   }
 }
-export default new ChatService();

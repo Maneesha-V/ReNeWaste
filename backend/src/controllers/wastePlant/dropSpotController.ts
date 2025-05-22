@@ -1,9 +1,16 @@
 import { Response } from "express";
 import { AuthRequest } from "../../types/common/middTypes";
 import { IDropSpotController } from "./interface/IDropSpotController";
-import DropSpotService from "../../services/wastePlant/dropSpotService";
+import { inject, injectable } from "inversify";
+import TYPES from "../../config/inversify/types";
+import { IDropSpotService } from "../../services/wastePlant/interface/IDropSpotService";
 
-class DropSpotController implements IDropSpotController {
+@injectable()
+export class DropSpotController implements IDropSpotController {
+  constructor(
+    @inject(TYPES.PlantDropSpotService)
+    private dropspotService: IDropSpotService
+  ) {}
   async createDropSpot(req: AuthRequest, res: Response): Promise<void> {
     try {
       console.log(req.body);
@@ -21,26 +28,24 @@ class DropSpotController implements IDropSpotController {
         wasteplantId,
       };
       const dropSpotData = req.body;
-      const newDropSpot = await DropSpotService.createDropSpotService(
+      const newDropSpot = await this.dropspotService.createDropSpotService(
         payloadWithPlant
       );
       console.log("newDropSpot", newDropSpot);
 
       res.status(201).json({ success: true, data: newDropSpot });
     } catch (error: any) {
-      res
-        .status(500)
-        .json({
-          success: false,
-          error: error.message || "Failed to create drop spot",
-        });
+      res.status(500).json({
+        success: false,
+        error: error.message || "Failed to create drop spot",
+      });
     }
   }
 
   async fetchDropSpots(req: AuthRequest, res: Response): Promise<void> {
     try {
       console.log(req.query);
-      
+
       const wasteplantId = req.user?.id;
       if (!wasteplantId) {
         res.status(404).json({ message: "wasteplantId not found" });
@@ -49,14 +54,19 @@ class DropSpotController implements IDropSpotController {
       const page = parseInt(req.query.page as string) || 1;
       const limit = parseInt(req.query.limit as string) || 5;
       const search = (req.query.search as string) || "";
-      const { dropspots, total } = await DropSpotService.getAllDropSpots(wasteplantId, page, limit, search);
+      const { dropspots, total } = await this.dropspotService.getAllDropSpots(
+        wasteplantId,
+        page,
+        limit,
+        search
+      );
       console.log("dropspots", dropspots);
 
       res.status(200).json({
         success: true,
         message: "Fetch dropspots successfully",
         dropspots,
-        total
+        total,
       });
     } catch (error: any) {
       console.error("err", error);
@@ -72,10 +82,11 @@ class DropSpotController implements IDropSpotController {
         res.status(404).json({ message: "wasteplantId not found" });
         return;
       }
-      const selectedDropSpot = await DropSpotService.getDropSpotByIdService(
-        dropSpotId,
-        wasteplantId
-      );
+      const selectedDropSpot =
+        await this.dropspotService.getDropSpotByIdService(
+          dropSpotId,
+          wasteplantId
+        );
       if (!selectedDropSpot) {
         res.status(404).json({ message: "Dropspot not found." });
         return;
@@ -97,7 +108,7 @@ class DropSpotController implements IDropSpotController {
         res.status(404).json({ message: "wasteplantId not found" });
         return;
       }
-      const result = await DropSpotService.deleteDropSpotByIdService(
+      const result = await this.dropspotService.deleteDropSpotByIdService(
         dropSpotId,
         wasteplantId
       );
@@ -131,7 +142,7 @@ class DropSpotController implements IDropSpotController {
 
       const updateData = req.body;
 
-      const updatedDropSpot = await DropSpotService.updateDropSpotService(
+      const updatedDropSpot = await this.dropspotService.updateDropSpotService(
         wasteplantId,
         dropSpotId,
         updateData
@@ -149,4 +160,3 @@ class DropSpotController implements IDropSpotController {
     }
   }
 }
-export default new DropSpotController();

@@ -1,9 +1,16 @@
 import { Response } from "express";
 import { AuthRequest } from "../../types/common/middTypes";
 import { IChatController } from "./interface/IChatController";
-import ChatService from "../../services/wastePlant/chatService";
+import { inject, injectable } from "inversify";
+import TYPES from "../../config/inversify/types";
+import { IChatService } from "../../services/wastePlant/interface/IChatService";
 
-class ChatController implements IChatController {
+@injectable()
+export class ChatController implements IChatController {
+  constructor(
+    @inject(TYPES.PlantChatService)
+    private chatService: IChatService
+  ) {}
   async getConversationId(req: AuthRequest, res: Response): Promise<void> {
     try {
       console.log(req.body);
@@ -18,7 +25,7 @@ class ChatController implements IChatController {
         return;
       }
 
-      const conversationId = await ChatService.getOrCreateConversationId(
+      const conversationId = await this.chatService.getOrCreateConversationId(
         senderId,
         senderRole,
         receiverId,
@@ -42,16 +49,18 @@ class ChatController implements IChatController {
   async getChatMessages(req: AuthRequest, res: Response): Promise<void> {
     try {
       console.log(req.body);
-      
+
       const { conversationId } = req.body;
-  
+
       if (!conversationId) {
         res.status(400).json({ error: "conversationId is required" });
         return;
       }
-      const messages = await ChatService.getChatMessageService(conversationId);
-      console.log("messages",messages);
-      
+      const messages = await this.chatService.getChatMessageService(
+        conversationId
+      );
+      console.log("messages", messages);
+
       res.status(200).json({ messages });
     } catch (error) {
       console.error("Error fetching messages:", error);
@@ -59,4 +68,3 @@ class ChatController implements IChatController {
     }
   }
 }
-export default new ChatController();

@@ -1,12 +1,18 @@
-import TruckRepository from "../../repositories/truck/truckRepository";
 import { ITruck } from "../../models/truck/interfaces/truckInterface";
 import { ITruckService } from "./interface/ITruckService";
-import WastePlantRepository from "../../repositories/wastePlant/wastePlantRepository";
 import { PaginatedTrucksResult } from "../../types/wastePlant/truckTypes";
+import { inject, injectable } from "inversify";
+import TYPES from "../../config/inversify/types";
+import { ITruckRepository } from "../../repositories/truck/interface/ITruckRepository";
 
-class TruckService implements ITruckService {
+@injectable()
+export class TruckService implements ITruckService {
+  constructor(
+    @inject(TYPES.TruckRepository)
+    private truckRepository: ITruckRepository 
+  ){}
   async addTruck(data: ITruck): Promise<ITruck> {
-    const existingVehicleNo = await TruckRepository.findTruckByVehicle(
+    const existingVehicleNo = await this.truckRepository.findTruckByVehicle(
       data.vehicleNumber
     );
     if (existingVehicleNo) {
@@ -16,17 +22,17 @@ class TruckService implements ITruckService {
     const newData: ITruck = {
       ...data,
     };
-    return await TruckRepository.createTruck(newData);
+    return await this.truckRepository.createTruck(newData);
   }
   async getAllTrucks(plantId: string, page: number, limit: number, search: string): Promise<PaginatedTrucksResult> {
-    return await TruckRepository.getAllTrucks(plantId, page, limit, search);
+    return await this.truckRepository.getAllTrucks(plantId, page, limit, search);
   }
   async getAvailableTrucksService(driverId: string): Promise<ITruck[]> {
-    return await TruckRepository.getAvailableTrucks(driverId);
+    return await this.truckRepository.getAvailableTrucks(driverId);
   }
   async getTruckByIdService(truckId: string): Promise<ITruck | null> {
     try {
-      return await TruckRepository.getTruckById(truckId);
+      return await this.truckRepository.getTruckById(truckId);
     } catch (error) {
       throw new Error("Error fetching truck from service");
     }
@@ -37,19 +43,19 @@ class TruckService implements ITruckService {
     data: any
   ): Promise<ITruck | null> {
     try {
-      return await TruckRepository.updateTruckById(truckId, data);
+      return await this.truckRepository.updateTruckById(truckId, data);
     } catch (error) {
       throw new Error("Error updating truck in service");
     }
   }
 
   async deleteTruckByIdService(truckId: string) {
-    return await TruckRepository.deleteTruckById(truckId);
+    return await this.truckRepository.deleteTruckById(truckId);
   }
 
   async pendingTruckReqsts(plantId: string): Promise<any> {
     try {
-      return await TruckRepository.getMaintainanceTrucks(plantId);
+      return await this.truckRepository.getMaintainanceTrucks(plantId);
     } catch (error) {
       throw new Error("Error fetching pending truck reqsts from service");
     }
@@ -57,7 +63,7 @@ class TruckService implements ITruckService {
 
   async availableTrucksForDriver(plantId: string): Promise<any> {
     try {
-      return await TruckRepository.activeAvailableTrucks(plantId);
+      return await this.truckRepository.activeAvailableTrucks(plantId);
     } catch (error) {
       throw new Error("Error fetching trucks from service");
     }
@@ -68,11 +74,11 @@ class TruckService implements ITruckService {
     truckId: string,
     prevTruckId: string
   ): Promise<any> {
-    const truck = await TruckRepository.getTruckById(truckId);
+    const truck = await this.truckRepository.getTruckById(truckId);
     if (!truck || truck.status !== "Active") {
       throw new Error("Selected truck is not available");
     }
-    const updatedRequest = await TruckRepository.assignTruckToDriver(
+    const updatedRequest = await this.truckRepository.assignTruckToDriver(
       plantId,
       driverId,
       truckId,
@@ -81,4 +87,4 @@ class TruckService implements ITruckService {
     return updatedRequest;
   }
 }
-export default new TruckService();
+

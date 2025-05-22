@@ -9,4 +9,11 @@ export interface ITruckService {
     updateTruckByIdService(truckId: string, data: any): Promise<ITruck | null>;
     deleteTruckByIdService(truckId: string): Promise<ITruck | null>;
     pendingTruckReqsts(plantId: string): Promise<any>;
+    availableTrucksForDriver(plantId: string): Promise<any>;
+    assignTruckToDriverService(
+    plantId: string,
+    driverId: string,
+    truckId: string,
+    prevTruckId: string
+  ): Promise<any>;
 }
