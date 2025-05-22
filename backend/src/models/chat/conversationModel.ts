@@ -1,4 +1,5 @@
-import mongoose, { Schema } from "mongoose";
+import mongoose, { model, Schema } from "mongoose";
+import { IConversationDocument } from "./interfaces/conversationInterface";
 
 const participantSchema = new Schema(
   {
@@ -32,4 +33,4 @@ function arrayLimit(val: any[]) {
   return val.length === 2;
 }
 
-export const ConversationModel = mongoose.model("Conversation", conversationSchema);
+export const ConversationModel = model<IConversationDocument>("Conversation", conversationSchema);

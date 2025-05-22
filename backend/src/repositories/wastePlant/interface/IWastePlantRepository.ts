@@ -6,12 +6,12 @@ import { OtpRecord } from "../../../types/user/authTypes";
 
 export interface IWastePlantRepository {
   createWastePlant(data: IWastePlant): Promise<IWastePlantDocument>;
-  findWastePlantByEmail(email: string): Promise<IWastePlant | null>;
+  findWastePlantByEmail(email: string): Promise<IWastePlantDocument | null>;
   findWastePlantByLicense(licenseNumber: string): Promise<IWastePlant | null>;
   findWastePlantByTaluk(taluk: string): Promise<IWastePlant | null>;
   findWastePlantByName(plantName: string): Promise<IWastePlant | null>;
   getAllWastePlants(): Promise<IWastePlant[]>;
-  getWastePlantById(id: string): Promise<IWastePlant | null>;
+  getWastePlantById(id: string): Promise<IWastePlantDocument | null>;
   updateWastePlantById(id: string,data: any): Promise<IWastePlant | null>;
   saveOtp(email: string, otp: string): Promise<void>;
   reSaveOtp(email: string, otp: string): Promise<void>;

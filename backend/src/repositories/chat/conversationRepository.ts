@@ -1,11 +1,23 @@
 import { Types } from "mongoose";
 import { ConversationModel } from "../../models/chat/conversationModel";
 import { IConversationRepository } from "./interface/IConversation";
-import { ParticipantRole } from "../../models/chat/interfaces/conversationInterface";
+import {
+  IConversationDocument,
+  ParticipantRole,
+} from "../../models/chat/interfaces/conversationInterface";
+import { injectable } from "inversify";
+import BaseRepository from "../baseRepository/baseRepository";
 
-class ConversationRepository implements IConversationRepository {
+@injectable()
+export class ConversationRepository
+  extends BaseRepository<IConversationDocument>
+  implements IConversationRepository
+{
+  constructor() {
+    super(ConversationModel);
+  }
   async findConversationByParticipants(senderId: string, receiverId: string) {
-    return await ConversationModel.findOne({
+    return await this.model.findOne({
       "participants.participantId": {
         $all: [new Types.ObjectId(senderId), new Types.ObjectId(receiverId)],
       },
@@ -18,7 +30,7 @@ class ConversationRepository implements IConversationRepository {
     receiverId: string,
     receiverRole: ParticipantRole
   ) {
-    const conversation = await ConversationModel.create({
+    const conversation = await this.model.create({
       participants: [
         { participantId: new Types.ObjectId(senderId), role: senderRole },
         { participantId: new Types.ObjectId(receiverId), role: receiverRole },
@@ -29,5 +41,3 @@ class ConversationRepository implements IConversationRepository {
     return conversation;
   }
 }
-
-export default new ConversationRepository();
