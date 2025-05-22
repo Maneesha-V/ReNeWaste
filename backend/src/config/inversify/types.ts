@@ -13,7 +13,13 @@ const TYPES = {
   UserPaymentController: Symbol.for("UserPaymentController"),
   UserDropSpotController: Symbol.for("UserDropSpotController"),
 //wasteplant
-
+  PlantAuthController: Symbol.for("PlantAuthController"),
+  PlantChatController: Symbol.for("PlantChatController"),
+  PlantDriverController: Symbol.for("PlantDriverController"),
+  PlantDropSpotController: Symbol.for("PlantDropSpotController"),
+  PlantPickupController: Symbol.for("PlantPickupController"),
+  PlantTruckController: Symbol.for("PlantTruckController"),
+  PlantUserController: Symbol.for("PlantUserController"),
 //driver
 //--services--
 
@@ -30,17 +36,26 @@ const TYPES = {
   UserPaymentService: Symbol.for("UserPaymentService"),
   UserDropSpotService: Symbol.for("UserDropSpotService"),
 //wasteplant
-
+  PlantAuthService: Symbol.for("PlantAuthService"),
+  PlantChatService: Symbol.for("PlantChatService"),
+  PlantDriverService: Symbol.for("PlantDriverService"),
+  PlantDropSpotService: Symbol.for("PlantDropSpotService"),
+  PlantPickupService: Symbol.for("PlantPickupService"),
+  PlantTruckService: Symbol.for("PlantTruckService"),
+  PlantUserService: Symbol.for("PlantUserService"),
 //driver
 
 //--repositories--
-
   SuperAdminRepository: Symbol.for("SuperAdminRepository"),
   UserRepository: Symbol.for("UserRepository"),
   OtpRepository: Symbol.for("OtpRepository"),
   WastePlantRepository: Symbol.for("WastePlantRepository"),
   PickupRepository: Symbol.for("PickupRepository"),
   DropSpotRepository: Symbol.for("DropSpotRepository"),
+  TruckRepository: Symbol.for("TruckRepository"),
+  DriverRepository: Symbol.for("DriverRepository"),
+  ChatMsgRepository: Symbol.for("ChatMsgRepository"),
+  ConversationRepository: Symbol.for("ConversationRepository"),
 };
 
 export default TYPES;

@@ -14,4 +14,11 @@ deleteDriverById(driverId: string): Promise<IDriver | null>;
 fetchDrivers(wastePlantId: string): Promise<IDriverDocument[]>;
 updateDriverTruck(driverId: string,assignedTruckId: string): Promise<IDriverDocument | null>;
 updateDriverAssignedZone(driverId: string,assignedZone: string): Promise<IDriverDocument | null>;
+getDriversByLocation(location: string, plantId: string): Promise<IDriverDocument[]>;
+updateDriverByPlantAndId(
+  driverId: string,
+  plantId: string,
+  updateData: Partial<IDriver>
+): Promise<IDriver | null>;
+
 }

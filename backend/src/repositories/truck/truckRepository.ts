@@ -1,4 +1,3 @@
-import { DriverModel } from "../../models/driver/driverModel";
 import {
   ITruck,
   ITruckDocument,
@@ -6,14 +5,29 @@ import {
 import { TruckModel } from "../../models/truck/truckModel";
 import { PaginatedTrucksResult } from "../../types/wastePlant/truckTypes";
 import { ITruckRepository } from "./interface/ITruckRepository";
+import { inject, injectable } from "inversify";
+import TYPES from "../../config/inversify/types";
+import BaseRepository from "../baseRepository/baseRepository";
+import { IDriverRepository } from "../driver/interface/IDriverRepository";
+import { Types } from "mongoose";
 
-class TruckRepository implements ITruckRepository {
+@injectable()
+export class TruckRepository
+  extends BaseRepository<ITruckDocument>
+  implements ITruckRepository
+{
+  constructor(
+    @inject(TYPES.DriverRepository)
+    private getDriverRepo: () => IDriverRepository
+  ) {
+    super(TruckModel);
+  }
   async findTruckByVehicle(vehicleNumber: string): Promise<ITruck | null> {
-    return await TruckModel.findOne({ vehicleNumber });
+    return await this.model.findOne({ vehicleNumber });
   }
   async createTruck(data: ITruck): Promise<ITruckDocument> {
     try {
-      const truck = new TruckModel(data);
+      const truck = new this.model(data);
       console.log("db-truck", truck);
       return await truck.save();
     } catch (error: any) {
@@ -27,8 +41,8 @@ class TruckRepository implements ITruckRepository {
     limit: number,
     search: string
   ): Promise<PaginatedTrucksResult> {
-    console.log("search",search);
-    
+    console.log("search", search);
+
     const searchRegex = new RegExp(search, "i");
 
     const query: any = {
@@ -45,53 +59,58 @@ class TruckRepository implements ITruckRepository {
 
     const skip = (page - 1) * limit;
 
-    const trucks = await TruckModel.find(query)
+    const trucks = await this.model
+      .find(query)
       .skip(skip)
       .limit(limit)
       .sort({ createdAt: -1 });
 
-    const total = await TruckModel.countDocuments(query);
+    const total = await this.model.countDocuments(query);
 
     return { trucks, total };
     // return await TruckModel.find({wasteplantId: plantId});
   }
   async getAvailableTrucks(driverId: string): Promise<ITruck[]> {
-    const existingTruck = await TruckModel.findOne({
-      assignedDriver: driverId,
-    }).populate("wasteplantId");
+    const existingTruck = await this.model
+      .findOne({
+        assignedDriver: driverId,
+      })
+      .populate("wasteplantId");
     if (existingTruck) {
       return [existingTruck];
     }
     // return [];
-    return await TruckModel.find({ assignedDriver: null }).populate(
-      "wasteplantId"
-    );
+    return await this.model
+      .find({ assignedDriver: null })
+      .populate("wasteplantId");
   }
   async getTruckById(truckId: string) {
-    return await TruckModel.findById(truckId);
+    return await this.model.findById(truckId);
   }
   async updateTruckById(truckId: string, data: any): Promise<ITruck | null> {
-    return await TruckModel.findByIdAndUpdate(truckId, data, { new: true });
+    return await this.model.findByIdAndUpdate(truckId, data, { new: true });
   }
   async deleteTruckById(truckId: string) {
-    return await TruckModel.findByIdAndDelete(truckId);
+    return await this.model.findByIdAndDelete(truckId);
   }
 
   async reqTruckToWastePlant(driverId: string) {
-    return await DriverModel.findByIdAndUpdate(driverId, {
+    return await this.getDriverRepo().updateDriverById(driverId, {
       hasRequestedTruck: true,
     });
   }
   async getMaintainanceTrucks(plantId: string) {
-    const trucks = await TruckModel.find({
-      wasteplantId: plantId,
-      status: "Maintenance",
-    }).populate("assignedDriver");
+    const trucks = await this.model
+      .find({
+        wasteplantId: plantId,
+        status: "Maintenance",
+      })
+      .populate("assignedDriver");
     return trucks.filter((truck) => truck.assignedDriver !== null);
   }
 
   async activeAvailableTrucks(plantId: string) {
-    return await TruckModel.find({
+    return await this.model.find({
       wasteplantId: plantId,
       status: "Active",
       assignedDriver: null,
@@ -103,17 +122,15 @@ class TruckRepository implements ITruckRepository {
     truckId: string,
     prevTruckId: string
   ) {
-    const updatedDriver = await DriverModel.findOneAndUpdate(
-      { _id: driverId, wasteplantId: plantId },
+    const updatedDriver = await this.getDriverRepo().updateDriverByPlantAndId(
+      driverId,
+      plantId,
       {
-        $set: {
-          assignedTruckId: truckId,
-          hasRequestedTruck: false,
-        },
-      },
-      { new: true }
+        assignedTruckId: new Types.ObjectId(truckId),
+        hasRequestedTruck: false,
+      }
     );
-    const updatedTruck = await TruckModel.findOneAndUpdate(
+    const updatedTruck = await this.model.findOneAndUpdate(
       { _id: truckId },
       {
         $set: {
@@ -123,7 +140,7 @@ class TruckRepository implements ITruckRepository {
       { new: true }
     );
     if (prevTruckId && prevTruckId !== truckId) {
-      await TruckModel.findOneAndUpdate(
+      await this.model.findOneAndUpdate(
         { _id: prevTruckId },
         {
           $set: {
@@ -134,5 +151,19 @@ class TruckRepository implements ITruckRepository {
     }
     return await this.getMaintainanceTrucks(plantId);
   }
+
+  async updateAssignedDriver(
+    truckId: string,
+    driverId: string | Types.ObjectId
+  ): Promise<void> {
+    const objectIdTruck = new Types.ObjectId(truckId);
+    const objectIdDriver =
+      typeof driverId === "string" ? new Types.ObjectId(driverId) : driverId;
+
+    await this.model.findByIdAndUpdate(objectIdTruck, {
+      $set: {
+        assignedDriver: objectIdDriver,
+      },
+    });
+  }
 }
-export default new TruckRepository();
