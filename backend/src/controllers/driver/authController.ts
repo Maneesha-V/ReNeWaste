@@ -1,10 +1,17 @@
+import { inject, injectable } from "inversify";
 import { Request, Response } from "express";
 import { IAuthController } from "./interface/IAuthController";
-import AuthService from "../../services/driver/authService";
 import { generateRefreshToken } from "../../utils/authUtils";
 import { AuthRequest } from "../../types/common/middTypes";
+import TYPES from "../../config/inversify/types";
+import { IAuthService } from "../../services/driver/interface/IAuthService";
 
-class AuthController implements IAuthController {
+@injectable()
+export class AuthController implements IAuthController {
+  constructor(
+    @inject(TYPES.DriverAuthService)
+    private authService: IAuthService
+  ){}
    async refreshToken(req: AuthRequest, res: Response): Promise<void> {
       try {
         const refreshToken = req.cookies?.refreshToken;
@@ -14,7 +21,7 @@ class AuthController implements IAuthController {
           res.status(401).json({ error: "No refresh token provided." });
           return;
         }
-        const { token } = await AuthService.verifyToken(refreshToken);
+        const { token } = await this.authService.verifyToken(refreshToken);
         res.status(200).json({ token });
       } catch (error: any) {
         console.error("err", error);
@@ -25,7 +32,7 @@ class AuthController implements IAuthController {
     try {
       console.log("body", req.body);
       const { email, password } = req.body;
-      const { driver, token } = await AuthService.loginDriver({
+      const { driver, token } = await this.authService.loginDriver({
         email,
         password,
       });
@@ -72,7 +79,7 @@ class AuthController implements IAuthController {
       console.log("otp-body-driver", req.body);
       const { email } = req.body;
 
-      const otpResponse = await AuthService.sendOtpService(email);
+      const otpResponse = await this.authService.sendOtpService(email);
 
       res.status(200).json(otpResponse);
     } catch (error: any) {
@@ -88,7 +95,7 @@ class AuthController implements IAuthController {
         res.status(400).json({ error: "Email is required" });
       }
 
-      const success = await AuthService.resendOtpService(email);
+      const success = await this.authService.resendOtpService(email);
       if (success) {
         res.status(200).json({ message: "OTP resent successfully" });
       } else {
@@ -107,7 +114,7 @@ class AuthController implements IAuthController {
         return;
       }
 
-      const isValid = await AuthService.verifyOtpService(email, otp);
+      const isValid = await this.authService.verifyOtpService(email, otp);
 
       if (!isValid) {
         res.status(400).json({ error: "Invalid or expired OTP" });
@@ -128,7 +135,7 @@ class AuthController implements IAuthController {
         res.status(400).json({ message: "Email and password are required" });
         return;
       }
-      await AuthService.resetPasswordService(email, password);
+      await this.authService.resetPasswordService(email, password);
       res.status(200).json({ message: "Password reset successfully" });
     } catch (error: any) {
       console.error(error);
@@ -136,4 +143,4 @@ class AuthController implements IAuthController {
     }
   }
 }
-export default new AuthController();
+

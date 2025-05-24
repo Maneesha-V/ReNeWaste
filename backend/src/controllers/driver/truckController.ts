@@ -1,15 +1,21 @@
 import { Response } from "express";
 import { ITruckController } from "./interface/ITruckController";
-import TruckService from "../../services/driver/truckService";
 import { AuthRequest } from "../../types/common/middTypes";
+import { inject, injectable } from "inversify";
+import TYPES from "../../config/inversify/types";
+import { ITruckService } from "../../services/driver/interface/ITruckService";
 
-class TruckController implements ITruckController {
-  
+@injectable()
+export class TruckController implements ITruckController {
+constructor(
+  @inject(TYPES.DriverTruckService)
+  private truckService: ITruckService
+){}
 async fetchTruckForDriver (req: AuthRequest, res: Response): Promise<void> {
     try {
         const { driverId } = req.params;
     
-        const assignedTruck = await TruckService.getTruckForDriver(driverId);
+        const assignedTruck = await this.truckService.getTruckForDriver(driverId);
         console.log("assignedTruck",assignedTruck);
         
         res.status(200).json({
@@ -33,7 +39,7 @@ async requestTruckForDriver (req: AuthRequest, res: Response): Promise<void> {
       res.status(400).json({ success: false, message: "Missing required field" });
       return;
     }
-    const requestedDriver = await TruckService.requestTruck(driverId);
+    const requestedDriver = await this.truckService.requestTruck(driverId);
 
     res.status(200).json({
       success: true,
@@ -50,4 +56,3 @@ async requestTruckForDriver (req: AuthRequest, res: Response): Promise<void> {
     }
 }
 }
-export default new TruckController();

@@ -21,6 +21,13 @@ const TYPES = {
   PlantTruckController: Symbol.for("PlantTruckController"),
   PlantUserController: Symbol.for("PlantUserController"),
 //driver
+  DriverAuthController: Symbol.for("DriverAuthController"),
+  DriverChatController: Symbol.for("DriverChatController"),
+  DriverMapController: Symbol.for("DriverMapController"),
+  DriverPickupController: Symbol.for("DriverPickupController"),
+  DriverProfileController: Symbol.for("DriverProfileController"),
+  DriverTruckController: Symbol.for("DriverTruckController"),
+
 //--services--
 
 //superadmin
@@ -44,6 +51,12 @@ const TYPES = {
   PlantTruckService: Symbol.for("PlantTruckService"),
   PlantUserService: Symbol.for("PlantUserService"),
 //driver
+  DriverAuthService: Symbol.for("DriverAuthService"),
+  DriverChatService: Symbol.for("DriverChatService"),
+  DriverMapService: Symbol.for("DriverMapService"),
+  DriverPickupService: Symbol.for("DriverPickupService"),
+  DriverProfileService: Symbol.for("DriverProfileService"),
+  DriverTruckService: Symbol.for("DriverTruckService"),
 
 //--repositories--
   SuperAdminRepository: Symbol.for("SuperAdminRepository"),
@@ -56,6 +69,10 @@ const TYPES = {
   DriverRepository: Symbol.for("DriverRepository"),
   ChatMsgRepository: Symbol.for("ChatMsgRepository"),
   ConversationRepository: Symbol.for("ConversationRepository"),
+  //-factories--
+  DriverRepositoryFactory: Symbol.for("DriverRepositoryFactory"),
+  TruckRepositoryFactory: Symbol.for("TruckRepositoryFactory"), 
+
 };
 
 export default TYPES;

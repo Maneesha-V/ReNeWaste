@@ -1,34 +1,41 @@
+import { inject, injectable } from "inversify";
 import { IPickupRequest, IPickupRequestDocument } from "../../models/pickupRequests/interfaces/pickupInterface";
-import { IUserDocument } from "../../models/user/interfaces/userInterface";
-import PickupRepository from "../../repositories/pickupReq/pickupRepository";
-import UserRepository from "../../repositories/user/userRepository";
 import { PickupDriverFilterParams } from "../../types/driver/pickupTypes";
 import { IPickupService } from "./interface/IPickupService";
+import TYPES from "../../config/inversify/types";
+import { IUserRepository } from "../../repositories/user/interface/IUserRepository";
+import { IPickupRepository } from "../../repositories/pickupReq/interface/IPickupRepository";
 
-class PickupService implements IPickupService {
+@injectable()
+export class PickupService implements IPickupService {
+  constructor(
+    @inject(TYPES.UserRepository)
+    private userRepository: IUserRepository,
+    @inject(TYPES.PickupRepository)
+    private pickupRepository: IPickupRepository
+  ){}
   async getPickupRequestService(
     filters: PickupDriverFilterParams
   ): Promise<IPickupRequest[]> {
-    return await PickupRepository.getPickupsByDriverId(filters);
+    return await this.pickupRepository.getPickupsByDriverId(filters);
   }
   async getPickupByIdForDriver(pickupReqId: string, driverId: string) {
-    const pickup = await PickupRepository.findPickupByIdAndDriver(pickupReqId, driverId);
+    const pickup = await this.pickupRepository.findPickupByIdAndDriver(pickupReqId, driverId);
     return pickup;
   }
   async updateAddressLatLngService(addressId: string, latitude: number, longitude: number): Promise<any> {
-    return await UserRepository.updateAddressByIdLatLng(addressId, latitude, longitude);
+    return await this.userRepository.updateAddressByIdLatLng(addressId, latitude, longitude);
   }
   async updateTrackingStatus(
     pickupReqId: string,
     trackingStatus: string
   ): Promise<IPickupRequestDocument | null> {
-    return await PickupRepository.updateTrackingStatus(pickupReqId, trackingStatus);
+    return await this.pickupRepository.updateTrackingStatus(pickupReqId, trackingStatus);
   }
   
    async markPickupCompletedService(
     pickupReqId: string
   ): Promise<IPickupRequestDocument | null> {
-    return await PickupRepository.markPickupCompletedStatus(pickupReqId);
+    return await this.pickupRepository.markPickupCompletedStatus(pickupReqId);
   }
 }
-export default new PickupService();

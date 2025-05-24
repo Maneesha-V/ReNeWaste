@@ -40,8 +40,21 @@ import { TruckController as PlantTruckController } from "../../controllers/waste
 import { IUserController as IPlantUserController } from "../../controllers/wastePlant/interface/IUserController";
 import { UserController as PlantUserController } from "../../controllers/wastePlant/userController";
 //driver
+import { IAuthController as IDriverAuthController } from "../../controllers/driver/interface/IAuthController";
+import { AuthController as DriverAuthController } from "../../controllers/driver/authController";
+import { IChatController as IDriverChatController } from "../../controllers/driver/interface/IChatController";
+import { ChatController as DriverChatController } from "../../controllers/driver/chatController";
+import { IProfileController as IDriverProfileController } from "../../controllers/driver/interface/IProfileController";
+import { ProfileController as DriverProfileController } from "../../controllers/driver/profileController";
+import { IPickupController as IDriverPickupController } from "../../controllers/driver/interface/IPIckupController";
+import { PickupController as DriverPickupController } from "../../controllers/driver/pickupController";
+import { ITruckController as IDriverTruckController } from "../../controllers/driver/interface/ITruckController";
+import { TruckController as DriverTruckController } from "../../controllers/driver/truckController";
+import { IMapController as IDriverMapController } from "../../controllers/driver/interface/IMapController";
+import { MapController as DriverMapController } from "../../controllers/driver/mapController";
 
 //-- Services & their interfaces --
+
 //superadmin
 import { SuperAdminAuthService } from "../../services/superAdmin/authService";
 import { ISuperAdminAuthService } from "../../services/superAdmin/interface/IAuthService";
@@ -83,6 +96,18 @@ import { IUserService as IPlantUserService } from "../../services/wastePlant/int
 import { UserService as PlantUserService } from "../../services/wastePlant/userService";
 
 //driver
+import { IAuthService as IDriverAuthService } from "../../services/driver/interface/IAuthService";
+import { AuthService as DriverAuthService  } from "../../services/driver/authService";
+import { IChatService as IDriverChatService } from "../../services/driver/interface/IChatService";
+import { ChatService as DriverChatService } from "../../services/driver/chatService";
+import { IProfileService as IDriverProfileService } from "../../services/driver/interface/IProfileService";
+import { ProfileService as DriverProfileService } from "../../services/driver/profileService";
+import { IPickupService as IDriverPickupService } from "../../services/driver/interface/IPickupService";
+import { PickupService as DriverPickupService } from "../../services/driver/pickupService";
+import { ITruckService as IDriverTruckService } from "../../services/driver/interface/ITruckService";
+import { TruckService as DriverTruckService } from "../../services/driver/truckService";
+import { IMapService as IDriverMapService } from "../../services/driver/interface/IMapService";
+import { MapService as DriverMapService  } from "../../services/driver/mapService";
 
 //-- Repositories & their interfaces --
 import { SuperAdminRepository } from "../../repositories/superAdmin/superAdminRepository";
@@ -105,6 +130,7 @@ import { IChatMsgRepository } from "../../repositories/chat/interface/IChatMsgRe
 import { ChatMsgRepository } from "../../repositories/chat/chatMsgRepository";
 import { IConversationRepository } from "../../repositories/chat/interface/IConversation";
 import { ConversationRepository } from "../../repositories/chat/conversationRepository";
+
 
 
 //Create the container
@@ -132,8 +158,15 @@ container.bind<IPlantPickupController>(TYPES.PlantPickupController).to(PlantPick
 container.bind<IPlantTruckController>(TYPES.PlantTruckController).to(PlantTruckController);
 container.bind<IPlantUserController>(TYPES.PlantUserController).to(PlantUserController);
 //driver
+container.bind<IDriverAuthController>(TYPES.DriverAuthController).to(DriverAuthController);
+container.bind<IDriverChatController>(TYPES.DriverChatController).to(DriverChatController);
+container.bind<IDriverProfileController>(TYPES.DriverProfileController).to(DriverProfileController);
+container.bind<IDriverPickupController>(TYPES.DriverPickupController).to(DriverPickupController);
+container.bind<IDriverTruckController>(TYPES.DriverTruckController).to(DriverTruckController);
+container.bind<IDriverMapController>(TYPES.DriverMapController).to(DriverMapController);
 
 //--Bind Services--
+
 //superadmin
 container.bind<ISuperAdminAuthService>(TYPES.SuperAdminAuthService).to(SuperAdminAuthService);
 container.bind<ISuprAdminPlantService>(TYPES.SuperAdminPlantService).to(SuprAdminPlantService);
@@ -155,6 +188,12 @@ container.bind<IPlantPickupService>(TYPES.PlantPickupService).to(PlantPickupServ
 container.bind<IPlantTruckService>(TYPES.PlantTruckService).to(PlantTruckService);
 container.bind<IPlantUserService>(TYPES.PlantUserService).to(PlantUserService);
 //driver
+container.bind<IDriverAuthService>(TYPES.DriverAuthService).to(DriverAuthService);
+container.bind<IDriverChatService>(TYPES.DriverChatService).to(DriverChatService);
+container.bind<IDriverProfileService>(TYPES.DriverProfileService).to(DriverProfileService);
+container.bind<IDriverPickupService>(TYPES.DriverPickupService).to(DriverPickupService);
+container.bind<IDriverTruckService>(TYPES.DriverTruckService).to(DriverTruckService);
+container.bind<IDriverMapService>(TYPES.DriverMapService).to(DriverMapService);
 
 //--Bind Repositories--
 container.bind<ISuperAdminRepository>(TYPES.SuperAdminRepository).to(SuperAdminRepository);
@@ -165,17 +204,16 @@ container.bind<IDropSpotRepository>(TYPES.DropSpotRepository).to(DropSpotReposit
 container.bind<IWastePlantRepository>(TYPES.WastePlantRepository).to(WastePlantRepository);
 container.bind<IChatMsgRepository>(TYPES.ChatMsgRepository).to(ChatMsgRepository);
 container.bind<IConversationRepository>(TYPES.ConversationRepository).to(ConversationRepository);
-container.bind<ITruckRepository>(TYPES.TruckRepository).to(TruckRepository);
-container.bind<IDriverRepository>(TYPES.DriverRepository).to(DriverRepository);
-// Bind DriverRepository factory
-container.bind<() => IDriverRepository>(TYPES.DriverRepository)
+container.bind<ITruckRepository>(TYPES.TruckRepository).to(TruckRepository).inSingletonScope();
+container.bind<IDriverRepository>(TYPES.DriverRepository).to(DriverRepository).inSingletonScope();
+
+// Bind factory for circular dep
+container.bind<() => IDriverRepository>(TYPES.DriverRepositoryFactory)
   .toFactory(() => {
     return () => container.get<IDriverRepository>(TYPES.DriverRepository);  
   });
-
-// Bind TruckRepository factory
 container
-  .bind<() => ITruckRepository>(TYPES.TruckRepository)
+  .bind<() => ITruckRepository>(TYPES.TruckRepositoryFactory)
   .toFactory(() => {
     return () => container.get<ITruckRepository>(TYPES.TruckRepository);
 });

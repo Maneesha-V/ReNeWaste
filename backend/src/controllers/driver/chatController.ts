@@ -1,9 +1,16 @@
 import { Response } from "express";
 import { AuthRequest } from "../../types/common/middTypes";
 import { IChatController } from "./interface/IChatController";
-import ChatService from "../../services/driver/chatService";
+import { inject, injectable } from "inversify";
+import TYPES from "../../config/inversify/types";
+import { IChatService } from "../../services/driver/interface/IChatService";
 
-class ChatController implements IChatController {
+@injectable()
+export class ChatController implements IChatController {
+  constructor(
+    @inject(TYPES.DriverChatService)
+    private chatService: IChatService
+  ){}
   async getConversationId(req: AuthRequest, res: Response): Promise<void> {
     try {
       console.log(req.body);
@@ -18,7 +25,7 @@ class ChatController implements IChatController {
         return;
       }
 
-      const conversationId = await ChatService.getOrCreateConversationId(
+      const conversationId = await this.chatService.getOrCreateConversationId(
         senderId,
         senderRole,
         receiverId,
@@ -49,7 +56,7 @@ class ChatController implements IChatController {
           res.status(400).json({ error: "conversationId is required" });
           return;
         }
-        const messages = await ChatService.getChatMessageService(conversationId);
+        const messages = await this.chatService.getChatMessageService(conversationId);
         console.log("messages",messages);
         
         res.status(200).json({ messages });
@@ -59,4 +66,4 @@ class ChatController implements IChatController {
       }
     }
 }
-export default new ChatController();
+

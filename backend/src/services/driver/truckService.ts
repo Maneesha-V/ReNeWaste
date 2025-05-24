@@ -1,14 +1,19 @@
 import { ITruckService } from "./interface/ITruckService";
-import TruckRepository from "../../repositories/truck/truckRepository";
-import DriverRepository from "../../repositories/driver/driverRepository";
+import { inject, injectable } from "inversify";
+import TYPES from "../../config/inversify/types";
+import { ITruckRepository } from "../../repositories/truck/interface/ITruckRepository";
 
-class TruckService implements ITruckService {
-   async getTruckForDriver (driverId: string) {
-    const result = await TruckRepository.getAvailableTrucks(driverId);
+@injectable()
+export class TruckService implements ITruckService {
+  constructor(
+    @inject(TYPES.TruckRepository)
+    private truckRepository: ITruckRepository
+  ) {}
+  async getTruckForDriver(driverId: string) {
+    const result = await this.truckRepository.getAvailableTrucks(driverId);
     return result;
-    }
-    async requestTruck( driverId: string) {
-        return await TruckRepository.reqTruckToWastePlant(driverId);
-      }
+  }
+  async requestTruck(driverId: string) {
+    return await this.truckRepository.reqTruckToWastePlant(driverId);
+  }
 }
-export default new TruckService();

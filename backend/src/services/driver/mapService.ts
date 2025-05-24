@@ -1,9 +1,18 @@
 import axios from "axios";
-import PickupRepository from "../../repositories/pickupReq/pickupRepository";
 import { IMapService } from "./interface/IMapService";
-import UserRepository from "../../repositories/user/userRepository";
+import { inject, injectable } from "inversify";
+import TYPES from "../../config/inversify/types";
+import { IUserRepository } from "../../repositories/user/interface/IUserRepository";
+import { IPickupRepository } from "../../repositories/pickupReq/interface/IPickupRepository";
 
-class MapService implements IMapService {
+@injectable()
+export class MapService implements IMapService {
+  constructor(
+    @inject(TYPES.UserRepository)
+    private userRepository: IUserRepository,
+    @inject(TYPES.PickupRepository)
+    private pickupRepository: IPickupRepository
+  ){}
   async getAndSaveETA(
     origin: string,
     destination: string,
@@ -28,17 +37,13 @@ class MapService implements IMapService {
     console.log("geo-loca",location);
     
     // 3. Find the user's matching address and update it
-    // const pickup = await PickupRepository.getPickupById(pickupReqId);
-    //  if (!pickup) throw new Error("PickupId id is not found.");
-    // await UserRepository.findAddressByAddressId(pickup.userId, addressId, location.lat, location.lng)
-    await UserRepository.updateAddressByIdLatLng(addressId, location.lat, location.lng)
+    await this.userRepository.updateAddressByIdLatLng(addressId, location.lat, location.lng)
     // 4. Save ETA in pickup request tracking
-    await PickupRepository.updateETAAndTracking(pickupReqId, {
+    await this.pickupRepository.updateETAAndTracking(pickupReqId, {
       eta: {
         text: duration.text,
         value: duration.value
       },
-      // trackingStatus: "Assigned"
     });
 
     return {
@@ -52,4 +57,4 @@ class MapService implements IMapService {
   }
   }
 }
-export default new MapService();
+

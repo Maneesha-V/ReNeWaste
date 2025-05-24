@@ -17,7 +17,7 @@ export class DriverRepository
   implements IDriverRepository
 {
   constructor(
-    @inject(TYPES.TruckRepository)
+    @inject(TYPES.TruckRepositoryFactory)
     private getTruckRepo: () => ITruckRepository
   ) {
     super(DriverModel);

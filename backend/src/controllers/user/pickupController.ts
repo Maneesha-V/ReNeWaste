@@ -37,6 +37,7 @@ export class PickupController implements IPickupController {
       res.status(401).json({ error: "Unauthorized" });
       return;
     }  
+  console.log("pickupReqId",pickupReqId);
   
       const re = await this.pickupService.cancelPickupPlanService(pickupReqId);
       console.log("ree",re);

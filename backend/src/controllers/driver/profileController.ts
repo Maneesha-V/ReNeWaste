@@ -1,9 +1,16 @@
 import { Request, Response } from "express";
 import { IProfileController } from "./interface/IProfileController";
-import ProfileService from "../../services/driver/profileService";
 import { AuthRequest } from "../../types/common/middTypes";
+import { inject, injectable } from "inversify";
+import TYPES from "../../config/inversify/types";
+import { IProfileService } from "../../services/driver/interface/IProfileService";
 
-class ProfileController implements IProfileController {
+@injectable()
+export class ProfileController implements IProfileController {
+  constructor(
+    @inject(TYPES.DriverProfileService)
+    private profileService: IProfileService
+  ){}
   async getProfile(req: AuthRequest, res: Response): Promise<void> {
     try {
       const driverId = req.user?.id;     
@@ -11,7 +18,7 @@ class ProfileController implements IProfileController {
         res.status(401).json({ error: "Unauthorized" });
         return;
       }
-      const driver = await ProfileService.getDriverProfile(driverId);
+      const driver = await this.profileService.getDriverProfile(driverId);
       res.status(200).json({ driver });
     } catch (error: any) {
       res.status(400).json({ error: error.message });
@@ -25,7 +32,7 @@ class ProfileController implements IProfileController {
     res.status(401).json({ error: "Unauthorized" });
     return;
   }
-  const updatedDriver = await ProfileService.updateDriverProfile(driverId, updatedData);
+  const updatedDriver = await this.profileService.updateDriverProfile(driverId, updatedData);
   res.status(200).json({ driver: updatedDriver });
   } catch (error: any) {
     res.status(500).json({ error: error.message || "Internal server error" });
@@ -39,7 +46,7 @@ class ProfileController implements IProfileController {
          res.status(400).json({ message: "wastePlantId is required" });
          return;
       }
-      const drivers = await ProfileService.fetchDriversService(wastePlantId)
+      const drivers = await this.profileService.fetchDriversService(wastePlantId)
       
       res.status(200).json({data:drivers});
     } catch (error) {
@@ -48,4 +55,4 @@ class ProfileController implements IProfileController {
     }
   };
 }
-export default new ProfileController();
+

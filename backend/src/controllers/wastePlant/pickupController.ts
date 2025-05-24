@@ -86,7 +86,8 @@ export class PickupController implements IPickupController {
         pickupReqId,
         rescheduleData
       );
-
+      console.log("updatedPickup",updatedPickup);
+      
       res.status(200).json({
         success: true,
         message: "Pickup rescheduled successfully",

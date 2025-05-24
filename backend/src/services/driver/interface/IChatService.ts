@@ -1,3 +1,4 @@
+import { IChatMessage } from "../../../models/chat/interfaces/chatMessageInterface";
 import { ParticipantRole } from "../../../models/chat/interfaces/conversationInterface";
 
 export interface IChatService {
@@ -7,5 +8,5 @@ export interface IChatService {
         receiverId: string,
         receiverRole: ParticipantRole
     ): Promise<string>;
-    
+    getChatMessageService(conversationId: string): Promise<IChatMessage[]>;
 }
