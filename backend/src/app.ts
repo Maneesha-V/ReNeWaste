@@ -21,8 +21,9 @@ dotenv.config();
 
 const app = express();
 const server = http.createServer(app);
+const PORT = Number(process.env.PORT) || 3000;
 
-const PORT = process.env.PORT || 5001;
+connectDB();
 
 // CORS for Express REST API
 app.use(cors({
@@ -42,14 +43,20 @@ const io = new Server(server, {
 io.on("connection", (socket) => {
   console.log("🟢 New client connected:", socket.id);
   socketHandler(socket, io); 
+
+  socket.on("disconnect", () => {
+    console.log("🔴 Client disconnected:", socket.id);
+  });
 });
 
-app.use(bodyParser.json()); 
+// app.use(bodyParser.json()); 
+// app.use(bodyParser.urlencoded({ extended: true }));
+
 app.use(express.json());
 app.use(cookieParser());
 app.use(morgan("dev"));
 
-connectDB();
+
 
 app.use("/api", userRoutes);
 app.use("/api/super-admin", superAdminRoutes);
@@ -57,7 +64,12 @@ app.use("/api/waste-plant", wastePlantRoutes);
 app.use("/api/driver", driverRoutes);
 app.use("/api/maps", mapsRoutes);
 
-	// When using Express + Socket.IO
+// 404 handler
+app.use((req, res, next) => {
+  res.status(404).json({ message: "Route not found" });
+});
+
+// When using Express + Socket.IO
 server.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });

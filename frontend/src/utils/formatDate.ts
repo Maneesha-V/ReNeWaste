@@ -12,19 +12,37 @@ export function formatDateToDDMMYYYY(dateStr: string): string {
   export const disablePastDates = (current: dayjs.Dayjs) => {
     return current && current < dayjs().startOf("day");
   };
-  export const disableTimesAfterFive = (current: dayjs.Dayjs | null) => {
-    if (!current) return {};
-    const now = dayjs();
-  
-    if (current.isSame(now, 'day')) {
-      const disabledHours = Array.from({ length: 24 }, (_, i) => i > 17 ? i : -1).filter(h => h !== -1);
-      return {
-        disabledHours: () => disabledHours,
-      };
+
+  export const disableTimesAfterFive = (current: any) => {
+  const now = dayjs();
+  const selectedDay = current ? dayjs(current) : null;
+
+  const isToday = selectedDay && selectedDay.isSame(now, "day");
+
+  const disabledHours: number[] = [];
+
+  for (let i = 0; i < 24; i++) {
+    if (i < 9 || i > 17 || (isToday && i < now.hour())) {
+      disabledHours.push(i);
     }
-  
-    return {};
+  }
+
+  const disabledMinutes = (selectedHour: number) => {
+    if (isToday && selectedHour === now.hour()) {
+      const minutes: number[] = [];
+      for (let i = 0; i < now.minute(); i++) {
+        minutes.push(i);
+      }
+      return minutes;
+    }
+    return [];
   };
+
+  return {
+    disabledHours: () => disabledHours,
+    disabledMinutes,
+  };
+};
   export function formatTimeTo12Hour(timeStr: string): string {
     const [hourStr, minute] = timeStr.split(":");
     let hour = parseInt(hourStr, 10);
