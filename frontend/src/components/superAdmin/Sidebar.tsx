@@ -5,14 +5,10 @@ import {
   DollarOutlined, 
   HistoryOutlined 
 } from '@ant-design/icons';
-import { ReactNode } from 'react';
+import { AdminSidebarProps } from '../../types/adminTypes';
 
-type SidebarProps = {
-  collapsed: boolean;
-  children?: ReactNode;
-};
 
-const Sidebar = ({ collapsed }: SidebarProps) => {
+const Sidebar = ({ collapsed }: AdminSidebarProps) => {
   const menuItems = [
     { key: 'dashboard', icon: <DashboardOutlined />, label: 'Dashboard', path: '/super-admin/dashboard' },
     { key: 'waste-plants', icon: <EnvironmentOutlined />, label: 'Waste Plants', path: '/super-admin/waste-plants' },

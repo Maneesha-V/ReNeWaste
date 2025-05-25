@@ -4,13 +4,9 @@ import { useNavigate } from 'react-router-dom';
 import { Button, Dropdown, Menu } from 'antd';
 import { useAppDispatch } from '../../redux/hooks';
 import { superAdminLogout } from '../../redux/slices/superAdmin/superAdminSlice';
+import { AdminHeaderProps } from '../../types/adminTypes';
 
-type HeaderProps = {
-  collapsed: boolean;
-  toggleCollapse: () => void;
-};
-
-const Header = ({ collapsed, toggleCollapse }: HeaderProps) => {
+const Header = ({ collapsed, toggleCollapse }: AdminHeaderProps) => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch()
 
