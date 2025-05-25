@@ -293,9 +293,9 @@ export class PickupRepository extends BaseRepository<IPickupRequestDocument> imp
     return updatedPickup;
   }
   async updatePickupStatus(pickupReqId: string, status: string) {
-    const res = await this.model.findOneAndUpdate(
-      { pickupReqId },
-      { status: status },
+    const res = await this.model.findByIdAndUpdate(
+      pickupReqId ,
+      { status },
       { new: true }
     );
     return res;

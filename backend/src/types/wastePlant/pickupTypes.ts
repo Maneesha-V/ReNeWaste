@@ -13,5 +13,6 @@ export interface ReschedulePickupDTO {
   driverId: string;
   assignedZone: string;
   rescheduledPickupDate: string; 
+  pickupTime: string;
   status: string;
 }

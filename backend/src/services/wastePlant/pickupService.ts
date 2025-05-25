@@ -75,6 +75,7 @@ export class PickupService implements IPickupService {
       {
         driverId: data.driverId,
         rescheduledPickupDate: data.rescheduledPickupDate,
+        pickupTime: data.pickupTime,
         status: data.status,
       }
     );

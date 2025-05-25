@@ -65,7 +65,7 @@ export const pickupRequestSchema: Schema<IPickupRequestDocument> = new Schema(
       },
       status: {
         type: String,
-        enum: ["Pending", "Scheduled", "Completed", "Cancelled","Scheduled"],
+        enum: ["Pending", "Scheduled", "Completed", "Cancelled","Rescheduled"],
         default: "Pending",
       },
       eta: {
