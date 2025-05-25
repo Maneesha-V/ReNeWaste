@@ -49,5 +49,6 @@ router.post("/payment/verify", authenticateUser as RequestHandler, checkNotBlock
 router.get("/payments", authenticateUser as RequestHandler, checkNotBlocked, paymentCtrl.getAllPayments.bind(paymentCtrl))
 router.post("/payment/repay", authenticateUser as RequestHandler, checkNotBlocked, paymentCtrl.rePayment.bind(paymentCtrl))
 router.get("/drop-spots", authenticateUser as RequestHandler, checkNotBlocked, dropSpotCtrl.fetchAllNearDropSpots.bind(dropSpotCtrl))
+router.patch("/pickup-plan/cancel/:pickupReqId", authenticateUser as RequestHandler, checkNotBlocked, pickupCtrl.cancelPickupPlan.bind(pickupCtrl));
 
 export default router;

@@ -25,7 +25,7 @@ import {
   formatTimeTo12Hour,
 } from "../../utils/formatDate";
 import TrackModal from "../../components/user/TrackModal";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import TabPane from "antd/es/tabs/TabPane";
 import { setPaymentData } from "../../redux/slices/user/userPaymentSlice";
 import PayNow from "./PayNow";
@@ -98,7 +98,8 @@ const PickupPlans = () => {
               className="rounded-lg shadow-lg"
               extra={
                 <>
-                  {pickup.status === "Scheduled" &&
+                  {(pickup.status === "Scheduled" ||
+                    pickup.status === "Rescheduled") &&
                     pickup?.payment?.status !== "Paid" && (
                       <Button
                         type="primary"
@@ -108,7 +109,12 @@ const PickupPlans = () => {
                         Pay
                       </Button>
                     )}
-                  {pickup.trackingStatus ? (
+
+                  {pickup.status === "Cancelled" ? (
+                    <Button type="default" disabled>
+                      Cancel
+                    </Button>
+                  ) : pickup.trackingStatus ? (
                     <Button
                       type="primary"
                       onClick={() => handleTrackClick(pickup)}
@@ -143,22 +149,25 @@ const PickupPlans = () => {
                     <p>Waste Type: {pickup.wasteType}</p>
                     <p>
                       Pickup Status:{" "}
-                      {/* <span className={pickup.status === "Scheduled" ? "text-green-600" : "text-yellow-500"}>
-                        {pickup.status === "Scheduled" ? "Assigned Driver" : "Not Assigned Yet"}
-                      </span> */}
                       <span
                         className={
-                          pickup.status === "Scheduled"
+                          pickup.status === "Scheduled" ||
+                          pickup.status === "Rescheduled"
                             ? "text-green-600"
                             : pickup.status === "Completed"
                             ? "text-blue-600"
+                            : pickup.status === "Cancelled"
+                            ? "text-red-600"
                             : "text-yellow-500"
                         }
                       >
-                        {pickup.status === "Scheduled"
+                        {pickup.status === "Scheduled" ||
+                        pickup.status === "Rescheduled"
                           ? "Assigned Driver"
                           : pickup.status === "Completed"
                           ? "Completed"
+                          : pickup.status === "Cancelled"
+                          ? "Cancelled"
                           : "Not Assigned Yet"}
                       </span>
                     </p>
@@ -187,8 +196,9 @@ const PickupPlans = () => {
     );
   };
 
-  const pendingPickups = pickups.filter((p: any) => !p.trackingStatus);
-  const proceesedPickups = pickups.filter((p: any) => p.trackingStatus);
+  const pendingPickups = pickups.filter((p: any) => !p.trackingStatus && p.status !== "Cancelled");
+  const processedPickups = pickups.filter((p: any) => p.trackingStatus && p.status !== "Cancelled");
+  const cancelledPickups = pickups.filter((p: any) => p.status === "Cancelled")
 
   return (
     <div className="min-h-screen bg-green-100">
@@ -208,7 +218,10 @@ const PickupPlans = () => {
               {renderPickupCards(pendingPickups)}
             </TabPane>
             <TabPane tab="Processed Pickups" key="2">
-              {renderPickupCards(proceesedPickups)}
+              {renderPickupCards(processedPickups)}
+            </TabPane>
+            <TabPane tab="Cancelled Pickups" key="3">
+              {renderPickupCards(cancelledPickups)}
             </TabPane>
           </Tabs>
         )}
