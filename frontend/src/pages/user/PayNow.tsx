@@ -14,10 +14,7 @@ import {
 import { toast } from "react-toastify";
 import Swal from "sweetalert2";
 import { fetchtPickupPlans } from "../../redux/slices/user/userPickupSlice";
-
-type PayNowProps = {
-  onClose: () => void;
-};
+import { PayNowProps } from "../../types/userTypes";
 
 const PayNow = ({ onClose }: PayNowProps) => {
   const navigate = useNavigate();

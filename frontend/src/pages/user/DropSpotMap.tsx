@@ -9,17 +9,7 @@ import { useAppDispatch } from "../../redux/hooks";
 import { fetchNearDropSpots } from "../../redux/slices/user/dropSpotSlice";
 import { useSelector } from "react-redux";
 import { RootState } from "../../redux/store";
-
-interface DropSpot {
-  _id: string;
-  dropSpotName: string;
-  addressLine: string;
-  location: string;
-  coordinates: {
-    lat: number;
-    lng: number;
-  };
-}
+import { UserDropSpot } from "../../types/userTypes";
 
 const containerStyle = {
   width: "100%",
@@ -33,7 +23,7 @@ const center = {
 
 const DropSpotMap: React.FC = () => {
   const { dropSpots } = useSelector((state: RootState) => state.userDropSpot);
-  const [selectedSpot, setSelectedSpot] = useState<DropSpot | null>(null);
+  const [selectedSpot, setSelectedSpot] = useState<UserDropSpot | null>(null);
   const dispatch = useAppDispatch();
   useEffect(() => {
     const fetchDropSpots = async () => {
@@ -51,7 +41,7 @@ const DropSpotMap: React.FC = () => {
   return (
     <LoadScript googleMapsApiKey={import.meta.env.VITE_GOOGLE_API_KEY!}>
       <GoogleMap mapContainerStyle={containerStyle} center={center} zoom={8}>
-        {dropSpots.map((spot: DropSpot) => (
+        {dropSpots.map((spot: UserDropSpot) => (
           <Marker
             key={spot._id}
             position={{ lat: spot.coordinates.lat, lng: spot.coordinates.lng }}
