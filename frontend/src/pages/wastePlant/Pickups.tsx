@@ -12,18 +12,8 @@ import { RootState } from "../../redux/store";
 import { formatDateToDDMMYYYY } from "../../utils/formatDate";
 import AssignDriverModal from "../../components/wastePlant/AssignDriverModal";
 import ReschedulePickupModal from "../../components/wastePlant/ReschedulePickupModal";
+import { PickupRequest } from "../../types/wastePlantTypes";
 
-interface PickupRequest {
-  _id: string;
-  userId: string;
-  userName: string;
-  location: string;
-  wasteType: "Residential" | "Commercial";
-  originalPickupDate: string;
-  pickupTime: string;
-  pickupId: string;
-  status: "Pending" | "Scheduled" | "Cancelled" | "Completed" | "Rescheduled";
-}
 
 const Pickups = () => {
   const [activeTab, setActiveTab] = useState<"Residential" | "Commercial">(

@@ -1,8 +1,5 @@
 import { Navigate, Outlet } from "react-router-dom";
-
-interface ProtectedRouteProps {
-    allowedRoles: string[];
-  }
+import { ProtectedRouteProps } from "../../types/commonTypes";
 
   export const ProtectedRoute = ({ allowedRoles }: ProtectedRouteProps) => {
 

@@ -6,12 +6,7 @@ import { useAppDispatch } from "../../redux/hooks";
 import { toast } from "react-toastify";
 import { updateResidentialPickup } from "../../redux/slices/user/residentialSlice";
 import { useNavigate } from "react-router-dom";
-interface PickupResidentialFormModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  selectedDate: string | null;
-  user: any;
-}
+import { PickupResidentialFormModalProps } from "../../types/userTypes";
 
 const PickupResidentialFormModal: React.FC<PickupResidentialFormModalProps> = ({
   isOpen,

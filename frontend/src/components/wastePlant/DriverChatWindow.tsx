@@ -1,18 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { Card, Input, Button, List, Space, Empty } from "antd";
 import { useAppDispatch } from "../../redux/hooks";
-import { useSocket } from "../../context/SocketContext";
 import { addMessage, fetchChatMessages, fetchConversationId } from "../../redux/slices/wastePlant/wastePlantChatSlice";
 import { useSelector } from "react-redux";
 import { RootState } from "../../redux/store";
+import { useSocket } from "../../hooks/useSocket";
+import { DriverChatWindowProps } from "../../types/wastePlantTypes";
 
 
-interface Props {
-  driver: any;
-  wasteplantId: string;
-}
-
-const DriverChatWindow: React.FC<Props> = ({ driver, wasteplantId }) => {
+const DriverChatWindow: React.FC<DriverChatWindowProps> = ({ driver, wasteplantId }) => {
   const dispatch = useAppDispatch();
   const socket = useSocket();
   const { messages, loading } = useSelector((state: RootState) => state.wastePlantChats)

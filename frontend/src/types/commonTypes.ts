@@ -3,3 +3,6 @@ export interface PaginationPayload {
   limit: number;
   search: string;
 }
+export interface ProtectedRouteProps {
+    allowedRoles: string[];
+}

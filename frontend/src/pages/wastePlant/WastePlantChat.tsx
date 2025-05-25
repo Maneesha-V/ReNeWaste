@@ -5,8 +5,8 @@ import { RootState } from "../../redux/store";
 import { useAppDispatch } from "../../redux/hooks";
 import { fetchDrivers } from "../../redux/slices/wastePlant/wastePlantDriverSlice";
 import DriverChatWindow from "../../components/wastePlant/DriverChatWindow";
-import { useSocket } from "../../context/SocketContext";
 import usePagination from "../../hooks/usePagination";
+import { useSocket } from "../../hooks/useSocket";
 
 const WasteplantChat: React.FC = () => {
   const dispatch = useAppDispatch();

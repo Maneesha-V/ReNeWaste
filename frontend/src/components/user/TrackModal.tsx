@@ -1,16 +1,9 @@
 import { Modal, Steps } from "antd";
-import { useSocket } from "../../context/SocketContext";
 import { useEffect, useState } from "react";
+import { useSafeSocket } from "../../hooks/useSocket";
+import { TrackModalProps } from "../../types/userTypes";
 
 const { Step } = Steps;
-
-interface TrackModalProps {
-  visible: boolean;
-  onClose: () => void;
-  trackingStatus: string | null;
-  pickupId: string;
-  eta: { text: string | null } | null;
-}
 
 const statusToStep = (status: string | null): number => {
   switch (status) {
@@ -44,7 +37,8 @@ const TrackModal = ({
     longitude: number;
   } | null>(null);
   const currentStep = statusToStep(localTrackingStatus);
-  const socket = useSocket();
+  // const socket = useSocket();
+  const socket = useSafeSocket(); 
   useEffect(() => {
     if (visible && trackingStatus) {
       setLocalTrackingStatus(trackingStatus);
@@ -71,7 +65,7 @@ const TrackModal = ({
         socket.emit("leavePickupRoom", pickupId);
       };
     }
-  }, [visible, pickupId]);
+  }, [visible, pickupId, socket]);
   console.log("trackingStatus", trackingStatus);
   console.log("localTrackingStatus", localTrackingStatus);
   return (

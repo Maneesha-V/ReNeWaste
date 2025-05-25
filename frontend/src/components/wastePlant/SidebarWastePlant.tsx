@@ -10,14 +10,10 @@ import {
   AimOutlined,
   UserOutlined,
 } from '@ant-design/icons';
-import { ReactNode } from 'react';
+import { SidebarWastePlantProps } from '../../types/wastePlantTypes';
 
-type SidebarProps = {
-  collapsed: boolean;
-  children?: ReactNode;
-};
 
-const SidebarWastePlant = ({ collapsed }: SidebarProps) => {
+const SidebarWastePlant = ({ collapsed }: SidebarWastePlantProps) => {
   const menuItems = [
     { key: 'dashboard', icon: <DashboardOutlined />, label: 'Dashboard', path: '/waste-plant/dashboard' },
     { key: 'pickups', icon: <InboxOutlined  />, label: 'Pickups', path: '/waste-plant/pickups' },

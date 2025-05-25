@@ -6,13 +6,7 @@ import { useAppDispatch } from "../../redux/hooks";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import { updateCommercialPickup } from "../../redux/slices/user/commercialSlice";
-interface PickupCommercialFormModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  selectedDate: string | null;
-  serviceQuery: string | null;
-  user: any;
-}
+import { PickupCommercialFormModalProps } from "../../types/userTypes";
 
 const PickupCommercialFormModal: React.FC<PickupCommercialFormModalProps> = ({
   isOpen,
