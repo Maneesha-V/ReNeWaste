@@ -9,13 +9,9 @@ import { useNavigate } from "react-router-dom";
 import { Dropdown, Menu } from "antd";
 import { useAppDispatch } from "../../redux/hooks";
 import { driverLogout } from "../../redux/slices/driver/driverSlice";
+import { DriverHeaderProps } from "../../types/driverTypes";
 
-type HeaderProps = {
-  collapsed: boolean;
-  toggleCollapse: () => void;
-};
-
-const Header = ({ collapsed, toggleCollapse }: HeaderProps) => {
+const Header = ({ collapsed, toggleCollapse }: DriverHeaderProps) => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
 

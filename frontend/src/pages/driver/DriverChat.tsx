@@ -2,8 +2,6 @@ import React, { useState, useEffect } from "react";
 import { Input, Button, Card, List, Space, Empty } from "antd";
 import { useSelector } from "react-redux";
 import { RootState } from "../../redux/store";
-import { useSocket } from "../../context/SocketContext";
-import { Message } from "../../types/chatTypes";
 import { fetchDriverProfile } from "../../redux/slices/driver/profileDriverSlice";
 import { useAppDispatch } from "../../redux/hooks";
 import {
@@ -11,6 +9,7 @@ import {
   fetchChatMessages,
   fetchConversationId,
 } from "../../redux/slices/driver/chatDriverSlice";
+import { useSocket } from "../../hooks/useSocket";
 
 const DriverChat: React.FC = () => {
   const dispatch = useAppDispatch();

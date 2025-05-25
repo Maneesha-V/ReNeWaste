@@ -7,15 +7,11 @@ import {
   InboxOutlined,
   BarChartOutlined,
 } from '@ant-design/icons';
-import { ReactNode } from 'react';
 import { FaUserCircle } from 'react-icons/fa';
+import { DriverSidebarProps } from '../../types/driverTypes';
 
-type SidebarProps = {
-  collapsed: boolean;
-  children?: ReactNode;
-};
 
-const SidebarDriver = ({ collapsed }: SidebarProps) => {
+const SidebarDriver = ({ collapsed }: DriverSidebarProps) => {
   const navigate  = useNavigate();
   const menuItems = [
     { key: 'dashboard', icon: <DashboardOutlined />, label: 'Dashboard', path: '/driver/dashboard' },

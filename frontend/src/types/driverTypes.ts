@@ -1,3 +1,5 @@
+import { ReactNode } from "react";
+
 export interface DriverFormData {
     name: string,
     contact: string,
@@ -23,3 +25,12 @@ type WasteType = "Residential" | "Commercial";
 export interface FetchPickupsParams {
   wasteType: WasteType;
 }
+
+export type DriverHeaderProps = {
+  collapsed: boolean;
+  toggleCollapse: () => void;
+};
+export type DriverSidebarProps = {
+  collapsed: boolean;
+  children?: ReactNode;
+};

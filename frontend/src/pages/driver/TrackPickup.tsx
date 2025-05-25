@@ -11,10 +11,10 @@ import {
 } from "../../redux/slices/driver/pickupDriverSlice";
 import { toast } from "react-toastify";
 import { getDistanceFromLatLonInKm } from "../../utils/mapUtils";
-import { useSocket } from "../../context/SocketContext";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
+import { useSocket } from "../../hooks/useSocket";
 
 const TrackPickup = () => {
   const { pickupReqId } = useParams<{ pickupReqId: string }>();
