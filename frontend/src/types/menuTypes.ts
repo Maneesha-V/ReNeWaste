@@ -5,3 +5,10 @@ export type MenuItemType = {
   icon: ReactNode;
   label: string;
 };
+
+export type MenuItemProps = {
+  item: MenuItemType;
+  collapsed: boolean;
+  active: boolean;
+  onClick: () => void;
+};

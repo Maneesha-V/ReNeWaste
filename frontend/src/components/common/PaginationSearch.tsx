@@ -1,16 +1,9 @@
 import React from "react";
 import { Input, Pagination, Space } from "antd";
+import { PaginationSearchProps } from "../../types/commonTypes";
 
-interface Props {
-  total: number;
-  currentPage: number;
-  pageSize: number;
-  onPageChange: (page: number) => void;
-  onSearchChange: (search: string) => void;
-  searchValue: string;
-}
 
-const PaginationSearch: React.FC<Props> = ({
+const PaginationSearch: React.FC<PaginationSearchProps> = ({
   total,
   currentPage,
   pageSize,

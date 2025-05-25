@@ -1,6 +1,4 @@
-type NotificationBadgeProps = {
-    count: number;
-  };
+import { NotificationBadgeProps } from "../../types/commonTypes";
   
   const NotificationBadge = ({ count }: NotificationBadgeProps) => {
     return (

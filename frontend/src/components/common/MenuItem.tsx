@@ -1,11 +1,4 @@
-import { MenuItemType } from '../../types/menuTypes';
-
-type MenuItemProps = {
-  item: MenuItemType;
-  collapsed: boolean;
-  active: boolean;
-  onClick: () => void;
-};
+import { MenuItemProps } from '../../types/menuTypes';
 
 const MenuItem = ({ item, collapsed, active, onClick }: MenuItemProps) => {
   return (
