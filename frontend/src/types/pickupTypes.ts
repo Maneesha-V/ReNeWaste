@@ -17,6 +17,7 @@ export interface Address {
     pickupTime: string;
     addresses?: Address[];
     selectedAddressId?: string; 
+    // selectedAddressId?: string; 
   }
 
 export type PartialResidPickupReq = Partial<ResidPickupReq>;
