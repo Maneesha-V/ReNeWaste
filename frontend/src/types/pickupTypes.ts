@@ -15,7 +15,8 @@ export interface Address {
     wasteType: string;
     pickupDate: string;
     pickupTime: string;
-    addresses: Address[];
+    addresses?: Address[];
+    selectedAddressId?: string; 
   }
 
 export type PartialResidPickupReq = Partial<ResidPickupReq>;
@@ -35,7 +36,8 @@ export interface CommPickupReq {
   wasteType: string;
   pickupDate: string;
   pickupTime: string;
-  addresses: Address[];
+  addresses?: Address[];
+  selectedAddressId?: string; 
   service: string;
   businessName: string;
   frequency: string;
