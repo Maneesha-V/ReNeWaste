@@ -53,6 +53,8 @@ export class UserRepository
     userId: string,
     updatedData: Partial<IUser>
   ): Promise<IUserDocument | null> {
+    console.log("updatedData",updatedData);
+    
     const updateOps: any = {};
 
     if (updatedData.phone) {
