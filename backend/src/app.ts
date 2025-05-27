@@ -18,6 +18,9 @@ import mapsRoutes from "./routes/mapRoutes";
 import socketHandler from "./socket/socketHandler";
 
 dotenv.config();
+// console.log("CWD:", process.cwd());
+// console.log("RAZORPAY_KEY_ID:", process.env.RAZORPAY_KEY_ID);
+// console.log("RAZORPAY_KEY_SECRET:", process.env.RAZORPAY_KEY_SECRET);
 
 const app = express();
 const server = http.createServer(app);
