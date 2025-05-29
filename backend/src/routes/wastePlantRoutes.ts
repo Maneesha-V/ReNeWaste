@@ -6,6 +6,7 @@ import { PickupController } from "../controllers/wastePlant/pickupController";
 import { ChatController } from "../controllers/wastePlant/chatController";
 import { DropSpotController } from "../controllers/wastePlant/dropSpotController";
 import { UserController } from "../controllers/wastePlant/userController";
+import { DashboardController } from "../controllers/wastePlant/dashboardController";
 import { authenticateWastePlant } from "../middlewares/authMiddware";
 import uploadImages from "../middlewares/imageUploader";
 import TYPES from "../config/inversify/types";
@@ -19,6 +20,7 @@ const plantPickupCtrl = container.get<PickupController>(TYPES.PlantPickupControl
 const plantDropSpotCtrl = container.get<DropSpotController>(TYPES.PlantDropSpotController);
 const plantChatCtrl = container.get<ChatController>(TYPES.PlantChatController);
 const plantUserCtrl = container.get<UserController>(TYPES.PlantUserController);
+const plantDashbdCtrl = container.get<DashboardController>(TYPES.PlantDashboardController);
 
 router.get("/refresh-token", plantCtrl.refreshToken.bind(plantCtrl));
 router.post("/", plantCtrl.wastePlantLogin.bind(plantCtrl));
@@ -68,5 +70,6 @@ router.patch("/edit-drop-spot/:dropSpotId", authenticateWastePlant as RequestHan
 router.delete("/delete-drop-spot/:dropSpotId", authenticateWastePlant as RequestHandler, plantDropSpotCtrl.deleteDropSpotById.bind(plantDropSpotCtrl))
 router.get("/users", authenticateWastePlant as RequestHandler, plantUserCtrl.fetchUsers.bind(plantUserCtrl))
 router.patch("/users/:userId/block", authenticateWastePlant as RequestHandler, plantUserCtrl.userBlockStatus.bind(plantUserCtrl))
+router.get("/dashboard", authenticateWastePlant as RequestHandler, plantDashbdCtrl.getWastePlantDashboard.bind(plantDashbdCtrl));
 
 export default router;

@@ -26,8 +26,6 @@ export const fetchDashboardData = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const response = await getDashboard();
-      console.log("resp", response);
-
       return response;
     } catch (error: any) {
       return rejectWithValue(
@@ -47,13 +45,14 @@ const wasteplantDashboardSlice = createSlice({
         state.loading = true;
       })
       .addCase(fetchDashboardData.fulfilled, (state, action) => {
+        console.log("action",action);
+        
         state.loading = false;
-        const { drivers, trucks, pickups, revenue, waste } = action.payload;
-        state.drivers = drivers;
-        state.trucks = trucks;
-        state.pickups = pickups;
-        state.revenue = revenue;
-        state.waste = waste;
+        const { totalDrivers, totalTrucks, activePickups, totalRevenue } = action.payload.dashboardStats;
+        state.drivers = totalDrivers;
+        state.trucks = totalTrucks;
+        state.pickups = activePickups;
+        state.revenue = totalRevenue;
       })
       .addCase(fetchDashboardData.rejected, (state, action) => {
         state.loading = false;

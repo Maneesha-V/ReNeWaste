@@ -26,4 +26,6 @@ export interface IPickupRepository {
     getPickupByUserIdAndPickupReqId(pickupReqId: string, userId: string): Promise<IPickupRequestDocument | null>;
     savePaymentDetails(pickupReqId: string, paymentData: any, userId: string): Promise<IPickupRequestDocument>;
     getAllPaymentsByUser(userId: string): Promise<Partial<IPickupRequest>[]>;
+    countByStatus(status: string): Promise<number>;
+    calculateTotalRevenueByWastePlant(plantId: string): Promise<number>;
 }

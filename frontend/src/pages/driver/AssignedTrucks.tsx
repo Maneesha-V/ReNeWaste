@@ -70,7 +70,6 @@ const columns = [
         if (record.status === 'Maintenance') {
           return (
             <Button type="primary" onClick={() => handleRequestTruck()}  disabled={hasRequested}>
-            {/* <Button type="primary" onClick={() => navigate("/driver/chat")}> */}
             {hasRequested ? "Request Sent" : "Request Truck"}
             </Button>
           );
@@ -78,6 +77,21 @@ const columns = [
         return <span style={{ color: 'green' }}>{record.status}</span>;
       },
     },
+    {
+  title: 'Actions',
+  key: 'actions',
+  render: (_: any, record: any) => {
+    return (
+      <Button
+        type="primary"
+        disabled={record.isReturned}
+        // onClick={() => handleMarkReturned(record._id)}
+      >
+        {record.isReturned ? "Returned" : "Mark Returned"}
+      </Button>
+    );
+  },
+}
 
 ];
   return (

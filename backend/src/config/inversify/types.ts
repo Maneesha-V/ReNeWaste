@@ -20,6 +20,8 @@ const TYPES = {
   PlantPickupController: Symbol.for("PlantPickupController"),
   PlantTruckController: Symbol.for("PlantTruckController"),
   PlantUserController: Symbol.for("PlantUserController"),
+  PlantDashboardController: Symbol.for("PlantDashboardController"),
+
 //driver
   DriverAuthController: Symbol.for("DriverAuthController"),
   DriverChatController: Symbol.for("DriverChatController"),
@@ -50,6 +52,8 @@ const TYPES = {
   PlantPickupService: Symbol.for("PlantPickupService"),
   PlantTruckService: Symbol.for("PlantTruckService"),
   PlantUserService: Symbol.for("PlantUserService"),
+  PlantDashboardService: Symbol.for("PlantDashboardService"),
+  
 //driver
   DriverAuthService: Symbol.for("DriverAuthService"),
   DriverChatService: Symbol.for("DriverChatService"),

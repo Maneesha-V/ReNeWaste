@@ -31,4 +31,5 @@ export interface ITruckRepository {
     truckId: string,
     driverId: string | Types.ObjectId
   ): Promise<void>;
+  countAll(): Promise<number>;
 }

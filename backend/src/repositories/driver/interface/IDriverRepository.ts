@@ -37,4 +37,5 @@ export interface IDriverRepository {
     plantId: string,
     updateData: Partial<IDriver>
   ): Promise<IDriver | null>;
+  countAll(): Promise<number>;
 }

@@ -16,12 +16,7 @@ export default class BaseRepository<T extends Document> implements IBaseReposito
     const query = this.model.findById(id);
     return useLean ? query.lean().exec() : query.exec();
   }
-
-  // async findOne(filter: FilterQuery<T>): Promise<T | null> {
-  //   return this.model.findOne(filter);
-  // }
   async findOne(filter: FilterQuery<T>, projection?: ProjectionType<T>, useLean = false): Promise<any> {
-    // return await this.model.findOne(filter, projection).exec();
     const query = this.model.findOne(filter, projection);
     return useLean ? query.lean().exec() : query.exec();
   }
@@ -36,4 +31,8 @@ export default class BaseRepository<T extends Document> implements IBaseReposito
   async deleteOne(filter: FilterQuery<T>): Promise<T | null> {
     return this.model.findOneAndDelete(filter);
   }
+  async countDocuments(filter?: FilterQuery<T>): Promise<number> {
+    return this.model.countDocuments(filter);
+  }
+
 }

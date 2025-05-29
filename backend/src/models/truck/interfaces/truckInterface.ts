@@ -7,6 +7,7 @@ export interface ITruck {
   assignedDriver?: mongoose.Types.ObjectId;
   wasteplantId?: mongoose.Types.ObjectId;
   status: "Active" | "Inactive" | "Maintenance";
+  isReturned?: boolean;
   createdAt: Date;
   updatedAt: Date;
 }

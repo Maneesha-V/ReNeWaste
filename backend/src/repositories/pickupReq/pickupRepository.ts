@@ -365,5 +365,25 @@ export class PickupRepository extends BaseRepository<IPickupRequestDocument> imp
       }
     ).sort({ createdAt: -1 });
   }
+  async countByStatus(status: string): Promise<number> {
+    return this.model.countDocuments({ status });
+  }
+  async calculateTotalRevenueByWastePlant(plantId: string): Promise<number> {
+    const result = await this.model.aggregate([
+      {
+        $match: {
+          wasteplantId : new mongoose.Types.ObjectId(plantId),
+          "payment.status" : "Paid"
+        }
+      },
+      {
+        $group: {
+          _id: null,
+          totalRevenue : {$sum: "$payment.amount"}
+        }
+      }
+    ])
+    return result.length > 0 ? result[0].totalRevenue : 0;
+  }
 }
 

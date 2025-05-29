@@ -166,4 +166,7 @@ export class TruckRepository
       },
     });
   }
+  async countAll(): Promise<number> {
+    return await this.model.countDocuments();
+  }
 }

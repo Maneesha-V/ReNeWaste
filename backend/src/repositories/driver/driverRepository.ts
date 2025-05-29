@@ -159,4 +159,7 @@ export class DriverRepository
       }
     );
   }
+  async countAll(): Promise<number> {
+    return await this.model.countDocuments();
+  }
 }
