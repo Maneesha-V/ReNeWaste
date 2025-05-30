@@ -14,7 +14,7 @@ export class ResidentialService implements IResidentialService {
     private userRepository: IUserRepository,
     @inject(TYPES.PickupRepository)
     private pickupRepository: IPickupRepository
-  ){}
+  ) {}
   async getResidentialService(userId: string) {
     const user = await this.userRepository.findUserById(userId);
     if (!user) throw new Error("User not found");
@@ -30,19 +30,27 @@ export class ResidentialService implements IResidentialService {
       updatedData
     );
     if (!updatedUser) throw new Error("User update failed");
-    const addressList = updatedUser.addresses;
-    const latestAddress = addressList[addressList.length - 1] as IAddress & {
-      _id: Types.ObjectId;
-    };
-    console.log("latestAddress", latestAddress);
+    let addressIdToUse: Types.ObjectId;
+    if (updatedUser.addresses?.length) {
+      const addressList = updatedUser.addresses;
+      const latestAddress = addressList[addressList.length - 1] as IAddress & {
+        _id: Types.ObjectId;
+      };
+      console.log("latestAddress", latestAddress);
 
-    if (!latestAddress || !latestAddress._id)
-      throw new Error("Address ID not found");
-
+      if (!latestAddress || !latestAddress._id)
+        throw new Error("Address ID not found");
+      
+      addressIdToUse = new Types.ObjectId(latestAddress._id);
+    } else if (updatedData.selectedAddressId) {
+      addressIdToUse = new Types.ObjectId(updatedData.selectedAddressId);
+    } else {
+      throw new Error("No address provided or selected.");
+    }
     const newPickuData = {
       userId: new Types.ObjectId(userId),
       wasteplantId: user?.wasteplantId,
-      addressId: new Types.ObjectId(latestAddress._id),
+      addressId: addressIdToUse,
       wasteType: updatedData.wasteType,
       originalPickupDate: updatedData.pickupDate,
       pickupTime: updatedData.pickupTime,
@@ -53,4 +61,3 @@ export class ResidentialService implements IResidentialService {
     return { user: updatedUser, pickupRequest: newPickupReq };
   }
 }
-

@@ -110,11 +110,7 @@ const PickupPlans = () => {
                       </Button>
                     )}
 
-                  {pickup.status === "Cancelled" ? (
-                    <Button type="default" disabled>
-                      Cancel
-                    </Button>
-                  ) : pickup.trackingStatus ? (
+                  {pickup.status === "Cancelled" ? null  : pickup.trackingStatus ? (
                     <Button
                       type="primary"
                       onClick={() => handleTrackClick(pickup)}

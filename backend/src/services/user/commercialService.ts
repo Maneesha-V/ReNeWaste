@@ -17,18 +17,22 @@ export class CommercialService implements ICommercialService {
     private wastePlantRepository: IWastePlantRepository,
     @inject(TYPES.PickupRepository)
     private pickupRepository: IPickupRepository
-  ){}
+  ) {}
   async getCommercialService(userId: string) {
     const user = await this.userRepository.findUserById(userId);
     if (!user) throw new Error("User not found");
     return user;
   }
-  async availableWasteService(service: string, wasteplantId: string):Promise<boolean> {
-    const wasteplant = await this.wastePlantRepository.getWastePlantById(wasteplantId);
+  async availableWasteService(
+    service: string,
+    wasteplantId: string
+  ): Promise<boolean> {
+    const wasteplant = await this.wastePlantRepository.getWastePlantById(
+      wasteplantId
+    );
     if (!wasteplant || !Array.isArray(wasteplant.services)) return false;
 
     return wasteplant.services.includes(service);
-    
   }
   async updateCommercialPickupService(userId: string, updatedData: any) {
     const user = await this.userRepository.findUserById(userId);
@@ -39,25 +43,33 @@ export class CommercialService implements ICommercialService {
       updatedData
     );
     if (!updatedUser) throw new Error("User update failed");
-    const addressList = updatedUser.addresses;
-    const latestAddress = addressList[addressList.length - 1] as IAddress & {
-      _id: Types.ObjectId;
-    };
-    console.log("latestAddress", latestAddress);
+    let addressIdToUse: Types.ObjectId;
+    if (updatedUser.addresses?.length) {
+      const addressList = updatedUser.addresses;
+      const latestAddress = addressList[addressList.length - 1] as IAddress & {
+        _id: Types.ObjectId;
+      };
+      console.log("latestAddress", latestAddress);
 
-    if (!latestAddress || !latestAddress._id)
-      throw new Error("Address ID not found");
-    
+      if (!latestAddress || !latestAddress._id)
+        throw new Error("Address ID not found");
+
+      addressIdToUse = new Types.ObjectId(latestAddress._id);
+    } else if (updatedData.selectedAddressId) {
+      addressIdToUse = new Types.ObjectId(updatedData.selectedAddressId);
+    } else {
+      throw new Error("No address provided or selected.");
+    }
     const newPickuData = {
       userId: new Types.ObjectId(userId),
       wasteplantId: user?.wasteplantId,
-      addressId: new Types.ObjectId(latestAddress._id),
+      addressId: addressIdToUse,
       wasteType: updatedData.wasteType,
       originalPickupDate: updatedData.pickupDate,
       pickupTime: updatedData.pickupTime,
       service: updatedData.service,
       businessName: updatedData.businessName,
-      frequency:updatedData.frequency,
+      frequency: updatedData.frequency,
       status: "Pending",
     };
     const newPickupReq: IPickupRequestDocument =
@@ -65,4 +77,3 @@ export class CommercialService implements ICommercialService {
     return { user: updatedUser, pickupRequest: newPickupReq };
   }
 }
-

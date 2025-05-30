@@ -158,11 +158,12 @@ const PickupCommercialFormModal: React.FC<PickupCommercialFormModalProps> = ({
       lastName: user.lastName,
       email: user.email,
       pickupDate: selectedDate ? selectedDate : undefined,
-      addresses:
-        selectedAddressIndex === "add-new"
-          ? [newAddress]
-          : [user.addresses[selectedAddressIndex]],
     };
+    if(selectedAddressIndex === "add-new"){
+      finalData.addresses = [newAddress]
+    }else {
+      finalData.selectedAddressId = user.addresses[selectedAddressIndex]._id;
+    }
 
     try {
       const result = await dispatch(
