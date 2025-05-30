@@ -73,15 +73,20 @@ export class TruckController implements ITruckController {
   }
   async fetchAvailableTrucks(req: AuthRequest, res: Response): Promise<void> {
     try {
+      const plantId = req.user?.id;
+
+      if (!plantId) {
+        res.status(400).json({ message: "Plant ID is required" });
+        return;
+      }
       const { driverId } = req.query;
       if (typeof driverId !== "string") {
         res.status(400).json({ message: "Invalid or missing driverId" });
         return;
       }
-      console.log();
 
       const trucks = await this.truckService.getAvailableTrucksService(
-        driverId
+        driverId, plantId
       );
       console.log("trucks", trucks);
       res.status(200).json({

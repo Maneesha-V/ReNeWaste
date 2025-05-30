@@ -27,8 +27,8 @@ export class TruckService implements ITruckService {
   async getAllTrucks(plantId: string, page: number, limit: number, search: string): Promise<PaginatedTrucksResult> {
     return await this.truckRepository.getAllTrucks(plantId, page, limit, search);
   }
-  async getAvailableTrucksService(driverId: string): Promise<ITruck[]> {
-    return await this.truckRepository.getAvailableTrucks(driverId);
+  async getAvailableTrucksService(driverId: string, plantId: string): Promise<ITruck[]> {
+    return await this.truckRepository.getAvailableTrucks(driverId, plantId);
   }
   async getTruckByIdService(truckId: string): Promise<ITruck | null> {
     try {

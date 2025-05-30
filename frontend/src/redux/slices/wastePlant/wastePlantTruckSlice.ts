@@ -161,8 +161,6 @@ const wastePlantTruckSlice = createSlice({
         state.error = null;
       })
       .addCase(fetchTrucks.fulfilled, (state, action) => {
-        console.log("ac",action);
-        
         state.loading = false;
         state.truck = action.payload.trucks;
         state.total = action.payload.total;

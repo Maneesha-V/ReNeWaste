@@ -70,10 +70,10 @@ export class TruckRepository
     return { trucks, total };
     // return await TruckModel.find({wasteplantId: plantId});
   }
-  async getAvailableTrucks(driverId: string): Promise<ITruck[]> {
+  async getAvailableTrucks(driverId: string, plantId: string): Promise<ITruck[]> {
     const existingTruck = await this.model
       .findOne({
-        assignedDriver: driverId,
+        assignedDriver: driverId, wasteplantId: plantId
       })
       .populate("wasteplantId");
     if (existingTruck) {
@@ -81,7 +81,7 @@ export class TruckRepository
     }
     // return [];
     return await this.model
-      .find({ assignedDriver: null })
+      .find({ assignedDriver: null, wasteplantId: plantId })
       .populate("wasteplantId");
   }
   async getTruckById(truckId: string) {
@@ -165,5 +165,25 @@ export class TruckRepository
         assignedDriver: objectIdDriver,
       },
     });
+  }
+  async countAll(): Promise<number> {
+    return await this.model.countDocuments();
+  }
+  async markTruckAsReturned(
+    driverId: string,
+    truckId: string,
+    plantId: string
+  ): Promise<ITruckDocument> {
+    const truck = await this.model.findOneAndUpdate(
+      { _id: truckId, assignedDriver: driverId, wasteplantId: plantId },
+      {
+        $set: { isReturned: true, assignedDriver: null },
+      },
+      { new: true }
+    );
+    if (!truck) {
+      throw new Error("Truck not found or not assigned to this driver");
+    }
+    return truck;
   }
 }

@@ -6,7 +6,6 @@ import { WastePlantModel } from "../models/wastePlant/wastePlantModel";
 import { SuperAdminModel } from "../models/superAdmin/superAdminModel";
 import { ChatMessage } from "../types/common/socketTypes";
 
-
 async function findRoleById(id: string): Promise<string | null> {
   const [driver, user, wasteplant, superadmin] = await Promise.all([
     DriverModel.findById(id).select("_id").lean(),
@@ -36,7 +35,7 @@ export default function socketHandler(socket: Socket, io: Server) {
 
       const [senderRole, receiverRole] = await Promise.all([
         findRoleById(senderId),
-        findRoleById(receiverId)
+        findRoleById(receiverId),
       ]);
       if (!senderRole || !receiverRole) {
         console.error("Could not determine sender or receiver role");
@@ -58,28 +57,33 @@ export default function socketHandler(socket: Socket, io: Server) {
       console.error("Error saving message:", error);
     }
   });
-socket.on("joinPickupRoom", (pickupReqId: string) => {
-  socket.join(pickupReqId);
-  console.log(`Socket ${socket.id} joined pickup room: ${pickupReqId}`);
-});
+  socket.on("joinPickupRoom", (pickupReqId: string) => {
+    socket.join(pickupReqId);
+    console.log(`Socket ${socket.id} joined pickup room: ${pickupReqId}`);
+  });
 
   // Real-time location update from driver
-socket.on("driverLocationUpdate", ({ pickupReqId, latitude, longitude }) => {
-  console.log("📍 Driver location update:", { pickupReqId, latitude, longitude });
-  if (!pickupReqId || !latitude || !longitude) {
-    console.error("Invalid driver location update payload");
-    return;
-  }
- // Send only to users in this pickup room
-   socket.to(pickupReqId).emit("driverLocationBroadcast", { latitude, longitude });
-   
- io.to(pickupReqId).emit("trackingStatusUpdated", "InTransit");
-   socket.on("pickupCompleted", ({ pickupReqId, message }) => {
-  console.log(`✅ Pickup ${pickupReqId} completed: ${message}`);
-  io.to(pickupReqId).emit("pickupCompleteBroadcast", { pickupReqId });
-});
+  socket.on("driverLocationUpdate", ({ pickupReqId, latitude, longitude }) => {
+    console.log("📍 Driver location update:", {
+      pickupReqId,
+      latitude,
+      longitude,
+    });
+    if (!pickupReqId || !latitude || !longitude) {
+      console.error("Invalid driver location update payload");
+      return;
+    }
+    // Send only to users in this pickup room
+    socket
+      .to(pickupReqId)
+      .emit("driverLocationBroadcast", { latitude, longitude });
 
-});
+    io.to(pickupReqId).emit("trackingStatusUpdated", "InTransit");
+    socket.on("pickupCompleted", ({ pickupReqId, message }) => {
+      console.log(`✅ Pickup ${pickupReqId} completed: ${message}`);
+      io.to(pickupReqId).emit("pickupCompleteBroadcast", { pickupReqId });
+    });
+  });
 
   socket.on("disconnect", () => {
     console.log(`🔌 Client disconnected: ${socket.id}`);

@@ -34,11 +34,12 @@ router.put("/pickup-complete/:pickupReqId", authenticateDriver as RequestHandler
 router.get("/track-pickup/:pickupReqId", authenticateDriver as RequestHandler, driverPickupCtrl.getPickupRequestById.bind(driverPickupCtrl))
 router.patch("/address/:addressId/location", authenticateDriver as RequestHandler, driverPickupCtrl.updateAddressLatLng.bind(driverPickupCtrl))
 router.patch("/pickup/:pickupReqId/tracking-status", authenticateDriver as RequestHandler, driverPickupCtrl.updateTrackingStatus.bind(driverPickupCtrl))
-router.get("/assigned-trucks/:driverId", authenticateDriver as RequestHandler, driverTruckCtrl.fetchTruckForDriver.bind(driverTruckCtrl))
+router.get("/assigned-trucks/:wasteplantId", authenticateDriver as RequestHandler, driverTruckCtrl.fetchTruckForDriver.bind(driverTruckCtrl))
 router.post("/req-truck", authenticateDriver as RequestHandler, driverTruckCtrl.requestTruckForDriver.bind(driverTruckCtrl))
 router.get("/driver/chat")
 router.post("/conversation", authenticateDriver as RequestHandler, driverChatCtrl.getConversationId.bind(driverChatCtrl))
 router.post("/chat-messages", authenticateDriver as RequestHandler, driverChatCtrl.getChatMessages.bind(driverChatCtrl))
+router.put("/truck/mark-returned", authenticateDriver as RequestHandler, driverTruckCtrl.markTruckReturn.bind(driverTruckCtrl))
 
 export default router;
 

@@ -10,6 +10,7 @@ import { inject, injectable } from "inversify";
 import TYPES from "../../config/inversify/types";
 import BaseRepository from "../baseRepository/baseRepository";
 import { ITruckRepository } from "../truck/interface/ITruckRepository";
+import { MarkReturnProps, MarkTruckReturnResult } from "../../types/driver/truckTypes";
 
 @injectable()
 export class DriverRepository
@@ -158,5 +159,23 @@ export class DriverRepository
         new: true,
       }
     );
+  }
+  async countAll(): Promise<number> {
+    return await this.model.countDocuments();
+  }
+  async markTruckAsReturned(truckId: string, plantId: string, driverId: string): Promise<MarkTruckReturnResult> {
+    const driver = await this.model.findById(driverId);
+    if(!driver){
+      throw new Error("Driver not found.")
+    }
+    if(!driver.wasteplantId || driver.wasteplantId.toString() !== plantId){
+      throw new Error("Unauthorized plant.")
+    }
+    driver.assignedTruckId = null;
+    await driver.save();
+    
+    const truck = await this.getTruckRepo().markTruckAsReturned(driverId, truckId, plantId);
+ 
+    return {driver, truck}
   }
 }

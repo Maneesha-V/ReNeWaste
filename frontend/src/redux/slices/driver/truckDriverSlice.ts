@@ -1,5 +1,6 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { getAvaialbleTrucks, reqTruck } from "../../../services/driver/truckService";
+import { getAvaialbleTrucks, markTruckReturnService, reqTruck } from "../../../services/driver/truckService";
+import { markReturnedProps } from "../../../types/driverTypes";
 
 interface TruckState {
     trucks: any;
@@ -18,10 +19,10 @@ interface TruckState {
   };
   export const fetchDriverTrucks= createAsyncThunk(
     "driverTrucks/fetchDriverTrucks",
-    async ( driverId: string , { rejectWithValue }
+    async ( wasteplantId: string , { rejectWithValue }
     ) => {
       try {
-        const response = await getAvaialbleTrucks(driverId);
+        const response = await getAvaialbleTrucks(wasteplantId);
         console.log("resp",response);
         
         return response;
@@ -45,6 +46,19 @@ interface TruckState {
       }
     }
   );
+
+export const markTruckReturned = createAsyncThunk(
+  "driverTrucks/markTruckReturned",
+  async ({ truckId, plantId }:markReturnedProps, { rejectWithValue }) => {
+    try {
+      await markTruckReturnService({truckId, plantId})
+      return;
+    } catch (err: any) {
+      return rejectWithValue(err.response?.data?.message || 'Error');
+    }
+  }
+);
+
   const driverTruckSlice = createSlice({
     name: "driverTrucks",
     initialState,
@@ -73,6 +87,19 @@ interface TruckState {
           state.hasRequestedTruck = true; 
         })
         .addCase(reqTruckByDriver.rejected, (state, action) => {
+          state.loading = false;
+          state.error = action.payload as string;
+        })
+        
+          .addCase(markTruckReturned.pending, (state) => {
+          state.loading = true;
+          state.error = null;
+        })
+        .addCase(markTruckReturned.fulfilled, (state, action) => {
+          state.loading = false;
+          state.error = null;
+        })
+        .addCase(markTruckReturned.rejected, (state, action) => {
           state.loading = false;
           state.error = action.payload as string;
         })

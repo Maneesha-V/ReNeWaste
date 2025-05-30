@@ -2,6 +2,7 @@ import {
   IDriver,
   IDriverDocument,
 } from "../../../models/driver/interfaces/driverInterface";
+import { MarkTruckReturnResult } from "../../../types/driver/truckTypes";
 import { PaginatedDriversResult } from "../../../types/wastePlant/driverTypes";
 
 export interface IDriverRepository {
@@ -37,4 +38,10 @@ export interface IDriverRepository {
     plantId: string,
     updateData: Partial<IDriver>
   ): Promise<IDriver | null>;
+  countAll(): Promise<number>;
+    markTruckAsReturned(
+    truckId: string,
+    plantId: string,
+    driverId: string
+  ): Promise<MarkTruckReturnResult>;
 }

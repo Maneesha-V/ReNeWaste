@@ -7,46 +7,54 @@ import { ITruckService } from "../../services/driver/interface/ITruckService";
 
 @injectable()
 export class TruckController implements ITruckController {
-constructor(
-  @inject(TYPES.DriverTruckService)
-  private truckService: ITruckService
-){}
-async fetchTruckForDriver (req: AuthRequest, res: Response): Promise<void> {
+  constructor(
+    @inject(TYPES.DriverTruckService)
+    private truckService: ITruckService
+  ) {}
+  async fetchTruckForDriver(req: AuthRequest, res: Response): Promise<void> {
     try {
-        const { driverId } = req.params;
-    
-        const assignedTruck = await this.truckService.getTruckForDriver(driverId);
-        console.log("assignedTruck",assignedTruck);
-        
-        res.status(200).json({
-          success: true,
-          message: "Fetch assigned truck successfully",
-          data: assignedTruck,
-        });
-      } catch (error: any) {
-        res.status(500).json({
-          success: false,
-          message: "Failed to fetch assigned truck",
-          error: error.message,
-        });
+      const driverId = req.user?.id;
+
+      if (!driverId) {
+        res.status(400).json({ success: false, message: "Required driverId" });
+        return;
       }
-}
-async requestTruckForDriver (req: AuthRequest, res: Response): Promise<void> {
-  try {  
-    const driverId = req.user?.id;
+      const { wasteplantId } = req.params;
 
-    if (!driverId) {
-      res.status(400).json({ success: false, message: "Missing required field" });
-      return;
+      const assignedTruck = await this.truckService.getTruckForDriver(
+        driverId,
+        wasteplantId
+      );
+      console.log("assignedTruck", assignedTruck);
+
+      res.status(200).json({
+        success: true,
+        message: "Fetch assigned truck successfully",
+        data: assignedTruck,
+      });
+    } catch (error: any) {
+      res.status(500).json({
+        success: false,
+        message: "Failed to fetch assigned truck",
+        error: error.message,
+      });
     }
-    const requestedDriver = await this.truckService.requestTruck(driverId);
+  }
+  async requestTruckForDriver(req: AuthRequest, res: Response): Promise<void> {
+    try {
+      const driverId = req.user?.id;
 
-    res.status(200).json({
-      success: true,
-      message: "Truck request sent successfully",
-      data: requestedDriver,
-    });
+      if (!driverId) {
+        res.status(400).json({ success: false, message: "Required driverId" });
+        return;
+      }
+      const requestedDriver = await this.truckService.requestTruck(driverId);
 
+      res.status(200).json({
+        success: true,
+        message: "Truck request sent successfully",
+        data: requestedDriver,
+      });
     } catch (error: any) {
       res.status(500).json({
         success: false,
@@ -54,5 +62,35 @@ async requestTruckForDriver (req: AuthRequest, res: Response): Promise<void> {
         error: error.message,
       });
     }
-}
+  }
+  async markTruckReturn(req: AuthRequest, res: Response): Promise<void> {
+    try {
+      const { truckId, plantId } = req.body;
+      const driverId = req.user?.id;
+
+      if (!truckId || !plantId || !driverId) {
+        res
+          .status(400)
+          .json({ success: false, message: "Missing required fields" });
+        return;
+      }
+
+      await this.truckService.markTruckReturnService({
+        truckId,
+        plantId,
+        driverId,
+      });
+
+      res.status(200).json({
+        success: true,
+        message: "Truck marked as returned",
+      });
+    } catch (error: any) {
+      res.status(500).json({
+        success: false,
+        message: "Failed to mark return truck.",
+        error: error.message,
+      });
+    }
+  }
 }

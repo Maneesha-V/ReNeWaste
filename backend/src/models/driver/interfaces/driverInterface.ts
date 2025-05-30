@@ -12,7 +12,7 @@ export interface IDriver {
   licenseBack: string;
   role: "driver" | "user" | "superadmin" | "wasteplant";
   wasteplantId?: mongoose.Types.ObjectId;
-  assignedTruckId?: mongoose.Types.ObjectId;
+  assignedTruckId?: mongoose.Types.ObjectId | null;
   assignedZone?: string;
   hasRequestedTruck?: boolean;
   createdAt: Date;

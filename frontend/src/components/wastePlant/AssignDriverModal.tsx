@@ -120,13 +120,6 @@ const AssignDriverModal = ({
       </div>
 
       <Form form={form} layout="vertical">
-        {/* <Form.Item
-          label="Assign Zone"
-          name="assignedZone"
-          rules={[{ required: true, message: "Please enter zone" }]}
-        >
-          <Input placeholder="Enter zone" />
-        </Form.Item> */}
 
         <Form.Item
           label="Assign Driver"
@@ -141,12 +134,7 @@ const AssignDriverModal = ({
               dispatch(fetchAvailableTrucks(value));
             }}
           >
-            {/* {Array.isArray(driver) &&
-              driver.map((driver: any) => (
-              <Select.Option key={driver._id} value={driver._id}>
-                {driver.name}
-              </Select.Option>
-            ))} */}
+
             {filteredDrivers.map((driver: any) => (
               <Select.Option key={driver._id} value={driver._id}>
                 {driver.name}

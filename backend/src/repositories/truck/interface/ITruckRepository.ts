@@ -14,7 +14,7 @@ export interface ITruckRepository {
     limit: number,
     search: string
   ): Promise<PaginatedTrucksResult>;
-  getAvailableTrucks(driverId: string): Promise<any>;
+  getAvailableTrucks(driverId: string, plantId: string): Promise<any>;
   getTruckById(truckId: string): Promise<ITruck | null>;
   updateTruckById(truckId: string, data: any): Promise<ITruck | null>;
   deleteTruckById(truckId: string): Promise<ITruck | null>;
@@ -31,4 +31,10 @@ export interface ITruckRepository {
     truckId: string,
     driverId: string | Types.ObjectId
   ): Promise<void>;
+  countAll(): Promise<number>;
+    markTruckAsReturned(
+    driverId: string,
+    truckId: string,
+    plantId: string
+  ): Promise<ITruckDocument>;
 }
