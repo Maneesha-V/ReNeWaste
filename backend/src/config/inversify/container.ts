@@ -130,6 +130,8 @@ import { IChatMsgRepository } from "../../repositories/chat/interface/IChatMsgRe
 import { ChatMsgRepository } from "../../repositories/chat/chatMsgRepository";
 import { IConversationRepository } from "../../repositories/chat/interface/IConversation";
 import { ConversationRepository } from "../../repositories/chat/conversationRepository";
+import { INotificationRepository } from "../../repositories/notification/interface/INotifcationRepository";
+import { NotificationRepository } from "../../repositories/notification/notificationRepository";
 
 
 
@@ -206,6 +208,7 @@ container.bind<IChatMsgRepository>(TYPES.ChatMsgRepository).to(ChatMsgRepository
 container.bind<IConversationRepository>(TYPES.ConversationRepository).to(ConversationRepository);
 container.bind<ITruckRepository>(TYPES.TruckRepository).to(TruckRepository).inSingletonScope();
 container.bind<IDriverRepository>(TYPES.DriverRepository).to(DriverRepository).inSingletonScope();
+container.bind<INotificationRepository>(TYPES.NotificationRepository).to(NotificationRepository);
 
 // Bind factory for circular dep
 container.bind<() => IDriverRepository>(TYPES.DriverRepositoryFactory)
