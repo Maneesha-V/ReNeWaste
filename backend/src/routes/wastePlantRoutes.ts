@@ -10,6 +10,7 @@ import { authenticateWastePlant } from "../middlewares/authMiddware";
 import uploadImages from "../middlewares/imageUploader";
 import TYPES from "../config/inversify/types";
 import container from "../config/inversify/container";
+import { NotificationController } from "../controllers/wastePlant/notificationController";
 
 const router = express.Router();
 const plantCtrl = container.get<AuthController>(TYPES.PlantAuthController);
@@ -19,6 +20,7 @@ const plantPickupCtrl = container.get<PickupController>(TYPES.PlantPickupControl
 const plantDropSpotCtrl = container.get<DropSpotController>(TYPES.PlantDropSpotController);
 const plantChatCtrl = container.get<ChatController>(TYPES.PlantChatController);
 const plantUserCtrl = container.get<UserController>(TYPES.PlantUserController);
+const plantNotificationCtrl = container.get<NotificationController>(TYPES.PlantNotificationController);
 
 router.get("/refresh-token", plantCtrl.refreshToken.bind(plantCtrl));
 router.post("/", plantCtrl.wastePlantLogin.bind(plantCtrl));
@@ -27,6 +29,7 @@ router.post("/send-otp", plantCtrl.sendOtp.bind(plantCtrl));
 router.post("/resend-otp", plantCtrl.resendOtp.bind(plantCtrl));
 router.post("/verify-otp", plantCtrl.verifyOtp.bind(plantCtrl));
 router.post("/reset-password", plantCtrl.resetPassword.bind(plantCtrl));
+router.get("/add-driver",authenticateWastePlant as RequestHandler, plantDriverCtrl.getCreateDriver.bind(plantDriverCtrl));
 router.post("/add-driver", authenticateWastePlant as RequestHandler, uploadImages.fields([
     { name: "licenseFront", maxCount: 1 },
     { name: "licenseBack", maxCount: 1 },
@@ -68,5 +71,7 @@ router.patch("/edit-drop-spot/:dropSpotId", authenticateWastePlant as RequestHan
 router.delete("/delete-drop-spot/:dropSpotId", authenticateWastePlant as RequestHandler, plantDropSpotCtrl.deleteDropSpotById.bind(plantDropSpotCtrl))
 router.get("/users", authenticateWastePlant as RequestHandler, plantUserCtrl.fetchUsers.bind(plantUserCtrl))
 router.patch("/users/:userId/block", authenticateWastePlant as RequestHandler, plantUserCtrl.userBlockStatus.bind(plantUserCtrl))
+router.get("/notifications", authenticateWastePlant as RequestHandler, plantNotificationCtrl.fetchNotifications.bind(plantNotificationCtrl))
+router.patch("/notifications/:notifId/read", authenticateWastePlant as RequestHandler, plantNotificationCtrl.markReadNotification.bind(plantNotificationCtrl))
 
 export default router;

@@ -58,7 +58,7 @@ const AssignedTrucks: React.FC = () => {
       .unwrap()
       .then(() => {
         toast.success("Truck marked as returned!");
-        dispatch(fetchDriverTrucks(driver.wasteplantId));
+        // dispatch(fetchDriverTrucks(driver.wasteplantId));
       })
       .catch((err: any) => {
         toast.error(err || "Failed to mark as returned");

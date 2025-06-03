@@ -36,6 +36,7 @@ export interface ReschedulePickupModalProps {
 export type SidebarWastePlantProps = {
   collapsed: boolean;
   children?: ReactNode;
+  isNotifOpen: boolean;
 };
 export interface PickupRequest {
   _id: string;

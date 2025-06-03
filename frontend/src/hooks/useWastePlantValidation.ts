@@ -12,7 +12,6 @@ export const useWastePlantValidation = () => {
     switch (name) {
       case "firstName":
       case "lastName":
-      case "assignedZone":
       case "businessName":
       case "plantName":
       case "ownerName":
@@ -83,6 +82,10 @@ export const useWastePlantValidation = () => {
         break;
       case "status":
         if (!value) error = `Please select a status.`;
+        break;
+      case "assignedZone":
+      case "category":
+        if (!value) error = `Please select a value.`;
         break;
       case "password":
         if (!value) error = "Password is required.";

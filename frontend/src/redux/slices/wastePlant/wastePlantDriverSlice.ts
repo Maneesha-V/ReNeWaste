@@ -2,6 +2,7 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import {
   createDriver,
   deleteDriverById,
+  getCreateDriverService,
   getDriverById,
   getDrivers,
   updateDriverById,
@@ -10,6 +11,7 @@ import { PaginationPayload } from "../../../types/commonTypes";
 
 interface DriverState {
   driver: any;
+  taluk: string;
   loading: boolean;
   message: string | null;
   error: string | null;
@@ -18,11 +20,26 @@ interface DriverState {
 
 const initialState: DriverState = {
   driver: [],
+  taluk: "",
   loading: false,
   message: null,
   error: null,
   total: 0,
 };
+
+export const getCreateDriver = createAsyncThunk(
+  "wastePlantDriver/getCreateDriver",
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await getCreateDriverService();
+      return response;
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data || "Failed to fetch add driver"
+      );
+    }
+  }
+);
 
 export const addDriver = createAsyncThunk(
   "wastePlantDriver/addDriver",
@@ -55,6 +72,8 @@ export const fetchDriverById = createAsyncThunk(
   async (driverId: string, { rejectWithValue }) => {
     try {
       const response = await getDriverById(driverId);
+      console.log("response",response);
+      
       return response;
     } catch (error: any) {
       return rejectWithValue(error.response?.data || "Failed to fetch data");
@@ -99,6 +118,10 @@ const wastePlantDriverSlice = createSlice({
   reducers: {},
   extraReducers: (builder) => {
     builder
+      .addCase(getCreateDriver.fulfilled, (state, action) => {
+        state.loading = false;
+        state.taluk = action.payload?.taluk;
+      })
       .addCase(fetchDrivers.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -129,8 +152,10 @@ const wastePlantDriverSlice = createSlice({
         state.error = null;
       })
       .addCase(fetchDriverById.fulfilled, (state, action) => {
+  console.log("action",action.payload);   
         state.loading = false;
-        state.driver = action.payload;
+        state.driver = action.payload.driver;
+        state.taluk = action.payload.taluk;
       })
       .addCase(fetchDriverById.rejected, (state, action) => {
         state.loading = false;

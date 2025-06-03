@@ -13,6 +13,27 @@ export class DriverController implements IDriverController {
     @inject(TYPES.PlantDriverService)
     private driverService: IDriverService
   ) {}
+  
+   async getCreateDriver(req: AuthRequest, res: Response): Promise<void> {
+    try {
+      const plantId = req.user?.id;
+      if (!plantId) {
+        res.status(404).json({ message: "plantId not found" });
+        return;
+      }
+
+    const data = await this.driverService.getTalukByPlantIdService(plantId);
+
+      res.status(200).json({
+        data,
+        success: true,
+        message: "Fetch create driver successfully"
+      });
+    } catch (error: any) {
+      console.error("err", error);
+      res.status(500).json({ message: "Error fetching create driver.", error });
+    }
+  }
   async addDriver(req: AuthRequest, res: Response): Promise<void> {
     try {
       const plantId = req.user?.id;
@@ -86,12 +107,16 @@ export class DriverController implements IDriverController {
       res.status(500).json({ message: "Error fetching drivers.", error });
     }
   }
-  async getDriverById(req: Request, res: Response): Promise<void> {
+  async getDriverById(req: AuthRequest, res: Response): Promise<void> {
     try {
-      console.log(req.params);
-
+      const plantId = req.user?.id;
+      if (!plantId) {
+        res.status(404).json({ message: "plantId not found" });
+        return;
+      }
       const { driverId } = req.params;
-      const driver = await this.driverService.getDriverByIdService(driverId);
+
+      const driver = await this.driverService.getDriverByIdService(driverId, plantId);
       console.log("driver", driver);
 
       if (!driver) {

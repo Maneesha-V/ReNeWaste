@@ -26,7 +26,7 @@ const DriverChatWindow: React.FC<DriverChatWindowProps> = ({ driver, wasteplantI
         .unwrap()
         .then((id) => {
           setConversationId(id);
-          socket?.emit("joinRoom", id);
+          socket?.emit("joinChatRoom", id);
           dispatch(fetchChatMessages({ conversationId: id }));
         })
         .catch(console.error);

@@ -1,16 +1,19 @@
 import bcrypt from "bcrypt";
 import { IDriver } from "../../models/driver/interfaces/driverInterface";
 import { IDriverService } from "./interface/IDriverService";
-import { PaginatedDriversResult } from "../../types/wastePlant/driverTypes";
+import { PaginatedDriversResult, ReturnGetEditDriver, ReturnTaluk } from "../../types/wastePlant/driverTypes";
 import { inject, injectable } from "inversify";
 import TYPES from "../../config/inversify/types";
 import { IDriverRepository } from "../../repositories/driver/interface/IDriverRepository";
+import { IWastePlantRepository } from "../../repositories/wastePlant/interface/IWastePlantRepository";
 
 @injectable()
 export class DriverService implements IDriverService {
   constructor(
     @inject(TYPES.DriverRepository)
-    private driverRepository: IDriverRepository
+    private driverRepository: IDriverRepository,
+    @inject(TYPES.WastePlantRepository)
+    private wastePlantRepository: IWastePlantRepository
   ) {}
   async addDriver(data: IDriver): Promise<IDriver> {
     const existingEmail = await this.driverRepository.findDriverByEmail(
@@ -52,9 +55,12 @@ export class DriverService implements IDriverService {
       search
     );
   }
-  async getDriverByIdService(driverId: string): Promise<IDriver | null> {
+  async getDriverByIdService(driverId: string, plantId: string): Promise<ReturnGetEditDriver> {
     try {
-      return await this.driverRepository.getDriverById(driverId);
+      const driver = await this.driverRepository.getDriverById(driverId);
+      if (!driver) throw new Error("Driver not found");
+      const { taluk } = await this.getTalukByPlantIdService(plantId);
+      return { driver, taluk }
     } catch (error) {
       throw new Error("Error fetching driver from service");
     }
@@ -71,5 +77,10 @@ export class DriverService implements IDriverService {
   }
   async deleteDriverByIdService(driverId: string) {
     return await this.driverRepository.deleteDriverById(driverId);
+  }
+  async getTalukByPlantIdService(plantId: string): Promise<ReturnTaluk> {
+    const res =  await this.wastePlantRepository.getWastePlantById(plantId) 
+    if (!res?.taluk) throw new Error("Taluk not found in plant record");
+    return { taluk: res.taluk };
   }
 }

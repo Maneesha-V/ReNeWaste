@@ -11,6 +11,7 @@ import TYPES from "../../config/inversify/types";
 import BaseRepository from "../baseRepository/baseRepository";
 import { ITruckRepository } from "../truck/interface/ITruckRepository";
 import { MarkReturnProps, MarkTruckReturnResult } from "../../types/driver/truckTypes";
+import { INotificationRepository } from "../notification/interface/INotifcationRepository";
 
 @injectable()
 export class DriverRepository
@@ -19,7 +20,9 @@ export class DriverRepository
 {
   constructor(
     @inject(TYPES.TruckRepositoryFactory)
-    private getTruckRepo: () => ITruckRepository
+    private getTruckRepo: () => ITruckRepository,
+    @inject(TYPES.NotificationRepository)
+    private notificationRepository: INotificationRepository
   ) {
     super(DriverModel);
   }
@@ -133,6 +136,7 @@ export class DriverRepository
   }
 
   async getDriversByLocation(location: string, plantId: string) {
+  
     const objectId = new Types.ObjectId(plantId);
     return await this.model
       .find({
@@ -175,7 +179,22 @@ export class DriverRepository
     await driver.save();
     
     const truck = await this.getTruckRepo().markTruckAsReturned(driverId, truckId, plantId);
- 
+  
+  const message = `Truck ${truck?.vehicleNumber} returned by driver ${driver.name}`;
+  const notification = await this.notificationRepository.createNotification({
+    receiverId: plantId,
+    receiverType: "wasteplant",
+    message,
+    type: "truck_returned"
+  });
+console.log("notification",notification);
+
+  const io = global.io; 
+
+  if (io) {
+    io.to(`${plantId}`).emit("newNotification", notification);
+  }
+
     return {driver, truck}
   }
 }

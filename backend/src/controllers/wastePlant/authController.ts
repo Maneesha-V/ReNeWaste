@@ -51,7 +51,8 @@ export class AuthController implements IAuthController {
       res.cookie("refreshToken", refreshToken, cookieOptions).status(200).json({
         success: true,
         message: "Login successful",
-        wastePlant: safeWastePlant,
+        role: safeWastePlant.role,
+        plantId: safeWastePlant._id,
         token,
       });
       // res.status(200).json({ wastePlant, token });

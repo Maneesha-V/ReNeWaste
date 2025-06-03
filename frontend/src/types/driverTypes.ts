@@ -11,6 +11,7 @@ export interface DriverFormData {
     licenseFront?: File,
     licenseBack?: File,
     assignedZone: string,
+    category: "Residential" | "Commercial" | "Pending",
   }
 export type PartialDriverFormData = Partial<DriverFormData>;
 export interface ValidationErrors {

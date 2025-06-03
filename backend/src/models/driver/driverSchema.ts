@@ -36,6 +36,12 @@ export const driverSchema: Schema<IDriverDocument> = new Schema({
     type: Boolean,
     default: false, 
   },
+  category: {
+    type: String,
+    enum: ["Residential","Commercial","Pending"],
+    default: "Pending",
+    required: true
+  },
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },
 });

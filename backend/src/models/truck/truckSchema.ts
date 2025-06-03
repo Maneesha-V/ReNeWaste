@@ -33,6 +33,10 @@ export const truckSchema: Schema<ITruckDocument> = new Schema(
       enum: ["Active", "Inactive", "Maintenance"],
       default: "Active",
     },
+    isReturned: {
+      type: Boolean,
+      default: false
+    }
   },
   {
     timestamps: true,

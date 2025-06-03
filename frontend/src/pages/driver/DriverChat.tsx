@@ -40,7 +40,7 @@ const DriverChat: React.FC = () => {
         .unwrap()
         .then((id) => {
           setConversationId(id);
-          socket?.emit("joinRoom", id);
+          socket?.emit("joinChatRoom", id);
           dispatch(fetchChatMessages({ conversationId: id }));
         })
         .catch(console.error);

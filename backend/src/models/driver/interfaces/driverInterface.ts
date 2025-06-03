@@ -15,6 +15,7 @@ export interface IDriver {
   assignedTruckId?: mongoose.Types.ObjectId | null;
   assignedZone?: string;
   hasRequestedTruck?: boolean;
+  category: "Residential" | "Commercial" | "Pending";
   createdAt: Date;
   updatedAt: Date;
 }

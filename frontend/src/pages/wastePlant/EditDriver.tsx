@@ -7,9 +7,16 @@ import {
   ValidationErrors,
 } from "../../types/driverTypes";
 import { useWastePlantValidation } from "../../hooks/useWastePlantValidation";
-import { fetchDriverById, updateDriver } from "../../redux/slices/wastePlant/wastePlantDriverSlice";
+import {
+  fetchDriverById,
+  updateDriver,
+} from "../../redux/slices/wastePlant/wastePlantDriverSlice";
 import { useSelector } from "react-redux";
 import { RootState } from "../../redux/store";
+import {
+  getMunicipalityByTaluk,
+  getPanchayatsByTaluk,
+} from "../../utils/locationUtils";
 
 const EditDriver = () => {
   const { driverId } = useParams();
@@ -21,6 +28,10 @@ const EditDriver = () => {
     (state: RootState) => state.wastePlantDriver
   );
   const [formData, setFormData] = useState<PartialDriverFormData>({});
+  const taluk = useSelector((state: any) => state.wastePlantDriver.taluk);
+  console.log("driver", driver);
+
+  const [assignedZones, setAssignedZones] = useState<string[]>([]);
 
   useEffect(() => {
     if (driverId) {
@@ -37,7 +48,17 @@ const EditDriver = () => {
       });
     }
   }, [driver]);
- 
+  useEffect(() => {
+    if (taluk) {
+      const municipality = getMunicipalityByTaluk(taluk);
+      const panchayats = getPanchayatsByTaluk(taluk);
+
+      const zones = [municipality, ...panchayats];
+      setAssignedZones(zones);
+    }
+  }, [taluk]);
+  console.log("assignedZones", assignedZones);
+   console.log("formData", formData);
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
@@ -108,8 +129,8 @@ const EditDriver = () => {
         toast.error("Invalid driver ID.");
         return;
       }
-      console.log("formDataToSend",formDataToSend);
-      const result = await dispatch(   
+      console.log("formDataToSend", formDataToSend);
+      const result = await dispatch(
         updateDriver({ driverId, data: formDataToSend })
       );
       if (result.payload?.error) {
@@ -260,24 +281,47 @@ const EditDriver = () => {
               <p className="text-red-500 text-sm">{errors.licenseBack}</p>
             )}
           </div>
-       {/* Assigned Zone */}
-       <div>
+          {/* Assigned Zone */}
+          <div>
             <label className="block text-gray-700 font-medium">
               Assigned Zone
             </label>
-            <input
-              type="text"
+            <select
               name="assignedZone"
-              value={formData.assignedZone}
+              value={formData.assignedZone || ""}
               onBlur={handleBlur}
               onChange={handleChange}
               className="w-full border px-3 py-2 rounded-md focus:ring-2 focus:ring-green-500"
-            />
+            >
+              <option value="">Select a zone</option>
+              {assignedZones.map((zone) => (
+                <option key={zone} value={zone}>
+                  {zone}
+                </option>
+              ))}
+            </select>
             {errors.assignedZone && (
               <p className="text-red-500 text-sm">{errors.assignedZone}</p>
             )}
           </div>
-
+          {/* Category */}
+          <div>
+            <label className="block text-gray-700 font-medium">Category</label>
+            <select
+              name="category"
+              value={formData.category}
+              onChange={handleChange}
+              onBlur={handleBlur}
+              className="w-full border px-3 py-2 rounded-md"
+            >
+              <option value="Pending">Pending</option>
+              <option value="Residential">Residential</option>
+              <option value="Commercial">Commercial</option>
+            </select>
+            {errors.category && (
+              <p className="text-red-500 text-sm">{errors.category}</p>
+            )}
+          </div>
           <div className="md:col-span-2">
             <button
               type="submit"

@@ -1,0 +1,87 @@
+{
+  "taluks": [
+    {
+      "name": "Perinthalmanna",
+      "municipality": "Perinthalmanna",
+      "panchayats": [
+        "Alipparamba",
+        "Angadippuram",
+        "Edappatta",
+        "Elamkulam",
+        "Keezhattur",
+        "Kodur",
+        "Koottilangadi",
+        "Kuruva",
+        "Mankada",
+        "Melattur",
+        "Moorkkanad",
+        "Pulamanthole",
+        "Puzhakkattiri",
+        "Tazhekkode",
+        "Vettathur"
+      ]
+    },
+    {
+      "name": "Ponnani",
+      "municipality": "Ponnani",
+      "panchayats": [
+        "Alancode",
+        "Maranchery",
+        "Nannamukku",
+        "Perumpadappu",
+        "Veliyankode"
+      ]
+    },
+    {
+      "name": "Kondotty",
+      "municipality": "Kondotty",
+      "panchayats": [
+        "Chelembra",
+        "Cherukavu",
+        "Muthuvalloor",
+        "Pallikkal",
+        "Pulikkal",
+        "Vazhakkad",
+        "Vazhayur"
+      ]
+    },
+    {
+      "name": "Tirurangadi",
+      "municipality": "Tirurangadi",
+      "panchayats": [
+        "Moonniyur",
+        "Nannambra",
+        "Peruvallur",
+        "Thenhipalam",
+        "Vallikkunnu"
+      ]
+    },
+    {
+      "name": "Nilambur",
+      "municipality": "Nilambur",
+      "panchayats": [
+        "Chaliyar",
+        "Chungathara",
+        "Edakkara",
+        "Moothedam",
+        "Pothukallu",
+        "Karulayi",
+        "Amarambalam",
+        "Vazhikkadavu"
+      ]
+    },
+    {
+      "name": "Tirur",
+      "municipality": "Tirur",
+      "panchayats": [
+        "Mangalam",
+        "Purathur",
+        "Thalakkad",
+        "Athavanad",
+        "Thirunavaya",
+        "Triprangode",
+        "Vettom"
+      ]
+    }
+  ]
+}

@@ -1,16 +1,17 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { DriverFormData, ValidationErrors } from "../../types/driverTypes";
 import { useAppDispatch } from "../../redux/hooks";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useWastePlantValidation } from "../../hooks/useWastePlantValidation";
-import { addDriver } from "../../redux/slices/wastePlant/wastePlantDriverSlice";
+import { addDriver, getCreateDriver } from "../../redux/slices/wastePlant/wastePlantDriverSlice";
+import { useSelector } from "react-redux";
+import { getMunicipalityByTaluk, getPanchayatsByTaluk } from "../../utils/locationUtils";
 
 const AddDriver = () => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const { errors, validateField, setErrors } = useWastePlantValidation();
-  //   const { loading, error } = useSelector((state: any) => state.user);
   const [formData, setFormData] = useState<DriverFormData>({
     name: "",
     contact: "",
@@ -22,7 +23,27 @@ const AddDriver = () => {
     licenseFront: undefined,
     licenseBack: undefined,
     assignedZone: "",
+    category: "Pending"
   });
+
+const taluk = useSelector((state: any) => state.wastePlantDriver.taluk);
+const [assignedZones, setAssignedZones] = useState<string[]>([]);
+
+  console.log("taluk",taluk);
+  
+  useEffect(()=>{
+    dispatch(getCreateDriver())
+  },[dispatch])
+    useEffect(() => {
+    if (taluk) {
+      const municipality = getMunicipalityByTaluk(taluk);
+      const panchayats = getPanchayatsByTaluk(taluk);
+
+      const zones = [municipality,...panchayats]
+      setAssignedZones(zones)
+    }
+  }, [taluk]);
+  console.log("assignedZones",assignedZones);
 
   const handleBlur = (
     e: React.FocusEvent<HTMLInputElement | HTMLSelectElement>
@@ -247,14 +268,21 @@ const AddDriver = () => {
             <label className="block text-gray-700 font-medium">
               Assigned Zone
             </label>
-            <input
-              type="text"
-              name="assignedZone"
-              value={formData.assignedZone}
-              onBlur={handleBlur}
-              onChange={handleChange}
-              className="w-full border px-3 py-2 rounded-md focus:ring-2 focus:ring-green-500"
-            />
+
+              <select
+    name="assignedZone"
+    value={formData.assignedZone}
+    onBlur={handleBlur}
+    onChange={handleChange}
+    className="w-full border px-3 py-2 rounded-md focus:ring-2 focus:ring-green-500"
+  >
+    <option value="">Select a zone</option>
+    {assignedZones.map((zone) => (
+      <option key={zone} value={zone}>
+        {zone}
+      </option>
+    ))}
+  </select>
             {errors.assignedZone && (
               <p className="text-red-500 text-sm">{errors.assignedZone}</p>
             )}
@@ -274,6 +302,28 @@ const AddDriver = () => {
               <option value="Active">Active</option>
               <option value="Inactive">Inactive</option>
             </select>
+            {errors.status && (
+              <p className="text-red-500 text-sm">{errors.status}</p>
+            )}
+          </div>
+
+          {/* Category */}
+          <div>
+            <label className="block text-gray-700 font-medium">Category</label>
+            <select
+              name="category"
+              value={formData.category}
+              onChange={handleChange}
+              onBlur={handleBlur}
+              className="w-full border px-3 py-2 rounded-md"
+            >
+              <option value="Pending">Pending</option>
+              <option value="Residential">Residential</option>
+              <option value="Commercial">Commercial</option>
+            </select>
+            {errors.category && (
+              <p className="text-red-500 text-sm">{errors.category}</p>
+            )}
           </div>
 
           {/* Submit Button */}

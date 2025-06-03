@@ -1,9 +1,3 @@
-// const DashboardWastePlant = () => {
-//   return <div>DashboardContent</div>;
-// };
-
-// export default DashboardWastePlant;
-// DashboardWastePlant.tsx
 import { useEffect } from "react";
 import { useSelector } from "react-redux";
 import { Truck, Users, Recycle, DollarSign, Activity } from "lucide-react";

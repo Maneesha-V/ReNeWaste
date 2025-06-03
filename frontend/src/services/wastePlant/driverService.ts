@@ -1,6 +1,15 @@
 import axiosWasteplant from "../../api/axiosWasteplant";
 import { PaginationPayload } from "../../types/commonTypes";
 
+export const getCreateDriverService = async () => {
+    try {
+      const response = await axiosWasteplant.get(`/add-driver`);
+      return response.data.data;
+    } catch (error: any) {
+      console.error("error", error);
+    }
+  };
+  
 export const getDrivers = async ({ page, limit, search }: PaginationPayload) => {
     try {
       const response = await axiosWasteplant.get(`/drivers`,{
@@ -18,7 +27,7 @@ export const getDrivers = async ({ page, limit, search }: PaginationPayload) => 
         driverData,
         {
           headers: {
-            "Content-Type": "multipart/form-data",
+            "Content-Type": undefined,
           },
         }
       );
@@ -41,7 +50,7 @@ export const getDrivers = async ({ page, limit, search }: PaginationPayload) => 
       const response = await axiosWasteplant.patch(`/edit-driver/${driverId}`, data, 
         {
             headers: {
-              "Content-Type": "multipart/form-data",
+              "Content-Type": undefined,
             },
           }
       );

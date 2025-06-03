@@ -78,8 +78,8 @@ export class TruckRepository
       .populate("wasteplantId");
     if (existingTruck) {
       return [existingTruck];
-    }
-    // return [];
+    } 
+
     return await this.model
       .find({ assignedDriver: null, wasteplantId: plantId })
       .populate("wasteplantId");
