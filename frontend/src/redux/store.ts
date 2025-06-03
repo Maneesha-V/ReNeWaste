@@ -21,6 +21,7 @@ import wastePlantDropSpotReducer from "../redux/slices/wastePlant/wastePlantDrop
 import wastePlantUserReducer from "../redux/slices/wastePlant/wastePlantUserSlice";
 import wastePlantDashboardReducer from "../redux/slices/wastePlant/wastePlantDashboardSlice";
 import userDropSpotReducer from "../redux/slices/user/dropSpotSlice";
+import wastePlantNotificationsReducer from "../redux/slices/wastePlant/wastePlantNotificationSlice";
 
 export const store = configureStore({
     reducer : {
@@ -41,6 +42,7 @@ export const store = configureStore({
         wastePlantDropSpot: wastePlantDropSpotReducer,
         wastePlantUser: wastePlantUserReducer,
         wastePlantDashboard: wastePlantDashboardReducer,
+        wastePlantNotifications: wastePlantNotificationsReducer,
         driver: driverReducer,
         driverProfile: driverProfileReducer,
         driverPickups: driverPickupsReducer,

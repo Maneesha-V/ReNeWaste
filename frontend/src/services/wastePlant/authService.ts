@@ -8,7 +8,8 @@ export const loginWastePlant = async (wastePlantData: LoginRequest) => {
       // localStorage.setItem("wasteplant_token", response.data.token);
       // localStorage.setItem("role", response.data.wastePlant.role);
       sessionStorage.setItem("wasteplant_token", response.data.token);
-      sessionStorage.setItem("wasteplant_role", response.data.wastePlant.role);
+      sessionStorage.setItem("wasteplant_role", response.data.role);
+      sessionStorage.setItem("wasteplant_id", response.data.plantId);
     }
     console.log(response);
 
@@ -29,7 +30,7 @@ export const logoutWastePlant = async () => {
     // localStorage.removeItem("role"); 
     sessionStorage.removeItem("wasteplant_token"); 
     sessionStorage.removeItem("wasteplant_role"); 
-
+    sessionStorage.removeItem("wasteplant_id");
     return response.data;
   } catch (error: any) {
     console.error("err", error);

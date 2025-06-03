@@ -4,6 +4,7 @@ export interface INotification {
   receiverId: mongoose.Types.ObjectId;
   receiverType: 'wasteplant' | 'superadmin' | 'driver' | 'user';
   message: string;
+  type: string;
   isRead?: boolean;
   createdAt?: Date;
 }

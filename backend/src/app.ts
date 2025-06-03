@@ -39,7 +39,7 @@ const io = new Server(server, {
   },
 });
 
-app.set("io", io);
+global.io = io;
 
 // Socket.IO connection
 io.on("connection", (socket) => {

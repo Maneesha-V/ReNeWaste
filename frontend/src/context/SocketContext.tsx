@@ -4,9 +4,6 @@ import { SocketProviderProps } from "../types/socketTypes";
 
 const SocketContext = createContext<Socket | null>(null);
 export { SocketContext };
-// interface SocketProviderProps {
-//   children: React.ReactNode;
-// }
 
 export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
     const [socket, setSocket] = useState<Socket | null>(null);

@@ -39,6 +39,9 @@ import { ITruckController as IPlantTruckController } from "../../controllers/was
 import { TruckController as PlantTruckController } from "../../controllers/wastePlant/truckController";
 import { IUserController as IPlantUserController } from "../../controllers/wastePlant/interface/IUserController";
 import { UserController as PlantUserController } from "../../controllers/wastePlant/userController";
+import { INotificationController as IPlantNotificationController } from "../../controllers/wastePlant/interface/INotificationController";
+import { NotificationController as PlantNotificationController } from "../../controllers/wastePlant/notificationController";
+
 //driver
 import { IAuthController as IDriverAuthController } from "../../controllers/driver/interface/IAuthController";
 import { AuthController as DriverAuthController } from "../../controllers/driver/authController";
@@ -94,7 +97,8 @@ import { ITruckService as IPlantTruckService } from "../../services/wastePlant/i
 import { TruckService as PlantTruckService } from "../../services/wastePlant/truckService";
 import { IUserService as IPlantUserService } from "../../services/wastePlant/interface/IUserService";
 import { UserService as PlantUserService } from "../../services/wastePlant/userService";
-
+import { INotificationService as IPlantINotificationService } from "../../services/wastePlant/interface/INotificationService";
+import { NotificationService as PlantINotificationService } from "../../services/wastePlant/notificationService";
 //driver
 import { IAuthService as IDriverAuthService } from "../../services/driver/interface/IAuthService";
 import { AuthService as DriverAuthService  } from "../../services/driver/authService";
@@ -159,6 +163,7 @@ container.bind<IPlantDropSpotController>(TYPES.PlantDropSpotController).to(Plant
 container.bind<IPlantPickupController>(TYPES.PlantPickupController).to(PlantPickupController);
 container.bind<IPlantTruckController>(TYPES.PlantTruckController).to(PlantTruckController);
 container.bind<IPlantUserController>(TYPES.PlantUserController).to(PlantUserController);
+container.bind<IPlantNotificationController>(TYPES.PlantNotificationController).to(PlantNotificationController);
 //driver
 container.bind<IDriverAuthController>(TYPES.DriverAuthController).to(DriverAuthController);
 container.bind<IDriverChatController>(TYPES.DriverChatController).to(DriverChatController);
@@ -189,6 +194,7 @@ container.bind<IPlantDropSpotService>(TYPES.PlantDropSpotService).to(PlantDropSp
 container.bind<IPlantPickupService>(TYPES.PlantPickupService).to(PlantPickupService);
 container.bind<IPlantTruckService>(TYPES.PlantTruckService).to(PlantTruckService);
 container.bind<IPlantUserService>(TYPES.PlantUserService).to(PlantUserService);
+container.bind<IPlantINotificationService>(TYPES.PlantNotificationService).to(PlantINotificationService);
 //driver
 container.bind<IDriverAuthService>(TYPES.DriverAuthService).to(DriverAuthService);
 container.bind<IDriverChatService>(TYPES.DriverChatService).to(DriverChatService);

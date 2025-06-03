@@ -24,7 +24,7 @@ async function findRoleById(id: string): Promise<string | null> {
 
 export default function socketHandler(socket: Socket, io: Server) {
   // Join room based on conversationId
-  socket.on("joinRoom", (conversationId: string) => {
+  socket.on("joinChatRoom", (conversationId: string) => {
     socket.join(conversationId);
     console.log(`Socket ${socket.id} joined room: ${conversationId}`);
   });
@@ -61,6 +61,11 @@ export default function socketHandler(socket: Socket, io: Server) {
     socket.join(pickupReqId);
     console.log(`Socket ${socket.id} joined pickup room: ${pickupReqId}`);
   });
+socket.on("joinNotificationRoom", (plantId: string) => {
+  // const roomName = `notif_${plantId}`;
+  socket.join(plantId);
+  console.log(`Socket ${socket.id} joined notification room: ${plantId}`);
+});
 
   // Real-time location update from driver
   socket.on("driverLocationUpdate", ({ pickupReqId, latitude, longitude }) => {

@@ -1,4 +1,5 @@
 import dayjs from "dayjs";
+import { Notification } from "../types/notificationTypes";
 
 export function formatDateToDDMMYYYY(dateStr: string): string {
     const date = new Date(dateStr);
@@ -50,4 +51,18 @@ export function formatDateToDDMMYYYY(dateStr: string): string {
     hour = hour % 12 || 12;
     return `${String(hour).padStart(2, '0')}:${minute} ${ampm}`;
   }
-  
+  export function extractTime(isoString: string): string {
+  const date = new Date(isoString);
+  return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+}
+export function extractDateTimeParts(isoString: string) {
+  const date = new Date(isoString);
+  return {
+    date: formatDateToDDMMYYYY(isoString),
+    time: date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }), 
+  };
+}
+
+export const sortByDateDesc = (a: Notification, b: Notification) => {
+  return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+};
