@@ -42,6 +42,8 @@ router.get("/driver/chat")
 router.post("/conversation", authenticateDriver as RequestHandler, driverChatCtrl.getConversationId.bind(driverChatCtrl))
 router.post("/chat-messages", authenticateDriver as RequestHandler, driverChatCtrl.getChatMessages.bind(driverChatCtrl))
 router.put("/truck/mark-returned", authenticateDriver as RequestHandler, driverTruckCtrl.markTruckReturn.bind(driverTruckCtrl))
+router.get("/notifications", authenticateDriver as RequestHandler, driverNotificationCtrl.fetchNotifications.bind(driverNotificationCtrl))
+router.patch("/notifications/:notifId/read", authenticateDriver as RequestHandler, driverNotificationCtrl.markReadNotification.bind(driverNotificationCtrl))
 
 export default router;
 

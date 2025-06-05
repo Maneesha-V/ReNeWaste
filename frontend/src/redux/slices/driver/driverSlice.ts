@@ -110,6 +110,8 @@ const driverSlice = createSlice({
         state.error = null;
       })
       .addCase(driverLogin.fulfilled, (state, action) => {
+        console.log("action",action);
+        
         state.loading = false;
         state.driver = action.payload;
       })

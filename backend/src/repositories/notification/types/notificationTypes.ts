@@ -6,6 +6,4 @@ export type CreateNotificationDTO = {
   message: string;
   type: string;
 };
-export type NotificationByReceiverId = {
-  wasteplantId: string
-}
+

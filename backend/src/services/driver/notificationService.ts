@@ -9,5 +9,10 @@ export class NotificationService implements INotificationService {
     @inject(TYPES.NotificationRepository)
     private notificationRepository: INotificationRepository,
   ) {}
-
+ async getNotifications(driverId: string) {
+    return await this.notificationRepository.findByReceiverId(driverId );
+  }
+  async markNotificationAsRead(notifId: string) {
+    return this.notificationRepository.markAsReadById(notifId);
+  }
 }

@@ -10,11 +10,22 @@ import { Dropdown, Menu } from "antd";
 import { useAppDispatch } from "../../redux/hooks";
 import { driverLogout } from "../../redux/slices/driver/driverSlice";
 import { DriverHeaderProps } from "../../types/driverTypes";
+import NotificationPanel from "./NotificationPanel";
+import { RootState } from "../../redux/store";
+import { useSelector } from "react-redux";
 
-const Header = ({ collapsed, toggleCollapse }: DriverHeaderProps) => {
+const Header = ({
+  collapsed,
+  toggleCollapse,
+  isNotifOpen,
+  setIsNotifOpen,
+}: DriverHeaderProps) => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
-
+  const unreadCount = useSelector(
+    (state: RootState) =>
+      state.driverNotifications.notifications.filter((n) => !n.isRead).length
+  );
   const handleLogout = async () => {
     await dispatch(driverLogout());
     navigate("/driver");
@@ -40,7 +51,12 @@ const Header = ({ collapsed, toggleCollapse }: DriverHeaderProps) => {
         </button>
 
         <div className="flex items-center space-x-4">
-          <NotificationBadge count={5} />
+          <div className="relative">
+            <button onClick={() => setIsNotifOpen(true)} className="relative">
+              <NotificationBadge count={unreadCount} />
+            </button>
+          </div>
+
           <MessageOutlined
             className="text-xl text-gray-600 cursor-pointer hover:text-green-600"
             onClick={() => navigate("/driver/chat")}
@@ -55,6 +71,10 @@ const Header = ({ collapsed, toggleCollapse }: DriverHeaderProps) => {
           </Dropdown>
         </div>
       </div>
+      <NotificationPanel
+        visible={isNotifOpen}
+        onClose={() => setIsNotifOpen(false)}
+      />
     </header>
   );
 };

@@ -30,6 +30,8 @@ export interface FetchPickupsParams {
 export type DriverHeaderProps = {
   collapsed: boolean;
   toggleCollapse: () => void;
+  isNotifOpen: boolean;
+  setIsNotifOpen: React.Dispatch<React.SetStateAction<boolean>>;
 };
 export type DriverSidebarProps = {
   collapsed: boolean;

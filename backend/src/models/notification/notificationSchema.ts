@@ -18,7 +18,7 @@ export const NotificationSchema: Schema<INotificationDocument> = new Schema(
     },
     type: {
       type: String,
-      enum: ["pickup_assigned", "truck_returned", "general", "pickup_requested", "weight_measured"],
+      enum: ["pickup_scheduled", "truck_returned", "general", "pickup_requested", "weight_measured","pickup_rescheduled"],
       default: "general",
     },
     isRead: {
