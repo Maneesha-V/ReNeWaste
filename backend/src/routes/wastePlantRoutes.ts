@@ -73,5 +73,6 @@ router.get("/users", authenticateWastePlant as RequestHandler, plantUserCtrl.fet
 router.patch("/users/:userId/block", authenticateWastePlant as RequestHandler, plantUserCtrl.userBlockStatus.bind(plantUserCtrl))
 router.get("/notifications", authenticateWastePlant as RequestHandler, plantNotificationCtrl.fetchNotifications.bind(plantNotificationCtrl))
 router.patch("/notifications/:notifId/read", authenticateWastePlant as RequestHandler, plantNotificationCtrl.markReadNotification.bind(plantNotificationCtrl))
+router.post("/waste-measurement", authenticateWastePlant as RequestHandler, plantNotificationCtrl.saveWasteMeasurement.bind(plantNotificationCtrl))
 
 export default router;

@@ -64,7 +64,6 @@ export const approvePickup = createAsyncThunk(
         pickupId,
         status,
         driverId,
-        // assignedZone,
         assignedTruckId
       );
       return response.data;

@@ -15,14 +15,12 @@ export const getPickups = async (
     pickupId: string,
     status: string,
     driverId: string,
-    // assignedZone: string,
     assignedTruckId: string ) =>{
     const response = await axiosWasteplant.patch(`/approve-pickup/${pickupReqId}`,
       {
         pickupId,
         status,
         driverId,
-        // assignedZone,
         assignedTruckId,
       }
     );

@@ -49,10 +49,25 @@ const AssignDriverModal = ({
   }, [truck]);
 
   const filteredDrivers = Array.isArray(driver)
-    ? driver.filter((d: any) => d.assignedZone === pickup?.location)
+    ? driver.filter((d: any) => {
+      return (
+        d.assignedZone === pickup?.location &&
+        d.category?.toLowerCase() === pickup?.wasteType?.toLowerCase()
+      );
+    })
     : [];
   console.log("filteredDrivers", filteredDrivers);
-
+const filteredTrucks = Array.isArray(truck)
+  ? truck.filter((t: any) => {
+      if (pickup?.wasteType?.toLowerCase() === "residential") {
+        return t.capacity < 5000;
+      } else if (pickup?.wasteType?.toLowerCase() === "commercial") {
+        return t.capacity >= 5000;
+      }
+      return false;
+    })
+  : [];
+  console.log("filteredTrucks", filteredTrucks);
   const handleAssign = async () => {
     try {
       const values = await form.validateFields();
@@ -149,8 +164,7 @@ const AssignDriverModal = ({
           rules={[{ required: true, message: "Please select a truck" }]}
         >
           <Select placeholder="Select Truck">
-            {Array.isArray(truck) &&
-              truck.map((truck: any) => (
+            {filteredTrucks.map((truck: any) => (
                 <Select.Option key={truck._id} value={truck._id}>
                   {truck.name}
                 </Select.Option>

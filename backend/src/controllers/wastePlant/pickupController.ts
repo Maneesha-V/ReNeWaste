@@ -46,7 +46,6 @@ export class PickupController implements IPickupController {
         pickupReqId,
         status,
         driverId,
-        // assignedZone,
         assignedTruckId,
       });
 
