@@ -22,7 +22,7 @@ export class TruckRepository
   ) {
     super(TruckModel);
   }
-  async findTruckByVehicle(vehicleNumber: string): Promise<ITruck | null> {
+  async findTruckByVehicle(vehicleNumber: string): Promise<ITruckDocument | null> {
     return await this.model.findOne({ vehicleNumber });
   }
   async createTruck(data: ITruck): Promise<ITruckDocument> {
@@ -163,6 +163,7 @@ export class TruckRepository
     await this.model.findByIdAndUpdate(objectIdTruck, {
       $set: {
         assignedDriver: objectIdDriver,
+        isReturned: false
       },
     });
   }
@@ -186,4 +187,7 @@ export class TruckRepository
     }
     return truck;
   }
+    async findTruckByName(name: string): Promise<ITruckDocument | null> {
+      return await this.model.findOne({ name });
+    }
 }

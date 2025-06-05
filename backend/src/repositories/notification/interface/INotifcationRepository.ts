@@ -5,4 +5,5 @@ export interface INotificationRepository {
   createNotification(data: CreateNotificationDTO): Promise<INotificationDocument>;
   findByReceiverId(data: NotificationByReceiverId): Promise<INotificationDocument[]>;
   markAsReadById(notifId: string): Promise<INotificationDocument | null>;
+  getNotificationById(notifId: string): Promise<INotificationDocument | null>
 }

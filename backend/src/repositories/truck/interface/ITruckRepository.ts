@@ -6,7 +6,7 @@ import {
 import { PaginatedTrucksResult } from "../../../types/wastePlant/truckTypes";
 
 export interface ITruckRepository {
-  findTruckByVehicle(vehicleNumber: string): Promise<ITruck | null>;
+  findTruckByVehicle(vehicleNumber: string): Promise<ITruckDocument | null>;
   createTruck(data: ITruck): Promise<ITruckDocument>;
   getAllTrucks(
     plantId: string,
@@ -37,4 +37,5 @@ export interface ITruckRepository {
     truckId: string,
     plantId: string
   ): Promise<ITruckDocument>;
+  findTruckByName(name: string): Promise<ITruckDocument | null>;
 }

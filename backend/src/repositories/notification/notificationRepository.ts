@@ -31,5 +31,7 @@ export class NotificationRepository extends BaseRepository<INotificationDocument
     { new: true } 
   );
 }
-
+async getNotificationById(notifId: string): Promise<INotificationDocument | null> {
+  return await this.model.findById(notifId);
+}
 }
