@@ -35,7 +35,7 @@ export const truckSchema: Schema<ITruckDocument> = new Schema(
     },
     isReturned: {
       type: Boolean,
-      default: false
+      default: true 
     }
   },
   {
