@@ -10,27 +10,29 @@ import { extractDateTimeParts, sortByDateDesc } from "../../utils/formatDate";
 import { Check } from "lucide-react";
 import { useSelector } from "react-redux";
 import { RootState } from "../../redux/store";
-import { Notification } from "../../types/notificationTypes";
+import {
+  MeasureDataPayload,
+  Notification,
+} from "../../types/notificationTypes";
 
 interface NotificationPanelProps {
   visible: boolean;
   plantId: string;
   onClose: () => void;
-  onOpenMeasureWaste: (data: {
-    truckName: string;
-    driverName: string;
-    returnedAt: string;
-  }) => void;
+  onOpenMeasureWaste: (data: MeasureDataPayload) => void;
 }
 
 const NotificationPanel: React.FC<NotificationPanelProps> = ({
   visible,
   plantId,
   onClose,
-  onOpenMeasureWaste
+  onOpenMeasureWaste,
 }) => {
   const notifications = useSelector(
     (state: RootState) => state.wastePlantNotifications.notifications
+  );
+  const measuredNotificationId = useSelector(
+    (state: RootState) => state.wastePlantNotifications.measuredNotificationId
   );
 
   const dispatch = useAppDispatch();
@@ -38,39 +40,6 @@ const NotificationPanel: React.FC<NotificationPanelProps> = ({
 
   const [activeTab, setActiveTab] = useState<"unread" | "all">("unread");
 
-  // useEffect(() => {
-  //   if (visible && plantId) {
-  //     const fetchData = async () => {
-  //       try {
-  //         await dispatch(fetchNotifications()).unwrap();
-  //       } catch (err) {
-  //         console.error("Failed to fetch notifications:", err);
-  //       }
-  //     };
-
-  //     fetchData();
-  //   }
-  // }, [visible, plantId, dispatch]);
-
-  // useEffect(() => {
-  //   if (!socket || !plantId) return;
-  //   console.log("Socket connected:", socket.connected);
-  //   socket.emit("joinNotificationRoom", plantId);
-  //   console.log("Joined notification room:", plantId);
-  // }, [socket, plantId]);
-  // useEffect(() => {
-  //   if (!socket) return;
-
-  //   const handler = (data: Notification) => {
-  //     dispatch(addNotification(data));
-  //     console.log("Received new notification:", data);
-  //   };
-
-  //   socket.on("newNotification", handler);
-  //   return () => {
-  //     socket.off("newNotification", handler);
-  //   };
-  // }, [socket]);
   useEffect(() => {
     if (visible && plantId) {
       dispatch(fetchNotifications());
@@ -99,23 +68,18 @@ const NotificationPanel: React.FC<NotificationPanelProps> = ({
     dispatch(markAsRead(id));
   };
 
-const handleOpenWasteWeight = (notification: Notification) => {
-  const messageParts = notification.message.split(" ");
-  const truckName = messageParts[1];
-  const driverName = messageParts[messageParts.length - 1];
-  const { date, time } = extractDateTimeParts(notification.createdAt);
-  const returnedAt = `${date} ${time}`;
-  // const returnedAt = new Date(notification.createdAt).toLocaleString();
- onOpenMeasureWaste({
-    truckName,
-    driverName,
-    returnedAt,
-  });
-};
+  const handleOpenWasteWeight = (notification: Notification) => {
+    const messageParts = notification.message.split(" ");
+    const vehicleNumber = messageParts[1];
+    const driverName = messageParts[messageParts.length - 1];
 
-  // const filteredNotifications = activeTab === "unread"
-  //   ? notifications.filter(n => !n.isRead)
-  //   : notifications;
+    onOpenMeasureWaste({
+      vehicleNumber,
+      driverName,
+      returnedAt: notification.createdAt,
+      notificationId: notification._id,
+    });
+  };
 
   const filteredNotifications = (
     activeTab === "unread"
@@ -163,6 +127,7 @@ const handleOpenWasteWeight = (notification: Notification) => {
           <p className="text-gray-500 text-sm">No notifications</p>
         ) : (
           filteredNotifications.map((n, idx) => {
+
             if (n.createdAt) {
               const { date, time } = extractDateTimeParts(n.createdAt);
 
@@ -174,14 +139,19 @@ const handleOpenWasteWeight = (notification: Notification) => {
                   <div className="flex justify-between items-center">
                     <div className="text-sm text-gray-800">{n.message}</div>
                     <div className="flex items-center space-x-2">
-                      {n.type === "truck_returned" && (
-                        <button
-                          className="px-2 py-1 text-xs cursor-pointer bg-blue-600 text-white rounded hover:bg-blue-700"
-                          onClick={() => handleOpenWasteWeight(n)}
-                        >
-                          Measure
-                        </button>
-                      )}
+                      {n.type === "truck_returned" &&
+                        (measuredNotificationId === n._id ? (
+                          <span className="text-sm text-gray-500 italic">
+                            Measured
+                          </span>
+                        ) : (
+                          <button
+                            className="px-2 py-1 text-xs cursor-pointer bg-blue-600 text-white rounded hover:bg-blue-700"
+                            onClick={() => handleOpenWasteWeight(n)}
+                          >
+                            Measure
+                          </button>
+                        ))}
                       {!n.isRead && (
                         <button
                           className="w-6 h-6 flex items-center justify-center cursor-pointer bg-green-100 text-green-600 rounded-full hover:bg-green-200"
@@ -204,10 +174,8 @@ const handleOpenWasteWeight = (notification: Notification) => {
           })
         )}
       </ul>
-
     </div>
   );
-  
 };
 
 export default NotificationPanel;

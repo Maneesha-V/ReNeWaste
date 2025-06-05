@@ -42,6 +42,8 @@ const PickupPlans = () => {
   const [selectedEta, setSelectedEta] = useState<{
     text: string | null;
   } | null>(null);
+  const [activeTab, setActiveTab] = useState<string>("1");
+
   const dispatch = useAppDispatch();
   const { pickups, loading, error } = useSelector(
     (state: RootState) => state.userPickups
@@ -62,6 +64,7 @@ const PickupPlans = () => {
   }, [dispatch, location.pathname]);
 
   const handleTrackClick = (pickup: any) => {
+    if (!pickup || !pickup.pickupId) return null;
     setSelectedPickupId(pickup.pickupId);
     setSelectedTrackingStatus(pickup.trackingStatus);
     setSelectedEta(pickup.eta);
@@ -71,8 +74,14 @@ const PickupPlans = () => {
     try {
       await dispatch(cancelPickupPlan(pickupReqId)).unwrap();
       toast.success("Pickup plan cancelled");
+      setSelectedPickupId("");
+      setSelectedTrackingStatus(null);
+      setSelectedEta(null);
+      setIsModalOpen(false);
+      await dispatch(fetchtPickupPlans());
+      setActiveTab("3");
     } catch (err: any) {
-      toast.error(err);
+      toast.error(err?.message || "Failed to cancel pickup");
     }
   };
   const handlePay = async (pickup: any) => {
@@ -110,7 +119,8 @@ const PickupPlans = () => {
                       </Button>
                     )}
 
-                  {pickup.status === "Cancelled" ? null  : pickup.trackingStatus ? (
+                  {pickup.status ===
+                  "Cancelled" ? null : pickup.trackingStatus ? (
                     <Button
                       type="primary"
                       onClick={() => handleTrackClick(pickup)}
@@ -192,9 +202,13 @@ const PickupPlans = () => {
     );
   };
 
-  const pendingPickups = pickups.filter((p: any) => !p.trackingStatus && p.status !== "Cancelled");
-  const processedPickups = pickups.filter((p: any) => p.trackingStatus && p.status !== "Cancelled");
-  const cancelledPickups = pickups.filter((p: any) => p.status === "Cancelled")
+  const pendingPickups = pickups.filter(
+    (p: any) => !p.trackingStatus && p.status !== "Cancelled"
+  );
+  const processedPickups = pickups.filter(
+    (p: any) => p.trackingStatus && p.status !== "Cancelled"
+  );
+  const cancelledPickups = pickups.filter((p: any) => p.status === "Cancelled");
 
   return (
     <div className="min-h-screen bg-green-100">
@@ -209,7 +223,7 @@ const PickupPlans = () => {
         ) : error ? (
           <div className="text-center text-red-500">{error}</div>
         ) : (
-          <Tabs defaultActiveKey="1">
+          <Tabs activeKey={activeTab} onChange={setActiveTab}>
             <TabPane tab="Pending Pickups" key="1">
               {renderPickupCards(pendingPickups)}
             </TabPane>
@@ -221,14 +235,15 @@ const PickupPlans = () => {
             </TabPane>
           </Tabs>
         )}
-
-        <TrackModal
-          visible={isModalOpen}
-          onClose={() => setIsModalOpen(false)}
-          trackingStatus={selectedTrackingStatus}
-          pickupId={selectedPickupId}
-          eta={selectedEta}
-        />
+        {isModalOpen && selectedPickupId && (
+          <TrackModal
+            visible={isModalOpen}
+            onClose={() => setIsModalOpen(false)}
+            trackingStatus={selectedTrackingStatus}
+            pickupId={selectedPickupId}
+            eta={selectedEta}
+          />
+        )}
         <Modal
           open={isPayNowModalOpen}
           onCancel={() => setIsPayNowModalOpen(false)}

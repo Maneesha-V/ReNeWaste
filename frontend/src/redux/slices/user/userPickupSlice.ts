@@ -60,13 +60,6 @@ const userPickupSlice = createSlice({
         state.loading = false;
         state.error = action.payload as string;
       })
-      .addCase(cancelPickupPlan.fulfilled, (state, action) => {
-        state.pickups = state.pickups.map((pickup: any) =>
-          pickup.pickupId === action.payload.pickupId
-            ? { ...pickup, status: 'Canceled' } 
-            : pickup
-        );
-      })
       .addCase(cancelPickupPlan.rejected, (state, action) => {
         state.error = action.payload as string;
       });
