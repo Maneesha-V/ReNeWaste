@@ -4,6 +4,8 @@ const TYPES = {
   SuperAdminAuthController: Symbol.for("SuperAdminAuthController"),
   SuperAdminPlantController: Symbol.for("SuperAdminPlantController"),
   SuperAdminDashboardController: Symbol.for("SuperAdminDashboardController"),
+  SuperAdminNotificationController: Symbol.for("SuperAdminNotificationController"),
+  
 //user
   UserAuthController: Symbol.for("UserAuthController"),
   UserProfileController: Symbol.for("UserProfileController"),
@@ -12,6 +14,8 @@ const TYPES = {
   UserPickupController: Symbol.for("UserPickupController"),
   UserPaymentController: Symbol.for("UserPaymentController"),
   UserDropSpotController: Symbol.for("UserDropSpotController"),
+  UserNotificationController: Symbol.for("UserNotificationController"),
+
 //wasteplant
   PlantAuthController: Symbol.for("PlantAuthController"),
   PlantChatController: Symbol.for("PlantChatController"),
@@ -29,6 +33,7 @@ const TYPES = {
   DriverPickupController: Symbol.for("DriverPickupController"),
   DriverProfileController: Symbol.for("DriverProfileController"),
   DriverTruckController: Symbol.for("DriverTruckController"),
+  DriverNotificationController: Symbol.for("DriverNotificationController"),
 
 //--services--
 
@@ -36,6 +41,8 @@ const TYPES = {
   SuperAdminAuthService: Symbol.for("SuperAdminAuthService"),
   SuperAdminPlantService: Symbol.for("SuperAdminPlantService"),
   SuperAdminDashboardService: Symbol.for("SuperAdminDashboardService"),
+  SuperAdminNotificationService: Symbol.for("SuperAdminNotificationService"),
+
 //user
   UserAuthService: Symbol.for("UserAuthService"),
   UserProfileService: Symbol.for("UserProfileService"),
@@ -44,6 +51,8 @@ const TYPES = {
   UserPickupService: Symbol.for("UserPickupService"),
   UserPaymentService: Symbol.for("UserPaymentService"),
   UserDropSpotService: Symbol.for("UserDropSpotService"),
+  UserNotificationService: Symbol.for("UserNotificationService"),
+
 //wasteplant
   PlantAuthService: Symbol.for("PlantAuthService"),
   PlantChatService: Symbol.for("PlantChatService"),
@@ -53,6 +62,7 @@ const TYPES = {
   PlantTruckService: Symbol.for("PlantTruckService"),
   PlantUserService: Symbol.for("PlantUserService"),
   PlantNotificationService: Symbol.for("PlantNotificationService"),
+
 //driver
   DriverAuthService: Symbol.for("DriverAuthService"),
   DriverChatService: Symbol.for("DriverChatService"),
@@ -60,6 +70,7 @@ const TYPES = {
   DriverPickupService: Symbol.for("DriverPickupService"),
   DriverProfileService: Symbol.for("DriverProfileService"),
   DriverTruckService: Symbol.for("DriverTruckService"),
+  DriverNotificationService: Symbol.for("DriverNotificationService"),
 
 //--repositories--
   SuperAdminRepository: Symbol.for("SuperAdminRepository"),

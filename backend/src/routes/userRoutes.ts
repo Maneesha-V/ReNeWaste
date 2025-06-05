@@ -11,6 +11,7 @@ import { RequestHandler } from "express";
 import { checkNotBlocked } from "../middlewares/blockMiddleware";
 import container from "../config/inversify/container";
 import TYPES from "../config/inversify/types";
+import { NotificationController } from "../controllers/user/notificationController";
 
 const router: Router = Router();
 
@@ -21,6 +22,7 @@ const commCtrl = container.get<CommercialController>(TYPES.CommercialController)
 const pickupCtrl = container.get<PickupController>(TYPES.UserPickupController);
 const paymentCtrl = container.get<PaymentController>(TYPES.UserPaymentController);
 const dropSpotCtrl = container.get<DropSpotController>(TYPES.UserDropSpotController);
+const notificationCtrl = container.get<NotificationController>(TYPES.UserNotificationController);
 
 router.get("/refresh-token", userCtrl.refreshToken.bind(userCtrl))
 router.post("/signup", userCtrl.signup.bind(userCtrl));

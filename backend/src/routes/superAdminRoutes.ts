@@ -6,11 +6,13 @@ import container from "../config/inversify/container";
 import { AuthController } from "../controllers/superAdmin/authController";
 import { WastePlantController } from "../controllers/superAdmin/wastePlantController";
 import { DashboardController } from "../controllers/superAdmin/dashboardController";
+import { NotificationController } from "../controllers/superAdmin/notificationController";
 
 const router = express.Router()
 const superAdminCtrl = container.get<AuthController>(TYPES.SuperAdminAuthController);
 const superAdminPlantCtrl = container.get<WastePlantController>(TYPES.SuperAdminPlantController);
 const superAdminDashbdCtrl = container.get<DashboardController>(TYPES.SuperAdminDashboardController);
+const superAdminNotificationCtrl = container.get<NotificationController>(TYPES.SuperAdminNotificationController);
 
 router.get("/refresh-token", superAdminCtrl.refreshToken.bind(superAdminCtrl))
 router.post("/",superAdminCtrl.superAdminLogin.bind(superAdminCtrl))

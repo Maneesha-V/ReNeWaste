@@ -9,6 +9,8 @@ import { IWastePlantController as ISuprAdminPlantController } from "../../contro
 import { WastePlantController as SuprAdminPlantController } from "../../controllers/superAdmin/wastePlantController";
 import { IDashboardController as ISuprAdminDashBrdController } from "../../controllers/superAdmin/interface/IDashboardController";
 import { DashboardController as SuprAdminDashBrdController } from "../../controllers/superAdmin/dashboardController";
+import { INotificationController as ISuprAdminNotificationController } from "../../controllers/superAdmin/interface/INotificationController";
+import { NotificationController as SuprAdminNotificationController } from "../../controllers/superAdmin/notificationController";
 //user
 import { UserController } from "../../controllers/user/userController";
 import { IUserController } from "../../controllers/user/interface/IUserController";
@@ -24,6 +26,9 @@ import { IPaymentController as IUserPaymentController } from "../../controllers/
 import { PaymentController as UserPaymentController } from "../../controllers/user/paymentController";
 import { IDropSpotController as IUserDropSpotController } from "../../controllers/user/interface/IDropSpotController";
 import { DropSpotController as UserDropSpotController } from "../../controllers/user/dropSpotController";
+import { INotificationController as IUserNotificationController } from "../../controllers/user/interface/INotificationController";
+import { NotificationController as UserNotificationController } from "../../controllers/user/notificationController";
+
 //wasteplant
 import { AuthController as PlantAuthController } from "../../controllers/wastePlant/authController";
 import { IAuthController as IPlantAuthController } from "../../controllers/wastePlant/interface/IAuthController";
@@ -55,7 +60,8 @@ import { ITruckController as IDriverTruckController } from "../../controllers/dr
 import { TruckController as DriverTruckController } from "../../controllers/driver/truckController";
 import { IMapController as IDriverMapController } from "../../controllers/driver/interface/IMapController";
 import { MapController as DriverMapController } from "../../controllers/driver/mapController";
-
+import { INotificationController as IDriverNotificationController } from "../../controllers/driver/interface/INotificationController";
+import { NotificationController as DriverNotificationController } from "../../controllers/driver/notificationController";
 //-- Services & their interfaces --
 
 //superadmin
@@ -65,6 +71,8 @@ import { IWastePlantService as ISuprAdminPlantService } from "../../services/sup
 import { WastePlantService as SuprAdminPlantService } from "../../services/superAdmin/wastePlantService";
 import { IDashboardService as ISuprAdminDashBrdService } from "../../services/superAdmin/interface/IDashboardService";
 import { DashboardService as SuprAdminDashBrdService } from "../../services/superAdmin/dashboardService";
+import { INotificationService as ISuprAdminNotificationService } from "../../services/superAdmin/interface/INotificationService";
+import { NotificationService as SuprAdminNotificationService } from "../../services/superAdmin/notificationService";
 
 //user
 import { IAuthService as IUserAuthService } from "../../services/user/interface/IAuthService";
@@ -81,6 +89,8 @@ import { IProfileService as IUserProfileService } from "../../services/user/inte
 import { ProfileService as UserProfileService } from "../../services/user/profileService";
 import { IDropSpotService as IUserDropSpotService } from "../../services/user/interface/IDropSpotservice";
 import { DropSpotService as UserDropSpotService } from "../../services/user/dropSpotService";
+import { INotificationService as IUserNotificationService } from "../../services/user/interface/INotificationService";
+import { NotificationService as UserNotificationService } from "../../services/user/notificationService";
 
 //wasteplant
 import { IAuthService as IPlantAuthService } from "../../services/wastePlant/interface/IAuthService";
@@ -97,8 +107,8 @@ import { ITruckService as IPlantTruckService } from "../../services/wastePlant/i
 import { TruckService as PlantTruckService } from "../../services/wastePlant/truckService";
 import { IUserService as IPlantUserService } from "../../services/wastePlant/interface/IUserService";
 import { UserService as PlantUserService } from "../../services/wastePlant/userService";
-import { INotificationService as IPlantINotificationService } from "../../services/wastePlant/interface/INotificationService";
-import { NotificationService as PlantINotificationService } from "../../services/wastePlant/notificationService";
+import { INotificationService as IPlantNotificationService } from "../../services/wastePlant/interface/INotificationService";
+import { NotificationService as PlantNotificationService } from "../../services/wastePlant/notificationService";
 //driver
 import { IAuthService as IDriverAuthService } from "../../services/driver/interface/IAuthService";
 import { AuthService as DriverAuthService  } from "../../services/driver/authService";
@@ -112,6 +122,8 @@ import { ITruckService as IDriverTruckService } from "../../services/driver/inte
 import { TruckService as DriverTruckService } from "../../services/driver/truckService";
 import { IMapService as IDriverMapService } from "../../services/driver/interface/IMapService";
 import { MapService as DriverMapService  } from "../../services/driver/mapService";
+import { INotificationService as IDriverNotificationService } from "../../services/driver/interface/INotificationService";
+import { NotificationService as DriverNotificationService } from "../../services/driver/notificationService";
 
 //-- Repositories & their interfaces --
 import { SuperAdminRepository } from "../../repositories/superAdmin/superAdminRepository";
@@ -140,6 +152,9 @@ import { IWasteCollectionRepository } from "../../repositories/wasteCollection/i
 import { WasteCollectionRepository } from "../../repositories/wasteCollection/wasteCollectionRepository";
 
 
+
+
+
 //Create the container
 const container = new Container();
 
@@ -148,6 +163,7 @@ const container = new Container();
 container.bind<ISuprAdminAuthController>(TYPES.SuperAdminAuthController).to(SuprAdminAuthController);
 container.bind<ISuprAdminPlantController>(TYPES.SuperAdminPlantController).to(SuprAdminPlantController);
 container.bind<ISuprAdminDashBrdController>(TYPES.SuperAdminDashboardController).to(SuprAdminDashBrdController);
+container.bind<ISuprAdminNotificationController>(TYPES.SuperAdminNotificationController).to(SuprAdminNotificationController);
 //user
 container.bind<IUserController>(TYPES.UserAuthController).to(UserController);
 container.bind<IUserProfileController>(TYPES.UserProfileController).to(UserProfileController);
@@ -156,6 +172,8 @@ container.bind<ICommercialController>(TYPES.CommercialController).to(CommercialC
 container.bind<IUserPickupController>(TYPES.UserPickupController).to(UserPickupController);
 container.bind<IUserPaymentController>(TYPES.UserPaymentController).to(UserPaymentController);
 container.bind<IUserDropSpotController>(TYPES.UserDropSpotController).to(UserDropSpotController);
+container.bind<IUserNotificationController>(TYPES.UserNotificationController).to(UserNotificationController);
+
 //wasteplant
 container.bind<IPlantAuthController>(TYPES.PlantAuthController).to(PlantAuthController);
 container.bind<IPlantChatController>(TYPES.PlantChatController).to(PlantChatController);
@@ -165,6 +183,7 @@ container.bind<IPlantPickupController>(TYPES.PlantPickupController).to(PlantPick
 container.bind<IPlantTruckController>(TYPES.PlantTruckController).to(PlantTruckController);
 container.bind<IPlantUserController>(TYPES.PlantUserController).to(PlantUserController);
 container.bind<IPlantNotificationController>(TYPES.PlantNotificationController).to(PlantNotificationController);
+
 //driver
 container.bind<IDriverAuthController>(TYPES.DriverAuthController).to(DriverAuthController);
 container.bind<IDriverChatController>(TYPES.DriverChatController).to(DriverChatController);
@@ -172,6 +191,7 @@ container.bind<IDriverProfileController>(TYPES.DriverProfileController).to(Drive
 container.bind<IDriverPickupController>(TYPES.DriverPickupController).to(DriverPickupController);
 container.bind<IDriverTruckController>(TYPES.DriverTruckController).to(DriverTruckController);
 container.bind<IDriverMapController>(TYPES.DriverMapController).to(DriverMapController);
+container.bind<IDriverNotificationController>(TYPES.DriverNotificationController).to(DriverNotificationController);
 
 //--Bind Services--
 
@@ -179,7 +199,8 @@ container.bind<IDriverMapController>(TYPES.DriverMapController).to(DriverMapCont
 container.bind<ISuperAdminAuthService>(TYPES.SuperAdminAuthService).to(SuperAdminAuthService);
 container.bind<ISuprAdminPlantService>(TYPES.SuperAdminPlantService).to(SuprAdminPlantService);
 container.bind<ISuprAdminDashBrdService>(TYPES.SuperAdminDashboardService).to(SuprAdminDashBrdService);
-//user
+container.bind<ISuprAdminNotificationService>(TYPES.SuperAdminNotificationService).to(SuprAdminNotificationService);
+//user  
 container.bind<IUserAuthService>(TYPES.UserAuthService).to(UserAuthService);
 container.bind<IUserProfileService>(TYPES.UserProfileService).to(UserProfileService);
 container.bind<IResidentialService>(TYPES.ResidentialService).to(ResidentialService);
@@ -187,6 +208,8 @@ container.bind<ICommercialService>(TYPES.CommercialService).to(CommercialService
 container.bind<IUserPickupService>(TYPES.UserPickupService).to(UserPickupService);
 container.bind<IUserPaymentService>(TYPES.UserPaymentService).to(UserPaymentService);
 container.bind<IUserDropSpotService>(TYPES.UserDropSpotService).to(UserDropSpotService);
+container.bind<IUserNotificationService>(TYPES.UserNotificationService).to(UserNotificationService);
+
 //wasteplant
 container.bind<IPlantAuthService>(TYPES.PlantAuthService).to(PlantAuthService);
 container.bind<IPlantChatService>(TYPES.PlantChatService).to(PlantChatService);
@@ -195,7 +218,8 @@ container.bind<IPlantDropSpotService>(TYPES.PlantDropSpotService).to(PlantDropSp
 container.bind<IPlantPickupService>(TYPES.PlantPickupService).to(PlantPickupService);
 container.bind<IPlantTruckService>(TYPES.PlantTruckService).to(PlantTruckService);
 container.bind<IPlantUserService>(TYPES.PlantUserService).to(PlantUserService);
-container.bind<IPlantINotificationService>(TYPES.PlantNotificationService).to(PlantINotificationService);
+container.bind<IPlantNotificationService>(TYPES.PlantNotificationService).to(PlantNotificationService);
+
 //driver
 container.bind<IDriverAuthService>(TYPES.DriverAuthService).to(DriverAuthService);
 container.bind<IDriverChatService>(TYPES.DriverChatService).to(DriverChatService);
@@ -203,6 +227,7 @@ container.bind<IDriverProfileService>(TYPES.DriverProfileService).to(DriverProfi
 container.bind<IDriverPickupService>(TYPES.DriverPickupService).to(DriverPickupService);
 container.bind<IDriverTruckService>(TYPES.DriverTruckService).to(DriverTruckService);
 container.bind<IDriverMapService>(TYPES.DriverMapService).to(DriverMapService);
+container.bind<IDriverNotificationService>(TYPES.DriverNotificationService).to(DriverNotificationService);
 
 //--Bind Repositories--
 container.bind<ISuperAdminRepository>(TYPES.SuperAdminRepository).to(SuperAdminRepository);

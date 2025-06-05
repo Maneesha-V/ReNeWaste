@@ -8,6 +8,7 @@ import { TruckController } from "../controllers/driver/truckController";
 import { ChatController } from "../controllers/driver/chatController";
 import TYPES from "../config/inversify/types";
 import container from "../config/inversify/container";
+import { NotificationController } from "../controllers/driver/notificationController";
 
 const router = express.Router()
 const upload = multer();
@@ -17,6 +18,7 @@ const driverChatCtrl = container.get<ChatController>(TYPES.DriverChatController)
 const driverProfCtrl = container.get<ProfileController>(TYPES.DriverProfileController);
 const driverPickupCtrl = container.get<PickupController>(TYPES.DriverPickupController);
 const driverTruckCtrl = container.get<TruckController>(TYPES.DriverTruckController);
+const driverNotificationCtrl = container.get<NotificationController>(TYPES.DriverNotificationController);
 
 router.get("/refresh-token", driverCtrl.refreshToken.bind(driverCtrl))
 router.post("/",driverCtrl.driverLogin.bind(driverCtrl))
