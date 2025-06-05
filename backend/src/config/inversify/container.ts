@@ -136,7 +136,8 @@ import { IConversationRepository } from "../../repositories/chat/interface/IConv
 import { ConversationRepository } from "../../repositories/chat/conversationRepository";
 import { INotificationRepository } from "../../repositories/notification/interface/INotifcationRepository";
 import { NotificationRepository } from "../../repositories/notification/notificationRepository";
-
+import { IWasteCollectionRepository } from "../../repositories/wasteCollection/interface/IWasteCollectionRepository";
+import { WasteCollectionRepository } from "../../repositories/wasteCollection/wasteCollectionRepository";
 
 
 //Create the container
@@ -215,6 +216,7 @@ container.bind<IConversationRepository>(TYPES.ConversationRepository).to(Convers
 container.bind<ITruckRepository>(TYPES.TruckRepository).to(TruckRepository).inSingletonScope();
 container.bind<IDriverRepository>(TYPES.DriverRepository).to(DriverRepository).inSingletonScope();
 container.bind<INotificationRepository>(TYPES.NotificationRepository).to(NotificationRepository);
+container.bind<IWasteCollectionRepository>(TYPES.WasteCollectionRepository).to(WasteCollectionRepository);
 
 // Bind factory for circular dep
 container.bind<() => IDriverRepository>(TYPES.DriverRepositoryFactory)

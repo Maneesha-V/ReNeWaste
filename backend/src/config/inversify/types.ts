@@ -73,6 +73,7 @@ const TYPES = {
   ChatMsgRepository: Symbol.for("ChatMsgRepository"),
   ConversationRepository: Symbol.for("ConversationRepository"),
   NotificationRepository: Symbol.for("NotificationRepository"),
+  WasteCollectionRepository: Symbol.for("WasteCollectionRepository"),
   
   //-factories--
   DriverRepositoryFactory: Symbol.for("DriverRepositoryFactory"),
