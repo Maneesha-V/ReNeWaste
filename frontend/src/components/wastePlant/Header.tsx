@@ -27,7 +27,7 @@ type HeaderProps = {
 const Header = ({ collapsed, toggleCollapse, isNotifOpen, setIsNotifOpen, onOpenMeasureWaste }: HeaderProps) => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
-  // const [isNotifOpen, setIsNotifOpen] = useState(false);
+
   const unreadCount = useSelector(
     (state: RootState) =>
       state.wastePlantNotifications.notifications.filter((n) => !n.isRead)

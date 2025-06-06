@@ -53,7 +53,6 @@ export const approvePickup = createAsyncThunk(
       pickupId,
       status,
       driverId,
-      // assignedZone,
       assignedTruckId,
     }: ApprovePickupPayload,
     thunkAPI
@@ -68,6 +67,7 @@ export const approvePickup = createAsyncThunk(
       );
       return response.data;
     } catch (error: any) {
+      console.error("err",error)
       return thunkAPI.rejectWithValue(
         error.response?.data?.message || "Failed to approve pickup"
       );

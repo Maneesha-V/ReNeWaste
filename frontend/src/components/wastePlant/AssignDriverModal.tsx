@@ -6,6 +6,7 @@ import { useSelector } from "react-redux";
 import { approvePickup, fetchDriversByPlace } from "../../redux/slices/wastePlant/wastePlantPickupSlice";
 import { useNavigate } from "react-router-dom";
 import { fetchAvailableTrucks } from "../../redux/slices/wastePlant/wastePlantTruckSlice";
+import { toast } from "react-toastify";
 
 interface AssignDriverModalProps {
   visible: boolean;
@@ -80,7 +81,7 @@ const filteredTrucks = Array.isArray(truck)
           assignedTruckId: values.truck,
         })
       ).unwrap();
-
+      toast.success("Pickup scheduled successfully");
       onSuccess();
       onClose();
     } catch (err) {

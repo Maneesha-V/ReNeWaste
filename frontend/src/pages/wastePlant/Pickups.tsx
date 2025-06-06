@@ -14,25 +14,32 @@ import AssignDriverModal from "../../components/wastePlant/AssignDriverModal";
 import ReschedulePickupModal from "../../components/wastePlant/ReschedulePickupModal";
 import { PickupRequest } from "../../types/wastePlantTypes";
 
-
 const Pickups = () => {
   const [activeTab, setActiveTab] = useState<"Residential" | "Commercial">(
     "Residential"
   );
   const [statusTab, setStatusTab] = useState<
-    "Pending" | "Scheduled" | "Completed" | "Cancelled"| "Rescheduled"
+    "Pending" | "Scheduled" | "Completed" | "Cancelled" | "Rescheduled"
   >("Pending");
   const [selectedPickup, setSelectedPickup] = useState<any | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
   const [rescheduleModalVisible, setRescheduleModalVisible] = useState(false);
-  const [pickupToReschedule, setPickupToReschedule] = useState<any | null>(null);
+  const [pickupToReschedule, setPickupToReschedule] = useState<any | null>(
+    null
+  );
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const { loading, error } = useSelector(
     (state: RootState) => state.wastePlantPickup
   );
-  const rawPickups = useSelector((state: RootState) => state.wastePlantPickup.pickups);
-  const pickups = Array.isArray(rawPickups) ? rawPickups : rawPickups ? [rawPickups] : [];
+  const rawPickups = useSelector(
+    (state: RootState) => state.wastePlantPickup.pickups
+  );
+  const pickups = Array.isArray(rawPickups)
+    ? rawPickups
+    : rawPickups
+    ? [rawPickups]
+    : [];
   const token = sessionStorage.getItem("wasteplant_token");
 
   useEffect(() => {
@@ -109,23 +116,30 @@ const Pickups = () => {
 
       {/* Status Tabs */}
       <div className="flex gap-2">
-        {["Pending", "Scheduled", "Completed", "Cancelled","Rescheduled"].map((status) => (
-          <button
-            key={status}
-            className={`px-4 py-2 rounded-md font-medium border transition ${
-              statusTab === status
-                ? "bg-blue-600 text-white border-blue-600"
-                : "bg-white text-blue-600 border-blue-600 hover:bg-blue-50"
-            }`}
-            onClick={() =>
-              setStatusTab(
-                status as "Pending" | "Scheduled" | "Completed" | "Cancelled" | "Rescheduled"
-              )
-            }
-          >
-            {status}
-          </button>
-        ))}
+        {["Pending", "Scheduled", "Completed", "Cancelled", "Rescheduled"].map(
+          (status) => (
+            <button
+              key={status}
+              className={`px-4 py-2 rounded-md font-medium border transition ${
+                statusTab === status
+                  ? "bg-blue-600 text-white border-blue-600"
+                  : "bg-white text-blue-600 border-blue-600 hover:bg-blue-50"
+              }`}
+              onClick={() =>
+                setStatusTab(
+                  status as
+                    | "Pending"
+                    | "Scheduled"
+                    | "Completed"
+                    | "Cancelled"
+                    | "Rescheduled"
+                )
+              }
+            >
+              {status}
+            </button>
+          )
+        )}
       </div>
 
       {/* Table */}
@@ -163,8 +177,9 @@ const Pickups = () => {
               title="Pickup Date"
               dataIndex="originalPickupDate"
               key="originalPickupDate"
-              render={(text: string,record: any) => {
-                const dateToDisplay = record.rescheduledDate || record.originalPickupDate;
+              render={(text: string, record: any) => {
+                const dateToDisplay =
+                  record.rescheduledDate || record.originalPickupDate;
                 return formatDateToDDMMYYYY(dateToDisplay);
               }}
             />
@@ -222,7 +237,7 @@ const Pickups = () => {
                       ? "orange"
                       : status === "Scheduled"
                       ? "green"
-                       : status === "Rescheduled"
+                      : status === "Rescheduled"
                       ? "blue"
                       : "red"
                   }
@@ -294,14 +309,15 @@ const Pickups = () => {
         }
       />
       <ReschedulePickupModal
-  visible={rescheduleModalVisible}
-  onClose={() => setRescheduleModalVisible(false)}
-  pickup={pickupToReschedule}
-  onSubmit={() => {
-    dispatch(fetchPickupReqsts({ wasteType: activeTab, status: statusTab }));
-  }}
-/>
-
+        visible={rescheduleModalVisible}
+        onClose={() => setRescheduleModalVisible(false)}
+        pickup={pickupToReschedule}
+        onSubmit={() => {
+          dispatch(
+            fetchPickupReqsts({ wasteType: activeTab, status: statusTab })
+          );
+        }}
+      />
     </div>
   );
 };

@@ -76,12 +76,18 @@ export class PickupController implements IPickupController {
       res.status(500).json({ message: "Failed to cancel pickup request" });
     }
   }
-  async reschedulePickup(req: Request, res: Response): Promise<void> {
+  async reschedulePickup(req: AuthRequest, res: Response): Promise<void> {
     try {
+      const wasteplantId = req.user?.id;
+      if (!wasteplantId) {
+        res.status(404).json({ message: "wasteplantId not found" });
+        return;
+      }
       const { pickupReqId } = req.params;
       const rescheduleData = req.body;
 
       const updatedPickup = await this.pickupService.reschedulePickup(
+        wasteplantId,
         pickupReqId,
         rescheduleData
       );

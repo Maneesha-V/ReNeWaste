@@ -12,7 +12,6 @@ import {
 } from "../../redux/slices/wastePlant/wastePlantPickupSlice";
 import { ReschedulePickupModalProps } from "../../types/wastePlantTypes";
 
-
 const ReschedulePickupModal = ({
   visible,
   onClose,
@@ -40,13 +39,17 @@ const ReschedulePickupModal = ({
     setFilteredDrivers(driver);
   }, [driver]);
   console.log("filteredDrivers", filteredDrivers);
-
+  console.log("pickup:", pickup);
   const handleZoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     form.setFieldsValue({ assignedZone: value });
+    if (!pickup?.wasteType) return;
     const filtered = driver.filter(
-      (d: any) => d.assignedZone?.toLowerCase() === value.toLowerCase()
+      (d: any) =>
+        d.assignedZone?.toLowerCase() === value.toLowerCase() &&
+        d.category?.toLowerCase() === pickup.wasteType?.toLowerCase()
     );
+
     setFilteredDrivers(filtered);
   };
 
@@ -56,28 +59,34 @@ const ReschedulePickupModal = ({
       const selectedDateTime = dayjs(values.pickupDate);
       const now = dayjs();
 
-      // Business logic validation
+    if (selectedDateTime.isBefore(now)) {
+      toast.error("Please select a future date and time");
+      return;
+    }
+
+    if (selectedDateTime.isSame(now, "day")) {
+      if (now.hour() >= 17) {
+        toast.error("No available time left today, please select a future date");
+        return;
+      }
+    }
+
+      // if (selectedDateTime.isSame(now, "day")) {
+      //   if (selectedDateTime.isBefore(now)) {
+      //     toast.error("Please select a future time for today's date");
+      //     return;
+      //   }
+
+      //   if (now.hour() >= 17) {
+      //     toast.error(
+      //       "No available time left today, please select a future date"
+      //     );
+      //     return;
+      //   }
+      // }
       const hour = selectedDateTime.hour();
       const minute = selectedDateTime.minute();
 
-      // If user selects today
-      if (selectedDateTime.isSame(now, "day")) {
-        // If selected time is in the past
-        if (selectedDateTime.isBefore(now)) {
-          toast.error("Please select a future time for today's date");
-          return;
-        }
-
-        // If the current time is already past 5 PM, no valid time left
-        if (now.hour() >= 17) {
-          toast.error(
-            "No available time left today, please select a future date"
-          );
-          return;
-        }
-      }
-
-      // Reject if time is before 9am or after 5pm
       if (hour < 9 || (hour === 17 && minute > 0) || hour > 17) {
         toast.error("Pickup time must be between 9:00 AM and 5:00 PM");
         return;

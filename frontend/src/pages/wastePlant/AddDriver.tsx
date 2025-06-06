@@ -4,9 +4,15 @@ import { useAppDispatch } from "../../redux/hooks";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useWastePlantValidation } from "../../hooks/useWastePlantValidation";
-import { addDriver, getCreateDriver } from "../../redux/slices/wastePlant/wastePlantDriverSlice";
+import {
+  addDriver,
+  getCreateDriver,
+} from "../../redux/slices/wastePlant/wastePlantDriverSlice";
 import { useSelector } from "react-redux";
-import { getMunicipalityByTaluk, getPanchayatsByTaluk } from "../../utils/locationUtils";
+import {
+  getMunicipalityByTaluk,
+  getPanchayatsByTaluk,
+} from "../../utils/locationUtils";
 
 const AddDriver = () => {
   const navigate = useNavigate();
@@ -23,27 +29,27 @@ const AddDriver = () => {
     licenseFront: undefined,
     licenseBack: undefined,
     assignedZone: "",
-    category: "Pending"
+    category: "Pending",
   });
 
-const taluk = useSelector((state: any) => state.wastePlantDriver.taluk);
-const [assignedZones, setAssignedZones] = useState<string[]>([]);
+  const taluk = useSelector((state: any) => state.wastePlantDriver.taluk);
+  const [assignedZones, setAssignedZones] = useState<string[]>([]);
 
-  console.log("taluk",taluk);
-  
-  useEffect(()=>{
-    dispatch(getCreateDriver())
-  },[dispatch])
-    useEffect(() => {
+  console.log("taluk", taluk);
+
+  useEffect(() => {
+    dispatch(getCreateDriver());
+  }, [dispatch]);
+  useEffect(() => {
     if (taluk) {
       const municipality = getMunicipalityByTaluk(taluk);
       const panchayats = getPanchayatsByTaluk(taluk);
 
-      const zones = [municipality,...panchayats]
-      setAssignedZones(zones)
+      const zones = [municipality, ...panchayats];
+      setAssignedZones(zones);
     }
   }, [taluk]);
-  console.log("assignedZones",assignedZones);
+  console.log("assignedZones", assignedZones);
 
   const handleBlur = (
     e: React.FocusEvent<HTMLInputElement | HTMLSelectElement>
@@ -269,20 +275,20 @@ const [assignedZones, setAssignedZones] = useState<string[]>([]);
               Assigned Zone
             </label>
 
-              <select
-    name="assignedZone"
-    value={formData.assignedZone}
-    onBlur={handleBlur}
-    onChange={handleChange}
-    className="w-full border px-3 py-2 rounded-md focus:ring-2 focus:ring-green-500"
-  >
-    <option value="">Select a zone</option>
-    {assignedZones.map((zone) => (
-      <option key={zone} value={zone}>
-        {zone}
-      </option>
-    ))}
-  </select>
+            <select
+              name="assignedZone"
+              value={formData.assignedZone}
+              onBlur={handleBlur}
+              onChange={handleChange}
+              className="w-full border px-3 py-2 rounded-md focus:ring-2 focus:ring-green-500"
+            >
+              <option value="">Select a zone</option>
+              {assignedZones.map((zone) => (
+                <option key={zone} value={zone}>
+                  {zone}
+                </option>
+              ))}
+            </select>
             {errors.assignedZone && (
               <p className="text-red-500 text-sm">{errors.assignedZone}</p>
             )}

@@ -15,7 +15,7 @@ export class NotificationService implements INotificationService {
   ) {}
  
   async getNotifications(wasteplantId: string) {
-    return await this.notificationRepository.findByReceiverId({ wasteplantId });
+    return await this.notificationRepository.findByReceiverId(wasteplantId);
   }
   async markNotificationAsRead(notifId: string) {
     return this.notificationRepository.markAsReadById(notifId);
