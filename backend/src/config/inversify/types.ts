@@ -29,6 +29,7 @@ const TYPES = {
   PlantNotificationController: Symbol.for("PlantNotificationController"),
   PlantSubscriptionController: Symbol.for("PlantSubscriptionController"),
   PlantPaymentController: Symbol.for("PlantPaymentController"),
+  PlantDashboardController: Symbol.for("PlantDashboardController"),
 
 //driver
   DriverAuthController: Symbol.for("DriverAuthController"),
@@ -69,7 +70,8 @@ const TYPES = {
   PlantNotificationService: Symbol.for("PlantNotificationService"),
   PlantSubscriptionService: Symbol.for("PlantSubscriptionService"),
   PlantPaymentService: Symbol.for("PlantPaymentService"),
-
+  PlantDashboardService: Symbol.for("PlantDashboardService"),
+  
 //driver
   DriverAuthService: Symbol.for("DriverAuthService"),
   DriverChatService: Symbol.for("DriverChatService"),

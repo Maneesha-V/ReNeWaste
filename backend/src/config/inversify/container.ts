@@ -54,6 +54,9 @@ import { ISubscriptionController as IPlantSubscriptionController } from "../../c
 import { SubscriptionController as PlantSubscriptionController } from "../../controllers/wastePlant/subscriptionController";
 import { IPaymentController as IPlantPaymentController } from "../../controllers/wastePlant/interface/IPaymentController";
 import { PaymentController as PlantPaymentController } from "../../controllers/wastePlant/paymentController";
+import { IDashboardController as IPlantDashboardController } from "../../controllers/wastePlant/interface/IDashboardController";
+import { DashboardController as PlantDashboardController } from "../../controllers/wastePlant/dashboardController";
+
 //driver
 import { IAuthController as IDriverAuthController } from "../../controllers/driver/interface/IAuthController";
 import { AuthController as DriverAuthController } from "../../controllers/driver/authController";
@@ -80,6 +83,10 @@ import { IDashboardService as ISuprAdminDashBrdService } from "../../services/su
 import { DashboardService as SuprAdminDashBrdService } from "../../services/superAdmin/dashboardService";
 import { INotificationService as ISuprAdminNotificationService } from "../../services/superAdmin/interface/INotificationService";
 import { NotificationService as SuprAdminNotificationService } from "../../services/superAdmin/notificationService";
+import { ISubscriptionService as ISuprAdminSubsciptionService } from "../../services/superAdmin/interface/ISubscriptionService";
+import { SubscriptionService as SuprAdminSubsciptionService } from "../../services/superAdmin/subscriptionService";
+import { IPaymentService as ISuprAdminPaymentService } from "../../services/superAdmin/interface/IPaymentService";
+import { PaymentService as SuprAdminPaymentService } from "../../services/superAdmin/paymentService";
 
 //user
 import { IAuthService as IUserAuthService } from "../../services/user/interface/IAuthService";
@@ -116,6 +123,13 @@ import { IUserService as IPlantUserService } from "../../services/wastePlant/int
 import { UserService as PlantUserService } from "../../services/wastePlant/userService";
 import { INotificationService as IPlantNotificationService } from "../../services/wastePlant/interface/INotificationService";
 import { NotificationService as PlantNotificationService } from "../../services/wastePlant/notificationService";
+import { ISubscriptionService as IPlantSubscriptionService } from "../../services/wastePlant/interface/ISubscriptionService";
+import { SubscriptionService as PlantSubscriptionService } from "../../services/wastePlant/subscriptionService";
+import { IPaymentService as IPlantPaymentService } from "../../services/wastePlant/interface/IPaymentService";
+import { PaymentService as PlantPaymentService } from "../../services/wastePlant/paymentService";
+import { IDashboardService as IPlantDashboardService } from "../../services/wastePlant/interface/IDashboardService";
+import { DashboardService as PlantDashboardService } from "../../services/wastePlant/dashboardService";
+
 //driver
 import { IAuthService as IDriverAuthService } from "../../services/driver/interface/IAuthService";
 import { AuthService as DriverAuthService  } from "../../services/driver/authService";
@@ -158,20 +172,6 @@ import { NotificationRepository } from "../../repositories/notification/notifica
 import { IWasteCollectionRepository } from "../../repositories/wasteCollection/interface/IWasteCollectionRepository";
 import { WasteCollectionRepository } from "../../repositories/wasteCollection/wasteCollectionRepository";
 
-import { ISubscriptionService as ISuprAdminSubsciptionService } from "../../services/superAdmin/interface/ISubscriptionService";
-import { SubscriptionService as SuprAdminSubsciptionService } from "../../services/superAdmin/subscriptionService";
-import { IPaymentService as ISuprAdminPaymentService } from "../../services/superAdmin/interface/IPaymentService";
-import { PaymentService as SuprAdminPaymentService } from "../../services/superAdmin/paymentService";
-
-import { ISubscriptionService as IPlantSubscriptionService } from "../../services/wastePlant/interface/ISubscriptionService";
-import { SubscriptionService as PlantSubscriptionService } from "../../services/wastePlant/subscriptionService";
-import { IPaymentService as IPlantPaymentService } from "../../services/wastePlant/interface/IPaymentService";
-import { PaymentService as PlantPaymentService } from "../../services/wastePlant/paymentService";
-
-
-
-
-
 
 
 //Create the container
@@ -206,6 +206,7 @@ container.bind<IPlantUserController>(TYPES.PlantUserController).to(PlantUserCont
 container.bind<IPlantNotificationController>(TYPES.PlantNotificationController).to(PlantNotificationController);
 container.bind<IPlantSubscriptionController>(TYPES.PlantSubscriptionController).to(PlantSubscriptionController);
 container.bind<IPlantPaymentController>(TYPES.PlantPaymentController).to(PlantPaymentController);
+container.bind<IPlantDashboardController>(TYPES.PlantDashboardController).to(PlantDashboardController);
 
 //driver
 container.bind<IDriverAuthController>(TYPES.DriverAuthController).to(DriverAuthController);
@@ -247,6 +248,7 @@ container.bind<IPlantUserService>(TYPES.PlantUserService).to(PlantUserService);
 container.bind<IPlantNotificationService>(TYPES.PlantNotificationService).to(PlantNotificationService);
 container.bind<IPlantSubscriptionService>(TYPES.PlantSubscriptionService).to(PlantSubscriptionService);
 container.bind<IPlantPaymentService>(TYPES.PlantPaymentService).to(PlantPaymentService);
+container.bind<IPlantDashboardService>(TYPES.PlantPaymentController).to(PlantDashboardService);
 
 //driver
 container.bind<IDriverAuthService>(TYPES.DriverAuthService).to(DriverAuthService);
