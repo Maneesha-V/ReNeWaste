@@ -11,6 +11,10 @@ import { IDashboardController as ISuprAdminDashBrdController } from "../../contr
 import { DashboardController as SuprAdminDashBrdController } from "../../controllers/superAdmin/dashboardController";
 import { INotificationController as ISuprAdminNotificationController } from "../../controllers/superAdmin/interface/INotificationController";
 import { NotificationController as SuprAdminNotificationController } from "../../controllers/superAdmin/notificationController";
+import { ISubscriptionController as ISuprAdminSubscriptionController } from "../../controllers/superAdmin/interface/ISubscriptionController";
+import { SubscriptionController as SuprAdminSubscriptionController } from "../../controllers/superAdmin/subscriptionController";
+import { IPaymentController as ISuprAdminPaymentController } from "../../controllers/superAdmin/interface/IPaymentController";
+import { PaymentController as SuprAdminPaymentController } from "../../controllers/superAdmin/paymentController";
 //user
 import { UserController } from "../../controllers/user/userController";
 import { IUserController } from "../../controllers/user/interface/IUserController";
@@ -46,7 +50,10 @@ import { IUserController as IPlantUserController } from "../../controllers/waste
 import { UserController as PlantUserController } from "../../controllers/wastePlant/userController";
 import { INotificationController as IPlantNotificationController } from "../../controllers/wastePlant/interface/INotificationController";
 import { NotificationController as PlantNotificationController } from "../../controllers/wastePlant/notificationController";
-
+import { ISubscriptionController as IPlantSubscriptionController } from "../../controllers/wastePlant/interface/ISubscriptionController";
+import { SubscriptionController as PlantSubscriptionController } from "../../controllers/wastePlant/subscriptionController";
+import { IPaymentController as IPlantPaymentController } from "../../controllers/wastePlant/interface/IPaymentController";
+import { PaymentController as PlantPaymentController } from "../../controllers/wastePlant/paymentController";
 //driver
 import { IAuthController as IDriverAuthController } from "../../controllers/driver/interface/IAuthController";
 import { AuthController as DriverAuthController } from "../../controllers/driver/authController";
@@ -151,6 +158,18 @@ import { NotificationRepository } from "../../repositories/notification/notifica
 import { IWasteCollectionRepository } from "../../repositories/wasteCollection/interface/IWasteCollectionRepository";
 import { WasteCollectionRepository } from "../../repositories/wasteCollection/wasteCollectionRepository";
 
+import { ISubscriptionService as ISuprAdminSubsciptionService } from "../../services/superAdmin/interface/ISubscriptionService";
+import { SubscriptionService as SuprAdminSubsciptionService } from "../../services/superAdmin/subscriptionService";
+import { IPaymentService as ISuprAdminPaymentService } from "../../services/superAdmin/interface/IPaymentService";
+import { PaymentService as SuprAdminPaymentService } from "../../services/superAdmin/paymentService";
+
+import { ISubscriptionService as IPlantSubscriptionService } from "../../services/wastePlant/interface/ISubscriptionService";
+import { SubscriptionService as PlantSubscriptionService } from "../../services/wastePlant/subscriptionService";
+import { IPaymentService as IPlantPaymentService } from "../../services/wastePlant/interface/IPaymentService";
+import { PaymentService as PlantPaymentService } from "../../services/wastePlant/paymentService";
+
+
+
 
 
 
@@ -164,6 +183,8 @@ container.bind<ISuprAdminAuthController>(TYPES.SuperAdminAuthController).to(Supr
 container.bind<ISuprAdminPlantController>(TYPES.SuperAdminPlantController).to(SuprAdminPlantController);
 container.bind<ISuprAdminDashBrdController>(TYPES.SuperAdminDashboardController).to(SuprAdminDashBrdController);
 container.bind<ISuprAdminNotificationController>(TYPES.SuperAdminNotificationController).to(SuprAdminNotificationController);
+container.bind<ISuprAdminSubscriptionController>(TYPES.SuperAdminSubscriptionController).to(SuprAdminSubscriptionController);
+container.bind<ISuprAdminPaymentController>(TYPES.SuperAdminPaymentController).to(SuprAdminPaymentController);
 //user
 container.bind<IUserController>(TYPES.UserAuthController).to(UserController);
 container.bind<IUserProfileController>(TYPES.UserProfileController).to(UserProfileController);
@@ -183,6 +204,8 @@ container.bind<IPlantPickupController>(TYPES.PlantPickupController).to(PlantPick
 container.bind<IPlantTruckController>(TYPES.PlantTruckController).to(PlantTruckController);
 container.bind<IPlantUserController>(TYPES.PlantUserController).to(PlantUserController);
 container.bind<IPlantNotificationController>(TYPES.PlantNotificationController).to(PlantNotificationController);
+container.bind<IPlantSubscriptionController>(TYPES.PlantSubscriptionController).to(PlantSubscriptionController);
+container.bind<IPlantPaymentController>(TYPES.PlantPaymentController).to(PlantPaymentController);
 
 //driver
 container.bind<IDriverAuthController>(TYPES.DriverAuthController).to(DriverAuthController);
@@ -200,6 +223,9 @@ container.bind<ISuperAdminAuthService>(TYPES.SuperAdminAuthService).to(SuperAdmi
 container.bind<ISuprAdminPlantService>(TYPES.SuperAdminPlantService).to(SuprAdminPlantService);
 container.bind<ISuprAdminDashBrdService>(TYPES.SuperAdminDashboardService).to(SuprAdminDashBrdService);
 container.bind<ISuprAdminNotificationService>(TYPES.SuperAdminNotificationService).to(SuprAdminNotificationService);
+container.bind<ISuprAdminSubsciptionService>(TYPES.SuperAdminSubscriptionService).to(SuprAdminSubsciptionService);
+container.bind<ISuprAdminPaymentService>(TYPES.SuperAdminPaymentService).to(SuprAdminPaymentService);
+
 //user  
 container.bind<IUserAuthService>(TYPES.UserAuthService).to(UserAuthService);
 container.bind<IUserProfileService>(TYPES.UserProfileService).to(UserProfileService);
@@ -219,6 +245,8 @@ container.bind<IPlantPickupService>(TYPES.PlantPickupService).to(PlantPickupServ
 container.bind<IPlantTruckService>(TYPES.PlantTruckService).to(PlantTruckService);
 container.bind<IPlantUserService>(TYPES.PlantUserService).to(PlantUserService);
 container.bind<IPlantNotificationService>(TYPES.PlantNotificationService).to(PlantNotificationService);
+container.bind<IPlantSubscriptionService>(TYPES.PlantSubscriptionService).to(PlantSubscriptionService);
+container.bind<IPlantPaymentService>(TYPES.PlantPaymentService).to(PlantPaymentService);
 
 //driver
 container.bind<IDriverAuthService>(TYPES.DriverAuthService).to(DriverAuthService);

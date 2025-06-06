@@ -5,6 +5,8 @@ const TYPES = {
   SuperAdminPlantController: Symbol.for("SuperAdminPlantController"),
   SuperAdminDashboardController: Symbol.for("SuperAdminDashboardController"),
   SuperAdminNotificationController: Symbol.for("SuperAdminNotificationController"),
+  SuperAdminSubscriptionController: Symbol.for("SuperAdminSubscriptionController"),
+  SuperAdminPaymentController: Symbol.for("SuperAdminPaymentController"),
   
 //user
   UserAuthController: Symbol.for("UserAuthController"),
@@ -25,6 +27,8 @@ const TYPES = {
   PlantTruckController: Symbol.for("PlantTruckController"),
   PlantUserController: Symbol.for("PlantUserController"),
   PlantNotificationController: Symbol.for("PlantNotificationController"),
+  PlantSubscriptionController: Symbol.for("PlantSubscriptionController"),
+  PlantPaymentController: Symbol.for("PlantPaymentController"),
 
 //driver
   DriverAuthController: Symbol.for("DriverAuthController"),
@@ -42,7 +46,8 @@ const TYPES = {
   SuperAdminPlantService: Symbol.for("SuperAdminPlantService"),
   SuperAdminDashboardService: Symbol.for("SuperAdminDashboardService"),
   SuperAdminNotificationService: Symbol.for("SuperAdminNotificationService"),
-
+  SuperAdminSubscriptionService: Symbol.for("SuperAdminSubscriptionService"),
+  SuperAdminPaymentService: Symbol.for("SuperAdminPaymentService"),
 //user
   UserAuthService: Symbol.for("UserAuthService"),
   UserProfileService: Symbol.for("UserProfileService"),
@@ -62,6 +67,8 @@ const TYPES = {
   PlantTruckService: Symbol.for("PlantTruckService"),
   PlantUserService: Symbol.for("PlantUserService"),
   PlantNotificationService: Symbol.for("PlantNotificationService"),
+  PlantSubscriptionService: Symbol.for("PlantSubscriptionService"),
+  PlantPaymentService: Symbol.for("PlantPaymentService"),
 
 //driver
   DriverAuthService: Symbol.for("DriverAuthService"),
