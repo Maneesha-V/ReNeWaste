@@ -10,8 +10,12 @@ import { inject, injectable } from "inversify";
 import TYPES from "../../config/inversify/types";
 import BaseRepository from "../baseRepository/baseRepository";
 import { ITruckRepository } from "../truck/interface/ITruckRepository";
-import { MarkReturnProps, MarkTruckReturnResult } from "../../types/driver/truckTypes";
+import {
+  MarkReturnProps,
+  MarkTruckReturnResult,
+} from "../../types/driver/truckTypes";
 import { INotificationRepository } from "../notification/interface/INotifcationRepository";
+import { ReturnFetchAllDriversByPlantId } from "./types/driverTypes";
 
 @injectable()
 export class DriverRepository
@@ -96,7 +100,7 @@ export class DriverRepository
   async deleteDriverById(driverId: string) {
     return await this.model.findByIdAndDelete(driverId);
   }
-  async fetchDrivers(wastePlantId: string) {
+  async fetchDriversByPlantId(wastePlantId: string) {
     const objectId = new Types.ObjectId(wastePlantId);
     return await this.model
       .find({
@@ -136,7 +140,6 @@ export class DriverRepository
   }
 
   async getDriversByLocation(location: string, plantId: string) {
-  
     const objectId = new Types.ObjectId(plantId);
     return await this.model
       .find({
@@ -167,34 +170,71 @@ export class DriverRepository
   async countAll(): Promise<number> {
     return await this.model.countDocuments();
   }
-  async markTruckAsReturned(truckId: string, plantId: string, driverId: string): Promise<MarkTruckReturnResult> {
+  async markTruckAsReturned(
+    truckId: string,
+    plantId: string,
+    driverId: string
+  ): Promise<MarkTruckReturnResult> {
     const driver = await this.model.findById(driverId);
-    if(!driver){
-      throw new Error("Driver not found.")
+    if (!driver) {
+      throw new Error("Driver not found.");
     }
-    if(!driver.wasteplantId || driver.wasteplantId.toString() !== plantId){
-      throw new Error("Unauthorized plant.")
+    if (!driver.wasteplantId || driver.wasteplantId.toString() !== plantId) {
+      throw new Error("Unauthorized plant.");
     }
     driver.assignedTruckId = null;
     await driver.save();
-    
-    const truck = await this.getTruckRepo().markTruckAsReturned(driverId, truckId, plantId);
-  
-  const message = `Truck ${truck?.vehicleNumber} returned by driver ${driver.name}`;
-  const notification = await this.notificationRepository.createNotification({
-    receiverId: plantId,
-    receiverType: "wasteplant",
-    message,
-    type: "truck_returned"
-  });
-console.log("notification",notification);
 
-  const io = global.io; 
+    const truck = await this.getTruckRepo().markTruckAsReturned(
+      driverId,
+      truckId,
+      plantId
+    );
 
-  if (io) {
-    io.to(`${plantId}`).emit("newNotification", notification);
+    const message = `Truck ${truck?.vehicleNumber} returned by driver ${driver.name}`;
+    const notification = await this.notificationRepository.createNotification({
+      receiverId: plantId,
+      receiverType: "wasteplant",
+      message,
+      type: "truck_returned",
+    });
+    console.log("notification", notification);
+
+    const io = global.io;
+
+    if (io) {
+      io.to(`${plantId}`).emit("newNotification", notification);
+    }
+
+    return { driver, truck };
   }
+  async fetchAllDriversByPlantId(wastePlantId: string): Promise<ReturnFetchAllDriversByPlantId> {
+    const driverCounts = await this.model.aggregate([
+      {
+        $match: {
+          wasteplantId: new Types.ObjectId(wastePlantId),
+        },
+      },
+      {
+        $group: {
+          _id: "$status",
+          totalCount: { $sum: 1 },
+        },
+      },
+    ]);
+    let active = 0;
+    let inactive = 0;
+    let suspended = 0;
+    for (const record of driverCounts) {
+      if (record._id === "Active") {
+        active = record.totalCount;
+      } else if (record._id === "Inactive") {
+        inactive = record.totalCount;
+      } else if (record._id === "Suspended") {
+        suspended = record.totalCount;
+      }
+    }
 
-    return {driver, truck}
+    return { active, inactive, suspended };
   }
 }

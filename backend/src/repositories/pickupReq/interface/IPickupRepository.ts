@@ -2,6 +2,7 @@ import { IPickupRequest, IPickupRequestDocument } from "../../../models/pickupRe
 import { PickupDriverFilterParams } from "../../../types/driver/pickupTypes";
 import { PickupFilterParams } from "../../../types/wastePlant/authTypes";
 import { IUpdatePickupRequest } from "../../../types/wastePlant/pickupTypes";
+import { PickupStatusByWasteType, RevenueByWasteType } from "../types/pickupTypes";
 export interface EnhancedPickup extends IPickupRequest {
     userFullName?: string;
     selectedAddress?: any; 
@@ -26,4 +27,6 @@ export interface IPickupRepository {
     getPickupByUserIdAndPickupReqId(pickupReqId: string, userId: string): Promise<IPickupRequestDocument | null>;
     savePaymentDetails(pickupReqId: string, paymentData: any, userId: string): Promise<IPickupRequestDocument>;
     getAllPaymentsByUser(userId: string): Promise<Partial<IPickupRequest>[]>;
+    fetchAllPickupsByPlantId(plantId: string): Promise<PickupStatusByWasteType>;
+    totalRevenueByPlantId(plantId: string): Promise<RevenueByWasteType>
 }

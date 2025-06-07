@@ -3,7 +3,8 @@ import TYPES from "../../config/inversify/types";
 import { INotificationRepository } from "../../repositories/notification/interface/INotifcationRepository";
 import { INotificationService } from "./interface/INotificationService";
 import { IWasteCollectionRepository } from "../../repositories/wasteCollection/interface/IWasteCollectionRepository";
-import { InputWasteMeasurement } from "../../types/wastePlant/notificationTypes";
+import { InputWasteMeasurement } from "../../repositories/wasteCollection/types/wasteCollectionTypes";
+
 
 @injectable()
 export class NotificationService implements INotificationService {

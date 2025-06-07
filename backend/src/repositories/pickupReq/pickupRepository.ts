@@ -17,11 +17,20 @@ import { inject, injectable } from "inversify";
 import TYPES from "../../config/inversify/types";
 import { IUserRepository } from "../user/interface/IUserRepository";
 import { IUserDocument } from "../../models/user/interfaces/userInterface";
+import {
+  PickupStatus,
+  PickupStatusByWasteType,
+  WasteType,
+  RevenueByWasteType,
+} from "./types/pickupTypes";
 
 @injectable()
-export class PickupRepository extends BaseRepository<IPickupRequestDocument> implements IPickupRepository {
+export class PickupRepository
+  extends BaseRepository<IPickupRequestDocument>
+  implements IPickupRepository
+{
   constructor(
-    @inject(TYPES.UserRepository) 
+    @inject(TYPES.UserRepository)
     private userRepository: IUserRepository
   ) {
     super(PickupModel);
@@ -55,7 +64,8 @@ export class PickupRepository extends BaseRepository<IPickupRequestDocument> imp
       query.wasteType = wasteType;
     }
 
-    const pickups = await this.model.find(query)
+    const pickups = await this.model
+      .find(query)
       .populate({
         path: "userId",
         select: "firstName lastName addresses",
@@ -103,16 +113,18 @@ export class PickupRepository extends BaseRepository<IPickupRequestDocument> imp
     }
   ) {
     const objectId = new Types.ObjectId(pickupReqId);
-    const updated = await this.model.findByIdAndUpdate(
-      objectId,
-      {
-        $set: {
-          status: updateData.status,
-          driverId: updateData.driverId,
+    const updated = await this.model
+      .findByIdAndUpdate(
+        objectId,
+        {
+          $set: {
+            status: updateData.status,
+            driverId: updateData.driverId,
+          },
         },
-      },
-      { new: true }
-    ).exec();
+        { new: true }
+      )
+      .exec();
 
     if (!updated) {
       throw new Error("Pickup request not found");
@@ -154,14 +166,16 @@ export class PickupRepository extends BaseRepository<IPickupRequestDocument> imp
   }
   async getPickupsByDriverId(filters: PickupDriverFilterParams) {
     const { driverId, wasteType } = filters;
-    const pickups = (await this.model.find({
-      driverId: driverId,
-      wasteType: wasteType,
-      status: { $in: ["Scheduled", "Rescheduled"] },
-    }).populate({
-      path: "userId",
-      select: "firstName lastName addresses",
-    })) as unknown as PopulatedPickup[];
+    const pickups = (await this.model
+      .find({
+        driverId: driverId,
+        wasteType: wasteType,
+        status: { $in: ["Scheduled", "Rescheduled"] },
+      })
+      .populate({
+        path: "userId",
+        select: "firstName lastName addresses",
+      })) as unknown as PopulatedPickup[];
 
     const enhancedPickups = pickups.map((pickup) => {
       const user = pickup.userId;
@@ -181,10 +195,12 @@ export class PickupRepository extends BaseRepository<IPickupRequestDocument> imp
   async findPickupByIdAndDriver(pickupReqId: string, driverId: string) {
     const objectIdPickup = new Types.ObjectId(pickupReqId);
     const objectIdDriver = new Types.ObjectId(driverId);
-    const pickup = (await this.model.findOne({
-      _id: objectIdPickup,
-      driverId: objectIdDriver,
-    }).lean()) as EnhancedPickup;
+    const pickup = (await this.model
+      .findOne({
+        _id: objectIdPickup,
+        driverId: objectIdDriver,
+      })
+      .lean()) as EnhancedPickup;
 
     if (!pickup) return null;
 
@@ -219,9 +235,10 @@ export class PickupRepository extends BaseRepository<IPickupRequestDocument> imp
   }
 
   async getPickupPlansByUserId(userId: string) {
-    const pickups = await this.model.find({
-      userId: new mongoose.Types.ObjectId(userId),
-    })
+    const pickups = await this.model
+      .find({
+        userId: new mongoose.Types.ObjectId(userId),
+      })
       .populate({
         path: "driverId",
         select: "name contact assignedTruckId",
@@ -232,7 +249,10 @@ export class PickupRepository extends BaseRepository<IPickupRequestDocument> imp
       })
       .lean();
 
-    const user: IUserDocument = await this.userRepository.findById(userId, true);
+    const user: IUserDocument = await this.userRepository.findById(
+      userId,
+      true
+    );
 
     (pickups as any[]).forEach((pickup) => {
       const matchedAddress = user?.addresses?.find(
@@ -294,7 +314,7 @@ export class PickupRepository extends BaseRepository<IPickupRequestDocument> imp
   }
   async updatePickupStatus(pickupReqId: string, status: string) {
     const res = await this.model.findByIdAndUpdate(
-      pickupReqId ,
+      pickupReqId,
       { status },
       { new: true }
     );
@@ -305,8 +325,8 @@ export class PickupRepository extends BaseRepository<IPickupRequestDocument> imp
     pickupReqId: string
   ): Promise<IPickupRequestDocument | null> {
     const pickup = await this.model.findById(pickupReqId);
-    console.log("pickup.....",pickup);
-    
+    console.log("pickup.....", pickup);
+
     if (!pickup) {
       throw new Error("Pickup not found");
     }
@@ -350,20 +370,139 @@ export class PickupRepository extends BaseRepository<IPickupRequestDocument> imp
   }
 
   async getAllPaymentsByUser(userId: string) {
-    return await this.model.find(
+    return await this.model
+      .find(
+        {
+          userId,
+          "payment.amount": { $exists: true },
+        },
+        {
+          pickupId: 1,
+          payment: 1,
+          wasteType: 1,
+          originalPickupDate: 1,
+          rescheduledPickupDate: 1,
+          status: 1,
+        }
+      )
+      .sort({ createdAt: -1 });
+  }
+  async fetchAllPickupsByPlantId(
+    plantId: string
+  ): Promise<PickupStatusByWasteType> {
+    const pickupCounts = await this.model.aggregate([
       {
-        userId,
-        "payment.amount": { $exists: true },
+        $match: {
+          wasteplantId: new Types.ObjectId(plantId),
+        },
       },
       {
-        pickupId: 1,
-        payment: 1,
-        wasteType: 1,
-        originalPickupDate: 1,
-        rescheduledPickupDate: 1,
-        status: 1,
+        $group: {
+          _id: {
+            wasteType: "$wasteType",
+            status: "$status",
+          },
+          totalCount: { $sum: 1 },
+        },
+      },
+    ]);
+    const result: PickupStatusByWasteType = {
+      Residential: {
+        Pending: 0,
+        Scheduled: 0,
+        Rescheduled: 0,
+        Completed: 0,
+        Cancelled: 0,
+        Active: 0,
+      },
+      Commercial: {
+        Pending: 0,
+        Scheduled: 0,
+        Rescheduled: 0,
+        Completed: 0,
+        Cancelled: 0,
+        Active: 0,
+      },
+    };
+    for (const record of pickupCounts) {
+      const { wasteType, status } = record._id;
+      const count = record.totalCount;
+
+      if (
+        (wasteType === "Residential" || wasteType === "Commercial") &&
+        (status === "Pending" ||
+          status === "Scheduled" ||
+          status === "Rescheduled" ||
+          status === "Completed" ||
+          status === "Cancelled")
+      ) {
+        const typeKey = wasteType as WasteType;
+        const statusKey = status as PickupStatus;
+        result[typeKey][statusKey] = record.totalCount;
       }
-    ).sort({ createdAt: -1 });
+    }
+
+    for (const type of ["Residential", "Commercial"] as const) {
+      result[type].Active = result[type].Scheduled + result[type].Rescheduled;
+    }
+
+    return result;
+    // let pending = 0;
+    // let scheduled = 0;
+    // let rescheduled = 0;
+    // let cancelled = 0;
+    // let completed = 0;
+    // let activePickups = 0;
+    // for (const record of pickupCounts) {
+    //   if (record._id === "Pending") {
+    //     pending = record.totalCount;
+    //   } else if (record._id === "Scheduled") {
+    //     scheduled = record.totalCount;
+    //   } else if (record._id === "Rescheduled") {
+    //     rescheduled = record.totalCount;
+    //   }else if (record._id === "Completed") {
+    //     completed = record.totalCount;
+    //   } else if (record._id === "Cancelled") {
+    //     cancelled = record.totalCount;
+    //   }
+    //   activePickups = scheduled + rescheduled;
+    // }
+
+    // return { pending, activePickups, completed, cancelled };
+  }
+  async totalRevenueByPlantId(plantId: string): Promise<RevenueByWasteType> {
+    const result = await this.model.aggregate([
+      {
+        $match: {
+          wasteplantId: new Types.ObjectId(plantId),
+          "payment.status": "Paid",
+        },
+      },
+      {
+        $group: {
+          _id: "$wasteType",
+          total: { $sum: "$payment.amount" },
+        },
+      },
+    ]);
+
+    let totalResidentialRevenue = 0;
+    let totalCommercialRevenue = 0;
+
+    for (const item of result) {
+      if (item._id === "Residential") {
+        totalResidentialRevenue = item.total;
+      } else if (item._id === "Commercial") {
+        totalCommercialRevenue = item.total;
+      }
+    }
+
+    const totalRevenue = totalResidentialRevenue + totalCommercialRevenue;
+
+    return {
+      totalResidentialRevenue,
+      totalCommercialRevenue,
+      totalRevenue,
+    };
   }
 }
-

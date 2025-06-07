@@ -21,6 +21,6 @@ export class ProfileService implements IProfileService {
     return await this.driverRepository.updateDriverById(driverId, updatedData);
   }
   async fetchDriversService(wastePlantId: string) {
-    return await this.driverRepository.fetchDrivers(wastePlantId);
+    return await this.driverRepository.fetchDriversByPlantId(wastePlantId);
   }
 }

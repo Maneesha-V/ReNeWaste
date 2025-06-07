@@ -1,5 +1,5 @@
 import { INotificationDocument } from "../../../models/notification/interfaces/notificationInterface";
-import { InputWasteMeasurement, ReturnWasteMeasurement } from "../../../types/wastePlant/notificationTypes";
+import { InputWasteMeasurement, ReturnWasteMeasurement } from "../../../repositories/wasteCollection/types/wasteCollectionTypes";
 
 export interface INotificationService {
     getNotifications(wasteplantId: string) : Promise<INotificationDocument[]>;

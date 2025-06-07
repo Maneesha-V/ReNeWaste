@@ -4,6 +4,7 @@ import {
 } from "../../../models/driver/interfaces/driverInterface";
 import { MarkTruckReturnResult } from "../../../types/driver/truckTypes";
 import { PaginatedDriversResult } from "../../../types/wastePlant/driverTypes";
+import { ReturnFetchAllDriversByPlantId } from "../types/driverTypes";
 
 export interface IDriverRepository {
   createDriver(data: IDriver): Promise<IDriverDocument>;
@@ -20,7 +21,7 @@ export interface IDriverRepository {
   getDriverById(driverId: string): Promise<IDriverDocument | null>;
   updateDriverById(driverId: string, data: any): Promise<IDriver | null>;
   deleteDriverById(driverId: string): Promise<IDriver | null>;
-  fetchDrivers(wastePlantId: string): Promise<IDriverDocument[]>;
+  fetchDriversByPlantId(wastePlantId: string): Promise<IDriverDocument[]>;
   updateDriverTruck(
     driverId: string,
     assignedTruckId: string
@@ -44,4 +45,5 @@ export interface IDriverRepository {
     plantId: string,
     driverId: string
   ): Promise<MarkTruckReturnResult>;
+  fetchAllDriversByPlantId(wastePlantId: string): Promise<ReturnFetchAllDriversByPlantId>;
 }

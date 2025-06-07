@@ -4,6 +4,7 @@ import {
   ITruckDocument,
 } from "../../../models/truck/interfaces/truckInterface";
 import { PaginatedTrucksResult } from "../../../types/wastePlant/truckTypes";
+import { ReturnFetchAllTrucksByPlantId } from "../types/truckTypes";
 
 export interface ITruckRepository {
   findTruckByVehicle(vehicleNumber: string): Promise<ITruckDocument | null>;
@@ -38,4 +39,5 @@ export interface ITruckRepository {
     plantId: string
   ): Promise<ITruckDocument>;
   findTruckByName(name: string): Promise<ITruckDocument | null>;
+  fetchAllTrucksByPlantId(plantId: string): Promise<ReturnFetchAllTrucksByPlantId>;
 }
