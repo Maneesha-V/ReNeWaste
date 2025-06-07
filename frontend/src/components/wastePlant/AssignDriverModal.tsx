@@ -7,6 +7,7 @@ import { approvePickup, fetchDriversByPlace } from "../../redux/slices/wastePlan
 import { useNavigate } from "react-router-dom";
 import { fetchAvailableTrucks } from "../../redux/slices/wastePlant/wastePlantTruckSlice";
 import { toast } from "react-toastify";
+import { formatDateToDDMMYYYY, formatTimeTo12Hour } from "../../utils/formatDate";
 
 interface AssignDriverModalProps {
   visible: boolean;
@@ -112,10 +113,13 @@ const filteredTrucks = Array.isArray(truck)
           <p>
             <strong>Pickup Date:</strong>{" "}
             {pickup?.originalPickupDate &&
-              new Date(pickup.originalPickupDate).toLocaleDateString()}
+              formatDateToDDMMYYYY(pickup.originalPickupDate)}
           </p>
           <p>
-            <strong>Pickup Time:</strong> {pickup?.pickupTime}
+            <strong>Pickup Time:</strong>{" "}
+            {pickup?.pickupTime &&
+            formatTimeTo12Hour(pickup.pickupTime)
+            }
           </p>
         </div>
 

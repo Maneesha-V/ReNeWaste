@@ -9,7 +9,10 @@ import {
 import { useAppDispatch } from "../../redux/hooks";
 import { useSelector } from "react-redux";
 import { RootState } from "../../redux/store";
-import { formatDateToDDMMYYYY } from "../../utils/formatDate";
+import {
+  formatDateToDDMMYYYY,
+  formatTimeTo12Hour,
+} from "../../utils/formatDate";
 import AssignDriverModal from "../../components/wastePlant/AssignDriverModal";
 import ReschedulePickupModal from "../../components/wastePlant/ReschedulePickupModal";
 import { PickupRequest } from "../../types/wastePlantTypes";
@@ -69,24 +72,15 @@ const Pickups = () => {
     setRescheduleModalVisible(true);
   };
   const filteredData = pickups.filter(
-    (item: PickupRequest) => item.wasteType === activeTab
+    (item: PickupRequest) => 
+      item.wasteType === activeTab && item.status === statusTab
   );
 
   return (
-    <div className="space-y-4">
-      {/* Breadcrumbs and Header */}
+    <div className="space-y-4 bg-green-50">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
         <div>
-          {/* <Breadcrumbs
-            paths={[
-              // {
-              //   label: "Scheduled Pickups",
-              //   path: "/waste-plant/scheduled-pickups",
-              // },
-              { label: "Pickups" },
-            ]}
-          /> */}
-          <h1 className="text-xl font-bold text-gray-800">Pickup Requests</h1>
+          <h1 className="text-2xl font-bold text-green-800">Pickup Requests</h1>
         </div>
       </div>
 
@@ -177,9 +171,9 @@ const Pickups = () => {
               title="Pickup Date"
               dataIndex="originalPickupDate"
               key="originalPickupDate"
-              render={(text: string, record: any) => {
+              render={(_, record: any) => {
                 const dateToDisplay =
-                  record.rescheduledDate || record.originalPickupDate;
+                  record.rescheduledPickupDate  || record.originalPickupDate;
                 return formatDateToDDMMYYYY(dateToDisplay);
               }}
             />
@@ -187,12 +181,15 @@ const Pickups = () => {
               title="Time"
               dataIndex="pickupTime"
               key="pickupTime"
+              render={(value) => {
+                return formatTimeTo12Hour(value);
+              }}
             />
-            <Table.Column
+            {/* <Table.Column
               title="Waste Type"
               dataIndex="wasteType"
               key="wasteType"
-            />
+            /> */}
             {activeTab === "Commercial" && (
               <>
                 <Table.Column
@@ -212,7 +209,7 @@ const Pickups = () => {
                 />
               </>
             )}
-            {statusTab === "Scheduled" && (
+            {statusTab === "Scheduled" || statusTab === "Rescheduled" && (
               <>
                 <Table.Column
                   title="Assigned Driver"
@@ -230,23 +227,32 @@ const Pickups = () => {
               title="Status"
               dataIndex="status"
               key="status"
-              render={(status: string) => (
-                <Tag
-                  color={
-                    status === "Pending"
-                      ? "orange"
-                      : status === "Scheduled"
-                      ? "green"
-                      : status === "Rescheduled"
-                      ? "blue"
-                      : "red"
-                  }
-                >
-                  {status}
-                </Tag>
-              )}
+              render={(status: string) => {
+                const statusColorMap: Record<string, string> = {
+                  Pending: "orange",
+                  Scheduled: "blue",
+                  Rescheduled: "blue",
+                  Completed: "green",
+                };
+                // <Tag
+                //   color={
+                //     status === "Pending"
+                //       ? "orange"
+                //       : status === "Scheduled" || status === "Rescheduled"
+                //       ? "blue"
+                //       : status === "Completed"
+                //       ? "green"
+                //       : "red"
+                //   }
+                // >
+                //   {status}
+                // </Tag>
+                return (
+                  <Tag color={statusColorMap[status] || "red"}>{status}</Tag>
+                );
+              }}
             />
-            {(statusTab === "Pending" || statusTab === "Scheduled") && (
+            {/* {(statusTab === "Pending" || statusTab === "Scheduled" || statusTab === "Rescheduled") && (
               <Table.Column
                 title="Action"
                 key="action"
@@ -277,7 +283,7 @@ const Pickups = () => {
                         </Popconfirm>
                       </div>
                     );
-                  } else if (record.status === "Scheduled") {
+                  } else if (record.status === "Scheduled" || record.status === "Rescheduled") {
                     return (
                       <Popconfirm
                         title="Are you sure to reschedule this request?"
@@ -290,8 +296,79 @@ const Pickups = () => {
                         </Button>
                       </Popconfirm>
                     );
+                  } else if (record.status === "Pending" || record.status === "Scheduled" || record.status === "Rescheduled") {
+                    
                   }
                   return null;
+                }}
+              />
+            )} */}
+            {(statusTab === "Pending" ||
+              statusTab === "Scheduled" ||
+              statusTab === "Rescheduled") && (
+              <Table.Column
+                title="Action"
+                key="action"
+                render={(_: any, record: PickupRequest) => {
+                  const actions: React.ReactNode[] = [];
+
+                  if (record.status === "Pending") {
+                    actions.push(
+                      <Button
+                        key="approve"
+                        type="primary"
+                        size="small"
+                        icon={<CheckOutlined />}
+                        onClick={() => {
+                          setSelectedPickup(record);
+                          setModalVisible(true);
+                        }}
+                      >
+                        Approve
+                      </Button>
+                    );
+                  }
+
+                  if (
+                    record.status === "Scheduled" ||
+                    record.status === "Rescheduled"
+                  ) {
+                    actions.push(
+                      <Popconfirm
+                        key="reschedule"
+                        title="Are you sure to reschedule this request?"
+                        onConfirm={() => handleReschedule(record)}
+                        okText="Yes"
+                        cancelText="No"
+                      >
+                        <Button type="dashed" size="small">
+                          Reschedule
+                        </Button>
+                      </Popconfirm>
+                    );
+                  }
+
+                  if (
+                    record.status === "Pending" ||
+                    record.status === "Scheduled" ||
+                    record.status === "Rescheduled"
+                  ) {
+                    actions.push(
+                      <Popconfirm
+                        key="cancel"
+                        title="Are you sure you want to cancel this request?"
+                        onConfirm={() => handleCancel(record._id)}
+                        okText="Yes"
+                        cancelText="No"
+                      >
+                        <Button danger size="small" icon={<CloseOutlined />}>
+                          Cancel
+                        </Button>
+                      </Popconfirm>
+                    );
+                  }
+
+                  return <div className="flex flex-wrap gap-2">{actions}</div>;
                 }}
               />
             )}

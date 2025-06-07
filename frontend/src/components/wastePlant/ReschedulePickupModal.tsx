@@ -4,7 +4,7 @@ import dayjs from "dayjs";
 import { RootState } from "../../redux/store";
 import { useAppDispatch } from "../../redux/hooks";
 import { useSelector } from "react-redux";
-import { disablePastDates } from "../../utils/formatDate";
+import { disablePastDates, formatDateToDDMMYYYY, formatTimeTo12Hour } from "../../utils/formatDate";
 import { toast } from "react-toastify";
 import {
   fetchDriversByPlace,
@@ -24,12 +24,18 @@ const ReschedulePickupModal = ({
   const [filteredDrivers, setFilteredDrivers] = useState<any[]>([]);
 
   useEffect(() => {
-    if (pickup) {
-      form.setFieldsValue({
-        pickupDate: dayjs(pickup.originalPickupDate),
-      });
+    if (pickup && visible) {
+      // form.setFieldsValue({
+      //   pickupDate: dayjs(pickup.originalPickupDate),
+      // });
+      const currentValue = form.getFieldValue("pickupDate");
+      if (!currentValue) {
+        form.setFieldsValue({
+          pickupDate: dayjs(pickup.originalPickupDate),
+        });
+      }
     }
-  }, [pickup, form]);
+  }, [pickup, visible, form]);
   useEffect(() => {
     if (visible && pickup?.wasteplantId) {
       dispatch(fetchDriversByPlace(pickup?.assignedZone));
@@ -40,6 +46,8 @@ const ReschedulePickupModal = ({
   }, [driver]);
   console.log("filteredDrivers", filteredDrivers);
   console.log("pickup:", pickup);
+  const pickupDateToShow = pickup?.rescheduledPickupDate || pickup?.originalPickupDate;
+
   const handleZoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     form.setFieldsValue({ assignedZone: value });
@@ -59,31 +67,20 @@ const ReschedulePickupModal = ({
       const selectedDateTime = dayjs(values.pickupDate);
       const now = dayjs();
 
-    if (selectedDateTime.isBefore(now)) {
-      toast.error("Please select a future date and time");
-      return;
-    }
-
-    if (selectedDateTime.isSame(now, "day")) {
-      if (now.hour() >= 17) {
-        toast.error("No available time left today, please select a future date");
+      if (selectedDateTime.isBefore(now)) {
+        toast.error("Please select a future date and time");
         return;
       }
-    }
 
-      // if (selectedDateTime.isSame(now, "day")) {
-      //   if (selectedDateTime.isBefore(now)) {
-      //     toast.error("Please select a future time for today's date");
-      //     return;
-      //   }
+      if (selectedDateTime.isSame(now, "day")) {
+        if (now.hour() >= 17) {
+          toast.error(
+            "No available time left today, please select a future date"
+          );
+          return;
+        }
+      }
 
-      //   if (now.hour() >= 17) {
-      //     toast.error(
-      //       "No available time left today, please select a future date"
-      //     );
-      //     return;
-      //   }
-      // }
       const hour = selectedDateTime.hour();
       const minute = selectedDateTime.minute();
 
@@ -101,11 +98,11 @@ const ReschedulePickupModal = ({
         pickupTime: pickupTime,
         pickupReqId: pickup._id,
       };
-      console.log("formData", formData);
+      console.log("date", selectedDateTime.toISOString());
 
       await dispatch(reschedulePickup(formData));
       toast.success("Pickup rescheduled successfully");
-
+      onSubmit(formData);
       onClose();
       form.resetFields();
     } catch (err) {
@@ -136,12 +133,11 @@ const ReschedulePickupModal = ({
         </p>
         <p>
           <strong>Current Pickup Date:</strong>{" "}
-          {pickup?.originalPickupDate
-            ? dayjs(pickup.originalPickupDate).format("DD-MM-YYYY")
-            : "Not available"}
+           {pickupDateToShow ? formatDateToDDMMYYYY(pickupDateToShow) : "Not available"}
         </p>
         <p>
-          <strong>Pickup Time:</strong> {pickup?.pickupTime}
+          <strong>Pickup Time:</strong>{" "}
+          {pickup?.pickupTime ? formatTimeTo12Hour(pickup.pickupTime): "Not available"}
         </p>
       </div>
       <Form layout="vertical" form={form}>

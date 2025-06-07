@@ -26,7 +26,7 @@ export const fetchUsers = createAsyncThunk(
       return response;
     } catch (error: any) {
       return rejectWithValue(
-        error.response?.data || "Failed to fetch drop spots."
+        error.response?.data || "Failed to fetch users."
       );
     }
   }
