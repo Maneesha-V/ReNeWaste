@@ -8,6 +8,7 @@ export interface ITruck {
   wasteplantId?: mongoose.Types.ObjectId;
   status: "Active" | "Inactive" | "Maintenance";
   isReturned?: boolean;
+  tareWeight: number;
   createdAt: Date;
   updatedAt: Date;
 }

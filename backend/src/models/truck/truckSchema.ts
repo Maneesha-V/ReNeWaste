@@ -36,7 +36,11 @@ export const truckSchema: Schema<ITruckDocument> = new Schema(
     isReturned: {
       type: Boolean,
       default: true 
-    }
+    },
+    tareWeight: {
+      type: Number,
+      required: true,
+    },
   },
   {
     timestamps: true,
