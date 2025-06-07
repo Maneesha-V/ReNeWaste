@@ -7,7 +7,12 @@ import { INotificationRepository } from "../../repositories/notification/interfa
 export class NotificationService implements INotificationService {
   constructor(
     @inject(TYPES.NotificationRepository)
-    private notificationRepository: INotificationRepository,
+    private notificationRepository: INotificationRepository
   ) {}
-
+  async getNotifications(userId: string) {
+    return await this.notificationRepository.findByReceiverId(userId);
+  }
+  async markNotificationAsRead(notifId: string) {
+    return this.notificationRepository.markAsReadById(notifId);
+  }
 }

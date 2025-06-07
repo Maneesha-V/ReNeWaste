@@ -24,7 +24,8 @@ export const loginUser = async (userData: LoginRequest) => {
     console.log("logRes",response);
     if (response.data) {
       localStorage.setItem("token", response.data.token);
-      localStorage.setItem("role", response.data.user.role); 
+      localStorage.setItem("role", response.data.role); 
+      localStorage.setItem("user_id", response.data.userId); 
     }  
     return response.data;
   } catch(error: any) {
@@ -36,6 +37,7 @@ export const logoutUser = async () => {
   console.log("Logout API response:", response.data); 
   localStorage.removeItem("token"); 
   localStorage.removeItem("role"); 
+  localStorage.removeItem("user_id"); 
   return response.data;
 };
 export const sendOtpSignupService = async (email: string) => {

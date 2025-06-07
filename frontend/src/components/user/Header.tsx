@@ -3,51 +3,57 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAppDispatch } from "../../redux/hooks";
 import { logout } from "../../redux/slices/user/userSlice";
+import NotificationPanel from "./NotificationPanel";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isMoreOpen, setIsMoreOpen] = useState(false);
+  const [showNotificationPanel, setShowNotificationPanel] = useState(false);
+
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
-  
+
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
-    setIsMoreOpen(false); 
+    setIsMoreOpen(false);
   };
 
   const toggleMore = () => {
     setIsMoreOpen(!isMoreOpen);
-    setIsMenuOpen(false); 
+    setIsMenuOpen(false);
   };
 
   const handleNavigation = (path: string) => {
-    navigate(path); 
+    navigate(path);
     setIsMenuOpen(false);
-    setIsMoreOpen(false); 
+    setIsMoreOpen(false);
   };
 
   const handleLogout = async () => {
     try {
-      await dispatch(logout()).unwrap(); 
-      navigate("/"); 
+      await dispatch(logout()).unwrap();
+      navigate("/");
     } catch (err: any) {
       console.error("Logout failed:", err);
     }
-  }
+  };
 
   return (
     <header className="w-full">
       {/* First Division */}
       <div className="bg-green-100 text-dark p-4 flex justify-between items-center">
         <div className="flex items-center space-x-4">
-        <button onClick={() => handleNavigation("/profile")}>
+          <button onClick={() => handleNavigation("/profile")}>
             <FaUserCircle className="w-8 h-8 cursor-pointer hover:text-green-600" />
           </button>
           <span className="text-xl font-bold">ReNeWaste</span>
         </div>
 
         <div className="flex items-center space-x-6">
-          <FaBell className="w-6 h-6 cursor-pointer hover:text-green-600" />
+          <FaBell
+            className="w-6 h-6 cursor-pointer hover:text-green-600"
+            onClick={() => setShowNotificationPanel((prev) => !prev)}
+          />
           <div className="md:hidden relative">
             <button
               onClick={toggleMore}
@@ -89,7 +95,7 @@ const Header = () => {
           </div>
 
           <div className="hidden md:flex items-center space-x-6">
-                        <button
+            <button
               onClick={() => handleNavigation("/drop-spots")}
               className="hover:text-green-600"
             >
@@ -107,10 +113,7 @@ const Header = () => {
             >
               Payments
             </button>
-            <button
-              onClick={handleLogout}
-              className="hover:text-green-600"
-            >
+            <button onClick={handleLogout} className="hover:text-green-600">
               Logout
             </button>
           </div>
@@ -182,6 +185,11 @@ const Header = () => {
           About Us
         </button>
       </div>
+      {showNotificationPanel && (
+        <div className="absolute right-4 top-16 z-50 bg-white shadow-lg rounded-md p-4 w-80">
+          <NotificationPanel onClose={() => setShowNotificationPanel(false)} />
+        </div>
+      )}
     </header>
   );
 };

@@ -67,7 +67,8 @@ export class UserController implements IUserController {
       res.cookie("refreshToken", refreshToken, cookieOptions).status(200).json({
         success: true,
         message: "Login successful",
-        user: safeUser,
+        role: safeUser.role,
+        userId: safeUser._id,
         token,
       });
     } catch (error: any) {

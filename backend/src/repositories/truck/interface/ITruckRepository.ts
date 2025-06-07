@@ -16,7 +16,7 @@ export interface ITruckRepository {
     search: string
   ): Promise<PaginatedTrucksResult>;
   getAvailableTrucks(driverId: string, plantId: string): Promise<any>;
-  getTruckById(truckId: string): Promise<ITruck | null>;
+  getTruckById(truckId: string): Promise<ITruckDocument | null>;
   updateTruckById(truckId: string, data: any): Promise<ITruck | null>;
   deleteTruckById(truckId: string): Promise<ITruck | null>;
   reqTruckToWastePlant(driverId: string): Promise<any>;

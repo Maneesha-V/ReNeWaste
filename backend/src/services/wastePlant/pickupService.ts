@@ -13,6 +13,7 @@ import { IDriverRepository } from "../../repositories/driver/interface/IDriverRe
 import { INotificationRepository } from "../../repositories/notification/interface/INotifcationRepository";
 import { ITruckRepository } from "../../repositories/truck/interface/ITruckRepository";
 import { IWastePlantRepository } from "../../repositories/wastePlant/interface/IWastePlantRepository";
+import { IUserRepository } from "../../repositories/user/interface/IUserRepository";
 
 @injectable()
 export class PickupService implements IPickupService {
@@ -26,7 +27,9 @@ export class PickupService implements IPickupService {
     @inject(TYPES.TruckRepository)
     private truckRepository: ITruckRepository,
     @inject(TYPES.WastePlantRepository)
-    private wastePlantRepository: IWastePlantRepository
+    private wastePlantRepository: IWastePlantRepository,
+    @inject(TYPES.UserRepository)
+    private userRepository: IUserRepository
   ) {}
   async getPickupRequestService(
     filters: PickupFilterParams
@@ -48,8 +51,12 @@ export class PickupService implements IPickupService {
     await this.driverRepository.updateDriverTruck(driverId, assignedTruckId);
     const driver = await this.driverRepository.getDriverById(driverId);
     const truck = await this.truckRepository.getTruckById(assignedTruckId);
+    // const user = await this.userRepository.findById(
+    //   updatedPickup.userId.toString()
+    // );
 
-    if (!driver || !truck) throw new Error("Driver or Truck not found");
+    if (!driver || !truck)
+      throw new Error("Driver or Truck or User not found");
     const plant = await this.wastePlantRepository.getWastePlantById(
       driver.wasteplantId!.toString()
     );
@@ -59,19 +66,36 @@ export class PickupService implements IPickupService {
         "Driver's plant does not match pickup's plant. Skipping notification."
       );
     }
-    const message = `New pickup task assigned: Truck ${truck.vehicleNumber} from ${plant.plantName}.`;
-    const notification = await this.notificationRepository.createNotification({
-      receiverId: driverId,
-      receiverType: "driver",
-      message,
-      type: "pickup_scheduled",
-    });
-    console.log("notification", notification);
 
     const io = global.io;
 
+    const driverMessage = `New pickup task assigned: Truck ${truck.vehicleNumber} from ${plant.plantName}.`;
+    const driverNotification =
+      await this.notificationRepository.createNotification({
+        receiverId: driverId,
+        receiverType: "driver",
+        message: driverMessage,
+        type: "pickup_scheduled",
+      });
+    console.log("driverNotification", driverNotification);
+
     if (io) {
-      io.to(`${driverId}`).emit("newNotification", notification);
+      io.to(`${driverId}`).emit("newNotification", driverNotification);
+    }
+    const userId = updatedPickup.userId.toString()
+    const userMessage = `Your pickup request has been approved. Driver ${driver.name} with truck ${truck.vehicleNumber} is assigned.`;
+    const userNotification =
+      await this.notificationRepository.createNotification({
+        receiverId: userId,
+        receiverType: "user",
+        message: userMessage,
+        type: "pickup_approved",
+      });
+
+    console.log("userNotification", driverNotification);
+
+    if (io) {
+      io.to(`${userId}`).emit("newNotification", userNotification);
     }
 
     return updatedPickup;
@@ -108,10 +132,20 @@ export class PickupService implements IPickupService {
     if (existingPickup?.wasteplantId?.toString() !== wasteplantId.toString()) {
       throw new Error("Pickup not belongs this wasteplant.");
     }
-    await this.driverRepository.updateDriverAssignedZone(
+    const driver = await this.driverRepository.updateDriverAssignedZone(
       data.driverId,
       data.assignedZone
     );
+    
+    if(!driver) {
+      throw new Error("Driver not found.")
+    }
+    const truckId = driver?.assignedTruckId;
+    if (!truckId) {
+  throw new Error("Truck ID is missing for the assigned driver.");
+}
+    const truck = await this.truckRepository.getTruckById(truckId.toString());
+
     const updatedPickup = await this.pickupRepository.updatePickupDate(
       pickupReqId,
       {
@@ -133,21 +167,34 @@ export class PickupService implements IPickupService {
         "Driver's plant does not match pickup's plant. Skipping notification."
       );
     }
-    const message = `Pickup ${updatedPickup.pickupId} is rescheduled to you from ${plant.plantName}.`;
-    const notification = await this.notificationRepository.createNotification({
-      receiverId: data.driverId,
-      receiverType: "driver",
-      message,
-      type: "pickup_rescheduled",
-    });
-    console.log("notification", notification);
-
     const io = global.io;
 
+    const driverMessage  = `Pickup ${updatedPickup.pickupId} is rescheduled to you from ${plant.plantName}.`;
+    const driverNotification  = await this.notificationRepository.createNotification({
+      receiverId: data.driverId,
+      receiverType: "driver",
+      message: driverMessage,
+      type: "pickup_rescheduled",
+    });
+    console.log("driverNotification", driverNotification);
+
     if (io) {
-      io.to(`${data.driverId}`).emit("newNotification", notification);
+      io.to(`${data.driverId}`).emit("newNotification", driverNotification );
     }
 
+    const userId = existingPickup.userId.toString();
+  const userMessage  = `Your pickup ID ${updatedPickup.pickupId} is rescheduled. Driver ${driver.name} with truck ${truck?.vehicleNumber} is assigned.`;
+    const userNotification  = await this.notificationRepository.createNotification({
+      receiverId: userId,
+      receiverType: "user",
+      message: userMessage,
+      type: "pickup_rescheduled",
+    });
+    console.log("userNotification", userNotification);
+
+    if (io) {
+      io.to(`${userId}`).emit("newNotification", userNotification );
+    }
     return updatedPickup;
   }
   async getAvailableDriverService(location: string, plantId: string) {
