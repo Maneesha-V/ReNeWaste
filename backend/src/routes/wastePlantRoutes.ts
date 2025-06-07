@@ -11,6 +11,9 @@ import uploadImages from "../middlewares/imageUploader";
 import TYPES from "../config/inversify/types";
 import container from "../config/inversify/container";
 import { NotificationController } from "../controllers/wastePlant/notificationController";
+import { DashboardController } from "../controllers/wastePlant/dashboardController";
+import { SubscriptionController } from "../controllers/wastePlant/subscriptionController";
+import { PaymentController } from "../controllers/wastePlant/paymentController";
 
 const router = express.Router();
 const plantCtrl = container.get<AuthController>(TYPES.PlantAuthController);
@@ -21,6 +24,10 @@ const plantDropSpotCtrl = container.get<DropSpotController>(TYPES.PlantDropSpotC
 const plantChatCtrl = container.get<ChatController>(TYPES.PlantChatController);
 const plantUserCtrl = container.get<UserController>(TYPES.PlantUserController);
 const plantNotificationCtrl = container.get<NotificationController>(TYPES.PlantNotificationController);
+const plantDashboardCtrl = container.get<DashboardController>(TYPES.PlantDashboardController);
+const plantSubscriptionCtrl = container.get<SubscriptionController>(TYPES.PlantSubscriptionController);
+const plantPaymentCtrl = container.get<PaymentController>(TYPES.PlantPaymentController);
+
 
 router.get("/refresh-token", plantCtrl.refreshToken.bind(plantCtrl));
 router.post("/", plantCtrl.wastePlantLogin.bind(plantCtrl));
@@ -74,5 +81,6 @@ router.patch("/users/:userId/block", authenticateWastePlant as RequestHandler, p
 router.get("/notifications", authenticateWastePlant as RequestHandler, plantNotificationCtrl.fetchNotifications.bind(plantNotificationCtrl))
 router.patch("/notifications/:notifId/read", authenticateWastePlant as RequestHandler, plantNotificationCtrl.markReadNotification.bind(plantNotificationCtrl))
 router.post("/waste-measurement", authenticateWastePlant as RequestHandler, plantNotificationCtrl.saveWasteMeasurement.bind(plantNotificationCtrl))
+router.get("/dashboard", authenticateWastePlant as RequestHandler, plantDashboardCtrl.fetchDashboardData.bind(plantDashboardCtrl))
 
 export default router;
