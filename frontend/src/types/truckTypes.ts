@@ -3,6 +3,7 @@ export interface TruckFormData {
     vehicleNumber: string,
     capacity: number,
     status: "Active" | "Inactive" | "Suspended",
+    tareWeight: number,
   }
 export type PartialTruckFormData = Partial<TruckFormData>;
 export interface ValidationErrors {

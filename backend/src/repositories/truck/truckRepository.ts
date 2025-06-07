@@ -10,6 +10,7 @@ import TYPES from "../../config/inversify/types";
 import BaseRepository from "../baseRepository/baseRepository";
 import { IDriverRepository } from "../driver/interface/IDriverRepository";
 import { Types } from "mongoose";
+import { ReturnFetchAllTrucksByPlantId } from "./types/truckTypes";
 
 @injectable()
 export class TruckRepository
@@ -22,7 +23,9 @@ export class TruckRepository
   ) {
     super(TruckModel);
   }
-  async findTruckByVehicle(vehicleNumber: string): Promise<ITruckDocument | null> {
+  async findTruckByVehicle(
+    vehicleNumber: string
+  ): Promise<ITruckDocument | null> {
     return await this.model.findOne({ vehicleNumber });
   }
   async createTruck(data: ITruck): Promise<ITruckDocument> {
@@ -68,17 +71,20 @@ export class TruckRepository
     const total = await this.model.countDocuments(query);
 
     return { trucks, total };
-    // return await TruckModel.find({wasteplantId: plantId});
   }
-  async getAvailableTrucks(driverId: string, plantId: string): Promise<ITruck[]> {
+  async getAvailableTrucks(
+    driverId: string,
+    plantId: string
+  ): Promise<ITruck[]> {
     const existingTruck = await this.model
       .findOne({
-        assignedDriver: driverId, wasteplantId: plantId
+        assignedDriver: driverId,
+        wasteplantId: plantId,
       })
       .populate("wasteplantId");
     if (existingTruck) {
       return [existingTruck];
-    } 
+    }
 
     return await this.model
       .find({ assignedDriver: null, wasteplantId: plantId })
@@ -163,7 +169,7 @@ export class TruckRepository
     await this.model.findByIdAndUpdate(objectIdTruck, {
       $set: {
         assignedDriver: objectIdDriver,
-        isReturned: false
+        isReturned: false,
       },
     });
   }
@@ -187,7 +193,38 @@ export class TruckRepository
     }
     return truck;
   }
-    async findTruckByName(name: string): Promise<ITruckDocument | null> {
-      return await this.model.findOne({ name });
+  async findTruckByName(name: string): Promise<ITruckDocument | null> {
+    return await this.model.findOne({ name });
+  }
+  async fetchAllTrucksByPlantId(
+    plantId: string
+  ): Promise<ReturnFetchAllTrucksByPlantId> {
+    const truckCounts = await this.model.aggregate([
+      {
+        $match: {
+          wasteplantId: new Types.ObjectId(plantId),
+        },
+      },
+      {
+        $group: {
+          _id: "$status",
+          totalCount: { $sum: 1 },
+        },
+      },
+    ]);
+    let active = 0;
+    let inactive = 0;
+    let maintenance = 0;
+    for (const record of truckCounts) {
+      if (record._id === "Active") {
+        active = record.totalCount;
+      } else if (record._id === "Inactive") {
+        inactive = record.totalCount;
+      } else if (record._id === "Maintenance") {
+        maintenance = record.totalCount;
+      }
     }
+
+    return { active, inactive, maintenance };
+  }
 }

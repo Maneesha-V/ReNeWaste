@@ -66,7 +66,7 @@ export const useWastePlantValidation = () => {
       case "licenseNumber":
         if (!value.trim()) error = `${label} is required.`;
         break;
-
+      case "tareWeight":
       case "capacity":
       case "experience":
         if (!value) error = `${label} is required.`;

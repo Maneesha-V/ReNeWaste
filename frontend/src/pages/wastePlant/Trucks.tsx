@@ -97,7 +97,7 @@ const Trucks: React.FC = () => {
           >
             <Table.Column title="Name" dataIndex="name" key="name" />
             <Table.Column title="Vehicle No" dataIndex="vehicleNumber" key="licenseNumber" />
-            <Table.Column title="Capacity" dataIndex="capacity" key="capacity" />
+            <Table.Column title="Capacity (Kg)" dataIndex="capacity" key="capacity" />
             <Table.Column
               title="Status"
               dataIndex="status"

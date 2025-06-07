@@ -16,6 +16,7 @@ const AddTruck = () => {
     vehicleNumber: "",
     capacity: 0,
     status: "Active",
+    tareWeight: 0
   });
 
   const handleBlur = (
@@ -110,7 +111,7 @@ const AddTruck = () => {
           </div>
           {/* Capacity */}
           <div>
-            <label className="block text-gray-700 font-medium">Capacity</label>
+            <label className="block text-gray-700 font-medium">Capacity (Kg)</label>
             <input
               type="number"
               name="capacity"
@@ -121,6 +122,21 @@ const AddTruck = () => {
             />
             {errors.capacity && (
               <p className="text-red-500 text-sm">{errors.capacity}</p>
+            )}
+          </div>
+             {/* Tare Weight */}
+          <div>
+            <label className="block text-gray-700 font-medium">Tare Weight (Kg)</label>
+            <input
+              type="number"
+              name="tareWeight"
+              value={formData.tareWeight}
+              onChange={handleChange}
+              onBlur={handleBlur}
+              className="w-full border px-3 py-2 rounded-md focus:ring-2 focus:ring-green-500"
+            />
+            {errors.tareWeight && (
+              <p className="text-red-500 text-sm">{errors.tareWeight}</p>
             )}
           </div>
           {/* Status */}

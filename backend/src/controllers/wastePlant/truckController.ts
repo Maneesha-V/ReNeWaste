@@ -22,6 +22,7 @@ export class TruckController implements ITruckController {
       const truckData: ITruck = {
         ...req.body,
         capacity: Number(req.body.capacity),
+        tareWeight: Number(req.body.tareWeight),
         wasteplantId: new mongoose.Types.ObjectId(plantId),
       };
 
