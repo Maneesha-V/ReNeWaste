@@ -248,7 +248,7 @@ container.bind<IPlantUserService>(TYPES.PlantUserService).to(PlantUserService);
 container.bind<IPlantNotificationService>(TYPES.PlantNotificationService).to(PlantNotificationService);
 container.bind<IPlantSubscriptionService>(TYPES.PlantSubscriptionService).to(PlantSubscriptionService);
 container.bind<IPlantPaymentService>(TYPES.PlantPaymentService).to(PlantPaymentService);
-container.bind<IPlantDashboardService>(TYPES.PlantPaymentController).to(PlantDashboardService);
+container.bind<IPlantDashboardService>(TYPES.PlantDashboardService).to(PlantDashboardService);
 
 //driver
 container.bind<IDriverAuthService>(TYPES.DriverAuthService).to(DriverAuthService);
