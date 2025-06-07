@@ -1,15 +1,17 @@
-export interface Message {
+export type Message = {
     senderRole:string;
     sender: string;
     text: string;
     conversationId: string;
   }
-  export interface ConversationIdPayload {
+  type Role = "driver" | "user" | "wasteplant" | "superadmin";
+  
+  export type ConversationIdPayload = {
     senderId: string;
-    senderRole: "driver" | "user" | "wasteplant" | "superadmin";
+    senderRole: Role;
     receiverId: string;
-    receiverRole: "driver" | "user" | "wasteplant" | "superadmin";
+    receiverRole: Role;
   }
-  export interface MessagesPayload {
+  export type MessagesPayload = {
     conversationId: string;
   }

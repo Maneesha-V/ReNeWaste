@@ -1,25 +1,4 @@
-export interface SignupResponse {
-    user: {
-      _id: string;
-      firstName: string;
-      lastName: string;
-      phone: string;
-      email: string;
-    };
-    token: string;
-  }
-  
-  export interface LoginResponse {
-    user: {
-      _id: string;
-      firstName: string;
-      lastName: string;
-      email: string;
-    };
-    token: string;
-  }
-  
-  export interface SignupRequest {
+  export type SignupRequest = {
     firstName: string;
     lastName: string;
     phone: string;
@@ -28,12 +7,12 @@ export interface SignupResponse {
     confirmPassword: string;  
     agreeToTerms: boolean;
   }
-  export interface SignupSuperAdminRequest {
+  export type SignupSuperAdminRequest = {
     username: string;
     email: string;
     password: string;
   }
-  export interface LoginRequest {
+  export type LoginRequest = {
     email: string;
     password: string;
   }
@@ -50,4 +29,24 @@ export interface SignupResponse {
     confirmPassword?: string;  
     agreeToTerms?: string;
   };
+  export type SignupResponse = {
+    user: {
+      _id: string;
+      firstName: string;
+      lastName: string;
+      phone: string;
+      email: string;
+    };
+    token: string;
+  }
+  
+  export type LoginResponse = {
+    user: {
+      _id: string;
+      firstName: string;
+      lastName: string;
+      email: string;
+    };
+    token: string;
+  }
   

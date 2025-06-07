@@ -12,9 +12,7 @@ export interface BreadcrumbItem {
   label: string;
   path?: string;
 }
-// export interface BreadcrumbsProps {
-//   paths: BreadcrumbItem[];
-// }
+
 export interface BreadcrumbsProps {
   paths: BreadcrumbItem[];
   fullWidth?: boolean;
