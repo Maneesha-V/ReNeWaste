@@ -82,5 +82,6 @@ router.get("/notifications", authenticateWastePlant as RequestHandler, plantNoti
 router.patch("/notifications/:notifId/read", authenticateWastePlant as RequestHandler, plantNotificationCtrl.markReadNotification.bind(plantNotificationCtrl))
 router.post("/waste-measurement", authenticateWastePlant as RequestHandler, plantNotificationCtrl.saveWasteMeasurement.bind(plantNotificationCtrl))
 router.get("/dashboard", authenticateWastePlant as RequestHandler, plantDashboardCtrl.fetchDashboardData.bind(plantDashboardCtrl))
+router.get("/payment", authenticateWastePlant as RequestHandler, plantPaymentCtrl.fetchPayments.bind(plantPaymentCtrl))
 
 export default router;

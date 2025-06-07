@@ -22,6 +22,7 @@ import {
   PickupStatusByWasteType,
   WasteType,
   RevenueByWasteType,
+  PaymentRecord
 } from "./types/pickupTypes";
 
 @injectable()
@@ -504,5 +505,65 @@ export class PickupRepository
       totalCommercialRevenue,
       totalRevenue,
     };
+  }
+  async fetchAllPaymentsByPlantId(plantId: string): Promise<PaymentRecord[]> {
+    const res = await this.model.aggregate([
+      {
+        $match: {
+          wasteplantId: new Types.ObjectId(plantId),
+          "payment.status": "Paid",
+        },
+      },
+      {
+        $lookup: {
+          from: "drivers",
+          localField: "driverId",
+          foreignField: "_id",
+          as: "driver",
+        },
+      },
+      {
+        $unwind: {
+          path: "$driver",
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "userId",
+          foreignField: "_id",
+          as: "user",
+        },
+      },
+      {
+        $unwind: {
+          path: "$user",
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+      {
+        $project: {
+          _id: 0, 
+          pickupId: 1,
+          wasteType: 1,
+          "payment.status": 1,
+          "payment.razorpayPaymentId": 1,
+          "payment.amount": 1,
+          "payment.paidAt": 1,
+          driverName: "$driver.name",
+          userName: { $concat: ["$user.firstName", " ", "$user.lastName"] },
+          dueDate: {
+            $cond: {
+              if: { $ne: ["$rescheduledPickupDate", null] },
+              then: "$rescheduledPickupDate",
+              else: "$originalPickupDate",
+            },
+          },
+        },
+      },
+    ]);
+    console.log("res", res);
+    return res;
   }
 }

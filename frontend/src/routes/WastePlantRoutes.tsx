@@ -19,6 +19,7 @@ import AddDropSpot from "../pages/wastePlant/AddDropSpot";
 import DropSpots from "../pages/wastePlant/DropSpots";
 import EditDropSpot from "../pages/wastePlant/EditDropSpot";
 import Users from "../pages/wastePlant/Users";
+import Payments from "../pages/wastePlant/Payments";
 
 const WastePlantRoutes = () => {
   return (
@@ -47,6 +48,7 @@ const WastePlantRoutes = () => {
           <Route path="/edit-drop-spot/:dropSpotId" element={<EditDropSpot />} />
           <Route path="/users" element={<Users />} />
           <Route path="/chat" element={<WastePlantChat />} />
+          <Route path="/payment" element={<Payments />} />
         </Route>
       </Route>
       

@@ -64,8 +64,8 @@ const SidebarWastePlant = ({
     {
       key: "pay-earn",
       icon: <DollarOutlined />,
-      label: "Pay & Earn",
-      path: "/waste-plant/pay-earn",
+      label: "Payments",
+      path: "/waste-plant/payment",
     },
     {
       key: "subscription",
