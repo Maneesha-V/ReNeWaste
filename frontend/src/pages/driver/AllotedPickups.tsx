@@ -12,8 +12,9 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 
 const AllotedPickups = () => {
+  const driverCategory = sessionStorage.getItem("driver_category");
   const [activeTab, setActiveTab] = useState<"Residential" | "Commercial">(
-    "Residential"
+   driverCategory === "Commercial" ? "Commercial" : "Residential"
   );
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
@@ -21,7 +22,8 @@ const AllotedPickups = () => {
     (state: RootState) => state.driverPickups
   );
   const token = sessionStorage.getItem("driver_token");
-  console.log("to", token);
+  
+  console.log("category", driverCategory);
 
   useEffect(() => {
     if (!token) return;
@@ -49,19 +51,31 @@ const AllotedPickups = () => {
 
       {/* Waste Type Toggle */}
       <div className="flex gap-2">
-        {["Residential", "Commercial"].map((type) => (
+
+        {driverCategory === "Residential" && (
           <button
-            key={type}
             className={`px-4 py-2 rounded-md border font-medium transition ${
-              activeTab === type
+              activeTab === "Residential"
                 ? "bg-green-600 text-white border-green-600"
                 : "bg-white text-green-600 border-green-600 hover:bg-green-100"
             }`}
-            onClick={() => setActiveTab(type as "Residential" | "Commercial")}
+            onClick={() => setActiveTab("Residential")}
           >
-            {type}
+            Residential
           </button>
-        ))}
+        )}
+ {driverCategory === "Commercial" && (
+    <button
+      className={`px-4 py-2 rounded-md border font-medium transition ${
+        activeTab === "Commercial"
+          ? "bg-green-600 text-white border-green-600"
+          : "bg-white text-green-600 border-green-600 hover:bg-green-100"
+      }`}
+      onClick={() => setActiveTab("Commercial")}
+    >
+      Commercial
+    </button>
+  )}
       </div>
 
       {loading ? (
@@ -143,12 +157,6 @@ const AllotedPickups = () => {
                     Go
                   </Button>
                   {record.status !== "Completed" && (
-                    // <Button
-                    //   type="primary"
-                    //   onClick={() => handleMarkAsCompleted(record._id)}
-                    // >
-                    //   Mark as Completed
-                    // </Button>
                     <Popconfirm
                       title="Are you sure you want to mark this pickup as completed?"
                       onConfirm={() => handleMarkAsCompleted(record._id)}

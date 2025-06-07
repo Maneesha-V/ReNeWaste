@@ -11,6 +11,7 @@ export const loginDriver = async (driverData: LoginRequest) => {
       sessionStorage.setItem("driver_token", response.data.token);
       sessionStorage.setItem("driver_role", response.data.role);
       sessionStorage.setItem("driver_id", response.data.driverId);
+      sessionStorage.setItem("driver_category", response.data.category);
     }
     console.log("res",response);
 
@@ -29,6 +30,7 @@ export const logoutDriver = async () => {
     sessionStorage.removeItem("driver_token");
     sessionStorage.removeItem("driver_role");
     sessionStorage.removeItem("driver_id");
+    sessionStorage.removeItem("driver_category");
     return response.data;
   } catch (error: any) {
     console.error("err",error)

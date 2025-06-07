@@ -51,7 +51,7 @@ export class AuthController implements IAuthController {
             res.cookie("refreshToken", refreshToken, cookieOptions).status(200).json({
               success: true,
               message: "Login successful",
-              // driver: safeDriver,
+              category: safeDriver.category,
               role: safeDriver.role,
               driverId: safeDriver._id,
               token,
