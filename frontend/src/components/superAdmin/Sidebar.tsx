@@ -12,7 +12,7 @@ const Sidebar = ({ collapsed }: AdminSidebarProps) => {
   const menuItems = [
     { key: 'dashboard', icon: <DashboardOutlined />, label: 'Dashboard', path: '/super-admin/dashboard' },
     { key: 'waste-plants', icon: <EnvironmentOutlined />, label: 'Waste Plants', path: '/super-admin/waste-plants' },
-    { key: 'subscription-fee', icon: <DollarOutlined />, label: 'Subscription Fee', path: '/super-admin/subscription-fee' },
+    { key: 'subscription-plans', icon: <DollarOutlined />, label: 'Subscription Plans', path: '/super-admin/subscription-plans' },
     { key: 'payment-history', icon: <HistoryOutlined />, label: 'Payment History', path: '/super-admin/payment-history' },
   ];
 

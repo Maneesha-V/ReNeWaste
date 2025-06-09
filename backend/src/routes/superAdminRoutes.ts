@@ -7,12 +7,14 @@ import { AuthController } from "../controllers/superAdmin/authController";
 import { WastePlantController } from "../controllers/superAdmin/wastePlantController";
 import { DashboardController } from "../controllers/superAdmin/dashboardController";
 import { NotificationController } from "../controllers/superAdmin/notificationController";
+import { SubscriptionController } from "../controllers/superAdmin/subscriptionController";
 
 const router = express.Router()
 const superAdminCtrl = container.get<AuthController>(TYPES.SuperAdminAuthController);
 const superAdminPlantCtrl = container.get<WastePlantController>(TYPES.SuperAdminPlantController);
 const superAdminDashbdCtrl = container.get<DashboardController>(TYPES.SuperAdminDashboardController);
 const superAdminNotificationCtrl = container.get<NotificationController>(TYPES.SuperAdminNotificationController);
+const superAdminSubscriptionCtrl = container.get<SubscriptionController>(TYPES.SuperAdminSubscriptionController);
 
 router.get("/refresh-token", superAdminCtrl.refreshToken.bind(superAdminCtrl))
 router.post("/",superAdminCtrl.superAdminLogin.bind(superAdminCtrl))
@@ -27,6 +29,11 @@ router.post("/add-waste-plant",authenticateSuperAdmin as RequestHandler, upload.
 router.get("/edit-waste-plant/:id",authenticateSuperAdmin as RequestHandler, superAdminPlantCtrl.getWastePlantById.bind(superAdminPlantCtrl))
 router.patch("/edit-waste-plant/:id", authenticateSuperAdmin as RequestHandler, upload.single("licenseDocument"),superAdminPlantCtrl.updateWastePlant.bind(superAdminPlantCtrl))
 router.delete("/delete-waste-plant/:id", authenticateSuperAdmin as RequestHandler,superAdminPlantCtrl.deleteWastePlantById.bind(superAdminPlantCtrl))
+router.post("/add-subscription-plan", authenticateSuperAdmin as RequestHandler, superAdminSubscriptionCtrl.createSubscriptionPlan.bind(superAdminSubscriptionCtrl))
+router.get("/subscription-plans", authenticateSuperAdmin as RequestHandler, superAdminSubscriptionCtrl.fetchSubscriptionPlans.bind(superAdminSubscriptionCtrl))
+router.delete("/delete-subscription-plan/:id",authenticateSuperAdmin as RequestHandler, superAdminSubscriptionCtrl.deleteSubscriptionPlan.bind(superAdminSubscriptionCtrl));
+router.get("/edit-subscription-plan/:id", authenticateSuperAdmin as RequestHandler, superAdminSubscriptionCtrl.getSubscriptionPlanById.bind(superAdminSubscriptionCtrl))
+router.patch("/edit-subscription-plan/:id", authenticateSuperAdmin as RequestHandler, superAdminSubscriptionCtrl.updateSubscriptionPlanById.bind(superAdminSubscriptionCtrl));
 
 export default router;
 

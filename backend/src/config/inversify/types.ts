@@ -94,6 +94,7 @@ const TYPES = {
   ConversationRepository: Symbol.for("ConversationRepository"),
   NotificationRepository: Symbol.for("NotificationRepository"),
   WasteCollectionRepository: Symbol.for("WasteCollectionRepository"),
+  SubscriptionPlanRepository: Symbol.for("SubscriptionPlanRepository"),
   
   //-factories--
   DriverRepositoryFactory: Symbol.for("DriverRepositoryFactory"),

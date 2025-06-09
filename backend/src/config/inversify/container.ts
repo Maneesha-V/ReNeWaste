@@ -171,6 +171,8 @@ import { INotificationRepository } from "../../repositories/notification/interfa
 import { NotificationRepository } from "../../repositories/notification/notificationRepository";
 import { IWasteCollectionRepository } from "../../repositories/wasteCollection/interface/IWasteCollectionRepository";
 import { WasteCollectionRepository } from "../../repositories/wasteCollection/wasteCollectionRepository";
+import { ISubscriptionPlanRepository } from "../../repositories/subscriptionPlan/interface/ISubscriptionPlanRepository";
+import { SubscriptionPlanRepository } from "../../repositories/subscriptionPlan/subscriptionPlanRepository";
 
 
 
@@ -272,6 +274,7 @@ container.bind<ITruckRepository>(TYPES.TruckRepository).to(TruckRepository).inSi
 container.bind<IDriverRepository>(TYPES.DriverRepository).to(DriverRepository).inSingletonScope();
 container.bind<INotificationRepository>(TYPES.NotificationRepository).to(NotificationRepository);
 container.bind<IWasteCollectionRepository>(TYPES.WasteCollectionRepository).to(WasteCollectionRepository);
+container.bind<ISubscriptionPlanRepository>(TYPES.SubscriptionPlanRepository).to(SubscriptionPlanRepository);
 
 // Bind factory for circular dep
 container.bind<() => IDriverRepository>(TYPES.DriverRepositoryFactory)

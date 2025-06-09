@@ -10,6 +10,9 @@ import ForgotPassword from "../pages/superAdmin/ForgotPassword"
 import Unauthorized from "../pages/superAdmin/Unauthorized"
 import NotFoundPage from "../pages/superAdmin/NotFoundPage"
 import { ProtectedAuthRoute, ProtectedRoute } from "../components/superAdmin/ProtectedRoute"
+import SubscriptionPlans from "../pages/superAdmin/SubscriptionPlans"
+import AddSubscriptionPlan from "../pages/superAdmin/AddSubscriptionPlan"
+import EditSubscriptionPlan from "../pages/superAdmin/EditSubscriptionPlan"
 
 
 const SuperAdminRoutes = () => {
@@ -29,6 +32,9 @@ const SuperAdminRoutes = () => {
           <Route path="/waste-plants" element={<WastePlants />} />
           <Route path="/add-waste-plant" element={<AddWastePlant />} />
           <Route path="/edit-waste-plant/:id" element={<EditWastePlant />} />
+          <Route path="/subscription-plans" element={<SubscriptionPlans />} />
+          <Route path="/add-subscription-plan" element={<AddSubscriptionPlan />} />
+          <Route path="/edit-subscription-plan/:id" element={<EditSubscriptionPlan />} />
         </Route>
       </Route>
 

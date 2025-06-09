@@ -7,11 +7,11 @@ export const createWastePlant = async (wastePlantData: FormData) => {
     const response = await axiosSuperadmin.post(
       `/add-waste-plant`,
       wastePlantData,
-      {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      }
+      // {
+      //   headers: {
+      //     "Content-Type": "multipart/form-data",
+      //   },
+      // }
     );
     console.log("res", response);
     return response.data;
@@ -42,11 +42,11 @@ export const updateWastePlantById = async (id: string, data: FormData) => {
     const response = await axiosSuperadmin.patch(
       `/edit-waste-plant/${id}`,
       data,
-      {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      }
+      // {
+      //   headers: {
+      //     "Content-Type": "multipart/form-data",
+      //   },
+      // }
     );
     console.log("res", response);
     return response.data;

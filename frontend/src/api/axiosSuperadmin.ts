@@ -4,9 +4,9 @@ import { store } from "../redux/store";
 
 const axiosSuperadmin = axios.create({
   baseURL: import.meta.env.VITE_SUPER_ADMIN_API_URL,
-  headers: {
-    "Content-Type": "application/json",
-  },
+  // headers: {
+  //   "Content-Type": "application/json",
+  // },
   withCredentials: true,
 });
 
