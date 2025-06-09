@@ -8,6 +8,9 @@ export interface IPayment {
   razorpaySignature: string | null;
   amount: number;
   paidAt: Date | null;
+  refundRequested: boolean;
+  refundStatus: "Pending" | "Refunded" | "Rejected" | null;
+  refundAt: Date | null;
 }
  export interface IPaymentDocument extends IPayment, Document {
       _id: Types.ObjectId;

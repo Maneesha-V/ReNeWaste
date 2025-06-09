@@ -32,6 +32,19 @@ export const PaymentSchema: Schema<IPaymentDocument> = new Schema(
       type: Date,
       default: null,
     },
+    refundRequested: {
+      type: Boolean,
+      default: false,
+    },
+    refundStatus: {
+      type: String,
+      enum: ["Pending", "Refunded", "Rejected", null],
+      default: null,
+    },
+    refundAt: {
+      type: Date,
+      default: null,
+    },
   },
   { _id: false } 
 );
