@@ -1,4 +1,5 @@
 import axiosWasteplant from "../../api/axiosWasteplant";
+import { PickupCancelData } from "../../types/wastePlantTypes";
 
 export const getPickups = async (
   wasteType: "Residential" | "Commercial",
@@ -34,10 +35,10 @@ export const getPickups = async (
     return response.data.data;
   };
 
-  export const cancelPickupReqById = async (pickupReqId: string, status: string) => {
+  export const cancelPickupReqById = async ({pickupReqId, reason}: PickupCancelData) => {
     try {
       const response = await axiosWasteplant.put(`/cancel-pickupReq/${pickupReqId}`, 
-      { status }, 
+      { reason }, 
       );
       return response.data;
     } catch (error: any) {

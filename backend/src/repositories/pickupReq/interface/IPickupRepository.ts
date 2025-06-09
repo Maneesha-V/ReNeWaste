@@ -1,7 +1,6 @@
 import { IPickupRequest, IPickupRequestDocument } from "../../../models/pickupRequests/interfaces/pickupInterface";
 import { PickupDriverFilterParams } from "../../../types/driver/pickupTypes";
 import { PickupFilterParams } from "../../../types/wastePlant/authTypes";
-import { IUpdatePickupRequest } from "../../../types/wastePlant/pickupTypes";
 import { PaymentRecord, PickupStatusByWasteType, RevenueByWasteType } from "../types/pickupTypes";
 export interface EnhancedPickup extends IPickupRequest {
     userFullName?: string;
@@ -12,7 +11,7 @@ export interface IPickupRepository {
     createPickup(pickupData: Partial<IPickupRequest>): Promise<IPickupRequestDocument>;
     getPickupsByPlantId(filters: PickupFilterParams): Promise<IPickupRequest[]>;
     updatePickupStatusAndDriver(pickupReqId: string,updateData: {status: string; driverId: string; }): Promise<IPickupRequestDocument>;
-    updatePickupRequest(pickupReqId: string, updatePayload: IUpdatePickupRequest): Promise<IPickupRequestDocument>;
+    updatePickupRequest(pickupReqId: string): Promise<IPickupRequestDocument>;
     updatePickupDate(pickupReqId: string, updateData: any): Promise<IPickupRequestDocument>;
     getPickupsByDriverId(filters: PickupDriverFilterParams): Promise<EnhancedPickup[]>;
     findPickupByIdAndDriver(pickupReqId: string, driverId: string): Promise<EnhancedPickup | null>;
@@ -30,4 +29,5 @@ export interface IPickupRepository {
     fetchAllPickupsByPlantId(plantId: string): Promise<PickupStatusByWasteType>;
     totalRevenueByPlantId(plantId: string): Promise<RevenueByWasteType>;
     fetchAllPaymentsByPlantId(plantId: string): Promise<PaymentRecord[]>;
+    updatePaymentStatus(pickupReqId: string): Promise<IPickupRequestDocument | null>;
 }

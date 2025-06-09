@@ -195,6 +195,8 @@ export class DriverRepository
     const notification = await this.notificationRepository.createNotification({
       receiverId: plantId,
       receiverType: "wasteplant",
+      senderId: driverId,
+      senderType: "driver",
       message,
       type: "truck_returned",
     });

@@ -22,6 +22,11 @@ const Payments = () => {
     key: index,
     serial: index + 1,
   }));
+const handleRefund = (pickupId: string) => {
+  // Replace with actual refund logic
+  console.log("Processing refund for", pickupId);
+  // dispatch(triggerRefund(pickupId)); // if you have a thunk
+};
 
   return (
     <div className="p-6 bg-green-50 min-h-screen">
@@ -71,6 +76,29 @@ const Payments = () => {
             );
           }}
         />
+                <Table.Column
+          title="Payment Status"
+          dataIndex={["payment", "status"]}
+          key="status"
+        />
+        
+<Table.Column
+  title="Action"
+  key="action"
+  render={(_, record: PaymentRecord) => {
+    if (record.payment.refundRequested && record.payment.refundStatus !== "Refunded") {
+      return (
+        <button
+          className="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600"
+          onClick={() => handleRefund(record._id)}
+        >
+          Refund
+        </button>
+      );
+    }
+    return null;
+  }}
+/>
       </Table>
     </div>
   );

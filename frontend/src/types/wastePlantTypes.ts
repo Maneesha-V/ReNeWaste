@@ -38,7 +38,7 @@ export type SidebarWastePlantProps = {
   children?: ReactNode;
   isNotifOpen: boolean;
 };
-export interface PickupRequest {
+export type PickupRequest = {
   _id: string;
   userId: string;
   userName: string;
@@ -48,4 +48,9 @@ export interface PickupRequest {
   pickupTime: string;
   pickupId: string;
   status: "Pending" | "Scheduled" | "Cancelled" | "Completed" | "Rescheduled";
+}
+// export type PickupCancelData = Pick<PickupRequest, '_id'>;
+export type PickupCancelData = {
+  pickupReqId: string;
+  reason: string;
 }

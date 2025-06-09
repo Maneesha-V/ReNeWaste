@@ -14,6 +14,8 @@ export class NotificationRepository extends BaseRepository<INotificationDocument
     const notification = new this.model({
       receiverId: data.receiverId,
       receiverType: data.receiverType,
+      senderId: data.senderId,
+      senderType: data.senderType,
       message: data.message,
       type: data.type
     });

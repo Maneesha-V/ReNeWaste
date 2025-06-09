@@ -54,5 +54,6 @@ router.get("/drop-spots", authenticateUser as RequestHandler, checkNotBlocked, d
 router.patch("/pickup-plan/cancel/:pickupReqId", authenticateUser as RequestHandler, checkNotBlocked, pickupCtrl.cancelPickupPlan.bind(pickupCtrl));
 router.get("/notifications", authenticateUser as RequestHandler, checkNotBlocked, notificationCtrl.fetchNotifications.bind(notificationCtrl))
 router.patch("/notifications/:notifId/read", authenticateUser as RequestHandler, notificationCtrl.markReadNotification.bind(notificationCtrl))
+router.patch("/cancel-pickupReq/:pickupReqId",authenticateUser as RequestHandler, pickupCtrl.cancelPickupReason.bind(pickupCtrl))
 
 export default router;

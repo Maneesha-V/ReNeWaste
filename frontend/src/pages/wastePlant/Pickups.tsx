@@ -2,10 +2,7 @@ import { useEffect, useState } from "react";
 import { Table, Button, Spin, Tag, Popconfirm } from "antd";
 import { CheckOutlined, CloseOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
-import {
-  cancelPickupReq,
-  fetchPickupReqsts,
-} from "../../redux/slices/wastePlant/wastePlantPickupSlice";
+import {cancelPickupReq, fetchPickupReqsts} from "../../redux/slices/wastePlant/wastePlantPickupSlice";
 import { useAppDispatch } from "../../redux/hooks";
 import { useSelector } from "react-redux";
 import { RootState } from "../../redux/store";
@@ -16,6 +13,7 @@ import {
 import AssignDriverModal from "../../components/wastePlant/AssignDriverModal";
 import ReschedulePickupModal from "../../components/wastePlant/ReschedulePickupModal";
 import { PickupRequest } from "../../types/wastePlantTypes";
+import InputMessage from "../../components/common/InputMessage";
 
 const Pickups = () => {
   const [activeTab, setActiveTab] = useState<"Residential" | "Commercial">(
@@ -30,6 +28,9 @@ const Pickups = () => {
   const [pickupToReschedule, setPickupToReschedule] = useState<any | null>(
     null
   );
+  const [cancelModalVisible, setCancelModalVisible] = useState(false);
+  const [cancelPickup, setCancelPickup] = useState<string | null>(null);
+
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const { loading, error } = useSelector(
@@ -55,18 +56,10 @@ const Pickups = () => {
 
   console.log("pickups", pickups);
 
-  const handleCancel = async (pickupReqId: string) => {
-    try {
-      await dispatch(
-        cancelPickupReq({ pickupReqId, status: "Cancelled" })
-      ).unwrap();
-      await dispatch(
-        fetchPickupReqsts({ wasteType: activeTab, status: statusTab })
-      );
-    } catch (error: any) {
-      console.error("Cancel failed:", error);
-    }
-  };
+  const handleCancel = async (pickup: string) => {
+      setCancelPickup(pickup);
+      setCancelModalVisible(true);
+  }
   const handleReschedule = async (pickup: PickupRequest) => {
     setPickupToReschedule(pickup);
     setRescheduleModalVisible(true);
@@ -357,6 +350,7 @@ const Pickups = () => {
                       <Popconfirm
                         key="cancel"
                         title="Are you sure you want to cancel this request?"
+                        // onConfirm={() => handleCancel(record._id)}
                         onConfirm={() => handleCancel(record._id)}
                         okText="Yes"
                         cancelText="No"
@@ -394,6 +388,17 @@ const Pickups = () => {
             fetchPickupReqsts({ wasteType: activeTab, status: statusTab })
           );
         }}
+      />
+      <InputMessage 
+        visible={cancelModalVisible}
+        onClose = {() => setCancelModalVisible(false)}
+        pickupId={cancelPickup}
+        cancelAction={cancelPickupReq}
+        onSuccess={() =>
+          dispatch(
+            fetchPickupReqsts({ wasteType: activeTab, status: statusTab })
+          )
+        }
       />
     </div>
   );

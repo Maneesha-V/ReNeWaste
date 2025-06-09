@@ -10,7 +10,6 @@ import {
   EnhancedPickup,
   IPickupRepository,
 } from "./interface/IPickupRepository";
-import { IUpdatePickupRequest } from "../../types/wastePlant/pickupTypes";
 import { PickupDriverFilterParams } from "../../types/driver/pickupTypes";
 import BaseRepository from "../baseRepository/baseRepository";
 import { inject, injectable } from "inversify";
@@ -133,13 +132,14 @@ export class PickupRepository
     return updated;
   }
   async updatePickupRequest(
-    pickupReqId: string,
-    updatePayload: IUpdatePickupRequest
+    pickupReqId: string
   ) {
     try {
       const updatedPickupRequest = await this.model.findByIdAndUpdate(
         pickupReqId,
-        { $set: updatePayload },
+        { $set: 
+          {status : "Cancelled"}
+         },
         { new: true }
       );
 
@@ -544,13 +544,15 @@ export class PickupRepository
       },
       {
         $project: {
-          _id: 0, 
           pickupId: 1,
           wasteType: 1,
           "payment.status": 1,
           "payment.razorpayPaymentId": 1,
           "payment.amount": 1,
           "payment.paidAt": 1,
+          "payment.refundStatus": 1,
+          "payment.refundRequested": 1,
+          "payment.refundAt": 1,
           driverName: "$driver.name",
           userName: { $concat: ["$user.firstName", " ", "$user.lastName"] },
           dueDate: {
@@ -565,5 +567,28 @@ export class PickupRepository
     ]);
     console.log("res", res);
     return res;
+  }
+   async updatePaymentStatus(
+    pickupReqId: string
+  ) {
+    try {
+      const updatedPickupRequest = await this.model.findByIdAndUpdate(
+        pickupReqId,
+        { $set: 
+          {
+            "payment.refundRequested": true,
+          }
+         },
+        { new: true }
+      );
+
+      if (!updatedPickupRequest) {
+        throw new Error("Pickup request not found.");
+      }
+      return updatedPickupRequest;
+    } catch (error) {
+      console.error(error);
+      throw new Error("Error in updating the pickup request.");
+    }
   }
 }

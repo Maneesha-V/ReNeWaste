@@ -2,7 +2,6 @@ import { IPickupRequest } from "../../models/pickupRequests/interfaces/pickupInt
 import { PickupFilterParams } from "../../types/wastePlant/authTypes";
 import {
   ApprovePickupDTO,
-  IUpdatePickupRequest,
   ReschedulePickupDTO,
 } from "../../types/wastePlant/pickupTypes";
 import { IPickupService } from "./interface/IPickupService";
@@ -38,7 +37,7 @@ export class PickupService implements IPickupService {
   }
 
   async approvePickupService(data: ApprovePickupDTO) {
-    const { pickupReqId, status, driverId, assignedTruckId } = data;
+    const { plantId, pickupReqId, status, driverId, assignedTruckId } = data;
 
     const updatedPickup =
       await this.pickupRepository.updatePickupStatusAndDriver(pickupReqId, {
@@ -47,6 +46,10 @@ export class PickupService implements IPickupService {
       });
 
     if (!updatedPickup) throw new Error("Pickup  not found or update failed");
+    
+    if(updatedPickup.wasteplantId?.toString() !== plantId){
+      throw new Error("Pickup  not belongs to this wasteplant");
+    }
 
     await this.driverRepository.updateDriverTruck(driverId, assignedTruckId);
     const driver = await this.driverRepository.getDriverById(driverId);
@@ -74,6 +77,8 @@ export class PickupService implements IPickupService {
       await this.notificationRepository.createNotification({
         receiverId: driverId,
         receiverType: "driver",
+        senderId: plantId,
+        senderType: "wasteplant",
         message: driverMessage,
         type: "pickup_scheduled",
       });
@@ -88,6 +93,8 @@ export class PickupService implements IPickupService {
       await this.notificationRepository.createNotification({
         receiverId: userId,
         receiverType: "user",
+        senderId: plantId,
+        senderType: "wasteplant",
         message: userMessage,
         type: "pickup_approved",
       });
@@ -100,17 +107,31 @@ export class PickupService implements IPickupService {
 
     return updatedPickup;
   }
-  async cancelPickupRequest(pickupReqId: string, status: string) {
+  async cancelPickupRequest(plantId: string, pickupReqId: string, reason: string) {
     try {
-      const updatePayload: IUpdatePickupRequest = {
-        status,
-      };
 
       const updatedPickupRequest =
         await this.pickupRepository.updatePickupRequest(
-          pickupReqId,
-          updatePayload
+          pickupReqId
         );
+    const io = global.io;
+
+    const userId = updatedPickupRequest.userId.toString();
+  const userMessage  = `Your pickup ID ${updatedPickupRequest.pickupId} is cancelled.${reason}`;
+    const userNotification  = await this.notificationRepository.createNotification({
+      receiverId: userId,
+      receiverType: "user",
+      senderId: plantId,
+      senderType: "wasteplant",
+      message: userMessage,
+      type: "pickup_cancelled",
+    });
+    console.log("userNotification", userNotification);
+
+    if (io) {
+      io.to(`${userId}`).emit("newNotification", userNotification );
+    }
+
       return updatedPickupRequest;
     } catch (error) {
       console.error(error);
@@ -173,6 +194,8 @@ export class PickupService implements IPickupService {
     const driverNotification  = await this.notificationRepository.createNotification({
       receiverId: data.driverId,
       receiverType: "driver",
+      senderId: wasteplantId,
+      senderType: "wasteplant",
       message: driverMessage,
       type: "pickup_rescheduled",
     });
@@ -187,6 +210,8 @@ export class PickupService implements IPickupService {
     const userNotification  = await this.notificationRepository.createNotification({
       receiverId: userId,
       receiverType: "user",
+      senderId: wasteplantId,
+      senderType: "wasteplant",
       message: userMessage,
       type: "pickup_rescheduled",
     });

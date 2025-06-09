@@ -1,5 +1,10 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { cancelUserPickup, getUserPickups } from "../../../services/user/pickupService";
+import {
+  cancelPickupReqById,
+  cancelUserPickup,
+  getUserPickups,
+} from "../../../services/user/pickupService";
+import { PickupCancelData } from "../../../types/wastePlantTypes";
 
 interface PickupState {
   pickups: any;
@@ -12,7 +17,7 @@ interface PickupState {
 
 const initialState: PickupState = {
   pickups: [],
-  selectedPickup: null, 
+  selectedPickup: null,
   eta: null,
   loading: false,
   message: null,
@@ -20,8 +25,7 @@ const initialState: PickupState = {
 };
 export const fetchtPickupPlans = createAsyncThunk(
   "userPickups/fetchtPickupPlans",
-  async (_, { rejectWithValue }
-  ) => {
+  async (_, { rejectWithValue }) => {
     try {
       const response = await getUserPickups();
       return response;
@@ -32,8 +36,7 @@ export const fetchtPickupPlans = createAsyncThunk(
 );
 export const cancelPickupPlan = createAsyncThunk(
   "userPickups/cancelPickupPlan",
-  async (pickupReqId: string, { rejectWithValue }
-  ) => {
+  async (pickupReqId: string, { rejectWithValue }) => {
     try {
       const response = await cancelUserPickup(pickupReqId);
       return response;
@@ -42,6 +45,20 @@ export const cancelPickupPlan = createAsyncThunk(
     }
   }
 );
+export const cancelPickupReq = createAsyncThunk(
+  "userPickups/cancelPickupReq ",
+  async ({ pickupReqId, reason }: PickupCancelData, thunkAPI) => {
+    try {
+      const response = await cancelPickupReqById({ pickupReqId, reason });
+      return response;
+    } catch (error: any) {
+      return thunkAPI.rejectWithValue(
+        error.response.data || "Failed to cancel pickupreq."
+      );
+    }
+  }
+);
+
 const userPickupSlice = createSlice({
   name: "userPickups",
   initialState,
@@ -56,14 +73,26 @@ const userPickupSlice = createSlice({
         state.loading = false;
         state.pickups = action.payload;
       })
-      .addCase(fetchtPickupPlans.rejected, (state, action) => { 
+      .addCase(fetchtPickupPlans.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
       })
       .addCase(cancelPickupPlan.rejected, (state, action) => {
         state.error = action.payload as string;
-      });
-},
+      })
+    .addCase(cancelPickupReq.fulfilled, (state, action) => {
+      console.log("act",action.payload);
+      
+      state.pickups = state.pickups.filter(
+        
+        
+        (pickups: any) => {
+          console.log("pi",pickups);
+          pickups._id !== action.payload
+        }
+      );
+    })
+  },
 });
 
 export default userPickupSlice.reducer;

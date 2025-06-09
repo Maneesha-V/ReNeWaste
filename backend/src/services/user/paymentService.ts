@@ -71,6 +71,9 @@ export class PaymentService implements IPaymentService {
       razorpayPaymentId: null,
       razorpaySignature: null,
       paidAt: null,
+      refundRequested: false,
+      refundStatus: null,
+      refundAt: null
     };
     await pickupRequest.save();
 
@@ -151,6 +154,9 @@ export class PaymentService implements IPaymentService {
       razorpayPaymentId: null,
       razorpaySignature: null,
       paidAt: null,
+      refundRequested: false,
+      refundStatus: null,
+      refundAt: null
     };
     await pickupRequest.save();
 

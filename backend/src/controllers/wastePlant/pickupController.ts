@@ -32,17 +32,19 @@ export class PickupController implements IPickupController {
     }
   }
 
-  async approvePickup(req: Request, res: Response): Promise<void> {
+  async approvePickup(req: AuthRequest, res: Response): Promise<void> {
     try {
       const { status, driverId, assignedTruckId } = req.body;
       const { pickupReqId } = req.params;
+      const plantId = req.user?.id;
 
-      if (!status || !driverId || !assignedTruckId) {
+      if (!plantId || !status || !driverId || !assignedTruckId) {
         res.status(400).json({ message: "All fields are required" });
         return;
       }
 
       const result = await this.pickupService.approvePickupService({
+        plantId,
         pickupReqId,
         status,
         driverId,
@@ -57,14 +59,19 @@ export class PickupController implements IPickupController {
       res.status(500).json({ message: "Server error while approving pickup" });
     }
   }
-  async cancelPickup(req: Request, res: Response): Promise<void> {
+  async cancelPickup(req: AuthRequest, res: Response): Promise<void> {
     try {
       const { pickupReqId } = req.params;
-      const { status } = req.body;
-
+      const { reason } = req.body;
+      const plantId = req.user?.id;
+      if(!plantId){
+        res.status(404).json({ message: "wasteplantId not found" });
+        return;
+      }
       const result = await this.pickupService.cancelPickupRequest(
+        plantId,
         pickupReqId,
-        status
+        reason
       );
 
       res.status(200).json({

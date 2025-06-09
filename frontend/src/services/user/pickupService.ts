@@ -1,4 +1,5 @@
 import axiosUser from "../../api/axiosUser";
+import { PickupCancelData } from "../../types/wastePlantTypes";
 
 export const getUserPickups = async () => {
   const token = localStorage.getItem("token");
@@ -13,4 +14,14 @@ export const cancelUserPickup = async (pickupReqId: string) => {
     {}
   );
   return response.data.pickups;
+};
+
+export const cancelPickupReqById = async ({
+  pickupReqId,
+  reason,
+}: PickupCancelData) => {
+    const response = await axiosUser.patch(`/cancel-pickupReq/${pickupReqId}`, {
+      reason,
+    });
+    return response.data;
 };

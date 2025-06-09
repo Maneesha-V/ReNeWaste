@@ -7,6 +7,7 @@ import {
   reschedulePickupService,
 } from "../../../services/wastePlant/pickupService";
 import { ApprovePickupPayload } from "../../../types/pickupTypes";
+import { PickupCancelData } from "../../../types/wastePlantTypes";
 
 interface PickupState {
   pickups: any;
@@ -88,15 +89,15 @@ export const reschedulePickup = createAsyncThunk(
 export const cancelPickupReq = createAsyncThunk(
   "wastePlantPickup/cancelPickupReq ",
   async (
-    { pickupReqId, status }: { pickupReqId: string; status: string },
+    { pickupReqId, reason }: PickupCancelData,
     thunkAPI
   ) => {
     try {
-      const response = await cancelPickupReqById(pickupReqId, status);
+      const response = await cancelPickupReqById({pickupReqId, reason});
       return response;
     } catch (error: any) {
       return thunkAPI.rejectWithValue(
-        error.response.data || "Failed to update data."
+        error.response.data || "Failed to cancel pickupreq."
       );
     }
   }

@@ -7,6 +7,7 @@ import { useSelector } from "react-redux";
 import { RootState } from "../../redux/store";
 import {
   cancelPickupPlan,
+  cancelPickupReq,
   fetchtPickupPlans,
 } from "../../redux/slices/user/userPickupSlice";
 import {
@@ -29,6 +30,7 @@ import { useLocation } from "react-router-dom";
 import TabPane from "antd/es/tabs/TabPane";
 import { setPaymentData } from "../../redux/slices/user/userPaymentSlice";
 import PayNow from "./PayNow";
+import InputMessage from "../../components/common/InputMessage";
 
 const { Meta } = Card;
 
@@ -49,6 +51,9 @@ const PickupPlans = () => {
     (state: RootState) => state.userPickups
   );
   const location = useLocation();
+  const [cancelModalVisible, setCancelModalVisible] = useState(false);
+  const [cancelPickup, setCancelPickup] = useState<string | null>(null);
+
   console.log("pickups", pickups);
 
   useEffect(() => {
@@ -70,9 +75,13 @@ const PickupPlans = () => {
     setSelectedEta(pickup.eta);
     setIsModalOpen(true);
   };
-  const handleCancel = async (pickupReqId: string) => {
-    try {
-      await dispatch(cancelPickupPlan(pickupReqId)).unwrap();
+  const handleCancel = async (pickup: any) => {
+    if(pickup?.payment?.status === "Paid"){
+        setCancelPickup(pickup._id)
+        setCancelModalVisible(true)
+    }else{
+       try {
+      await dispatch(cancelPickupPlan(pickup._id)).unwrap();
       toast.success("Pickup plan cancelled");
       setSelectedPickupId("");
       setSelectedTrackingStatus(null);
@@ -82,6 +91,7 @@ const PickupPlans = () => {
       setActiveTab("3");
     } catch (err: any) {
       toast.error(err?.message || "Failed to cancel pickup");
+    }
     }
   };
   const handlePay = async (pickup: any) => {
@@ -132,7 +142,7 @@ const PickupPlans = () => {
                       title="Are you sure to cancel this pickup?"
                       okText="Yes"
                       cancelText="No"
-                      onConfirm={() => handleCancel(pickup._id)}
+                      onConfirm={() => handleCancel(pickup)}
                       okType="danger"
                     >
                       <Button type="default" danger>
@@ -153,6 +163,16 @@ const PickupPlans = () => {
                   <>
                     <p>Pickup Time: {formatTimeTo12Hour(pickup.pickupTime)}</p>
                     <p>Waste Type: {pickup.wasteType}</p>
+
+                     {pickup?.payment?.status === "Paid" && (
+                      <>
+                        <p>Payment Status:{" "} 
+                          <span className="text-green-600">
+                            {pickup?.payment?.status}
+                          </span>
+                          </p>
+                      </>
+                     )}
                     <p>
                       Pickup Status:{" "}
                       <span
@@ -253,6 +273,17 @@ const PickupPlans = () => {
         >
           <PayNow onClose={() => setIsPayNowModalOpen(false)} />
         </Modal>
+      <InputMessage 
+        visible={cancelModalVisible}
+        onClose = {() => setCancelModalVisible(false)}
+        pickupId={cancelPickup}
+        cancelAction={cancelPickupReq}
+        onSuccess={() =>
+          dispatch(
+            fetchtPickupPlans()
+          )
+        }
+      />
       </div>
       <Footer />
     </div>
