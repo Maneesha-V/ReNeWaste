@@ -12,13 +12,22 @@ export const NotificationSchema: Schema<INotificationDocument> = new Schema(
       enum: ["wasteplant", "superadmin", "driver", "user"],
       required: true,
     },
+    senderId: {
+      type: mongoose.Schema.Types.ObjectId,
+      required: true,
+    },
+    senderType: {
+      type: String,
+      enum: ["wasteplant", "superadmin", "driver", "user"],
+      required: true,
+    },
     message: {
       type: String,
       required: true,
     },
     type: {
       type: String,
-      enum: ["pickup_scheduled", "truck_returned", "general", "pickup_requested", "pickup_approved", "weight_measured","pickup_rescheduled"],
+      enum: ["pickup_scheduled", "truck_returned", "general", "pickup_requested", "pickup_approved","pickup_rescheduled","pickup_cancelled","pickup_refund-req"],
       default: "general",
     },
     isRead: {
