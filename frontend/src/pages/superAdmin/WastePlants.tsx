@@ -25,7 +25,7 @@ const WastePlants: React.FC = () => {
   const handleEdit = async (id: string) => {
     try {
       navigate(`/super-admin/edit-waste-plant/${id}`)
-    } catch(error: any){
+    } catch(error){
       console.error(error);
     }
   }
