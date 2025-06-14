@@ -71,7 +71,7 @@ const SidebarWastePlant = ({
       key: "subscription",
       icon: <ShoppingOutlined />,
       label: "Subscription",
-      path: "/waste-plant/subscription",
+      path: "/waste-plant/subscription-plan",
     },
   ];
 

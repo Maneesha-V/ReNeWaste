@@ -1,19 +1,32 @@
 import React, { useEffect } from "react";
-import { Table, Button, Popconfirm, Spin } from "antd";
-import { EditOutlined, DeleteOutlined, PlusOutlined } from "@ant-design/icons";
+import { Table, Button, Popconfirm, Spin, Tooltip } from "antd";
+import {
+  EditOutlined,
+  DeleteOutlined,
+  PlusOutlined,
+  PlusCircleOutlined,
+  RedoOutlined,
+  StopOutlined,
+} from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 import { useAppDispatch } from "../../redux/hooks";
-import { deleteWastePlant, fetchWastePlants } from "../../redux/slices/superAdmin/superAdminWastePlantSlice";
+import {
+  deleteWastePlant,
+  fetchWastePlants,
+  sendSubscribeNotification,
+} from "../../redux/slices/superAdmin/superAdminWastePlantSlice";
 import { useSelector } from "react-redux";
 import { RootState } from "../../redux/store";
 import Breadcrumbs from "../../components/common/Breadcrumbs";
-
+import { toast } from "react-toastify";
 
 const WastePlants: React.FC = () => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
-  const { wastePlant, loading, error } = useSelector((state: RootState) => state.superAdminWastePlant);
- 
+  const { wastePlant, loading, error } = useSelector(
+    (state: RootState) => state.superAdminWastePlant
+  );
+
   useEffect(() => {
     if (!sessionStorage.getItem("admin_token")) {
       navigate("/super-admin/");
@@ -24,11 +37,11 @@ const WastePlants: React.FC = () => {
 
   const handleEdit = async (id: string) => {
     try {
-      navigate(`/super-admin/edit-waste-plant/${id}`)
-    } catch(error){
+      navigate(`/super-admin/edit-waste-plant/${id}`);
+    } catch (error) {
       console.error(error);
     }
-  }
+  };
   const handleDelete = async (id: string) => {
     try {
       await dispatch(deleteWastePlant(id)).unwrap();
@@ -37,18 +50,51 @@ const WastePlants: React.FC = () => {
       console.error("Delete failed:", error);
     }
   };
+   const remindSubscribe = async (id: string) => {
+    try {
+      await dispatch(sendSubscribeNotification(id)).unwrap();
+      toast.success("Renew notification sent successfully");
+    } catch (error: any) {
+      console.error("Failed to send renew notification:", error);
+      toast.error(error || "Failed to send renew notification");
+    }
+  };
+  
+  // const remindRenew = async (id: string) => {
+  //   try {
+  //     // Optionally, call an API or dispatch an action to send the notification
+  //     await dispatch(sendNotification(id)).unwrap();
 
+  //     // Optional: show success toast
+  //     toast.success("Renew notification sent successfully");
+  //   } catch (error) {
+  //     console.error("Failed to send renew notification:", error);
+  //     toast.error("Failed to send renew notification");
+  //   }
+  // };
+ 
+  //  const remindReject = async (id: string) => {
+  //   try {
+  //     // Optionally, call an API or dispatch an action to send the notification
+  //     await dispatch(sendRenewNotification(id)).unwrap();
+
+  //     // Optional: show success toast
+  //     toast.success("Renew notification sent successfully");
+  //   } catch (error) {
+  //     console.error("Failed to send renew notification:", error);
+  //     toast.error("Failed to send renew notification");
+  //   }
+  // };
+  
   return (
     <div className="space-y-4">
       {/* Breadcrumbs and Header */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
         <div>
-          <Breadcrumbs
-            paths={[
-              { label: "Waste Plants" },
-            ]}
-          />
-          <h1 className="text-xl font-bold text-gray-800">Waste Plants Management</h1>
+          <Breadcrumbs paths={[{ label: "Waste Plants" }]} />
+          <h1 className="text-xl font-bold text-gray-800">
+            Waste Plants Management
+          </h1>
         </div>
         <Button
           type="primary"
@@ -77,9 +123,26 @@ const WastePlants: React.FC = () => {
             pagination={{ pageSize: 10 }}
           >
             <Table.Column title="Name" dataIndex="plantName" key="plantName" />
-            <Table.Column title="Location" dataIndex="location" key="location" />
-            <Table.Column title="Capacity" dataIndex="capacity" key="capacity" />
-            <Table.Column title="Contact" dataIndex="contactNo" key="contactNo" />
+            <Table.Column
+              title="Location"
+              dataIndex="location"
+              key="location"
+            />
+            <Table.Column
+              title="Capacity (Tons/Day)"
+              dataIndex="capacity"
+              key="capacity"
+            />
+            <Table.Column
+              title="Contact"
+              dataIndex="contactNo"
+              key="contactNo"
+            />
+            <Table.Column
+              title="Subscription Plan"
+              dataIndex="subscriptionPlan"
+              key="subscriptionPlan"
+            />
             <Table.Column
               title="Status"
               dataIndex="status"
@@ -96,6 +159,55 @@ const WastePlants: React.FC = () => {
                 >
                   {status}
                 </span>
+              )}
+            />
+            <Table.Column
+              title="Reminder"
+              key="reminder"
+              render={(_: any, record: any) => (
+                <div className="flex flex-wrap gap-2">
+                <Tooltip title="Send subscription reminder">
+                  {record.status === "Pending" && (
+                    <Button
+                      type="primary"
+                      size="small"
+                      icon={<PlusCircleOutlined />}
+                      onClick={() => remindSubscribe(record._id)}
+                    >
+                      Subscribe
+                    </Button>
+                  )}
+
+                  {record.status === "Inactive" && (
+                    <Button
+                      style={{
+                        backgroundColor: "#FAAD14",
+                        color: "#fff",
+                        border: "none",
+                      }}
+                      size="small"
+                      icon={<RedoOutlined />}
+                      onClick={() => remindRenew(record._id)}
+                    >
+                      Renew
+                    </Button>
+                  )}
+
+                  {record.status === "Active" && (
+                  <Tooltip title="Send rejection reminder">
+                    <Button
+                      type="default"
+                      size="small"
+                      icon={<StopOutlined />}
+                      danger
+                      onClick={() => remindReject(record._id)}
+                    >
+                      Reject
+                    </Button>
+                    </Tooltip>
+                  )}
+                  </Tooltip>
+                </div>
               )}
             />
             <Table.Column
@@ -116,15 +228,11 @@ const WastePlants: React.FC = () => {
                     okText="Yes"
                     cancelText="No"
                   >
-                    <Button 
-                    icon={<DeleteOutlined />} 
-                    size="small" 
-                    danger
-                    >
+                    <Button icon={<DeleteOutlined />} size="small" danger>
                       Delete
                     </Button>
                   </Popconfirm>
-                </div>
+                       </div>
               )}
             />
           </Table>

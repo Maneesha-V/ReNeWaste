@@ -4,6 +4,9 @@ import { useNavigate } from "react-router-dom";
 import { useAppDispatch } from "../../redux/hooks";
 import { logout } from "../../redux/slices/user/userSlice";
 import NotificationPanel from "./NotificationPanel";
+import { useSelector } from "react-redux";
+import { RootState } from "../../redux/store";
+import NotificationBadge from "../common/NotificationBadge";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -12,7 +15,10 @@ const Header = () => {
 
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
-
+  const unreadCount = useSelector(
+    (state: RootState) =>
+      state.userNotifications.notifications.filter((n) => !n.isRead).length
+  );
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
     setIsMoreOpen(false);
@@ -50,10 +56,19 @@ const Header = () => {
         </div>
 
         <div className="flex items-center space-x-6">
-          <FaBell
+          {/* <FaBell count={unreadCount}
             className="w-6 h-6 cursor-pointer hover:text-green-600"
             onClick={() => setShowNotificationPanel((prev) => !prev)}
-          />
+          /> */}
+          <div className="relative">
+            <button
+              onClick={() => setShowNotificationPanel((prev) => !prev)}
+              className="relative"
+            >
+              <NotificationBadge count={unreadCount} />
+            </button>
+          </div>
+
           <div className="md:hidden relative">
             <button
               onClick={toggleMore}

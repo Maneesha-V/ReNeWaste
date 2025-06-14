@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import { addWastePlant } from "../../redux/slices/superAdmin/superAdminWastePlantSlice";
@@ -9,12 +9,21 @@ import {
   WastePlantFormData,
 } from "../../types/wastePlantTypes";
 import Breadcrumbs from "../../components/common/Breadcrumbs";
+import { fetchSubscriptionPlans } from "../../redux/slices/superAdmin/superAdminSubscriptionPlanSlice";
+import { RootState } from "../../redux/store";
+import { useSelector } from "react-redux";
 
 const AddWastePlant = () => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const { errors, validateField, setErrors } = useWastePlantValidation();
+  const { subscriptionPlans } = useSelector(
+    (state: RootState) => state.superAdminSubscriptionPlan
+  );
 
+  useEffect(() => {
+    dispatch(fetchSubscriptionPlans());
+  }, [dispatch]);
   const [formData, setFormData] = useState<WastePlantFormData>({
     plantName: "",
     ownerName: "",
@@ -347,7 +356,7 @@ const AddWastePlant = () => {
                 "E-Waste",
                 "Plastic Waste",
                 "Food Waste",
-                "Residential Waste"
+                "Residential Waste",
               ].map((service) => (
                 <label key={service} className="flex items-center space-x-2">
                   <input
@@ -415,9 +424,11 @@ const AddWastePlant = () => {
               className="w-full border px-3 py-2 rounded-md focus:ring-2 focus:ring-green-500"
             >
               <option value="">Select Plan</option>
-              <option value="Basic">Basic</option>
-              <option value="Premium">Premium</option>
-              <option value="Pro">Pro</option>
+              {subscriptionPlans.map((plan: any) => (
+                <option key={plan._id} value={plan._id}>
+                  {plan.planName}
+                </option>
+              ))}
             </select>
             {errors.subscriptionPlan && (
               <p className="text-red-500 text-sm">{errors.subscriptionPlan}</p>

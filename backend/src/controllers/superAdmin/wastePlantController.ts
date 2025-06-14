@@ -162,4 +162,22 @@ export class WastePlantController implements IWastePlantController {
       res.status(500).json({ message: "Server error" });
     }
   }
+  async sendSubscribeNotification(req: AuthRequest, res: Response): Promise<void> {
+ try {
+  const adminId = req.user?.id;
+  if(!adminId){
+           res.status(404).json({ message: "Unauthorized Id is not found." });
+        return;
+  }
+      const plantId = req.params.id;
+      await this.wastePlantService.sendSubscribeNotification(
+        {adminId, plantId}
+      );
+
+      res.status(200).json({ message: "Send notification successfully" });
+    } catch (error: any) {
+      console.error("Error in sending notification:", error);
+      res.status(500).json({ error: error.message || "Server error" });
+    }
+  }
 }

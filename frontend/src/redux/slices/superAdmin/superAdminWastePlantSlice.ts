@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { createWastePlant, deleteWastePlantById, getWastePlantById, getWastePlants, updateWastePlantById } from "../../../services/superAdmin/wastePlantService" 
+import { createWastePlant, deleteWastePlantById, getWastePlantById, getWastePlants, sendSubscribeNotificationById, updateWastePlantById } from "../../../services/superAdmin/wastePlantService" 
 
 interface WastePlantState {
   wastePlant: any; 
@@ -61,13 +61,24 @@ export const updateWastePlant = createAsyncThunk(
   }
 )
 export const deleteWastePlant  = createAsyncThunk(
-  "superAdminWastePlant/deleteWastePlant ",
+  "superAdminWastePlant/deleteWastePlant",
   async (id: string, thunkAPI) => {
     try {
       const response = await deleteWastePlantById(id)
       return response
     } catch (error: any) {
       return thunkAPI.rejectWithValue(error.response.data || "Failed to update data.");
+    }
+  }
+)
+export const sendSubscribeNotification = createAsyncThunk(
+ "superAdminWastePlant/sendSubscribeNotification",
+  async (id: string, thunkAPI) => {
+    try {
+      const response = await sendSubscribeNotificationById(id)
+      return response
+    } catch (error: any) {
+      return thunkAPI.rejectWithValue(error.response.data || "Failed to send subscribe reminder.");
     }
   }
 )
@@ -127,7 +138,20 @@ const superAdminWastePlantSlice = createSlice({
       })
       .addCase(deleteWastePlant.fulfilled, (state, action) => {
         state.wastePlant = state.wastePlant.filter((plant: any) => plant._id !== action.payload);
-      });
+      })
+      
+        .addCase(sendSubscribeNotification.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(sendSubscribeNotification.fulfilled, (state, action) => {
+        state.loading = false;
+        state.message = action.payload;
+      })
+      .addCase(sendSubscribeNotification.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      })
   },
 });
 

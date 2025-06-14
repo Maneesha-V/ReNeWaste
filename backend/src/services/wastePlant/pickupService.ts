@@ -12,7 +12,6 @@ import { IDriverRepository } from "../../repositories/driver/interface/IDriverRe
 import { INotificationRepository } from "../../repositories/notification/interface/INotifcationRepository";
 import { ITruckRepository } from "../../repositories/truck/interface/ITruckRepository";
 import { IWastePlantRepository } from "../../repositories/wastePlant/interface/IWastePlantRepository";
-import { IUserRepository } from "../../repositories/user/interface/IUserRepository";
 
 @injectable()
 export class PickupService implements IPickupService {
@@ -26,9 +25,7 @@ export class PickupService implements IPickupService {
     @inject(TYPES.TruckRepository)
     private truckRepository: ITruckRepository,
     @inject(TYPES.WastePlantRepository)
-    private wastePlantRepository: IWastePlantRepository,
-    @inject(TYPES.UserRepository)
-    private userRepository: IUserRepository
+    private wastePlantRepository: IWastePlantRepository
   ) {}
   async getPickupRequestService(
     filters: PickupFilterParams
@@ -43,6 +40,7 @@ export class PickupService implements IPickupService {
       await this.pickupRepository.updatePickupStatusAndDriver(pickupReqId, {
         status,
         driverId,
+        truckId: assignedTruckId
       });
 
     if (!updatedPickup) throw new Error("Pickup  not found or update failed");
@@ -54,9 +52,6 @@ export class PickupService implements IPickupService {
     await this.driverRepository.updateDriverTruck(driverId, assignedTruckId);
     const driver = await this.driverRepository.getDriverById(driverId);
     const truck = await this.truckRepository.getTruckById(assignedTruckId);
-    // const user = await this.userRepository.findById(
-    //   updatedPickup.userId.toString()
-    // );
 
     if (!driver || !truck)
       throw new Error("Driver or Truck or User not found");

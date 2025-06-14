@@ -47,7 +47,7 @@ export class PickupService implements IPickupService {
 
     const plantId = updatedPickupRequest?.wasteplantId.toString();
 
-    const userMessage = `Pickup ID ${updatedPickupRequest.pickupId} is requested with refund.${data.reason}`;
+    const userMessage = `PickupID ${updatedPickupRequest.pickupId} is requested with refund.${data.reason}`;
     const plantNotification =
       await this.notificationRepository.createNotification({
         receiverId: plantId,

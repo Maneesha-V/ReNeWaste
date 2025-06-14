@@ -14,6 +14,7 @@ import {
   ValidationErrors,
 } from "../../types/wastePlantTypes";
 import { toast } from "react-toastify";
+import { fetchSubscriptionPlans } from "../../redux/slices/superAdmin/superAdminSubscriptionPlanSlice";
 
 const EditWastePlant = () => {
   const { id } = useParams<{ id: string }>();
@@ -27,7 +28,14 @@ const EditWastePlant = () => {
   const [formData, setFormData] = useState<PartialWastePlantFormData>({
     services: [],
   });
-
+      const { subscriptionPlans } = useSelector(
+        (state: RootState) => state.superAdminSubscriptionPlan
+      );
+      
+  useEffect(() => {
+    dispatch(fetchSubscriptionPlans());
+  },[dispatch])
+  
   useEffect(() => {
     if (id) dispatch(fetchWastePlantById(id));
   }, [id, dispatch]);
@@ -372,9 +380,11 @@ const EditWastePlant = () => {
             className="w-full border px-3 py-2 rounded-md focus:ring-2 focus:ring-green-500"
           >
             <option value="">Select Plan</option>
-            <option value="Basic">Basic</option>
-            <option value="Premium">Premium</option>
-            <option value="Pro">Pro</option>
+            {subscriptionPlans.map((plan: any) => (
+              <option key={plan._id} value={plan.planName}>
+                {plan.planName}
+              </option>
+            ))}
           </select>
           {errors.subscriptionPlan && (
             <p className="text-red-500 text-sm">{errors.subscriptionPlan}</p>

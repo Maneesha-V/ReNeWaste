@@ -65,3 +65,13 @@ export const deleteWastePlantById = async (id: string) => {
     throw error;
   }
 };
+export const sendSubscribeNotificationById = async(id: string) => {
+    try {
+    const response = await axiosSuperadmin.post(`/renew-notification/${id}`);
+    console.log("res", response);
+    return response.data;
+  } catch (error: any) {
+    console.error("error", error);
+    throw error;
+  }
+}
