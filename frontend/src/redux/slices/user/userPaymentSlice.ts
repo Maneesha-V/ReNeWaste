@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { createPaymentOrderService, getAllPaymentsService, repayService, verifyPaymentService } from "../../../services/user/paymentService";
-import { VerifyPaymentPayload } from "../../../utils/paymentTypes";
+import { VerifyPaymentPayload } from "../../../types/paymentTypes";
 
 interface PickupState {
   loading: boolean;

@@ -1,5 +1,5 @@
 import axiosUser from "../../api/axiosUser";
-import { VerifyPaymentPayload } from "../../utils/paymentTypes";
+import { VerifyPaymentPayload } from "../../types/paymentTypes";
 
 export const createPaymentOrderService = async (amount: number, pickupReqId: string) => {
   const response = await axiosUser.post(`/payment/create-order`,{ amount, pickupReqId });

@@ -9,8 +9,9 @@ export interface IPayment {
   amount: number;
   paidAt: Date | null;
   refundRequested: boolean;
-  refundStatus: "Pending" | "Refunded" | "Rejected" | null;
+  refundStatus: "Pending" | "Processing"| "Refunded" | "Rejected" | null;
   refundAt: Date | null;
+  razorpayRefundId: string | null;
 }
  export interface IPaymentDocument extends IPayment, Document {
       _id: Types.ObjectId;

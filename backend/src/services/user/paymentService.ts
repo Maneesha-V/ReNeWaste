@@ -5,12 +5,6 @@ import TYPES from "../../config/inversify/types";
 import { IPickupRepository } from "../../repositories/pickupReq/interface/IPickupRepository";
 import { IPaymentService } from "./interface/IPaymentService";
 
-// const RAZORPAY_SECRET = process.env.RAZORPAY_KEY_SECRET!;
-// const RAZORPAY_KEY = process.env.RAZORPAY_KEY_ID!;
-// const razorpay = new Razorpay({
-//   key_id: RAZORPAY_KEY,
-//   key_secret: RAZORPAY_SECRET,
-// });
 
 @injectable()
 export class PaymentService implements IPaymentService {
@@ -73,7 +67,8 @@ export class PaymentService implements IPaymentService {
       paidAt: null,
       refundRequested: false,
       refundStatus: null,
-      refundAt: null
+      refundAt: null,
+      razorpayRefundId: null,
     };
     await pickupRequest.save();
 
@@ -156,7 +151,8 @@ export class PaymentService implements IPaymentService {
       paidAt: null,
       refundRequested: false,
       refundStatus: null,
-      refundAt: null
+      refundAt: null,
+      razorpayRefundId: null,
     };
     await pickupRequest.save();
 

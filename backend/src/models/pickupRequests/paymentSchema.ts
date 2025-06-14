@@ -38,13 +38,17 @@ export const PaymentSchema: Schema<IPaymentDocument> = new Schema(
     },
     refundStatus: {
       type: String,
-      enum: ["Pending", "Refunded", "Rejected", null],
+      enum: ["Pending","Processing","Refunded", "Rejected", null],
       default: null,
     },
     refundAt: {
       type: Date,
       default: null,
     },
+    razorpayRefundId: {
+      type: String,
+      default: null,
+    }
   },
   { _id: false } 
 );

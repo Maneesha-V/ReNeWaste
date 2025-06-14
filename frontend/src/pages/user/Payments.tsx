@@ -2,7 +2,7 @@ import Header from "../../components/user/Header";
 import Footer from "../../components/user/Footer";
 import { useSelector } from "react-redux";
 import { RootState } from "../../redux/store";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import {
   getAllPayments,
   repay,
@@ -15,6 +15,7 @@ import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
 
 const Payments = () => {
+  const [activeTab, setActiveTab] = useState<"paid" | "refund">("paid");
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const payments = useSelector(
@@ -67,7 +68,7 @@ const Payments = () => {
               razorpay_payment_id,
               razorpay_signature,
               pickupReqId: pickupId,
-              amount: repayAmt 
+              amount: repayAmt,
             })
           )
             .unwrap()
@@ -113,10 +114,44 @@ const Payments = () => {
         <h1 className="text-3xl font-bold text-green-700 mb-6">
           Your Payments
         </h1>
+        <div className="flex space-x-4 mb-6">
+          <button
+            onClick={() => setActiveTab("paid")}
+            className={`px-4 py-2 rounded-md text-sm font-medium ${
+              activeTab === "paid"
+                ? "bg-green-600 text-white"
+                : "bg-green-100 text-green-700"
+            }`}
+          >
+            Paid Transactions
+          </button>
+          <button
+            onClick={() => setActiveTab("refund")}
+            className={`px-4 py-2 rounded-md text-sm font-medium ${
+              activeTab === "refund"
+                ? "bg-purple-600 text-white"
+                : "bg-purple-100 text-purple-700"
+            }`}
+          >
+            Refunded/Cancelled Transactions
+          </button>
+        </div>
 
-        {payments && payments.length > 0 ? (
-          <div className="grid md:grid-cols-1 gap-6">
-            {payments.map((payment: any) => (
+{payments && payments.length > 0 ? (
+  <div className="grid md:grid-cols-1 gap-6">
+    {payments
+      .filter((payment: any) => {
+        if (activeTab === "paid") {
+          return (
+            payment?.payment?.status === "Paid" &&
+            payment?.payment?.refundStatus === null
+          );
+        } else {
+          return payment?.payment?.refundStatus !== null;
+        }
+      })
+      .map((payment: any) => (
+
               <div
                 key={payment._id}
                 className="bg-white border border-green-300 rounded-lg shadow p-6 space-y-4"
@@ -125,15 +160,30 @@ const Payments = () => {
                   <h2 className="text-xl font-semibold text-green-800">
                     Amount: ₹{payment?.payment?.amount}
                   </h2>
-                  <span
-                    className={`px-3 py-1 text-sm rounded-full font-medium ${
-                      payment?.payment?.status === "Paid"
-                        ? "bg-green-100 text-green-700 border border-green-500"
-                        : "bg-red-100 text-red-700 border border-red-500"
-                    }`}
-                  >
-                    {payment.status}
-                  </span>
+          
+                  {payment?.payment?.refundStatus === null ? (
+                    <span
+                      className={`px-3 py-1 text-sm rounded-full font-medium ${
+                        payment?.payment?.status === "Paid"
+                          ? "bg-green-100 text-green-700 border border-green-500"
+                          : "bg-red-100 text-red-700 border border-red-500"
+                      }`}
+                    >
+                      {payment?.payment?.status}
+                    </span>
+                  ) : (
+                    <span
+                      className={`px-3 py-1 text-sm rounded-full font-medium ${
+                        payment?.payment?.refundStatus === "Pending"
+                          ? "bg-yellow-100 text-yellow-700 border border-yellow-500"
+                          : payment?.payment?.refundStatus === "Processing"
+                          ? "bg-blue-100 text-blue-700 border border-blue-500"
+                          : "bg-purple-100 text-purple-700 border border-purple-500"
+                      }`}
+                    >
+                      Refund Status: {payment?.payment?.refundStatus}
+                    </span>
+                  )}
                 </div>
 
                 <div className="text-gray-700">

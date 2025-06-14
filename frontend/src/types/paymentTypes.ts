@@ -1,3 +1,21 @@
+import { string } from "zod";
+
+export interface VerifyPaymentPayload {
+  razorpay_order_id: string;
+  razorpay_payment_id: string;
+  razorpay_signature: string;
+  pickupReqId?: string;
+  amount: number;
+}
+export interface SubptnVerifyPaymentPayload {
+  razorpay_order_id: string;
+  razorpay_payment_id: string;
+  razorpay_signature: string;
+  planId?: string;
+  amount: number;
+  subPaymtId?: string;
+}
+
 export type PaymentRecord = {
   _id: string;
   pickupId: string;
@@ -8,10 +26,28 @@ export type PaymentRecord = {
     amount: number;
     paidAt: Date;
     refundRequested?: boolean;
-    refundStatus?: "Pending" | "Refunded" | "Rejected" | null;
+    refundStatus?: "Pending" | "Processing" | "Refunded" | "Rejected" | null;
     refundAt: Date;
+    method?: string; 
+    razorpayOrderId?: string;
+    razorpaySignature?: string;
   };
   driverName?: string;
   userName?: string;
   dueDate: Date;
+};
+
+export type retryPaymentData = {
+  planId: string;
+  amount: number;
+  subPaymtId: string;
+}
+export type UpdateStatusPayload= { 
+  pickupReqId: string; 
+  status: string; 
+}
+export type RefundPaymntPayload = {
+  pickupReqId: string; 
+  amount: number;
+  razorpayPaymentId: string;
 };
