@@ -31,8 +31,13 @@ export class NotificationController implements INotificationController {
   async markReadNotification(req: AuthRequest, res: Response): Promise<void> {
     try {
       const { notifId } = req.params;
+      const plantId = req.user?.id;
+      if (!plantId) {
+        res.status(404).json({ message: "wasteplantId not found" });
+        return;
+      }
       const updatedNotification =
-        await this.notificationService.markNotificationAsRead(notifId);
+        await this.notificationService.markNotificationAsRead(notifId, plantId);
 
       if (!updatedNotification) {
         res.status(404).json({ message: "Notification not found" });

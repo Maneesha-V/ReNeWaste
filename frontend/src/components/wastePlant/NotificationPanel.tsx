@@ -14,6 +14,8 @@ import {
   MeasureDataPayload,
   Notification,
 } from "../../types/notificationTypes";
+import { notification } from "antd";
+import { useNavigate } from "react-router-dom";
 
 interface NotificationPanelProps {
   visible: boolean;
@@ -34,7 +36,7 @@ const NotificationPanel: React.FC<NotificationPanelProps> = ({
   const measuredNotificationId = useSelector(
     (state: RootState) => state.wastePlantNotifications.measuredNotificationId
   );
-
+  const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const socket = useSafeSocket();
 
@@ -44,7 +46,7 @@ const NotificationPanel: React.FC<NotificationPanelProps> = ({
     if (visible && plantId) {
       dispatch(fetchNotifications());
     }
-  }, [visible, plantId, dispatch]);
+  }, [visible, plantId, dispatch, measuredNotificationId]);
 
   useEffect(() => {
     if (!socket || !plantId) return;
@@ -80,7 +82,10 @@ const NotificationPanel: React.FC<NotificationPanelProps> = ({
       notificationId: notification._id,
     });
   };
-
+  const handleSubscription = (notification: Notification) => {
+      navigate("/waste-plant/subscription-plan");
+      onClose()
+  }
   const filteredNotifications = (
     activeTab === "unread"
       ? [...notifications.filter((n) => !n.isRead)]
@@ -152,6 +157,15 @@ const NotificationPanel: React.FC<NotificationPanelProps> = ({
                             Measure
                           </button>
                         ))}
+                         {n.type === "subscribe_reminder" &&
+                        (
+                          <button
+                            className="px-2 py-1 text-xs cursor-pointer bg-blue-600 text-white rounded hover:bg-blue-700"
+                            onClick={() => handleSubscription(n)}
+                          >
+                            Subscribe
+                          </button>
+                        )}
                       {!n.isRead && (
                         <button
                           className="w-6 h-6 flex items-center justify-center cursor-pointer bg-green-100 text-green-600 rounded-full hover:bg-green-200"

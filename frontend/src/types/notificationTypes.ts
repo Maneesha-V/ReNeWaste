@@ -1,7 +1,4 @@
-// export type Notification = {
-//   message: string;
-//   createdAt?: string;
-// }
+
 export type Notification = {
   _id: string;
   message: string;

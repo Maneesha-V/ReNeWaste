@@ -3,6 +3,6 @@ import { InputWasteMeasurement, ReturnWasteMeasurement } from "../../../reposito
 
 export interface INotificationService {
     getNotifications(wasteplantId: string) : Promise<INotificationDocument[]>;
-    markNotificationAsRead(notifId: string): Promise<INotificationDocument | null>;
+    markNotificationAsRead(notifId: string, plantId: string): Promise<INotificationDocument | null>;
     saveWasteMeasurement(data: InputWasteMeasurement): Promise<ReturnWasteMeasurement>;
 }

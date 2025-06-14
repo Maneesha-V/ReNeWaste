@@ -10,7 +10,8 @@ type NotificationType =
   | 'pickup_approved'
   | 'pickup_rescheduled'
   | 'pickup_cancelled'
-  | "pickup_refund-req";
+  | "pickup_refund-req"
+  | "subscribe_reminder";
 
 export interface INotification {
   receiverId: mongoose.Types.ObjectId;

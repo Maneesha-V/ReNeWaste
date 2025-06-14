@@ -64,6 +64,8 @@ const userNotificationSlice = createSlice({
         state.error = action.payload as string;
       })
       .addCase(markAsRead.fulfilled, (state, action) => {
+        console.log("action",action.payload);
+        
         const updatedId = action.payload._id;
         const notification = state.notifications.find(
           (n) => n._id === updatedId
