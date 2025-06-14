@@ -13,8 +13,7 @@ export class SubscriptionPlanRepository
   extends BaseRepository<ISubscriptionPlanDocument>
   implements ISubscriptionPlanRepository
 {
-  constructor() // @inject(TYPES.DriverRepository)
-  // private getDriverRepo: () => IDriverRepository
+  constructor()
   {
     super(SubscriptionPlanModel);
   }

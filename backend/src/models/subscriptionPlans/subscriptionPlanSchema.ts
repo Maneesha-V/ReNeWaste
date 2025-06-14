@@ -51,7 +51,7 @@ export const SubscriptionPlanSchema = new Schema<ISubscriptionPlanDocument>(
     isDeleted: {
       type: Boolean,
       default: false,
-    }
+    },
   },
   {
     timestamps: { createdAt: true, updatedAt: false },

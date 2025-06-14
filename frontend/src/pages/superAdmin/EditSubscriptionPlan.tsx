@@ -30,7 +30,7 @@ const EditSubscriptionPlan = () => {
   console.log("subscriptionPlans", subscriptionPlans);
   useEffect(() => {
     if (subscriptionPlans) {
-      form.setFieldsValue(subscriptionPlans.subscriptionPlan); 
+      form.setFieldsValue(subscriptionPlans.subscriptionPlan);
     }
   }, [subscriptionPlans, form]);
   const onFinish = async (values: SubsptnPlanData) => {
@@ -43,7 +43,12 @@ const EditSubscriptionPlan = () => {
         toast.success("Plan updated successfully!");
         navigate("/super-admin/subscription-plans");
       } else {
-        toast.error("Failed to update plan");
+        const errorPayload = resultAction.payload as any;
+        if (errorPayload?.error === "Plan name already exists.") {
+          toast.error("Plan name already exists.");
+        } else {
+          toast.error("Failed to update Subscription Plan");
+        }
       }
     } catch (err) {
       toast.error("Something went wrong");

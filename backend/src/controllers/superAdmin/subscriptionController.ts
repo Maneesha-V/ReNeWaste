@@ -117,7 +117,9 @@ export class SubscriptionController implements ISubscriptionController {
       res.status(200).json({ updatedSubscriptionPlan });
     } catch (error: any) {
       console.error("Error updating subscription plan:", error);
-      res.status(500).json({ message: "Server error" });
+      res
+        .status(500)
+        .json({ error: error.message || "Failed to update subscription plan." });
     }
   }
 }

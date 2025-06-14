@@ -13,4 +13,18 @@ export type SubsptnPlanData = {
 export type updateSubscptnData = {
   data: SubsptnPlanData;
   id?: string;
-}
+};
+export type subPaymnetPayload = {
+  amount: number;
+  planId: string;
+  plantName: string;
+};
+export type SubcptnPaymtPayload = {
+  _id: string;
+  planName: string;
+  billingCycle: string;
+  price: number;
+  plantName: string;
+  ownerName: string;
+  license: string;
+};
