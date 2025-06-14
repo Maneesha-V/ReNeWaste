@@ -1,6 +1,8 @@
 import { IPickupRequest, IPickupRequestDocument } from "../../../models/pickupRequests/interfaces/pickupInterface";
 import { PickupDriverFilterParams } from "../../../types/driver/pickupTypes";
 import { PickupFilterParams } from "../../../types/wastePlant/authTypes";
+import { FetchPaymentPayload, PaginatedPaymentsResult } from "../../../types/wastePlant/paymentTypes";
+import { FilterReport } from "../../../types/wastePlant/reportTypes";
 import { PaymentRecord, PickupStatusByWasteType, RevenueByWasteType } from "../types/pickupTypes";
 export interface EnhancedPickup extends IPickupRequest {
     userFullName?: string;
@@ -10,7 +12,7 @@ export interface IPickupRepository {
     getPickupById(pickupReqId: string): Promise<IPickupRequestDocument>;
     createPickup(pickupData: Partial<IPickupRequest>): Promise<IPickupRequestDocument>;
     getPickupsByPlantId(filters: PickupFilterParams): Promise<IPickupRequest[]>;
-    updatePickupStatusAndDriver(pickupReqId: string,updateData: {status: string; driverId: string; }): Promise<IPickupRequestDocument>;
+    updatePickupStatusAndDriver(pickupReqId: string,updateData: {status: string; driverId: string;truckId: string;}): Promise<IPickupRequestDocument>;
     updatePickupRequest(pickupReqId: string): Promise<IPickupRequestDocument>;
     updatePickupDate(pickupReqId: string, updateData: any): Promise<IPickupRequestDocument>;
     getPickupsByDriverId(filters: PickupDriverFilterParams): Promise<EnhancedPickup[]>;
@@ -28,6 +30,9 @@ export interface IPickupRepository {
     getAllPaymentsByUser(userId: string): Promise<Partial<IPickupRequest>[]>;
     fetchAllPickupsByPlantId(plantId: string): Promise<PickupStatusByWasteType>;
     totalRevenueByPlantId(plantId: string): Promise<RevenueByWasteType>;
-    fetchAllPaymentsByPlantId(plantId: string): Promise<PaymentRecord[]>;
+    fetchAllPaymentsByPlantId(data: FetchPaymentPayload): Promise<PaginatedPaymentsResult> 
     updatePaymentStatus(pickupReqId: string): Promise<IPickupRequestDocument | null>;
+    getPickupWithUserAndPlantId(plantId: string, userId:string, pickupId: string): Promise<IPickupRequestDocument | null>;
+    filterWasteReportsByPlantId(data: FilterReport): Promise<IPickupRequestDocument[]>;
+    fetchWasteReportsByPlantId(plantId: string): Promise<IPickupRequestDocument[]>;
 }

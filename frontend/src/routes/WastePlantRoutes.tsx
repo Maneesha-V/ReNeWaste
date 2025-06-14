@@ -20,6 +20,8 @@ import DropSpots from "../pages/wastePlant/DropSpots";
 import EditDropSpot from "../pages/wastePlant/EditDropSpot";
 import Users from "../pages/wastePlant/Users";
 import Payments from "../pages/wastePlant/Payments";
+import Subscription from "../pages/wastePlant/Subscription";
+import WasteReports from "../pages/wastePlant/WasteReports";
 
 const WastePlantRoutes = () => {
   return (
@@ -49,6 +51,8 @@ const WastePlantRoutes = () => {
           <Route path="/users" element={<Users />} />
           <Route path="/chat" element={<WastePlantChat />} />
           <Route path="/payment" element={<Payments />} />
+          <Route path="/subscription-plan" element={<Subscription />} />
+          <Route path="/waste-reports" element={<WasteReports />} />
         </Route>
       </Route>
       

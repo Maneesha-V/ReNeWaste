@@ -1,0 +1,24 @@
+import { inject, injectable } from "inversify";
+import TYPES from "../../config/inversify/types";
+import { IReportService } from "./interface/IReportService";
+import { FilterReport } from "../../types/wastePlant/reportTypes";
+import { IPickupRepository } from "../../repositories/pickupReq/interface/IPickupRepository";
+
+@injectable()
+export class ReportService implements IReportService {
+  constructor(
+    // @inject(TYPES.WastePlantRepository)
+    // private wastePlantRepository: IWastePlantRepository,
+    @inject(TYPES.PickupRepository)
+    private pickupRepository: IPickupRepository
+  ) {}
+  async getWasteReports(plantId: string) {
+    const plantPickups = await this.pickupRepository.fetchWasteReportsByPlantId(plantId);
+    return plantPickups;
+  }
+  async filterWasteReports(data: FilterReport){
+    const { plantId, from, to } = data;
+    const plantPickups = await this.pickupRepository.filterWasteReportsByPlantId(data);
+    return plantPickups;
+  }
+}

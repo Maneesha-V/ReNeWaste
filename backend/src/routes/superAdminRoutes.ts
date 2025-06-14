@@ -34,6 +34,7 @@ router.get("/subscription-plans", authenticateSuperAdmin as RequestHandler, supe
 router.delete("/delete-subscription-plan/:id",authenticateSuperAdmin as RequestHandler, superAdminSubscriptionCtrl.deleteSubscriptionPlan.bind(superAdminSubscriptionCtrl));
 router.get("/edit-subscription-plan/:id", authenticateSuperAdmin as RequestHandler, superAdminSubscriptionCtrl.getSubscriptionPlanById.bind(superAdminSubscriptionCtrl))
 router.patch("/edit-subscription-plan/:id", authenticateSuperAdmin as RequestHandler, superAdminSubscriptionCtrl.updateSubscriptionPlanById.bind(superAdminSubscriptionCtrl));
+router.post("/renew-notification/:id", authenticateSuperAdmin as RequestHandler, superAdminPlantCtrl.sendSubscribeNotification.bind(superAdminPlantCtrl));
 
 export default router;
 

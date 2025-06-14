@@ -5,6 +5,7 @@ export interface IPickupRequest extends Document {
     userId: mongoose.Types.ObjectId;
     driverId?: mongoose.Types.ObjectId;
     wasteplantId?: mongoose.Types.ObjectId;
+    truckId?: mongoose.Types.ObjectId;
     addressId: mongoose.Types.ObjectId;
     wasteType: 'Residential' | 'Commercial';
     originalPickupDate: Date;

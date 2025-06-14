@@ -1,4 +1,4 @@
-import mongoose, { Types } from "mongoose";
+import mongoose, { PipelineStage, Types } from "mongoose";
 import {
   IPickupRequest,
   IPickupRequestDocument,
@@ -21,8 +21,14 @@ import {
   PickupStatusByWasteType,
   WasteType,
   RevenueByWasteType,
-  PaymentRecord
+  PaymentRecord,
 } from "./types/pickupTypes";
+import {
+  FetchPaymentPayload,
+  PaginatedPaymentsResult,
+} from "../../types/wastePlant/paymentTypes";
+import { populate } from "dotenv";
+import { FilterReport } from "../../types/wastePlant/reportTypes";
 
 @injectable()
 export class PickupRepository
@@ -110,6 +116,7 @@ export class PickupRepository
     updateData: {
       status: string;
       driverId: string;
+      truckId: string;
     }
   ) {
     const objectId = new Types.ObjectId(pickupReqId);
@@ -120,6 +127,7 @@ export class PickupRepository
           $set: {
             status: updateData.status,
             driverId: updateData.driverId,
+            truckId: updateData.truckId,
           },
         },
         { new: true }
@@ -131,15 +139,11 @@ export class PickupRepository
     }
     return updated;
   }
-  async updatePickupRequest(
-    pickupReqId: string
-  ) {
+  async updatePickupRequest(pickupReqId: string) {
     try {
       const updatedPickupRequest = await this.model.findByIdAndUpdate(
         pickupReqId,
-        { $set: 
-          {status : "Cancelled"}
-         },
+        { $set: { status: "Cancelled" } },
         { new: true }
       );
 
@@ -506,14 +510,19 @@ export class PickupRepository
       totalRevenue,
     };
   }
-  async fetchAllPaymentsByPlantId(plantId: string): Promise<PaymentRecord[]> {
-    const res = await this.model.aggregate([
-      {
-        $match: {
-          wasteplantId: new Types.ObjectId(plantId),
-          "payment.status": "Paid",
-        },
-      },
+
+  async fetchAllPaymentsByPlantId(
+    data: FetchPaymentPayload
+  ): Promise<PaginatedPaymentsResult> {
+    const { plantId, page, limit, search } = data;
+
+    const matchStage: PipelineStage.Match = {
+      wasteplantId: new Types.ObjectId(plantId),
+      "payment.status": "Paid",
+    } as any;
+
+    const pipeline: PipelineStage[] = [
+      { $match: matchStage },
       {
         $lookup: {
           from: "drivers",
@@ -522,12 +531,7 @@ export class PickupRepository
           as: "driver",
         },
       },
-      {
-        $unwind: {
-          path: "$driver",
-          preserveNullAndEmptyArrays: true,
-        },
-      },
+      { $unwind: { path: "$driver", preserveNullAndEmptyArrays: true } },
       {
         $lookup: {
           from: "users",
@@ -536,16 +540,40 @@ export class PickupRepository
           as: "user",
         },
       },
-      {
-        $unwind: {
-          path: "$user",
-          preserveNullAndEmptyArrays: true,
+      { $unwind: { path: "$user", preserveNullAndEmptyArrays: true } },
+    ];
+
+    // 🔍 Add a second $match after lookups for search
+    if (search) {
+      pipeline.push({
+        $match: {
+          $or: [
+            { pickupId: { $regex: search, $options: "i" } },
+            { status: { $regex: search, $options: "i" } },
+            { "user.firstName": { $regex: search, $options: "i" } },
+            { "user.lastName": { $regex: search, $options: "i" } },
+            { "driver.name": { $regex: search, $options: "i" } },
+            {
+              $expr: {
+                $regexMatch: {
+                  input: { $toString: "$payment.amount" },
+                  regex: search,
+                  options: "i",
+                },
+              },
+            },
+          ],
         },
-      },
+      });
+    }
+
+    // Final transformation and pagination
+    pipeline.push(
       {
         $project: {
           pickupId: 1,
           wasteType: 1,
+          status: 1,
           "payment.status": 1,
           "payment.razorpayPaymentId": 1,
           "payment.amount": 1,
@@ -564,21 +592,79 @@ export class PickupRepository
           },
         },
       },
+      { $sort: { "payment.paidAt": -1 } },
+      { $skip: (page - 1) * limit },
+      { $limit: limit }
+    );
+
+    // Get both data and count (filtered count)
+    const [paymentData, countResult] = await Promise.all([
+      this.model.aggregate(pipeline),
+      this.model.aggregate([
+        { $match: matchStage },
+        {
+          $lookup: {
+            from: "drivers",
+            localField: "driverId",
+            foreignField: "_id",
+            as: "driver",
+          },
+        },
+        { $unwind: { path: "$driver", preserveNullAndEmptyArrays: true } },
+        {
+          $lookup: {
+            from: "users",
+            localField: "userId",
+            foreignField: "_id",
+            as: "user",
+          },
+        },
+        { $unwind: { path: "$user", preserveNullAndEmptyArrays: true } },
+        ...(search
+          ? [
+              {
+                $match: {
+                  $or: [
+                    { pickupId: { $regex: search, $options: "i" } },
+                    { status: { $regex: search, $options: "i" } },
+                    { "user.firstName": { $regex: search, $options: "i" } },
+                    { "user.lastName": { $regex: search, $options: "i" } },
+                    { "driver.name": { $regex: search, $options: "i" } },
+                    {
+                      $expr: {
+                        $regexMatch: {
+                          input: { $toString: "$payment.amount" },
+                          regex: search,
+                          options: "i",
+                        },
+                      },
+                    },
+                  ],
+                },
+              },
+            ]
+          : []),
+        { $count: "total" },
+      ]),
     ]);
-    console.log("res", res);
-    return res;
+
+    const total = countResult.length > 0 ? countResult[0].total : 0;
+
+    return {
+      payments: paymentData,
+      total,
+    };
   }
-   async updatePaymentStatus(
-    pickupReqId: string
-  ) {
+
+  async updatePaymentStatus(pickupReqId: string) {
     try {
       const updatedPickupRequest = await this.model.findByIdAndUpdate(
         pickupReqId,
-        { $set: 
-          {
+        {
+          $set: {
             "payment.refundRequested": true,
-          }
-         },
+          },
+        },
         { new: true }
       );
 
@@ -590,5 +676,50 @@ export class PickupRepository
       console.error(error);
       throw new Error("Error in updating the pickup request.");
     }
+  }
+  async getPickupWithUserAndPlantId(
+    plantId: string,
+    userId: string,
+    pickupId: string
+  ): Promise<IPickupRequestDocument | null> {
+    const data = await this.model.findOne({
+      pickupId,
+      wasteplantId: plantId,
+      userId,
+    });
+    return data;
+  }
+  async filterWasteReportsByPlantId(
+    data: FilterReport
+  ): Promise<IPickupRequestDocument[]> {
+    const fromDate = new Date(`${data.from}T00:00:00.000Z`);
+    const toDate = new Date(`${data.to}T23:59:59.999Z`);
+
+    const pickups = await this.model
+      .find({
+        wasteplantId: data.plantId,
+        "payment.paidAt": { $gte: fromDate, $lte: toDate },
+        "payment.refundStatus": { $ne: "Refunded" },
+      })
+      .populate({
+        path: "driverId",
+        select: "name",
+      });
+
+    return pickups;
+  }
+  async fetchWasteReportsByPlantId(plantId: string) {
+     const pickups = await this.model
+      .find({
+        wasteplantId: plantId,
+        status: "Completed",
+        "payment.refundStatus": { $ne: "Refunded" },
+      })
+      .populate({
+        path: "driverId",
+        select: "name",
+      });
+
+    return pickups;
   }
 }

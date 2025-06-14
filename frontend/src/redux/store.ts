@@ -14,6 +14,8 @@ import wastePlantUserReducer from "../redux/slices/wastePlant/wastePlantUserSlic
 import wastePlantDashboardReducer from "../redux/slices/wastePlant/wastePlantDashboardSlice";
 import wastePlantNotificationsReducer from "../redux/slices/wastePlant/wastePlantNotificationSlice";
 import wastePlantPaymentsReducer from "../redux/slices/wastePlant/wastePlantPaymentSlice";
+import wastePlantSubscriptionReducer from "../redux/slices/wastePlant/wastePlantSubscriptionSlice";
+import wastePlantReportsReducer from "../redux/slices/wastePlant/wastePlantReportsSlice";
 
 import driverReducer from "../redux/slices/driver/driverSlice";
 import driverProfileReducer from "../redux/slices/driver/profileDriverSlice";
@@ -54,6 +56,8 @@ export const store = configureStore({
         wastePlantDashboard: wastePlantDashboardReducer,
         wastePlantNotifications: wastePlantNotificationsReducer,
         wastePlantPayments: wastePlantPaymentsReducer,
+        wastePlantSubscription: wastePlantSubscriptionReducer,
+        wastePlantReports: wastePlantReportsReducer,
         driver: driverReducer,
         driverProfile: driverProfileReducer,
         driverPickups: driverPickupsReducer,

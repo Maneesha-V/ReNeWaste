@@ -14,6 +14,7 @@ import { NotificationController } from "../controllers/wastePlant/notificationCo
 import { DashboardController } from "../controllers/wastePlant/dashboardController";
 import { SubscriptionController } from "../controllers/wastePlant/subscriptionController";
 import { PaymentController } from "../controllers/wastePlant/paymentController";
+import { ReportController } from "../controllers/wastePlant/reportController";
 
 const router = express.Router();
 const plantCtrl = container.get<AuthController>(TYPES.PlantAuthController);
@@ -27,6 +28,7 @@ const plantNotificationCtrl = container.get<NotificationController>(TYPES.PlantN
 const plantDashboardCtrl = container.get<DashboardController>(TYPES.PlantDashboardController);
 const plantSubscriptionCtrl = container.get<SubscriptionController>(TYPES.PlantSubscriptionController);
 const plantPaymentCtrl = container.get<PaymentController>(TYPES.PlantPaymentController);
+const plantReportCtrl =  container.get<ReportController>(TYPES.PlantReportController);
 
 
 router.get("/refresh-token", plantCtrl.refreshToken.bind(plantCtrl));
@@ -83,5 +85,14 @@ router.patch("/notifications/:notifId/read", authenticateWastePlant as RequestHa
 router.post("/waste-measurement", authenticateWastePlant as RequestHandler, plantNotificationCtrl.saveWasteMeasurement.bind(plantNotificationCtrl))
 router.get("/dashboard", authenticateWastePlant as RequestHandler, plantDashboardCtrl.fetchDashboardData.bind(plantDashboardCtrl))
 router.get("/payment", authenticateWastePlant as RequestHandler, plantPaymentCtrl.fetchPayments.bind(plantPaymentCtrl))
+router.get("/subscription-plan", authenticateWastePlant as RequestHandler, plantSubscriptionCtrl.fetchSubscriptionPlan.bind(plantSubscriptionCtrl))
+router.post("/payment/create-order", authenticateWastePlant as RequestHandler, plantPaymentCtrl.createPaymentOrder.bind(plantPaymentCtrl));
+router.post("/payment/verify", authenticateWastePlant as RequestHandler, plantPaymentCtrl.verifyPayment.bind(plantPaymentCtrl));
+router.get("/subscptn-payments", authenticateWastePlant as RequestHandler, plantPaymentCtrl.fetchSubscriptionPayments.bind(plantPaymentCtrl));
+router.post("/payment/repay", authenticateWastePlant as RequestHandler, plantPaymentCtrl.retrySubscriptionPayment.bind(plantPaymentCtrl));
+router.post("/payment/update-status", authenticateWastePlant as RequestHandler, plantPaymentCtrl.updateRefundStatusPayment.bind(plantPaymentCtrl));
+router.post("/payment/refund", authenticateWastePlant as RequestHandler, plantPaymentCtrl.refundPayment.bind(plantPaymentCtrl));
+router.get("/waste-reports", authenticateWastePlant as RequestHandler, plantReportCtrl.getWasteReports.bind(plantReportCtrl))
+router.get("/waste-reports/from=:from&to=:to", authenticateWastePlant as RequestHandler, plantReportCtrl.filterWasteReports.bind(plantReportCtrl))
 
 export default router;

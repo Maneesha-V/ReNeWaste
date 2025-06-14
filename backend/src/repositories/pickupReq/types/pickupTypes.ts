@@ -25,10 +25,11 @@ export type PaymentRecord = {
     amount: number;
     paidAt: Date;
     refundRequested?: boolean;
-    refundStatus?: "Pending" | "Refunded" | "Rejected" | null;
+    refundStatus?: "Pending" | "Processing" |"Refunded" | "Rejected" | null;
     refundAt?: Date;
   };
   driverName?: string;
   userName?: string;
   dueDate: Date;
 };
+

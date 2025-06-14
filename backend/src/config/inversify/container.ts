@@ -56,6 +56,8 @@ import { IPaymentController as IPlantPaymentController } from "../../controllers
 import { PaymentController as PlantPaymentController } from "../../controllers/wastePlant/paymentController";
 import { IDashboardController as IPlantDashboardController } from "../../controllers/wastePlant/interface/IDashboardController";
 import { DashboardController as PlantDashboardController } from "../../controllers/wastePlant/dashboardController";
+import { ReportController as PlantReportController } from "../../controllers/wastePlant/reportController";
+import { IReportController as IPlantReportController } from "../../controllers/wastePlant/interface/IReportController";
 
 //driver
 import { IAuthController as IDriverAuthController } from "../../controllers/driver/interface/IAuthController";
@@ -129,6 +131,8 @@ import { IPaymentService as IPlantPaymentService } from "../../services/wastePla
 import { PaymentService as PlantPaymentService } from "../../services/wastePlant/paymentService";
 import { IDashboardService as IPlantDashboardService } from "../../services/wastePlant/interface/IDashboardService";
 import { DashboardService as PlantDashboardService } from "../../services/wastePlant/dashboardService";
+import { IReportService as IPlantReportService } from "../../services/wastePlant/interface/IReportService";
+import { ReportService as PlantReportService } from "../../services/wastePlant/reportService";
 
 //driver
 import { IAuthService as IDriverAuthService } from "../../services/driver/interface/IAuthService";
@@ -173,6 +177,8 @@ import { IWasteCollectionRepository } from "../../repositories/wasteCollection/i
 import { WasteCollectionRepository } from "../../repositories/wasteCollection/wasteCollectionRepository";
 import { ISubscriptionPlanRepository } from "../../repositories/subscriptionPlan/interface/ISubscriptionPlanRepository";
 import { SubscriptionPlanRepository } from "../../repositories/subscriptionPlan/subscriptionPlanRepository";
+import { ISubscriptionPaymentRepository } from "../../repositories/subscriptionPayment/interface/ISubscriptionPaymentRepository";
+import { SubscriptionPaymentRepository } from "../../repositories/subscriptionPayment/subscriptionPaymentRepository";
 
 
 
@@ -209,6 +215,7 @@ container.bind<IPlantNotificationController>(TYPES.PlantNotificationController).
 container.bind<IPlantSubscriptionController>(TYPES.PlantSubscriptionController).to(PlantSubscriptionController);
 container.bind<IPlantPaymentController>(TYPES.PlantPaymentController).to(PlantPaymentController);
 container.bind<IPlantDashboardController>(TYPES.PlantDashboardController).to(PlantDashboardController);
+container.bind<IPlantReportController>(TYPES.PlantReportController).to(PlantReportController);
 
 //driver
 container.bind<IDriverAuthController>(TYPES.DriverAuthController).to(DriverAuthController);
@@ -251,6 +258,7 @@ container.bind<IPlantNotificationService>(TYPES.PlantNotificationService).to(Pla
 container.bind<IPlantSubscriptionService>(TYPES.PlantSubscriptionService).to(PlantSubscriptionService);
 container.bind<IPlantPaymentService>(TYPES.PlantPaymentService).to(PlantPaymentService);
 container.bind<IPlantDashboardService>(TYPES.PlantDashboardService).to(PlantDashboardService);
+container.bind<IPlantReportService>(TYPES.PlantReportService).to(PlantReportService);
 
 //driver
 container.bind<IDriverAuthService>(TYPES.DriverAuthService).to(DriverAuthService);
@@ -275,6 +283,7 @@ container.bind<IDriverRepository>(TYPES.DriverRepository).to(DriverRepository).i
 container.bind<INotificationRepository>(TYPES.NotificationRepository).to(NotificationRepository);
 container.bind<IWasteCollectionRepository>(TYPES.WasteCollectionRepository).to(WasteCollectionRepository);
 container.bind<ISubscriptionPlanRepository>(TYPES.SubscriptionPlanRepository).to(SubscriptionPlanRepository);
+container.bind<ISubscriptionPaymentRepository>(TYPES.SubscriptionPaymentRepository).to(SubscriptionPaymentRepository);
 
 // Bind factory for circular dep
 container.bind<() => IDriverRepository>(TYPES.DriverRepositoryFactory)

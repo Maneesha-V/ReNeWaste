@@ -18,6 +18,11 @@ export const pickupRequestSchema: Schema<IPickupRequestDocument> = new Schema(
         ref: "WastePlant",
         default: null,
       },
+      truckId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Truck",
+        default: null,
+      },
       addressId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Address", 
