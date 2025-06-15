@@ -50,6 +50,7 @@ export class TruckRepository
 
     const query: any = {
       wasteplantId: plantId,
+      isDeleted: false,
       $or: [
         { name: { $regex: searchRegex } },
         { vehicleNumber: { $regex: searchRegex } },
@@ -97,7 +98,15 @@ export class TruckRepository
     return await this.model.findByIdAndUpdate(truckId, data, { new: true });
   }
   async deleteTruckById(truckId: string) {
-    return await this.model.findByIdAndDelete(truckId);
+    const updatedTruck = await this.model.findByIdAndUpdate(
+      truckId,
+      {isDeleted: true, status: "Inactive"},
+      {new: true}
+    )
+    if(!updatedTruck){
+      throw new Error("Truck not found.")
+    }
+    return updatedTruck;
   }
 
   async reqTruckToWastePlant(driverId: string) {

@@ -16,6 +16,7 @@ export interface IDriver {
   assignedZone?: string;
   hasRequestedTruck?: boolean;
   category: "Residential" | "Commercial" | "Pending";
+  isDeleted?: boolean;
   createdAt: Date;
   updatedAt: Date;
 }

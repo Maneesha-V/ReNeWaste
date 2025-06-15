@@ -18,7 +18,7 @@ export interface ITruckRepository {
   getAvailableTrucks(driverId: string, plantId: string): Promise<any>;
   getTruckById(truckId: string): Promise<ITruckDocument | null>;
   updateTruckById(truckId: string, data: any): Promise<ITruck | null>;
-  deleteTruckById(truckId: string): Promise<ITruck | null>;
+  deleteTruckById(truckId: string): Promise<ITruckDocument | null>;
   reqTruckToWastePlant(driverId: string): Promise<any>;
   getMaintainanceTrucks(plantId: string): Promise<any>;
   activeAvailableTrucks(plantId: string): Promise<ITruckDocument[]>;

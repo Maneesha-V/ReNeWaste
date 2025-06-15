@@ -218,9 +218,10 @@ const wastePlantTruckSlice = createSlice({
         state.error = action.payload as string;
       })
       .addCase(deleteTruck.fulfilled, (state, action) => {
-        state.truck = state.truck.filter(
-          (truck: any) => truck._id !== action.payload
-        );
+        state.message = action.payload.message;
+        state.truck = state.truck.filter((t: any)=>{
+          return t._id !== action.payload.updatedTruck._id
+        })
       })
       .addCase(fetchTruckRequests.pending, (state) => {
         state.loading = true;

@@ -65,19 +65,12 @@ export class WastePlantRepository extends BaseRepository<IWastePlantDocument> im
   }
   async reSaveOtp(email: string, otp: string): Promise<void> {
     await this.otpRepository.reSaveOtp(email, otp);
-    // await OTPModel.findOneAndUpdate(
-    //   { email },
-    //   { otp, createdAt: new Date() },
-    //   { new: true, upsert: true }
-    // );
   }
   async findOtpByEmail(email: string): Promise<OtpRecord | null> {
     return await this.otpRepository.findOtpByEmail(email);
-    // return await OTPModel.findOne({ email });
   }
   async deleteOtp(email: string): Promise<void> {
     await this.otpRepository.deleteOtp(email);
-    // await OTPModel.deleteOne({ email });
   }
   async updateWastePlantPassword(
     email: string,
@@ -95,7 +88,15 @@ export class WastePlantRepository extends BaseRepository<IWastePlantDocument> im
     });
   }
   async deleteWastePlantById(id: string) {
-    return await this.model.findByIdAndDelete(id);
+    const updatedPlant = await this.model.findByIdAndUpdate(
+      id,
+      {isDeleted: true, status: "Inactive"},
+      {new : true}
+    )
+    if(!updatedPlant){
+      throw new Error("Plant not found");
+    }
+    return updatedPlant;
   }
 }
 

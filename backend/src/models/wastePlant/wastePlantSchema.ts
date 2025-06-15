@@ -39,7 +39,11 @@ export const wastePlantSchema: Schema<IWastePlantDocument> = new Schema({
       enum: ["user", "driver", "superadmin", "wasteplant"], 
       default: "wasteplant",
       required: true 
-  },
+    },
+    isDeleted: {
+      type: Boolean,
+      default: false
+    },
     createdAt: { type: Date, default: Date.now },
     updatedAt: { type: Date, default: Date.now }
   });

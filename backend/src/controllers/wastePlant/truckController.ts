@@ -148,16 +148,25 @@ export class TruckController implements ITruckController {
     }
   }
 
-  async deleteTruckById(req: Request, res: Response): Promise<void> {
+  async deleteTruckById(req: AuthRequest, res: Response): Promise<void> {
     try {
       const { truckId } = req.params;
-      const result = await this.truckService.deleteTruckByIdService(truckId);
-      if (!result) {
+       if (!truckId) {
+        res.status(400).json({ message: "Truck ID is required" });
+        return;
+      }
+      const updatedTruck = await this.truckService.deleteTruckByIdService(truckId);
+      if (!updatedTruck) {
         res.status(404).json({ message: "Truck not found" });
         return;
       }
-
-      res.status(200).json({ message: "Truck deleted successfully" });
+      console.log("updatedTruck",updatedTruck);
+      
+      res.status(200).json({ 
+        success: true,
+        updatedTruck,
+        message: "Truck deleted successfully"
+       });
     } catch (error: any) {
       console.error("Error in deleting truck:", error);
       res.status(500).json({ message: "Server error" });

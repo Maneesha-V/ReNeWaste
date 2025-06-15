@@ -175,14 +175,16 @@ export class DriverController implements IDriverController {
     try {
       console.log("body", req.body);
       const { driverId } = req.params;
-      const result = await this.driverService.deleteDriverByIdService(driverId);
-      console.log("result-delete", result);
-      if (!result) {
+      const updatedDriver = await this.driverService.deleteDriverByIdService(driverId);
+
+      if (!updatedDriver) {
         res.status(404).json({ message: "Driver not found" });
         return;
       }
 
-      res.status(200).json({ message: "Driver deleted successfully" });
+      res.status(200).json({ 
+        updatedDriver,
+        message: "Driver deleted successfully" });
     } catch (error: any) {
       console.error("Error in deleting driver:", error);
       res.status(500).json({ message: "Server error" });

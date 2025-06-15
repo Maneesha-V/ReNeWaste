@@ -9,6 +9,7 @@ export interface ITruck {
   status: "Active" | "Inactive" | "Maintenance";
   isReturned?: boolean;
   tareWeight: number;
+  isDeleted?: boolean;
   createdAt: Date;
   updatedAt: Date;
 }

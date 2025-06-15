@@ -25,7 +25,6 @@ export class PickupService implements IPickupService {
     if (!pickup) {
       throw new Error("Pickup not found");
     }
-    console.log("user-pickup", pickup);
 
     if (pickup.status === "Cancelled") {
       throw new Error("Pickup already canceled");

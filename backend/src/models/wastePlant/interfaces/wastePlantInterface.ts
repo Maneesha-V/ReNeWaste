@@ -7,7 +7,6 @@ export interface IWastePlant {
     district: string;
     taluk: string;
     pincode: string;
-    // city: string;
     state: string;
     contactInfo: string;
     contactNo: string;
@@ -20,6 +19,7 @@ export interface IWastePlant {
     subscriptionPlan?: string;
     password: string;
     role: "user" | "driver" | "superadmin" | "wasteplant";
+    isDeleted?: boolean;
     createdAt: Date;
     updatedAt: Date;
   }

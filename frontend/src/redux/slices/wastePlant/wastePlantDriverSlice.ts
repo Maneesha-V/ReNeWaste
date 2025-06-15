@@ -8,6 +8,7 @@ import {
   updateDriverById,
 } from "../../../services/wastePlant/driverService";
 import { PaginationPayload } from "../../../types/commonTypes";
+import { driverLogin } from "../driver/driverSlice";
 
 interface DriverState {
   driver: any;
@@ -151,8 +152,7 @@ const wastePlantDriverSlice = createSlice({
         state.loading = true;
         state.error = null;
       })
-      .addCase(fetchDriverById.fulfilled, (state, action) => {
-  console.log("action",action.payload);   
+      .addCase(fetchDriverById.fulfilled, (state, action) => { 
         state.loading = false;
         state.driver = action.payload.driver;
         state.taluk = action.payload.taluk;
@@ -174,9 +174,12 @@ const wastePlantDriverSlice = createSlice({
         state.error = action.payload as string;
       })
       .addCase(deleteDriver.fulfilled, (state, action) => {
-        state.driver = state.driver.filter(
-          (driver: any) => driver._id !== action.payload
-        );
+        console.log("accc",action.payload);
+
+        state.message = action.payload.message;
+        state.driver = state.driver.filter((d:any)=>{
+          return d._id !== action.payload.updatedDriver._id
+        })
       });
   },
 });

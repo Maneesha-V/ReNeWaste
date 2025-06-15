@@ -178,7 +178,7 @@ const Payments = () => {
           dataIndex={["payment", "refundAt"]}
           key="refundAt"
           render={(value) => {
-            if(value !== null){
+            if(value && !isNaN(Date.parse(value))){
             const { date, time } = extractDateTimeParts(value);
             return (
               <div>
@@ -186,8 +186,9 @@ const Payments = () => {
                 <div className="text-sm text-gray-500">{time}</div>
               </div>
             );
+          }else{
+            return "";
           }
-          return null;
           }}
         />
         <Table.Column

@@ -63,6 +63,8 @@ export const getDrivers = async ({ page, limit, search }: PaginationPayload) => 
   export const deleteDriverById = async (driverId: string) => {
     try {
       const response = await axiosWasteplant.delete(`/delete-driver/${driverId}`);
+      console.log("response",response);
+      
       return response.data;
     } catch (error: any) {
       console.error("error", error);

@@ -7,7 +7,7 @@ export interface ITruckController {
     fetchAvailableTrucks (req: AuthRequest,res: Response): Promise<void>;
     getTruckById (req: Request,res: Response): Promise<void>;
     updateTruck (req: Request,res: Response): Promise<void>;
-    deleteTruckById (req: Request,res: Response): Promise<void>;
+    deleteTruckById (req: AuthRequest,res: Response): Promise<void>;
     getAvailableTruckReqsts (req: AuthRequest, res: Response): Promise<void>;
     getTrucksForDriver(req: AuthRequest, res: Response): Promise<void>;
     assignTruckToDriver(req: AuthRequest, res: Response): Promise<void>;

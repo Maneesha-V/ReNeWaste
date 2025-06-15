@@ -41,6 +41,10 @@ export const truckSchema: Schema<ITruckDocument> = new Schema(
       type: Number,
       required: true,
     },
+    isDeleted: {
+      type: Boolean,
+      default: false
+    }
   },
   {
     timestamps: true,

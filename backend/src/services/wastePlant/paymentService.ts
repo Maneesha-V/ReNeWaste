@@ -66,9 +66,18 @@ export class PaymentService implements IPaymentService {
     const plant = await this.wastePlantRepository.findWastePlantByName(
       plantName
     );
-    console.log("plant ", plant);
+
     if (!plant) {
       throw new Error("Plant not found.");
+    }
+    if (!plant.subscriptionPlan) {
+      throw new Error("Subscription plan not found.");
+    }
+    const existingPlan = await this.subscriptionRepository.checkPlanNameExist(
+      plant.subscriptionPlan
+    );
+    if (!existingPlan || existingPlan.status !== "Active") {
+      throw new Error("This subscription plan is not active.");
     }
     const order = await this.razorpay.orders.create({
       amount: amount * 100,
@@ -219,24 +228,24 @@ export class PaymentService implements IPaymentService {
     pickupReq.payment.refundStatus = status;
     await pickupReq.save();
 
-     const io = global.io;
+    const io = global.io;
 
-      const userId = pickupReq.userId.toString();
-      const userMessage = `Refund process started for Pickup ID ${pickupReq.pickupId}.`;
-      const userNotification =
-        await this.notificationRepository.createNotification({
-          receiverId: userId,
-          receiverType: "user",
-          senderId: plantId,
-          senderType: "wasteplant",
-          message: userMessage,
-          type: "pickup_refund-processing",
-        });
-      console.log("userNotification", userNotification);
+    const userId = pickupReq.userId.toString();
+    const userMessage = `Refund process started for Pickup ID ${pickupReq.pickupId}.`;
+    const userNotification =
+      await this.notificationRepository.createNotification({
+        receiverId: userId,
+        receiverType: "user",
+        senderId: plantId,
+        senderType: "wasteplant",
+        message: userMessage,
+        type: "pickup_refund-processing",
+      });
+    console.log("userNotification", userNotification);
 
-      if (io) {
-        io.to(`${userId}`).emit("newNotification", userNotification);
-      }
+    if (io) {
+      io.to(`${userId}`).emit("newNotification", userNotification);
+    }
 
     return pickupReq;
   }
@@ -279,6 +288,7 @@ export class PaymentService implements IPaymentService {
         pickupReq.payment.razorpayRefundId = `test_refund_${Date.now()}`;
       }
 
+      pickupReq.status = "Cancelled";
       pickupReq.payment.refundStatus = "Refunded";
       pickupReq.payment.refundAt = new Date();
 

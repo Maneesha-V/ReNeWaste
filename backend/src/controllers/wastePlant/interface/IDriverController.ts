@@ -6,5 +6,5 @@ export interface IDriverController {
     fetchDrivers (req: AuthRequest,res: Response): Promise<void>;
     getDriverById (req: AuthRequest,res: Response): Promise<void>;
     updateDriver (req: Request,res: Response): Promise<void>;
-    deleteDriverById (req: Request,res: Response): Promise<void>;
+    deleteDriverById (req: AuthRequest,res: Response): Promise<void>;
 }

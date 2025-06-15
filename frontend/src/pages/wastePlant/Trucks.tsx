@@ -10,6 +10,7 @@ import { deleteTruck, fetchTrucks } from "../../redux/slices/wastePlant/wastePla
 import PaginationSearch from "../../components/common/PaginationSearch";
 import usePagination from "../../hooks/usePagination";
 import debounce from "lodash/debounce";
+import { toast } from "react-toastify";
 
 const Trucks: React.FC = () => {
   const dispatch = useAppDispatch();
@@ -44,8 +45,8 @@ const Trucks: React.FC = () => {
 
  const handleDelete = async (truckId: string) => {
     try {
-      await dispatch(deleteTruck(truckId)).unwrap();
-      await dispatch(fetchTrucks({ page: currentPage, limit: pageSize, search }));
+     const response =  await dispatch(deleteTruck(truckId)).unwrap();
+     toast.success(response.message);
     } catch (error: any) {
       console.error("Delete failed:", error);
     }

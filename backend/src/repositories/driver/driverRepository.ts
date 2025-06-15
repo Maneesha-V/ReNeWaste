@@ -59,6 +59,7 @@ export class DriverRepository
 
     const query: any = {
       wasteplantId: plantId,
+      isDeleted: false,
       $or: [
         { name: { $regex: searchRegex } },
         { licenseNumber: { $regex: searchRegex } },
@@ -98,7 +99,15 @@ export class DriverRepository
     return await this.model.findByIdAndUpdate(driverId, data, { new: true });
   }
   async deleteDriverById(driverId: string) {
-    return await this.model.findByIdAndDelete(driverId);
+    const updatedDriver = await this.model.findByIdAndUpdate(
+      driverId,
+      {isDeleted: true, status: "Inactive"},
+      {new: true}
+    )
+    if(!updatedDriver){
+      throw new Error("Driver not found.")
+    }
+    return updatedDriver;
   }
   async fetchDriversByPlantId(wastePlantId: string) {
     const objectId = new Types.ObjectId(wastePlantId);

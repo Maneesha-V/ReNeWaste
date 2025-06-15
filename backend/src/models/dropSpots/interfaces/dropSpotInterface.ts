@@ -12,6 +12,7 @@ export interface IDropSpot {
     lat: number;
     lng: number;
   };
+  isDeleted?: boolean;
 }
 
 export interface IDropSpotDocument extends IDropSpot, Document {
