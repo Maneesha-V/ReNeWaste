@@ -1,2 +1,11 @@
 @import "tailwindcss";
 
+@keyframes blink {
+  0% { background-color: #fff3cd; } 
+  50% { background-color: #ffeeba; }
+  100% { background-color: #fff3cd; }
+}
+
+.blink-row {
+  animation: blink 1s infinite;
+}

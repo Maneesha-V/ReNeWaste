@@ -14,6 +14,7 @@ export interface SubptnVerifyPaymentPayload {
   planId?: string;
   amount: number;
   subPaymtId?: string;
+  billingCycle: string;
 }
 
 export type PaymentRecord = {

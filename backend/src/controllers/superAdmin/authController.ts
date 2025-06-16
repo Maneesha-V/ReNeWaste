@@ -31,7 +31,6 @@ export class AuthController implements IAuthController {
   }
   async superAdminLogin(req: Request, res: Response): Promise<void> {
     try {
-      
       const { email, password } = req.body;
       const { admin, token } = await this.authService.adminLoginService({
         email,
@@ -53,7 +52,9 @@ export class AuthController implements IAuthController {
       .json({
         success: true,
         message: "Login successful",
-        admin: safeAdmin,
+        // admin: safeAdmin,
+        role: safeAdmin.role,
+        adminId: safeAdmin._id,
         token
       });
     } catch (error: any) {

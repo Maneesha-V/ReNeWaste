@@ -73,5 +73,8 @@ export class SubscriptionPaymentRepository
   }
     return updatedData;
   }
+  async findPaidSubscriptionPayments(){
+    return await this.model.find({status: "Paid"})
+  }
   
 }

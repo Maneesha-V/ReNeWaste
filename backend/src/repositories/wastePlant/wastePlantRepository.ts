@@ -47,8 +47,8 @@ export class WastePlantRepository extends BaseRepository<IWastePlantDocument> im
     return await this.model.findOne({ plantName });
   }
 
-  async getAllWastePlants(): Promise<IWastePlant[]> {
-    return await this.model.find();
+  async getAllWastePlants(): Promise<IWastePlantDocument[] | null> {
+    return await this.model.find({isDeleted: false});
   }
   async getWastePlantById(id: string) {
     return await this.model.findById(id);
@@ -60,7 +60,6 @@ export class WastePlantRepository extends BaseRepository<IWastePlantDocument> im
     return await this.model.findByIdAndUpdate(id, data, { new: true });
   }
   async saveOtp(email: string, otp: string): Promise<void> {
-    // await OTPModel.create({ email, otp, createdAt: new Date() });
     await this.otpRepository.saveOtp( email, otp);
   }
   async reSaveOtp(email: string, otp: string): Promise<void> {
@@ -97,6 +96,9 @@ export class WastePlantRepository extends BaseRepository<IWastePlantDocument> im
       throw new Error("Plant not found");
     }
     return updatedPlant;
+  }
+  async getAllActiveWastePlants(){
+    return await this.model.find({status: "Active"})
   }
 }
 

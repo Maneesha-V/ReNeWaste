@@ -30,7 +30,7 @@ export const NotificationSchema: Schema<INotificationDocument> = new Schema(
       enum: [ "truck_returned", "general", 
         "pickup_scheduled","pickup_requested", "pickup_approved","pickup_rescheduled","pickup_cancelled",
         "pickup_refund-req","pickup_refund-pending","pickup_refund-processing","pickup_refund-completed",
-        "subscribe_reminder"],
+        "subscribe_reminder","subscribe_recharged","renew_reminder","recharge_reminder"],
       default: "general",
     },
     isRead: {

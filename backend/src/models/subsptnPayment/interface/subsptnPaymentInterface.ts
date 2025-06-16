@@ -10,6 +10,7 @@ export interface ISubscriptionPayment  {
   razorpaySignature: string | null;
   amount: number;
   paidAt: Date | null;
+  expiredAt: Date | null;
   refundRequested: boolean;
   refundStatus: "Pending" | "Processing" | "Refunded" | "Rejected" | null;
   refundAt: Date | null;

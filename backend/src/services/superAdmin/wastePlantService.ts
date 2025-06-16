@@ -5,8 +5,12 @@ import { checkForDuplicateWastePlant } from "../../utils/wastePlantDuplicateVali
 import { injectable, inject } from "inversify";
 import TYPES from "../../config/inversify/types";
 import { IWastePlantRepository } from "../../repositories/wastePlant/interface/IWastePlantRepository";
-import { notificationPayload } from "../../types/superAdmin/wastePlantTypes";
+import {
+  notificationPayload,
+  ReturnAdminWastePlant,
+} from "../../types/superAdmin/wastePlantTypes";
 import { INotificationRepository } from "../../repositories/notification/interface/INotifcationRepository";
+import { ISubscriptionPaymentRepository } from "../../repositories/subscriptionPayment/interface/ISubscriptionPaymentRepository";
 
 @injectable()
 export class WastePlantService implements IWastePlantService {
@@ -14,7 +18,9 @@ export class WastePlantService implements IWastePlantService {
     @inject(TYPES.WastePlantRepository)
     private wastePlantRepository: IWastePlantRepository,
     @inject(TYPES.NotificationRepository)
-    private notificationRepository: INotificationRepository
+    private notificationRepository: INotificationRepository,
+    @inject(TYPES.SubscriptionPaymentRepository)
+    private subscriptionPaymentRepository: ISubscriptionPaymentRepository
   ) {}
   async addWastePlant(data: IWastePlant): Promise<IWastePlant> {
     await checkForDuplicateWastePlant(
@@ -34,8 +40,66 @@ export class WastePlantService implements IWastePlantService {
     return await this.wastePlantRepository.createWastePlant(newData);
   }
 
-  async getAllWastePlants(): Promise<IWastePlant[]> {
-    return await this.wastePlantRepository.getAllWastePlants();
+  // async getAllWastePlants(): Promise<IWastePlant[]> {
+  //   const updatedData = return await this.wastePlantRepository.getAllWastePlants();
+  //   return plantData;
+  // }
+  async getAllWastePlants(): Promise<ReturnAdminWastePlant[]> {
+    const plantData = await this.wastePlantRepository.getAllWastePlants();
+    const paidPayments =
+      await this.subscriptionPaymentRepository.findPaidSubscriptionPayments();
+    if (!paidPayments) {
+      throw new Error("Paid subscription plans not found.");
+    }
+    if (!plantData) {
+      throw new Error("Wasteplants not found.");
+    }
+    const now = new Date();
+
+    // Create a map of latest payment per plantId
+    const latestPaymentsMap = new Map();
+
+    for (const payment of paidPayments) {
+      const existing = latestPaymentsMap.get(payment.wasteplantId?.toString());
+
+      if (
+        payment?.expiredAt &&
+        (!existing ||
+          (existing.expiredAt &&
+            new Date(payment.expiredAt) > new Date(existing.expiredAt)))
+      ) {
+        latestPaymentsMap.set(payment.wasteplantId?.toString(), payment);
+      }
+    }
+
+    // Add latestSubscription info to each plant
+    const updatedPlants = plantData.map((plant: any) => {
+      const plantIdStr = plant._id.toString();
+      const latestPayment = latestPaymentsMap.get(plantIdStr);
+
+      if (latestPayment) {
+        const expiredAt = new Date(latestPayment.expiredAt);
+        const daysLeft = Math.ceil(
+          (expiredAt.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)
+        );
+
+        return {
+          plantData: plant,
+          latestSubscription: {
+            status: latestPayment.status,
+            expiredAt,
+            daysLeft,
+          },
+        };
+      } else {
+        return {
+          plantData: plant,
+          latestSubscription: null,
+        };
+      }
+    });
+
+    return updatedPlants;
   }
   async getWastePlantByIdService(id: string): Promise<IWastePlant | null> {
     try {

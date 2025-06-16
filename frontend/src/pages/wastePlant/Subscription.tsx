@@ -28,14 +28,15 @@ const Subscription = () => {
     driverLimit: 0,
     userLimit: 0,
   });
+  const [paymentRows, setPaymentRows] = useState<any[]>([]);
   const subscriptionPlan = useSelector(
     (state: RootState) => state.wastePlantSubscription.selectedPlan
   );
   const subscriptionData = subscriptionPlan?.subscriptionData;
   const plantData = subscriptionPlan?.plantData;
-  console.log("subscriptionData",subscriptionData);
-  console.log("plantData",plantData);
-  
+  console.log("subscriptionData", subscriptionData);
+  console.log("plantData", plantData);
+
   useEffect(() => {
     dispatch(fetchSubscriptionPlan());
     dispatch(fetchSubscrptnPayments());
@@ -45,7 +46,16 @@ const Subscription = () => {
     (state: RootState) => state.wastePlantPayments.payments
   );
   console.log("payments", payments);
-
+  useEffect(() => {
+    if (payments?.paymentData?.length) {
+      setPaymentRows(
+        payments.paymentData.map((payment: any) => ({
+          ...payment,
+          plantData: payments.planData,
+        }))
+      );
+    }
+  }, [payments]);
   const handleViewDetails = () => {
     if (subscriptionPlan.subscriptionData) {
       const { truckLimit, driverLimit, userLimit, description } =
@@ -64,8 +74,11 @@ const Subscription = () => {
   const handleRetryPayment = async (
     planId: string,
     amount: number,
-    subPaymtId: string
+    subPaymtId: string,
+    billingCycle: string
   ) => {
+    console.log("billingCycle", billingCycle);
+
     const response = await dispatch(repay({ planId, amount, subPaymtId }));
     console.log("respp", response);
 
@@ -100,20 +113,31 @@ const Subscription = () => {
               razorpay_signature,
               planId: subPlanId,
               amount: repayAmt,
+              billingCycle,
             })
           )
             .unwrap()
             .then(() => {
-              Swal.fire({
-                icon: "success",
-                title: "Payment Successful!",
-                text: "Your payment was verified successfully.",
-                confirmButtonColor: "#28a745",
-              }).then(() => {
-                dispatch(fetchSubscrptnPayments());
-                // navigate("/waste-plant/subscription-plan");
+              dispatch(fetchSubscrptnPayments()).then(() => {
+                Swal.fire({
+                  icon: "success",
+                  title: "Payment Successful!",
+                  text: "Your payment was verified successfully.",
+                  confirmButtonColor: "#28a745",
+                });
               });
             })
+            // .then(() => {
+            //   Swal.fire({
+            //     icon: "success",
+            //     title: "Payment Successful!",
+            //     text: "Your payment was verified successfully.",
+            //     confirmButtonColor: "#28a745",
+            //   }).then(() => {
+            //     dispatch(fetchSubscrptnPayments());
+            //     // navigate("/waste-plant/subscription-plan");
+            //   });
+            // })
             .catch(() => {
               Swal.fire({
                 icon: "error",
@@ -137,40 +161,82 @@ const Subscription = () => {
       razorpay.open();
     }
   };
-    const subActionColumn =  {
-      title: "Action",
-      key: "action",
-      render: (_: any, record: any) => {
-        const createdAt = new Date(record.createdAt);
-        const now = new Date();
-        const isAfter24Hours =
-          now.getTime() - createdAt.getTime() > 24 * 60 * 60 * 1000;
+  const subActionColumn = {
+    title: "Action",
+    key: "action",
+    render: (_: any, record: any) => {
+      const createdAt = new Date(record.createdAt);
+      const now = new Date();
+      const isAfter24Hours =
+        now.getTime() - createdAt.getTime() > 24 * 60 * 60 * 1000;
+      const hasPendingPayment = payments?.paymentData?.some(
+        (p: any) => p.status?.trim().toLowerCase() === "pending"
+      );
+       const hasSuccessfulPayment = payments?.paymentData?.some(
+      (p: any) => p.status?.trim().toLowerCase() === "paid"
+    );
+      if (!isAfter24Hours) {
         return (
-          <Space>
-            {isAfter24Hours ? (
-              <Button
-                type="primary"
-                onClick={() =>
-                  handlePay({
-                    _id: subscriptionData?._id,
-                    planName: subscriptionData?.planName,
-                    billingCycle: subscriptionData?.billingCycle,
-                    price: subscriptionData?.price,
-                    plantName: plantData?.plantName,
-                    ownerName: plantData?.ownerName,
-                    license: plantData?.license,
-                  })
-                }
-              >
-                Pay
-              </Button>
-            ) : (
-              <span style={{ color: "#8c8c8c" }}>Pay available after 24h</span>
-            )}
-          </Space>
+          <span style={{ color: "#8c8c8c" }}>Pay available after 24h</span>
         );
-      },
+      }
+
+      if (hasPendingPayment) {
+        return <span style={{ color: "#fa8c16" }}>Payment Pending</span>;
+      }
+      if (hasSuccessfulPayment) {
+      return (
+        <span style={{ color: "#52c41a", fontWeight: "bold" }}>
+          Subscribed
+        </span>
+      );
     }
+      return (
+        <Space>
+          <Button
+            type="primary"
+            onClick={() =>
+              handlePay({
+                _id: subscriptionData?._id,
+                planName: subscriptionData?.planName,
+                billingCycle: subscriptionData?.billingCycle,
+                price: subscriptionData?.price,
+                plantName: plantData?.plantName,
+                ownerName: plantData?.ownerName,
+                license: plantData?.license,
+              })
+            }
+          >
+            Pay
+          </Button>
+        </Space>
+      );
+      // return (
+      //   <Space>
+      //     {isAfter24Hours ? (
+      //       <Button
+      //         type="primary"
+      //         onClick={() =>
+      //           handlePay({
+      //             _id: subscriptionData?._id,
+      //             planName: subscriptionData?.planName,
+      //             billingCycle: subscriptionData?.billingCycle,
+      //             price: subscriptionData?.price,
+      //             plantName: plantData?.plantName,
+      //             ownerName: plantData?.ownerName,
+      //             license: plantData?.license,
+      //           })
+      //         }
+      //       >
+      //         Pay
+      //       </Button>
+      //     ) : (
+      //       <span style={{ color: "#8c8c8c" }}>Pay available after 24h</span>
+      //     )}
+      //   </Space>
+      // );
+    },
+  };
   const subPlanColumns = [
     {
       title: "Plan Name",
@@ -230,24 +296,29 @@ const Subscription = () => {
     render: (text: string) => new Date(text).toLocaleString(),
   };
   const paymtHistActionColumn = {
-      title: "Action",
-      key: "action",
-      render: (_: any, record: any) => {
-        if (record.status?.trim().toLowerCase() === "pending") {
-          return (
-            <Button
-              type="primary"
-              onClick={() =>
-                handleRetryPayment(record.planId, record.amount, record._id)
-              }
-            >
-              Retry Payment
-            </Button>
-          );
-        }
-        return null;
-      },
-  }
+    title: "Action",
+    key: "action",
+    render: (_: any, record: any) => {
+      if (record.status?.trim().toLowerCase() === "pending") {
+        return (
+          <Button
+            type="primary"
+            onClick={() =>
+              handleRetryPayment(
+                record.planId,
+                record.amount,
+                record._id,
+                record.billingCycle
+              )
+            }
+          >
+            Retry Payment
+          </Button>
+        );
+      }
+      return null;
+    },
+  };
   const paymentColumns = [
     {
       title: "Plant Details",
@@ -294,16 +365,19 @@ const Subscription = () => {
   const showPaidAtColumn = payments?.paymentData?.some(
     (payment: any) => payment.status === "Paid"
   );
- const showPaymtHistActionColumn = payments?.paymentData?.some(
-  (payment: any) => payment.status !== "Paid"
- );
- 
- const columns = plantData?.status === "Active" ? subPlanColumns : [...subPlanColumns,subActionColumn]
-    const payHistoryColumns = [
-      ...paymentColumns,
-      ...(showPaidAtColumn ? [paidAtColumn] : []),
-      ...(showPaymtHistActionColumn ? [paymtHistActionColumn] : [])
-    ]
+  const showPaymtHistActionColumn = payments?.paymentData?.some(
+    (payment: any) => payment.status !== "Paid"
+  );
+
+  const columns =
+    plantData?.status === "Active"
+      ? subPlanColumns
+      : [...subPlanColumns, subActionColumn];
+  const payHistoryColumns = [
+    ...paymentColumns,
+    ...(showPaidAtColumn ? [paidAtColumn] : []),
+    ...(showPaymtHistActionColumn ? [paymtHistActionColumn] : []),
+  ];
 
   console.log("paymentData is array:", Array.isArray(payments?.paymentData));
   console.log("paymentData length:", payments?.paymentData?.length);
@@ -330,12 +404,13 @@ const Subscription = () => {
       </Title>
       <Table
         columns={payHistoryColumns}
-        dataSource={
-          payments?.paymentData?.map((payment: any) => ({
-            ...payment,
-            plantData: payments.planData,
-          })) || []
-        }
+        // dataSource={
+        //   payments?.paymentData?.map((payment: any) => ({
+        //     ...payment,
+        //     plantData: payments.planData,
+        //   })) || []
+        // }
+        dataSource={paymentRows}
         rowKey="_id"
         bordered
         pagination={{ pageSize: 5 }}

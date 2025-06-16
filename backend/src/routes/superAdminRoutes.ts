@@ -34,7 +34,11 @@ router.get("/subscription-plans", authenticateSuperAdmin as RequestHandler, supe
 router.delete("/delete-subscription-plan/:id",authenticateSuperAdmin as RequestHandler, superAdminSubscriptionCtrl.deleteSubscriptionPlan.bind(superAdminSubscriptionCtrl));
 router.get("/edit-subscription-plan/:id", authenticateSuperAdmin as RequestHandler, superAdminSubscriptionCtrl.getSubscriptionPlanById.bind(superAdminSubscriptionCtrl))
 router.patch("/edit-subscription-plan/:id", authenticateSuperAdmin as RequestHandler, superAdminSubscriptionCtrl.updateSubscriptionPlanById.bind(superAdminSubscriptionCtrl));
-router.post("/renew-notification/:id", authenticateSuperAdmin as RequestHandler, superAdminPlantCtrl.sendSubscribeNotification.bind(superAdminPlantCtrl));
+router.post("/notification/subscribe-remind/:id", authenticateSuperAdmin as RequestHandler, superAdminPlantCtrl.sendSubscribeNotification.bind(superAdminPlantCtrl));
+router.get("/notifications", authenticateSuperAdmin as RequestHandler, superAdminNotificationCtrl.fetchNotifications.bind(superAdminNotificationCtrl));
+router.patch("/notifications/:notifId/read", authenticateSuperAdmin as RequestHandler, superAdminNotificationCtrl.markReadNotification.bind(superAdminNotificationCtrl));
+router.post("/notification/renew-remind", authenticateSuperAdmin as RequestHandler, superAdminNotificationCtrl.remindRenewNotification.bind(superAdminNotificationCtrl));
+router.post("/notification/recharge-remind", authenticateSuperAdmin as RequestHandler, superAdminNotificationCtrl.remindRechargeNotification.bind(superAdminNotificationCtrl));
 
 export default router;
 

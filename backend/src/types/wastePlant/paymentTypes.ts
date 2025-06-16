@@ -19,6 +19,7 @@ export type PaymentData = {
       razorpay_signature: string;
       planId: string;
       amount: number;
+      billingCycle: string;
 }
 export type VerifyPaymtPayload = {
     paymentData: PaymentData;

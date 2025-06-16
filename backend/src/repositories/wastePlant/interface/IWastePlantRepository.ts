@@ -10,7 +10,7 @@ export interface IWastePlantRepository {
   findWastePlantByLicense(licenseNumber: string): Promise<IWastePlant | null>;
   findWastePlantByTaluk(taluk: string): Promise<IWastePlant | null>;
   findWastePlantByName(plantName: string): Promise<IWastePlant | null>;
-  getAllWastePlants(): Promise<IWastePlant[]>;
+  getAllWastePlants(): Promise<IWastePlantDocument[] | null>;
   getWastePlantById(id: string): Promise<IWastePlantDocument | null>;
   updateWastePlantById(id: string,data: any): Promise<IWastePlant | null>;
   saveOtp(email: string, otp: string): Promise<void>;
@@ -20,4 +20,5 @@ export interface IWastePlantRepository {
   updateWastePlantPassword( email: string, hashedPassword: string): Promise<void>;
   findByPincode(pincode: string): Promise<void>;
   deleteWastePlantById(id: string): Promise<IWastePlantDocument | null>;
+  getAllActiveWastePlants(): Promise<IWastePlantDocument[] | null>;
 }

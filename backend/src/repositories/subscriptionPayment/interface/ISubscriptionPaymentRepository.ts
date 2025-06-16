@@ -10,4 +10,5 @@ createSubscriptionPayment(
   findSubscriptionPayments(plantId: string, planId: string): Promise<ISubscriptionPaymentDocument[] |null>;
   findSubscriptionPaymentById(id: string): Promise<ISubscriptionPaymentDocument | null>;
   updateSubscriptionPaymentById(id: string, paymentUpdate: PaymentUpdate): Promise<ISubscriptionPaymentDocument>;
+  findPaidSubscriptionPayments(): Promise<ISubscriptionPaymentDocument[] |null>;
 }

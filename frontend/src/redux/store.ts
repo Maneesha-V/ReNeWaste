@@ -3,6 +3,7 @@ import { configureStore } from "@reduxjs/toolkit";
 import superadminReducer from "../redux/slices/superAdmin/superAdminSlice";
 import superAdminWastePlantReducer from "../redux/slices/superAdmin/superAdminWastePlantSlice";
 import superAdminSubscriptionPlanReducer from "../redux/slices/superAdmin/superAdminSubscriptionPlanSlice";
+import superAdminNotificationsReducer from "../redux/slices/superAdmin/superAdminNotificationSlice";
 
 import wasteplantReducer from "../redux/slices/wastePlant/wastePlantSlice";
 import wastePlantDriverReducer from "../redux/slices/wastePlant/wastePlantDriverSlice";
@@ -46,6 +47,7 @@ export const store = configureStore({
         superadmin: superadminReducer,
         superAdminWastePlant: superAdminWastePlantReducer,
         superAdminSubscriptionPlan: superAdminSubscriptionPlanReducer,
+        superAdminNotifications: superAdminNotificationsReducer,
         wasteplant: wasteplantReducer,
         wastePlantDriver: wastePlantDriverReducer,
         wastePlantTruck: wastePlantTruckReducer,

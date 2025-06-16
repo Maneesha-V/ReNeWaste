@@ -64,6 +64,8 @@ export class WastePlantController implements IWastePlantController {
   async fetchWastePlants(req: AuthRequest, res: Response): Promise<void> {
     try {
       const wastePlants = await this.wastePlantService.getAllWastePlants();
+      console.log("wastePlants",wastePlants);
+      
       res.status(200).json({
         success: true,
         message: "Fetch waste plants successfully",
@@ -145,18 +147,21 @@ export class WastePlantController implements IWastePlantController {
   }
   async deleteWastePlantById(req: Request, res: Response): Promise<void> {
     try {
-      console.log("body", req.body);
       const { id } = req.params;
-      const result = await this.wastePlantService.deleteWastePlantByIdService(
+      const updatedPlant = await this.wastePlantService.deleteWastePlantByIdService(
         id
       );
 
-      if (!result) {
+      if (!updatedPlant) {
         res.status(404).json({ message: "Waste Plant not found" });
         return;
       }
 
-      res.status(200).json({ message: "Waste Plant deleted successfully" });
+      res.status(200).json({ 
+        success: true,
+        updatedPlant,
+        message: "Waste Plant deleted successfully" 
+      });
     } catch (error: any) {
       console.error("Error in deleting waste plant:", error);
       res.status(500).json({ message: "Server error" });
@@ -166,8 +171,8 @@ export class WastePlantController implements IWastePlantController {
  try {
   const adminId = req.user?.id;
   if(!adminId){
-           res.status(404).json({ message: "Unauthorized Id is not found." });
-        return;
+    res.status(404).json({ message: "Unauthorized Id is not found." });
+    return;
   }
       const plantId = req.params.id;
       await this.wastePlantService.sendSubscribeNotification(

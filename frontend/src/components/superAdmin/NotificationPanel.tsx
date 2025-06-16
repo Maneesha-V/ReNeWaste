@@ -1,56 +1,45 @@
 import React, { useEffect, useState } from "react";
 import { useSafeSocket } from "../../hooks/useSocket";
 import { useAppDispatch } from "../../redux/hooks";
-import {
-  addNotification,
-  fetchNotifications,
-  markAsRead,
-} from "../../redux/slices/wastePlant/wastePlantNotificationSlice";
 import { extractDateTimeParts, sortByDateDesc } from "../../utils/formatDate";
 import { Check } from "lucide-react";
 import { useSelector } from "react-redux";
 import { RootState } from "../../redux/store";
 import {
-  MeasureDataPayload,
   Notification,
 } from "../../types/notificationTypes";
-import { useNavigate } from "react-router-dom";
+import { addNotification, fetchNotifications, markAsRead } from "../../redux/slices/superAdmin/superAdminNotificationSlice";
 
 interface NotificationPanelProps {
   visible: boolean;
-  plantId: string;
+  adminId: string;
   onClose: () => void;
-  onOpenMeasureWaste: (data: MeasureDataPayload) => void;
 }
 
 const NotificationPanel: React.FC<NotificationPanelProps> = ({
   visible,
-  plantId,
+  adminId,
   onClose,
-  onOpenMeasureWaste,
 }) => {
   const notifications = useSelector(
-    (state: RootState) => state.wastePlantNotifications.notifications
+    (state: RootState) => state.superAdminNotifications.notifications
   );
-  const measuredNotificationId = useSelector(
-    (state: RootState) => state.wastePlantNotifications.measuredNotificationId
-  );
-  const navigate = useNavigate();
+ 
   const dispatch = useAppDispatch();
   const socket = useSafeSocket();
 
   const [activeTab, setActiveTab] = useState<"unread" | "all">("unread");
 
   useEffect(() => {
-    if (visible && plantId) {
+    if (visible && adminId) {
       dispatch(fetchNotifications());
     }
-  }, [visible, plantId, dispatch, measuredNotificationId]);
+  }, [visible, adminId, dispatch ]);
 
   useEffect(() => {
-    if (!socket || !plantId) return;
-    socket.emit("joinNotificationRoom", plantId);
-  }, [socket, plantId]);
+    if (!socket || !adminId) return;
+    socket.emit("joinNotificationRoom", adminId);
+  }, [socket, adminId]);
 
   useEffect(() => {
     if (!socket) return;
@@ -69,22 +58,7 @@ const NotificationPanel: React.FC<NotificationPanelProps> = ({
     dispatch(markAsRead(id));
   };
 
-  const handleOpenWasteWeight = (notification: Notification) => {
-    const messageParts = notification.message.split(" ");
-    const vehicleNumber = messageParts[1];
-    const driverName = messageParts[messageParts.length - 1];
 
-    onOpenMeasureWaste({
-      vehicleNumber,
-      driverName,
-      returnedAt: notification.createdAt,
-      notificationId: notification._id,
-    });
-  };
-  const handleSubscription = () => {
-      navigate("/waste-plant/subscription-plan");
-      onClose()
-  }
   const filteredNotifications = (
     activeTab === "unread"
       ? [...notifications.filter((n) => !n.isRead)]
@@ -143,28 +117,6 @@ const NotificationPanel: React.FC<NotificationPanelProps> = ({
                   <div className="flex justify-between items-center">
                     <div className="text-sm text-gray-800">{n.message}</div>
                     <div className="flex items-center space-x-2">
-                      {n.type === "truck_returned" &&
-                        (measuredNotificationId === n._id ? (
-                          <span className="text-sm text-gray-500 italic">
-                            Measured
-                          </span>
-                        ) : (
-                          <button
-                            className="px-2 py-1 text-xs cursor-pointer bg-blue-600 text-white rounded hover:bg-blue-700"
-                            onClick={() => handleOpenWasteWeight(n)}
-                          >
-                            Measure
-                          </button>
-                        ))}
-                         {n.type === "subscribe_reminder" &&
-                        (
-                          <button
-                            className="px-2 py-1 text-xs cursor-pointer bg-blue-600 text-white rounded hover:bg-blue-700"
-                            onClick={() => handleSubscription()}
-                          >
-                            Subscribe
-                          </button>
-                        )}
                       {!n.isRead && (
                         <button
                           className="w-6 h-6 flex items-center justify-center cursor-pointer bg-green-100 text-green-600 rounded-full hover:bg-green-200"

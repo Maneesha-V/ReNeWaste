@@ -54,3 +54,8 @@ export type PickupCancelData = {
   pickupReqId: string;
   reason: string;
 }
+
+export type RenewNotificationPayload = {
+  plantId: string;
+  daysLeft: number;
+}

@@ -1,10 +1,20 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { createWastePlant, deleteWastePlantById, getWastePlantById, getWastePlants, sendSubscribeNotificationById, updateWastePlantById } from "../../../services/superAdmin/wastePlantService" 
+import {
+  createWastePlant,
+  deleteWastePlantById,
+  getWastePlantById,
+  getWastePlants,
+  sendRechargeNotificationService,
+  sendRenewNotificationService,
+  sendSubscribeNotificationById,
+  updateWastePlantById,
+} from "../../../services/superAdmin/wastePlantService";
+import { RenewNotificationPayload } from "../../../types/wastePlantTypes";
 
 interface WastePlantState {
-  wastePlant: any; 
+  wastePlant: any;
   loading: boolean;
-  message: string | null
+  message: string | null;
   error: string | null;
 }
 
@@ -20,21 +30,25 @@ export const addWastePlant = createAsyncThunk(
   async (formData: FormData, { rejectWithValue }) => {
     try {
       const response = await createWastePlant(formData);
-      return response; 
+      return response;
     } catch (error: any) {
-      return rejectWithValue(error.response?.data || "Failed to add waste plant");
+      return rejectWithValue(
+        error.response?.data || "Failed to add waste plant"
+      );
     }
   }
 );
 export const fetchWastePlants = createAsyncThunk(
   "superAdminWastePlant/fetchWastePlants",
-  async ( _, { rejectWithValue }) => {
+  async (_, { rejectWithValue }) => {
     try {
       const response = await getWastePlants();
-      console.log("res",response);
-      return response; 
+      console.log("res", response);
+      return response;
     } catch (error: any) {
-      return rejectWithValue(error.response?.data || "Failed to fetch waste plants");
+      return rejectWithValue(
+        error.response?.data || "Failed to fetch waste plants"
+      );
     }
   }
 );
@@ -42,8 +56,8 @@ export const fetchWastePlantById = createAsyncThunk(
   "superAdminWastePlant/fetchWastePlantById",
   async (id: string, { rejectWithValue }) => {
     try {
-      const response = await getWastePlantById(id)
-      return response
+      const response = await getWastePlantById(id);
+      return response;
     } catch (error: any) {
       return rejectWithValue(error.response?.data || "Failed to fetch data");
     }
@@ -53,35 +67,68 @@ export const updateWastePlant = createAsyncThunk(
   "superAdminWastePlant/updateWastePlant",
   async ({ id, data }: { id: string; data: FormData }, thunkAPI) => {
     try {
-      const response = await updateWastePlantById(id, data)
-      return response
+      const response = await updateWastePlantById(id, data);
+      return response;
     } catch (error: any) {
-      return thunkAPI.rejectWithValue(error.response.data || "Failed to update data.");
+      return thunkAPI.rejectWithValue(
+        error.response.data || "Failed to update data."
+      );
     }
   }
-)
-export const deleteWastePlant  = createAsyncThunk(
+);
+export const deleteWastePlant = createAsyncThunk(
   "superAdminWastePlant/deleteWastePlant",
   async (id: string, thunkAPI) => {
     try {
-      const response = await deleteWastePlantById(id)
-      return response
+      const response = await deleteWastePlantById(id);
+      return response;
     } catch (error: any) {
-      return thunkAPI.rejectWithValue(error.response.data || "Failed to update data.");
+      return thunkAPI.rejectWithValue(
+        error.response.data || "Failed to update data."
+      );
     }
   }
-)
+);
 export const sendSubscribeNotification = createAsyncThunk(
- "superAdminWastePlant/sendSubscribeNotification",
+  "superAdminWastePlant/sendSubscribeNotification",
   async (id: string, thunkAPI) => {
     try {
-      const response = await sendSubscribeNotificationById(id)
-      return response
+      const response = await sendSubscribeNotificationById(id);
+      return response;
     } catch (error: any) {
-      return thunkAPI.rejectWithValue(error.response.data || "Failed to send subscribe reminder.");
+      return thunkAPI.rejectWithValue(
+        error.response.data || "Failed to send subscribe reminder."
+      );
     }
   }
-)
+);
+export const sendRenewNotification = createAsyncThunk(
+  "superAdminWastePlant/sendRenewNotification",
+  async ({plantId,daysLeft}: RenewNotificationPayload, thunkAPI) => {
+    try {
+      const response = await sendRenewNotificationService({plantId,daysLeft});
+      return response;
+    } catch (error: any) {
+      return thunkAPI.rejectWithValue(
+        error.response.data || "Failed to send renew reminder."
+      );
+    }
+  }
+);
+
+export const sendRechargeNotification = createAsyncThunk(
+  "superAdminWastePlant/sendRechargeNotification",
+  async (plantId: string, thunkAPI) => {
+    try {
+      const response = await sendRechargeNotificationService(plantId);
+      return response;
+    } catch (error: any) {
+      return thunkAPI.rejectWithValue(
+        error.response.data || "Failed to send recharge reminder."
+      );
+    }
+  }
+);
 const superAdminWastePlantSlice = createSlice({
   name: "superAdminWastePlant",
   initialState,
@@ -94,7 +141,7 @@ const superAdminWastePlantSlice = createSlice({
       })
       .addCase(addWastePlant.fulfilled, (state, action) => {
         state.loading = false;
-        state.wastePlant = action.payload || []; 
+        state.wastePlant = action.payload || [];
       })
       .addCase(addWastePlant.rejected, (state, action) => {
         state.loading = false;
@@ -106,7 +153,7 @@ const superAdminWastePlantSlice = createSlice({
       })
       .addCase(fetchWastePlants.fulfilled, (state, action) => {
         state.loading = false;
-        state.wastePlant = action.payload; 
+        state.wastePlant = action.payload;
       })
       .addCase(fetchWastePlants.rejected, (state, action) => {
         state.loading = false;
@@ -137,10 +184,12 @@ const superAdminWastePlantSlice = createSlice({
         state.error = action.payload as string;
       })
       .addCase(deleteWastePlant.fulfilled, (state, action) => {
-        state.wastePlant = state.wastePlant.filter((plant: any) => plant._id !== action.payload);
+        state.message = action.payload.message;
+        state.wastePlant = state.wastePlant.filter((plant: any) => {
+          return plant._id !== action.payload.updatedPlant._id;
+        });
       })
-      
-        .addCase(sendSubscribeNotification.pending, (state) => {
+      .addCase(sendSubscribeNotification.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
@@ -151,7 +200,7 @@ const superAdminWastePlantSlice = createSlice({
       .addCase(sendSubscribeNotification.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
-      })
+      });
   },
 });
 

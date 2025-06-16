@@ -42,6 +42,10 @@ export const SubscriptionPaymentSchema: Schema<ISubscriptionPaymentDocument> = n
       type: Date,
       default: null,
     },
+    expiredAt: {
+      type: Date,
+      default: null,
+    },
     refundRequested: {
       type: Boolean,
       default: false,

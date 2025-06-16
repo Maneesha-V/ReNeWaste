@@ -23,6 +23,7 @@ import { ISubscriptionPaymentRepository } from "../../repositories/subscriptionP
 import { ISubscriptionPaymentDocument } from "../../models/subsptnPayment/interface/subsptnPaymentInterface";
 import { ISubscriptionPlanRepository } from "../../repositories/subscriptionPlan/interface/ISubscriptionPlanRepository";
 import { INotificationRepository } from "../../repositories/notification/interface/INotifcationRepository";
+import { ISuperAdminRepository } from "../../repositories/superAdmin/interface/ISuperAdminRepository";
 
 @injectable()
 export class PaymentService implements IPaymentService {
@@ -37,7 +38,9 @@ export class PaymentService implements IPaymentService {
     @inject(TYPES.SubscriptionPlanRepository)
     private subscriptionRepository: ISubscriptionPlanRepository,
     @inject(TYPES.NotificationRepository)
-    private notificationRepository: INotificationRepository
+    private notificationRepository: INotificationRepository,
+    @inject(TYPES.SuperAdminRepository)
+    private superAdminRepository: ISuperAdminRepository
   ) {
     const key_id = process.env.RAZORPAY_KEY_ID!;
     const key_secret = process.env.RAZORPAY_KEY_SECRET!;
@@ -118,6 +121,8 @@ export class PaymentService implements IPaymentService {
     data: VerifyPaymtPayload
   ): Promise<ISubscriptionPaymentDocument> {
     const { paymentData, plantId } = data;
+console.log("paymentData",paymentData);
+
     const body = `${paymentData.razorpay_order_id}|${paymentData.razorpay_payment_id}`;
     const expectedSignature = crypto
       .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET!)
@@ -127,14 +132,24 @@ export class PaymentService implements IPaymentService {
     if (expectedSignature !== paymentData.razorpay_signature) {
       throw new Error("Invalid signature. Payment could not be verified.");
     }
+    const paidAt = new Date();
+    let expiredAt: Date;
 
+    if (paymentData.billingCycle === "Monthly") {
+      expiredAt = new Date(paidAt);
+      expiredAt.setDate(paidAt.getDate() + 2);
+    } else {
+      expiredAt = new Date(paidAt);
+      expiredAt.setDate(paidAt.getDate() + 360);
+    }
     const paymentUpdate = {
       status: "Paid",
       razorpayOrderId: paymentData.razorpay_order_id,
       razorpayPaymentId: paymentData.razorpay_payment_id,
       razorpaySignature: paymentData.razorpay_signature,
-      amount: paymentData.amount / 100,
-      paidAt: new Date(),
+      amount: paymentData.amount,
+      paidAt,
+      expiredAt,
     };
 
     const updatedPayment =
@@ -143,6 +158,34 @@ export class PaymentService implements IPaymentService {
         paymentUpdate,
         plantId,
       });
+      const plant = await this.wastePlantRepository.getWastePlantById(plantId);
+      if(!plant){
+        throw new Error("Plant not found to update status to Active.")
+      }
+      plant.status = "Active"
+      await plant.save();
+      const admin = await this.superAdminRepository.findAdminByRole("superadmin")
+      if(!admin){
+        throw new Error("Superadmin not found.")
+      }
+ const io = global.io;
+
+    const adminId = admin._id.toString();
+    const adminMessage = `${plant.plantName} has successfully recharged their subscription plan (${plant.subscriptionPlan}, ${paymentData.billingCycle}).`;
+    const adminNotification =
+      await this.notificationRepository.createNotification({
+        receiverId: adminId,
+        receiverType: "superadmin",
+        senderId: plantId,
+        senderType: "wasteplant",
+        message: adminMessage,
+        type: "subscribe_recharged",
+      });
+    console.log("adminNotification", adminNotification);
+
+    if (io) {
+      io.to(`${adminId}`).emit("newNotification", adminNotification);
+    }
 
     return updatedPayment;
   }

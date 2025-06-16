@@ -10,7 +10,7 @@ export class DashboardService implements IDashboardService {
     @inject(TYPES.WastePlantRepository)
     private wastePlantRepository: IWastePlantRepository
   ) {}
-  async fetchDashboardData(): Promise<IWastePlant[]> {
-    return await this.wastePlantRepository.getAllWastePlants();
-  }
+  // async fetchDashboardData(): Promise<IWastePlant[]> {
+  //   return await this.wastePlantRepository.getAllWastePlants();
+  // }
 }

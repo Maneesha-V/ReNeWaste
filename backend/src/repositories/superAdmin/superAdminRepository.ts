@@ -36,5 +36,8 @@ export class SuperAdminRepository extends BaseRepository<ISuperAdminDocument> im
       { new: true, runValidators: false }
     );
   }
+  async findAdminByRole(role: string): Promise<ISuperAdminDocument | null> {
+    return await this.model.findOne({role})
+  }
 }
 

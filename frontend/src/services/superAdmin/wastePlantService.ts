@@ -1,4 +1,5 @@
 import axiosSuperadmin from "../../api/axiosSuperadmin";
+import { RenewNotificationPayload } from "../../types/wastePlantTypes";
 
 // const API_URL = import.meta.env.VITE_SUPER_ADMIN_API_URL;
 
@@ -67,7 +68,7 @@ export const deleteWastePlantById = async (id: string) => {
 };
 export const sendSubscribeNotificationById = async(id: string) => {
     try {
-    const response = await axiosSuperadmin.post(`/renew-notification/${id}`);
+    const response = await axiosSuperadmin.post(`/notification/subscribe-remind/${id}`);
     console.log("res", response);
     return response.data;
   } catch (error: any) {
@@ -75,3 +76,25 @@ export const sendSubscribeNotificationById = async(id: string) => {
     throw error;
   }
 }
+
+export const sendRenewNotificationService = async(data: RenewNotificationPayload) => {
+    try {
+    const response = await axiosSuperadmin.post(`/notification/renew-remind`, data);
+    console.log("res", response);
+    return response.data;
+  } catch (error: any) {
+    console.error("error", error);
+    throw error;
+  }
+}
+
+export const sendRechargeNotificationService = async (plantId: string) => {
+  try {
+    const response = await axiosSuperadmin.post(`/notification/recharge-remind`,{plantId});
+    console.log("res", response);
+    return response.data;
+  } catch (error: any) {
+    console.error("error", error);
+    throw error;
+  }
+};

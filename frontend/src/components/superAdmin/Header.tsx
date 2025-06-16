@@ -5,16 +5,29 @@ import { Button, Dropdown, Menu } from 'antd';
 import { useAppDispatch } from '../../redux/hooks';
 import { superAdminLogout } from '../../redux/slices/superAdmin/superAdminSlice';
 import { AdminHeaderProps } from '../../types/adminTypes';
+import { useEffect } from 'react';
+import NotificationPanel from './NotificationPanel';
+import { fetchNotifications } from '../../redux/slices/superAdmin/superAdminNotificationSlice';
+import { RootState } from '../../redux/store';
+import { useSelector } from 'react-redux';
 
-const Header = ({ collapsed, toggleCollapse }: AdminHeaderProps) => {
+const Header = ({ collapsed, toggleCollapse, isNotifOpen, setIsNotifOpen }: AdminHeaderProps) => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch()
-
+  const unreadCount = useSelector(
+    (state: RootState) =>
+      state.superAdminNotifications.notifications.filter((n) => !n.isRead)
+        .length
+  );
+    useEffect(() => {
+      dispatch(fetchNotifications());
+    }, [dispatch]);
   const handleLogout = async () => {
     await dispatch(superAdminLogout());
     navigate('/super-admin'); 
   };
-
+  const adminId = sessionStorage.getItem("admin_id") || "";
+  console.log("Loaded adminId:", adminId);
 
   const menu = (
     <Menu>
@@ -36,7 +49,11 @@ const Header = ({ collapsed, toggleCollapse }: AdminHeaderProps) => {
         </button>
         
         <div className="flex items-center space-x-4">
-          <NotificationBadge count={5} />
+           <div className="relative">
+                      <button onClick={() => setIsNotifOpen(true)} className="relative">
+                        <NotificationBadge count={unreadCount} />
+                      </button>
+                    </div>
           
           <Dropdown overlay={menu} trigger={['click']}>
             <div className="flex items-center cursor-pointer">
@@ -52,6 +69,11 @@ const Header = ({ collapsed, toggleCollapse }: AdminHeaderProps) => {
           </Dropdown>
         </div>
       </div>
+       <NotificationPanel
+        visible={isNotifOpen}
+        adminId={adminId}
+        onClose={() => setIsNotifOpen(false)}
+      />
     </header>
   );
 };

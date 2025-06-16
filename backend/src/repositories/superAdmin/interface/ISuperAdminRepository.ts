@@ -7,4 +7,5 @@ export interface ISuperAdminRepository extends IBaseRepository<ISuperAdminDocume
   findAdminByUsername(username: string): Promise<ISuperAdminDocument | null>;
   createAdmin(adminData: ISuperAdmin): Promise<ISuperAdminDocument>;
   updateAdminPassword(email: string, hashedPassword: string): Promise<void>;
+  findAdminByRole(role: string): Promise<ISuperAdminDocument | null>;
 }
