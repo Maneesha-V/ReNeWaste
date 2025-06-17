@@ -3,11 +3,17 @@ import { useEffect, useState } from "react";
 import { useAppDispatch } from "../../redux/hooks";
 import { RootState } from "../../redux/store";
 import { useSelector } from "react-redux";
-import { approvePickup, fetchDriversByPlace } from "../../redux/slices/wastePlant/wastePlantPickupSlice";
+import {
+  approvePickup,
+  fetchDriversByPlace,
+} from "../../redux/slices/wastePlant/wastePlantPickupSlice";
 import { useNavigate } from "react-router-dom";
 import { fetchAvailableTrucks } from "../../redux/slices/wastePlant/wastePlantTruckSlice";
 import { toast } from "react-toastify";
-import { formatDateToDDMMYYYY, formatTimeTo12Hour } from "../../utils/formatDate";
+import {
+  formatDateToDDMMYYYY,
+  formatTimeTo12Hour,
+} from "../../utils/formatDate";
 
 interface AssignDriverModalProps {
   visible: boolean;
@@ -30,7 +36,7 @@ const AssignDriverModal = ({
   const [form] = Form.useForm();
   const token = sessionStorage.getItem("wasteplant_token");
   console.log(token);
-  
+
   console.log("trucks", truck);
   console.log("drivers", driver);
   console.log("pickup", pickup);
@@ -52,28 +58,28 @@ const AssignDriverModal = ({
 
   const filteredDrivers = Array.isArray(driver)
     ? driver.filter((d: any) => {
-      return (
-        d.assignedZone === pickup?.location &&
-        d.category?.toLowerCase() === pickup?.wasteType?.toLowerCase()
-      );
-    })
+        return (
+          d.assignedZone === pickup?.location &&
+          d.category?.toLowerCase() === pickup?.wasteType?.toLowerCase()
+        );
+      })
     : [];
   console.log("filteredDrivers", filteredDrivers);
-const filteredTrucks = Array.isArray(truck)
-  ? truck.filter((t: any) => {
-      if (pickup?.wasteType?.toLowerCase() === "residential") {
-        return t.capacity < 5000;
-      } else if (pickup?.wasteType?.toLowerCase() === "commercial") {
-        return t.capacity >= 5000;
-      }
-      return false;
-    })
-  : [];
+  const filteredTrucks = Array.isArray(truck)
+    ? truck.filter((t: any) => {
+        if (pickup?.wasteType?.toLowerCase() === "residential") {
+          return t.capacity < 5000;
+        } else if (pickup?.wasteType?.toLowerCase() === "commercial") {
+          return t.capacity >= 5000;
+        }
+        return false;
+      })
+    : [];
   console.log("filteredTrucks", filteredTrucks);
   const handleAssign = async () => {
     try {
       const values = await form.validateFields();
-      await dispatch(
+      const result = await dispatch(
         approvePickup({
           pickupReqId: pickup._id,
           pickupId: pickup.pickupId,
@@ -82,11 +88,17 @@ const filteredTrucks = Array.isArray(truck)
           assignedTruckId: values.truck,
         })
       ).unwrap();
+      console.log("result",result);
+      
+      // if (result.payload?.error) {
+      //   toast.error(result.payload.error);
+      //   return;
+      // }
       toast.success("Pickup scheduled successfully");
       onSuccess();
       onClose();
-    } catch (err) {
-      console.error("Failed to assign pickup", err);
+    } catch (err: any) {
+      toast.error(err || "Failed to assign pickup");
     }
   };
 
@@ -117,9 +129,7 @@ const filteredTrucks = Array.isArray(truck)
           </p>
           <p>
             <strong>Pickup Time:</strong>{" "}
-            {pickup?.pickupTime &&
-            formatTimeTo12Hour(pickup.pickupTime)
-            }
+            {pickup?.pickupTime && formatTimeTo12Hour(pickup.pickupTime)}
           </p>
         </div>
 
@@ -140,7 +150,6 @@ const filteredTrucks = Array.isArray(truck)
       </div>
 
       <Form form={form} layout="vertical">
-
         <Form.Item
           label="Assign Driver"
           name="driver"
@@ -154,7 +163,6 @@ const filteredTrucks = Array.isArray(truck)
               dispatch(fetchAvailableTrucks(value));
             }}
           >
-
             {filteredDrivers.map((driver: any) => (
               <Select.Option key={driver._id} value={driver._id}>
                 {driver.name}
@@ -170,10 +178,10 @@ const filteredTrucks = Array.isArray(truck)
         >
           <Select placeholder="Select Truck">
             {filteredTrucks.map((truck: any) => (
-                <Select.Option key={truck._id} value={truck._id}>
-                  {truck.name}
-                </Select.Option>
-              ))}
+              <Select.Option key={truck._id} value={truck._id}>
+                {truck.name}
+              </Select.Option>
+            ))}
           </Select>
         </Form.Item>
         <Form.Item>

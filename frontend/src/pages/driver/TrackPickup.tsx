@@ -71,18 +71,7 @@ const TrackPickup = () => {
               addressId: pickup.selectedAddress._id,
             })
           );
-          // if (
-          //   !pickup.selectedAddress.latitude ||
-          //   !pickup.selectedAddress.longitude
-          // ) {
-          //   dispatch(
-          //     updateAddressLatLng({
-          //       addressId: pickup.selectedAddress._id,
-          //       latitude,
-          //       longitude,
-          //     })
-          //   );
-          // }
+   
         },
         (err) => {
           toast.error("Geolocation error");
@@ -98,109 +87,6 @@ const TrackPickup = () => {
   }, [pickup, dispatch]);
   console.log("pickup", pickup);
 
-  // useEffect(() => {
-  //   let watchId: number;
-
-  //   if (
-  //     pickup &&
-  //     pickup.selectedAddress?.latitude &&
-  //     pickup.selectedAddress?.longitude &&
-  //     pickup._id &&
-  //     initialDriverLocation
-  //   ) {
-  //     watchId = navigator.geolocation.watchPosition(
-  //       (position) => {
-  //         // const { latitude, longitude } = position.coords;
-  //         // setDriverLocation([latitude, longitude]);
-  //         // socket?.emit("driverLocationUpdate", {
-  //         //   pickupReqId: pickup._id,
-  //         //   latitude,
-  //         //   longitude,
-  //         // });
-  //         const { latitude, longitude, accuracy } = position.coords;
-  //         const finalLat =
-  //           accuracy > 1000 && initialDriverLocation
-  //             ? initialDriverLocation[0]
-  //             : latitude;
-  //         const finalLng =
-  //           accuracy > 1000 && initialDriverLocation
-  //             ? initialDriverLocation[1]
-  //             : longitude;
-
-  //         setDriverLocation([finalLat, finalLng]);
-
-  //         socket?.emit("driverLocationUpdate", {
-  //           pickupReqId: pickup._id,
-  //           latitude: finalLat,
-  //           longitude: finalLng,
-  //         });
-
-  //         const pickupLat = pickup.selectedAddress.latitude;
-  //         const pickupLng = pickup.selectedAddress.longitude;
-
-  //         const distance = getDistanceFromLatLonInKm(
-  //           finalLat,
-  //           finalLng,
-  //           pickupLat,
-  //           pickupLng
-  //         );
-
-  //         let newStatus: string | null = null;
-  //         if (distance < 0.2) newStatus = "Arrived";
-  //         else if (distance < 1) newStatus = "Near";
-  //         else newStatus = "InTransit";
-
-  //         if (newStatus && newStatus !== pickup.trackingStatus) {
-  //           dispatch(
-  //             updateTrackingStatus({
-  //               pickupReqId: pickup._id,
-  //               trackingStatus: newStatus,
-  //             })
-  //           );
-  //         }
-  //       },
-  //       (error) => {
-  //         toast.error("Failed to track driver location");
-  //         console.error("WatchPosition error:", error);
-  //       },
-  //       {
-  //         enableHighAccuracy: true,
-  //         maximumAge: 0,
-  //         timeout: 5000,
-  //       }
-  //     );
-  //   }
-
-  //   return () => {
-  //     if (watchId) navigator.geolocation.clearWatch(watchId);
-  //   };
-  // }, [pickup, dispatch, initialDriverLocation]);
-
-  // const handleStartJourney = () => {
-  //   if (!pickup?._id || !socket) return;
-
-  //   setJourneyStarted(true);
-
-  //   intervalRef.current = setInterval(() => {
-  //     navigator.geolocation.getCurrentPosition(
-  //       (position) => {
-  //         const { latitude, longitude } = position.coords;
-  //         socket.emit("driverLocationUpdate", {
-  //           pickupReqId: pickup._id,
-  //           latitude,
-  //           longitude,
-  //         });
-  //       },
-  //       (err) => console.error("Location error:", err),
-  //       {
-  //         enableHighAccuracy: true,
-  //         maximumAge: 10000,
-  //         timeout: 5000,
-  //       }
-  //     );
-  //   }, 5000);
- 
-  // };
 
   const handleStartJourney = () => {
   if (!pickup?._id || !socket) return;
@@ -262,18 +148,6 @@ const TrackPickup = () => {
           trackingStatus: newStatus,
         })
       );
-
-    //    const origin = `${lat},${lng}`;
-    // const destination = `${pickup.selectedAddress.addressLine1}, ${pickup.selectedAddress.addressLine2}, ${pickup.selectedAddress.location}, ${pickup.selectedAddress.taluk}, ${pickup.selectedAddress.district}, ${pickup.selectedAddress.state}, ${pickup.selectedAddress.pincode}`;
-
-    // dispatch(
-    //   fetchEta({
-    //     origin,
-    //     destination,
-    //     pickupReqId: pickup._id,
-    //     addressId: pickup.selectedAddress._id,
-    //   })
-    // );
 
     }
 if (newStatus === "Completed") {
@@ -359,7 +233,7 @@ if (newStatus === "Completed") {
             <Button
               type="primary"
               onClick={handleStartJourney}
-              disabled={journeyStarted}
+              disabled={pickup.trackingStatus === "Completed" || journeyStarted}
               className="mt-3"
             >
               {journeyStarted ? "Journey Started" : "Start Pickup Journey"}

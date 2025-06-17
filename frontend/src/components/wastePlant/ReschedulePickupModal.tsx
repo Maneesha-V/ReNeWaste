@@ -25,9 +25,7 @@ const ReschedulePickupModal = ({
 
   useEffect(() => {
     if (pickup && visible) {
-      // form.setFieldsValue({
-      //   pickupDate: dayjs(pickup.originalPickupDate),
-      // });
+
       const currentValue = form.getFieldValue("pickupDate");
       if (!currentValue) {
         form.setFieldsValue({
@@ -42,7 +40,7 @@ const ReschedulePickupModal = ({
     }
   }, [visible, pickup?.wasteplantId]);
   useEffect(() => {
-    setFilteredDrivers(driver);
+    setFilteredDrivers(driver ?? []);
   }, [driver]);
   console.log("filteredDrivers", filteredDrivers);
   console.log("pickup:", pickup);

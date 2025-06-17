@@ -4,7 +4,7 @@ export interface ITruck {
   name: string;
   vehicleNumber: string;
   capacity: number;
-  assignedDriver?: mongoose.Types.ObjectId;
+  assignedDriver?: mongoose.Types.ObjectId | null;
   wasteplantId?: mongoose.Types.ObjectId;
   status: "Active" | "Inactive" | "Maintenance";
   isReturned?: boolean;

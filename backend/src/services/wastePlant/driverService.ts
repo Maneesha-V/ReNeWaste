@@ -6,6 +6,7 @@ import { inject, injectable } from "inversify";
 import TYPES from "../../config/inversify/types";
 import { IDriverRepository } from "../../repositories/driver/interface/IDriverRepository";
 import { IWastePlantRepository } from "../../repositories/wastePlant/interface/IWastePlantRepository";
+import { ISubscriptionPlanRepository } from "../../repositories/subscriptionPlan/interface/ISubscriptionPlanRepository";
 
 @injectable()
 export class DriverService implements IDriverService {
@@ -13,9 +14,37 @@ export class DriverService implements IDriverService {
     @inject(TYPES.DriverRepository)
     private driverRepository: IDriverRepository,
     @inject(TYPES.WastePlantRepository)
-    private wastePlantRepository: IWastePlantRepository
+    private wastePlantRepository: IWastePlantRepository,
+    @inject(TYPES.SubscriptionPlanRepository)
+    private subscriptionplanRepository: ISubscriptionPlanRepository
   ) {}
   async addDriver(data: IDriver): Promise<IDriver> {
+     const driversCount = await this.driverRepository.fetchAllDriversByPlantId(
+      data.wasteplantId!.toString()
+    );
+    const totalDriverCount =
+      driversCount.active + driversCount.inactive + driversCount.suspended;
+    const plant = await this.wastePlantRepository.getWastePlantById(
+      data.wasteplantId!.toString()
+    );
+    if (!plant) {
+      throw new Error("Plant not found.");
+    }
+    if (plant.status === "Active") {
+      const purchasedPlan =
+        await this.subscriptionplanRepository.checkPlanNameExist(
+          plant.subscriptionPlan!
+        );
+      if (!purchasedPlan) {
+        throw new Error("Subscription plan not found.");
+      }
+      if (totalDriverCount >= purchasedPlan?.driverLimit) {
+        throw new Error(
+          `You can't add new driver bcoz your plan driver limit is ${purchasedPlan?.driverLimit}.`
+        );
+      }
+    }
+
     const existingEmail = await this.driverRepository.findDriverByEmail(
       data.email
     );

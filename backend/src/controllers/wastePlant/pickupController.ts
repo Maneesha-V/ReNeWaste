@@ -54,9 +54,9 @@ export class PickupController implements IPickupController {
       res
         .status(200)
         .json({ message: "Pickup approved successfully", data: result });
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error approving pickup:", error);
-      res.status(500).json({ message: "Server error while approving pickup" });
+      res.status(500).json({ message: error.message || "Server error while approving pickup" });
     }
   }
   async cancelPickup(req: AuthRequest, res: Response): Promise<void> {

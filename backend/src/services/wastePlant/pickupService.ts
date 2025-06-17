@@ -12,6 +12,9 @@ import { IDriverRepository } from "../../repositories/driver/interface/IDriverRe
 import { INotificationRepository } from "../../repositories/notification/interface/INotifcationRepository";
 import { ITruckRepository } from "../../repositories/truck/interface/ITruckRepository";
 import { IWastePlantRepository } from "../../repositories/wastePlant/interface/IWastePlantRepository";
+import { IUserRepository } from "../../repositories/user/interface/IUserRepository";
+import { ISubscriptionPlanRepository } from "../../repositories/subscriptionPlan/interface/ISubscriptionPlanRepository";
+import { setDriver } from "mongoose";
 
 @injectable()
 export class PickupService implements IPickupService {
@@ -25,7 +28,11 @@ export class PickupService implements IPickupService {
     @inject(TYPES.TruckRepository)
     private truckRepository: ITruckRepository,
     @inject(TYPES.WastePlantRepository)
-    private wastePlantRepository: IWastePlantRepository
+    private wastePlantRepository: IWastePlantRepository,
+    @inject(TYPES.UserRepository)
+    private userRepository: IUserRepository,
+    @inject(TYPES.SubscriptionPlanRepository)
+    private subscriptionplanRepository: ISubscriptionPlanRepository
   ) {}
   async getPickupRequestService(
     filters: PickupFilterParams
@@ -35,17 +42,43 @@ export class PickupService implements IPickupService {
 
   async approvePickupService(data: ApprovePickupDTO) {
     const { plantId, pickupReqId, status, driverId, assignedTruckId } = data;
+    const totalUserCount = await this.userRepository.fetchAllUsersByPlantId(
+      plantId
+    );
+    console.log("totalUserCount", totalUserCount);
+
+    const existingPlant = await this.wastePlantRepository.getWastePlantById(
+      plantId
+    );
+    console.log("existingPlant", existingPlant);
+    if (!existingPlant) {
+      throw new Error("Plant not found.");
+    }
+    if (existingPlant.status === "Active") {
+      const purchasedPlan =
+        await this.subscriptionplanRepository.checkPlanNameExist(
+          existingPlant.subscriptionPlan!
+        );
+      if (!purchasedPlan) {
+        throw new Error("Subscription plan not found.");
+      }
+      if (totalUserCount >= purchasedPlan?.userLimit) {
+        throw new Error(
+          `You can't approve this request bcoz your plan user limit is ${purchasedPlan?.userLimit}.`
+        );
+      }
+    }
 
     const updatedPickup =
       await this.pickupRepository.updatePickupStatusAndDriver(pickupReqId, {
         status,
         driverId,
-        truckId: assignedTruckId
+        truckId: assignedTruckId,
       });
 
     if (!updatedPickup) throw new Error("Pickup  not found or update failed");
-    
-    if(updatedPickup.wasteplantId?.toString() !== plantId){
+
+    if (updatedPickup.wasteplantId?.toString() !== plantId) {
       throw new Error("Pickup  not belongs to this wasteplant");
     }
 
@@ -53,8 +86,7 @@ export class PickupService implements IPickupService {
     const driver = await this.driverRepository.getDriverById(driverId);
     const truck = await this.truckRepository.getTruckById(assignedTruckId);
 
-    if (!driver || !truck)
-      throw new Error("Driver or Truck or User not found");
+    if (!driver || !truck) throw new Error("Driver or Truck or User not found");
     const plant = await this.wastePlantRepository.getWastePlantById(
       driver.wasteplantId!.toString()
     );
@@ -82,7 +114,7 @@ export class PickupService implements IPickupService {
     if (io) {
       io.to(`${driverId}`).emit("newNotification", driverNotification);
     }
-    const userId = updatedPickup.userId.toString()
+    const userId = updatedPickup.userId.toString();
     const userMessage = `Your pickup request has been approved. Driver ${driver.name} with truck ${truck.vehicleNumber} is assigned.`;
     const userNotification =
       await this.notificationRepository.createNotification({
@@ -102,30 +134,33 @@ export class PickupService implements IPickupService {
 
     return updatedPickup;
   }
-  async cancelPickupRequest(plantId: string, pickupReqId: string, reason: string) {
+  async cancelPickupRequest(
+    plantId: string,
+    pickupReqId: string,
+    reason: string
+  ) {
     try {
-
       const updatedPickupRequest =
-        await this.pickupRepository.updatePickupRequest(
-          pickupReqId
-        );
-    const io = global.io;
+        await this.pickupRepository.updatePickupRequest(pickupReqId);
 
-    const userId = updatedPickupRequest.userId.toString();
-  const userMessage  = `Your pickup ID ${updatedPickupRequest.pickupId} is cancelled.${reason}`;
-    const userNotification  = await this.notificationRepository.createNotification({
-      receiverId: userId,
-      receiverType: "user",
-      senderId: plantId,
-      senderType: "wasteplant",
-      message: userMessage,
-      type: "pickup_cancelled",
-    });
-    console.log("userNotification", userNotification);
+      const io = global.io;
 
-    if (io) {
-      io.to(`${userId}`).emit("newNotification", userNotification );
-    }
+      const userId = updatedPickupRequest.userId.toString();
+      const userMessage = `Your pickup ID ${updatedPickupRequest.pickupId} is cancelled.${reason}`;
+      const userNotification =
+        await this.notificationRepository.createNotification({
+          receiverId: userId,
+          receiverType: "user",
+          senderId: plantId,
+          senderType: "wasteplant",
+          message: userMessage,
+          type: "pickup_cancelled",
+        });
+      console.log("userNotification", userNotification);
+
+      if (io) {
+        io.to(`${userId}`).emit("newNotification", userNotification);
+      }
 
       return updatedPickupRequest;
     } catch (error) {
@@ -152,14 +187,14 @@ export class PickupService implements IPickupService {
       data.driverId,
       data.assignedZone
     );
-    
-    if(!driver) {
-      throw new Error("Driver not found.")
+
+    if (!driver) {
+      throw new Error("Driver not found.");
     }
     const truckId = driver?.assignedTruckId;
     if (!truckId) {
-  throw new Error("Truck ID is missing for the assigned driver.");
-}
+      throw new Error("Truck ID is missing for the assigned driver.");
+    }
     const truck = await this.truckRepository.getTruckById(truckId.toString());
 
     const updatedPickup = await this.pickupRepository.updatePickupDate(
@@ -185,35 +220,37 @@ export class PickupService implements IPickupService {
     }
     const io = global.io;
 
-    const driverMessage  = `Pickup ${updatedPickup.pickupId} is rescheduled to you from ${plant.plantName}.`;
-    const driverNotification  = await this.notificationRepository.createNotification({
-      receiverId: data.driverId,
-      receiverType: "driver",
-      senderId: wasteplantId,
-      senderType: "wasteplant",
-      message: driverMessage,
-      type: "pickup_rescheduled",
-    });
+    const driverMessage = `Pickup ${updatedPickup.pickupId} is rescheduled to you from ${plant.plantName}.`;
+    const driverNotification =
+      await this.notificationRepository.createNotification({
+        receiverId: data.driverId,
+        receiverType: "driver",
+        senderId: wasteplantId,
+        senderType: "wasteplant",
+        message: driverMessage,
+        type: "pickup_rescheduled",
+      });
     console.log("driverNotification", driverNotification);
 
     if (io) {
-      io.to(`${data.driverId}`).emit("newNotification", driverNotification );
+      io.to(`${data.driverId}`).emit("newNotification", driverNotification);
     }
 
     const userId = existingPickup.userId.toString();
-  const userMessage  = `Your pickup ID ${updatedPickup.pickupId} is rescheduled. Driver ${driver.name} with truck ${truck?.vehicleNumber} is assigned.`;
-    const userNotification  = await this.notificationRepository.createNotification({
-      receiverId: userId,
-      receiverType: "user",
-      senderId: wasteplantId,
-      senderType: "wasteplant",
-      message: userMessage,
-      type: "pickup_rescheduled",
-    });
+    const userMessage = `Your pickup ID ${updatedPickup.pickupId} is rescheduled. Driver ${driver.name} with truck ${truck?.vehicleNumber} is assigned.`;
+    const userNotification =
+      await this.notificationRepository.createNotification({
+        receiverId: userId,
+        receiverType: "user",
+        senderId: wasteplantId,
+        senderType: "wasteplant",
+        message: userMessage,
+        type: "pickup_rescheduled",
+      });
     console.log("userNotification", userNotification);
 
     if (io) {
-      io.to(`${userId}`).emit("newNotification", userNotification );
+      io.to(`${userId}`).emit("newNotification", userNotification);
     }
     return updatedPickup;
   }

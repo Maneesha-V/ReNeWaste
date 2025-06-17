@@ -15,7 +15,9 @@ import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
 
 const Payments = () => {
-  const [activeTab, setActiveTab] = useState<"paid" | "refund">("paid");
+  const [activeTab, setActiveTab] = useState<"paid" | "refund" | "pending">(
+    "paid"
+  );
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const payments = useSelector(
@@ -126,6 +128,16 @@ const Payments = () => {
             Paid Transactions
           </button>
           <button
+            onClick={() => setActiveTab("pending")}
+            className={`px-4 py-2 rounded-md text-sm font-medium ${
+              activeTab === "pending"
+                ? "bg-orange-600 text-white"
+                : "bg-orange-100 text-orange-700"
+            }`}
+          >
+            Pending Payments
+          </button>
+          <button
             onClick={() => setActiveTab("refund")}
             className={`px-4 py-2 rounded-md text-sm font-medium ${
               activeTab === "refund"
@@ -137,91 +149,92 @@ const Payments = () => {
           </button>
         </div>
 
-{payments && payments.length > 0 ? (
-  <div className="grid md:grid-cols-1 gap-6">
-    {payments
-      .filter((payment: any) => {
-        if (activeTab === "paid") {
-          return (
-            payment?.payment?.status === "Paid" &&
-            payment?.payment?.refundStatus === null
-          );
-        } else {
-          return payment?.payment?.refundStatus !== null;
-        }
-      })
-      .map((payment: any) => (
+        {payments && payments.length > 0 ? (
+          <div className="grid md:grid-cols-1 gap-6">
+            {payments
+              .filter((payment: any) => {
+                if (activeTab === "paid") {
+                  return (
+                    payment?.payment?.status === "Paid" &&
+                    payment?.payment?.refundStatus === null
+                  );
+                } else if (activeTab === "pending") {
+                  return payment?.payment?.status === "Pending";
+                } else {
+                  return payment?.payment?.refundStatus !== null;
+                }
+              })
+              .map((payment: any) => (
+                <div
+                  key={payment._id}
+                  className="bg-white border border-green-300 rounded-lg shadow p-6 space-y-4"
+                >
+                  <div className="flex justify-between items-center">
+                    <h2 className="text-xl font-semibold text-green-800">
+                      Amount: ₹{payment?.payment?.amount}
+                    </h2>
 
-              <div
-                key={payment._id}
-                className="bg-white border border-green-300 rounded-lg shadow p-6 space-y-4"
-              >
-                <div className="flex justify-between items-center">
-                  <h2 className="text-xl font-semibold text-green-800">
-                    Amount: ₹{payment?.payment?.amount}
-                  </h2>
-          
-                  {payment?.payment?.refundStatus === null ? (
-                    <span
-                      className={`px-3 py-1 text-sm rounded-full font-medium ${
-                        payment?.payment?.status === "Paid"
-                          ? "bg-green-100 text-green-700 border border-green-500"
-                          : "bg-red-100 text-red-700 border border-red-500"
-                      }`}
-                    >
-                      {payment?.payment?.status}
-                    </span>
-                  ) : (
-                    <span
-                      className={`px-3 py-1 text-sm rounded-full font-medium ${
-                        payment?.payment?.refundStatus === "Pending"
-                          ? "bg-yellow-100 text-yellow-700 border border-yellow-500"
-                          : payment?.payment?.refundStatus === "Processing"
-                          ? "bg-blue-100 text-blue-700 border border-blue-500"
-                          : "bg-purple-100 text-purple-700 border border-purple-500"
-                      }`}
-                    >
-                      Refund Status: {payment?.payment?.refundStatus}
-                    </span>
-                  )}
-                </div>
+                    {payment?.payment?.refundStatus === null ? (
+                      <span
+                        className={`px-3 py-1 text-sm rounded-full font-medium ${
+                          payment?.payment?.status === "Paid"
+                            ? "bg-green-100 text-green-700 border border-green-500"
+                            : "bg-red-100 text-red-700 border border-red-500"
+                        }`}
+                      >
+                        {payment?.payment?.status}
+                      </span>
+                    ) : (
+                      <span
+                        className={`px-3 py-1 text-sm rounded-full font-medium ${
+                          payment?.payment?.refundStatus === "Pending"
+                            ? "bg-yellow-100 text-yellow-700 border border-yellow-500"
+                            : payment?.payment?.refundStatus === "Processing"
+                            ? "bg-blue-100 text-blue-700 border border-blue-500"
+                            : "bg-purple-100 text-purple-700 border border-purple-500"
+                        }`}
+                      >
+                        Refund Status: {payment?.payment?.refundStatus}
+                      </span>
+                    )}
+                  </div>
 
-                <div className="text-gray-700">
-                  <p>
-                    <strong>Order ID:</strong>{" "}
-                    {payment?.payment?.razorpayOrderId}
-                  </p>
-                  {payment?.payment?.razorpayPaymentId && (
+                  <div className="text-gray-700">
                     <p>
-                      <strong>Payment ID:</strong>{" "}
-                      {payment.payment.razorpayPaymentId}
+                      <strong>Order ID:</strong>{" "}
+                      {payment?.payment?.razorpayOrderId}
                     </p>
+                    {payment?.payment?.razorpayPaymentId && (
+                      <p>
+                        <strong>Payment ID:</strong>{" "}
+                        {payment.payment.razorpayPaymentId}
+                      </p>
+                    )}
+
+                    <p>
+                      <strong>Pickup ID:</strong> {payment.pickupId}
+                    </p>
+                    <p>
+                      <strong>Waste Type:</strong> {payment.wasteType}
+                    </p>
+                    <p>
+                      <strong>Payment Date:</strong>{" "}
+                      {formatDateToDDMMYYYY(payment?.payment?.paidAt)}
+                    </p>
+                  </div>
+
+                  {payment?.payment?.status === "Pending" && (
+                    <button
+                      className="bg-red-500 hover:bg-red-700 text-white px-4 py-2 rounded"
+                      onClick={() =>
+                        handleRetry(payment._id, payment?.payment?.amount)
+                      }
+                    >
+                      Retry Payment
+                    </button>
                   )}
-
-                  <p>
-                    <strong>Pickup ID:</strong> {payment.pickupId}
-                  </p>
-                  <p>
-                    <strong>Waste Type:</strong> {payment.wasteType}
-                  </p>
-                  <p>
-                    <strong>Payment Date:</strong>{" "}
-                    {formatDateToDDMMYYYY(payment?.payment?.paidAt)}
-                  </p>
                 </div>
-
-                {payment?.payment?.status !== "Paid" && (
-                  <button
-                    className="bg-red-500 hover:bg-red-700 text-white px-4 py-2 rounded"
-                    onClick={() =>
-                      handleRetry(payment._id, payment?.payment?.amount)
-                    }
-                  >
-                    Retry Payment
-                  </button>
-                )}
-              </div>
-            ))}
+              ))}
           </div>
         ) : (
           <p className="text-center text-gray-600">No payments found.</p>

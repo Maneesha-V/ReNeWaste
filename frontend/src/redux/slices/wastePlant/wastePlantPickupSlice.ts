@@ -15,6 +15,7 @@ interface PickupState {
   loading: boolean;
   message: string | null;
   error: string | null;
+  approveError: string | null;
 }
 
 const initialState: PickupState = {
@@ -23,6 +24,7 @@ const initialState: PickupState = {
   loading: false,
   message: null,
   error: null,
+  approveError: null,
 };
 export const fetchPickupReqsts = createAsyncThunk(
   "wastePlantPickup/fetchPickupReqsts",
@@ -68,7 +70,7 @@ export const approvePickup = createAsyncThunk(
       );
       return response.data;
     } catch (error: any) {
-      console.error("err",error)
+      console.error("err", error);
       return thunkAPI.rejectWithValue(
         error.response?.data?.message || "Failed to approve pickup"
       );
@@ -88,12 +90,9 @@ export const reschedulePickup = createAsyncThunk(
 );
 export const cancelPickupReq = createAsyncThunk(
   "wastePlantPickup/cancelPickupReq ",
-  async (
-    { pickupReqId, reason }: PickupCancelData,
-    thunkAPI
-  ) => {
+  async ({ pickupReqId, reason }: PickupCancelData, thunkAPI) => {
     try {
-      const response = await cancelPickupReqById({pickupReqId, reason});
+      const response = await cancelPickupReqById({ pickupReqId, reason });
       return response;
     } catch (error: any) {
       return thunkAPI.rejectWithValue(
@@ -130,6 +129,18 @@ const wastePlantPickupSlice = createSlice({
       .addCase(fetchPickupReqsts.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
+      })
+      .addCase(approvePickup.pending, (state) => {
+        state.loading = true;
+        state.approveError = null;
+      })
+      .addCase(approvePickup.fulfilled, (state, action) => {
+        state.loading = false;
+        state.driver = action.payload;
+      })
+      .addCase(approvePickup.rejected, (state, action) => {
+        state.loading = false;
+        state.approveError = action.payload as string;
       })
       .addCase(reschedulePickup.pending, (state) => {
         state.loading = true;

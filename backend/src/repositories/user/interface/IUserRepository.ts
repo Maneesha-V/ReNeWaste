@@ -18,5 +18,5 @@ export interface IUserRepository extends IBaseRepository<IUserDocument> {
   updateAddressByIdLatLng(addressId: string, latitude: number, longitude: number): Promise<any>;
   findAddressByAddressId(userId: string, addressId: string, latitude: number, longitude: number): Promise<IUser | null>;
   getUsersByWastePlantId(wasteplantId: string, page: number, limit: number, search: string): Promise<PaginatedUsersResult>;
-
+  fetchAllUsersByPlantId(plantId: string): Promise<number>;
 }

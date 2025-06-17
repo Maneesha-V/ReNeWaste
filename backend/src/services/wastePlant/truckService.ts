@@ -4,14 +4,45 @@ import { PaginatedTrucksResult } from "../../types/wastePlant/truckTypes";
 import { inject, injectable } from "inversify";
 import TYPES from "../../config/inversify/types";
 import { ITruckRepository } from "../../repositories/truck/interface/ITruckRepository";
+import { IWastePlantRepository } from "../../repositories/wastePlant/interface/IWastePlantRepository";
+import { ISubscriptionPlanRepository } from "../../repositories/subscriptionPlan/interface/ISubscriptionPlanRepository";
 
 @injectable()
 export class TruckService implements ITruckService {
   constructor(
     @inject(TYPES.TruckRepository)
-    private truckRepository: ITruckRepository 
-  ){}
+    private truckRepository: ITruckRepository,
+    @inject(TYPES.WastePlantRepository)
+    private wasteplantRepository: IWastePlantRepository,
+    @inject(TYPES.SubscriptionPlanRepository)
+    private subscriptionplanRepository: ISubscriptionPlanRepository
+  ) {}
   async addTruck(data: ITruck): Promise<ITruck> {
+    const trucksCount = await this.truckRepository.fetchAllTrucksByPlantId(
+      data.wasteplantId!.toString()
+    );
+    const totalTruckCount =
+      trucksCount.active + trucksCount.inactive + trucksCount.maintenance;
+    const plant = await this.wasteplantRepository.getWastePlantById(
+      data.wasteplantId!.toString()
+    );
+    if (!plant) {
+      throw new Error("Plant not found.");
+    }
+    if (plant.status === "Active") {
+      const purchasedPlan =
+        await this.subscriptionplanRepository.checkPlanNameExist(
+          plant.subscriptionPlan!
+        );
+      if (!purchasedPlan) {
+        throw new Error("Subscription plan not found.");
+      }
+      if (totalTruckCount >= purchasedPlan?.truckLimit) {
+        throw new Error(
+          `You can't add new truck bcoz your plan truck limit is ${purchasedPlan?.truckLimit}.`
+        );
+      }
+    }
     const existingVehicleNo = await this.truckRepository.findTruckByVehicle(
       data.vehicleNumber
     );
@@ -24,10 +55,23 @@ export class TruckService implements ITruckService {
     };
     return await this.truckRepository.createTruck(newData);
   }
-  async getAllTrucks(plantId: string, page: number, limit: number, search: string): Promise<PaginatedTrucksResult> {
-    return await this.truckRepository.getAllTrucks(plantId, page, limit, search);
+  async getAllTrucks(
+    plantId: string,
+    page: number,
+    limit: number,
+    search: string
+  ): Promise<PaginatedTrucksResult> {
+    return await this.truckRepository.getAllTrucks(
+      plantId,
+      page,
+      limit,
+      search
+    );
   }
-  async getAvailableTrucksService(driverId: string, plantId: string): Promise<ITruck[]> {
+  async getAvailableTrucksService(
+    driverId: string,
+    plantId: string
+  ): Promise<ITruck[]> {
     return await this.truckRepository.getAvailableTrucks(driverId, plantId);
   }
   async getTruckByIdService(truckId: string): Promise<ITruck | null> {
@@ -87,4 +131,3 @@ export class TruckService implements ITruckService {
     return updatedRequest;
   }
 }
-

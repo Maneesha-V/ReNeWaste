@@ -10,6 +10,7 @@ import BaseRepository from "../baseRepository/baseRepository";
 import { inject, injectable } from "inversify";
 import TYPES from "../../config/inversify/types";
 import { IOtpRepository } from "../otp/interface/IOtpRepository";
+import { Types } from "mongoose";
 
 @injectable()
 export class UserRepository
@@ -17,7 +18,7 @@ export class UserRepository
   implements IUserRepository
 {
   constructor(
-    @inject(TYPES.OtpRepository) 
+    @inject(TYPES.OtpRepository)
     private otpRepository: IOtpRepository
   ) {
     super(UserModel);
@@ -53,8 +54,8 @@ export class UserRepository
     userId: string,
     updatedData: Partial<IUser>
   ): Promise<IUserDocument | null> {
-    console.log("updatedData",updatedData);
-    
+    console.log("updatedData", updatedData);
+
     const updateOps: any = {};
 
     if (updatedData.phone) {
@@ -71,22 +72,15 @@ export class UserRepository
   }
 
   async saveOtp(email: string, otp: string): Promise<void> {
-    await this.otpRepository.saveOtp( email, otp);
+    await this.otpRepository.saveOtp(email, otp);
   }
   async reSaveOtp(email: string, otp: string): Promise<void> {
-    // await OTPModel.findOneAndUpdate(
-    //   { email },
-    //   { otp, createdAt: new Date() },
-    //   { new: true, upsert: true }
-    // );
     await this.otpRepository.reSaveOtp(email, otp);
   }
   async findOtpByEmail(email: string): Promise<OtpRecord | null> {
-    // return await OTPModel.findOne({ email });
     return await this.otpRepository.findOtpByEmail(email);
   }
   async deleteOtp(email: string): Promise<void> {
-    // await OTPModel.deleteOne({ email });
     await this.otpRepository.deleteOtp(email);
   }
   async updateUserPassword(
@@ -149,18 +143,6 @@ export class UserRepository
       },
       { new: true, projection: { addresses: 1 } }
     );
-    // return await this.model.findOne(
-    //   {
-    //     _id: userId,
-    //     "addresses._id": addressId,
-    //   },
-    //   {
-    //     $set: {
-    //       "addresses.$.latitude": latitude,
-    //       "addresses.$.longitude": longitude,
-    //     },
-    //   }
-    // );
   }
 
   async getUsersByWastePlantId(
@@ -189,5 +171,12 @@ export class UserRepository
     const total = await this.model.countDocuments(query);
 
     return { users, total };
+  }
+  async fetchAllUsersByPlantId(plantId: string) {
+    const objectId = new Types.ObjectId(plantId);
+    const totalCount = await this.model.countDocuments({
+      wasteplantId: objectId,
+    });
+    return totalCount;
   }
 }
