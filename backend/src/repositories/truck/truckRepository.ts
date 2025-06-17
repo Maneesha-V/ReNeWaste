@@ -91,6 +91,18 @@ export class TruckRepository
       .find({ assignedDriver: null, wasteplantId: plantId })
       .populate("wasteplantId");
   }
+  async getAssignedAvailableTrucks(driverId: string, plantId: string): Promise<ITruck[] | null> {
+     const existingTruck = await this.model
+      .findOne({
+        assignedDriver: driverId,
+        wasteplantId: plantId,
+      })
+      .populate("wasteplantId");
+    if (existingTruck) {
+      return [existingTruck];
+    }
+    return null;
+  }
   async getTruckById(truckId: string) {
     return await this.model.findById(truckId);
   }

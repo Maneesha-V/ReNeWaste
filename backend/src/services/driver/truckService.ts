@@ -15,7 +15,8 @@ export class TruckService implements ITruckService {
     private driverRepository: IDriverRepository
   ) {}
   async getTruckForDriver(driverId: string, wasteplantId: string) {
-    const result = await this.truckRepository.getAvailableTrucks(driverId, wasteplantId);
+    const result = await this.truckRepository.getAssignedAvailableTrucks(driverId, wasteplantId);
+    // const result = await this.truckRepository.getAvailableTrucks(driverId, wasteplantId);
     return result;
   }
   async requestTruck(driverId: string) {
