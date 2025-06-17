@@ -1,4 +1,4 @@
-export interface DropSpotFormValues {
+export type DropSpotFormValues = {
   dropSpotName: string;
   addressLine: string;
   location: string;

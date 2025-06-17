@@ -1,6 +1,6 @@
 import { ReactNode } from "react";
 
-export interface DriverFormData {
+export type DriverFormData = {
     name: string,
     contact: string,
     email: string,

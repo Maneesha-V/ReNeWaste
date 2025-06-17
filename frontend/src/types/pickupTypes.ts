@@ -1,6 +1,6 @@
-import { string } from "zod";
 
-export interface Address {
+
+export type Address = {
     addressLine1: string;
     addressLine2: string;
     location: string;
@@ -9,7 +9,7 @@ export interface Address {
     state: string;
   }
   
-  export interface ResidPickupReq {
+  export type ResidPickupReq = {
     firstName: string;
     lastName: string;
     email: string;
@@ -19,7 +19,6 @@ export interface Address {
     pickupTime: string;
     addresses?: Address[];
     selectedAddressId?: string; 
-    // selectedAddressId?: string; 
   }
 
 export type PartialResidPickupReq = Partial<ResidPickupReq>;
@@ -31,7 +30,7 @@ export interface ResidPickupReqArgs {
   data: PartialResidPickupReq;
 }
 
-export interface CommPickupReq {
+export type CommPickupReq = {
   firstName: string;
   lastName: string;
   email: string;
@@ -50,11 +49,10 @@ export type PartialCommPickupReq = Partial<CommPickupReq>;
 export interface CommPickupReqArgs {
   data: PartialCommPickupReq;
 }
-export interface ApprovePickupPayload {
+export type ApprovePickupPayload = {
   pickupReqId: string;
   pickupId: string;
   status: string;
   driverId: string;
-  // assignedZone: string;
   assignedTruckId: string;
 }

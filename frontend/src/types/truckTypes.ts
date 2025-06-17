@@ -1,4 +1,4 @@
-export interface TruckFormData {
+export type TruckFormData = {
     name: string,
     vehicleNumber: string,
     capacity: number,
@@ -10,7 +10,7 @@ export interface ValidationErrors {
   [field: string]: string;
 }
 
-export interface UpdateTruckArgs {
+export type UpdateTruckArgs = {
   data: FormData;
   token: string;
 }

@@ -1,6 +1,6 @@
 import { IDriver } from "../../models/driver/interfaces/driverInterface";
 
-export interface PaginatedDriversResult {
+export type PaginatedDriversResult = {
   drivers: IDriver[];
   total: number;
 }

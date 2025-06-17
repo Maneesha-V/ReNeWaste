@@ -1,19 +1,19 @@
 import { ISuperAdminDocument } from "../../models/superAdmin/interfaces/superAdminInterface";
 
-export interface SuperAdminLoginRequest {
+export type SuperAdminLoginRequest = {
     email: string;
     password: string;
   }
-  export interface SuperAdminLoginResponse {
+  export type SuperAdminLoginResponse = {
     admin: ISuperAdminDocument;
     token: string;
   }
-  export interface SuperAdminSignupRequest {
+  export type SuperAdminSignupRequest = {
     username : string;
     email: string;
     password: string;
   }
-  export interface SuperAdminSignupResponse {
+  export type SuperAdminSignupResponse = {
     admin: ISuperAdminDocument;
     token: string;
   }

@@ -1,6 +1,6 @@
 import { IUser } from "../../models/user/interfaces/userInterface";
 
-export interface PaginatedUsersResult {
+export type PaginatedUsersResult = {
   users: IUser[];
   total: number;
 }

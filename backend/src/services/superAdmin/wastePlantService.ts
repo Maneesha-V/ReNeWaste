@@ -46,13 +46,13 @@ export class WastePlantService implements IWastePlantService {
   // }
   async getAllWastePlants(): Promise<ReturnAdminWastePlant[]> {
     const plantData = await this.wastePlantRepository.getAllWastePlants();
+    if (!plantData) {
+      throw new Error("Wasteplants not found.");
+    }
     const paidPayments =
       await this.subscriptionPaymentRepository.findPaidSubscriptionPayments();
     if (!paidPayments) {
       throw new Error("Paid subscription plans not found.");
-    }
-    if (!plantData) {
-      throw new Error("Wasteplants not found.");
     }
     const now = new Date();
 

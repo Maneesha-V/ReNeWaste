@@ -1,29 +1,29 @@
 import { Request } from "express";
 import { IUserDocument } from "../../models/user/interfaces/userInterface";
 
-export interface LoginRequest {
+export type LoginRequest = {
   email: string;
   password: string;
 }
 
-export interface LoginResponse {
+export type LoginResponse = {
   user: IUserDocument;
   token: string;
 }
 
-export interface SignupResponse {
+export type SignupResponse = {
   user: IUserDocument;
   token: string;
 }
-export interface GoogleLoginReq {
+export type GoogleLoginReq = {
   email: string; 
   googleId: string; 
 }
-export interface GoogleLoginResp {
+export type GoogleLoginResp = {
   user: IUserDocument;
   token: string;
 }
-export interface OtpRecord {
+export type OtpRecord = {
   email: string;
   otp: string;
   createdAt: Date; 

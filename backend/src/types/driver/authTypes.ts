@@ -1,13 +1,12 @@
-import { Request } from "express";
 import { IDriverDocument } from "../../models/driver/interfaces/driverInterface";
 
 
-export interface LoginRequest {
+export type LoginRequest = {
   email: string;
   password: string;
 }
 
-export interface LoginResponse {
+export type LoginResponse = {
   driver: IDriverDocument;
   token: string;
 }

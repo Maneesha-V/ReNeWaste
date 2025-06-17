@@ -1,4 +1,4 @@
-export interface ApprovePickupDTO {
+export type ApprovePickupDTO = {
   plantId: string;
   pickupReqId: string;
   status: string;
@@ -6,7 +6,7 @@ export interface ApprovePickupDTO {
   assignedTruckId: string;
 }
 
-export interface ReschedulePickupDTO {
+export type ReschedulePickupDTO = {
   driverId: string;
   assignedZone: string;
   rescheduledPickupDate: string; 

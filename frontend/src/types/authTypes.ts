@@ -16,7 +16,7 @@
     email: string;
     password: string;
   }
-  export interface GoogleLoginReq {
+  export type GoogleLoginReq = {
     email: string;
     googleId: string;
   }

@@ -1,17 +1,17 @@
 import { IWastePlantDocument } from "../../models/wastePlant/interfaces/wastePlantInterface";
 import { Request } from 'express';
 
-export interface LoginRequest {
+export type LoginRequest = {
   email: string;
   password: string;
 }
 
-export interface LoginResponse {
+export type LoginResponse = {
   wastePlant: IWastePlantDocument;
   token: string;
 }
 
-  export interface PickupFilterParams {
+  export type PickupFilterParams = {
     status?: string;
     wasteType?: string;
     plantId: string;

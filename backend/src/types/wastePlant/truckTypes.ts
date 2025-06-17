@@ -1,6 +1,6 @@
 import { ITruck } from "../../models/truck/interfaces/truckInterface";
 
-export interface PaginatedTrucksResult {
+export type PaginatedTrucksResult = {
   trucks: ITruck[];
   total: number;
 }

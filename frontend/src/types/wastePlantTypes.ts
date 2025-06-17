@@ -1,6 +1,6 @@
 import { ReactNode } from "react";
 
-export interface WastePlantFormData {
+export type WastePlantFormData = {
     plantName: string;
     ownerName: string;
     location: string;
@@ -49,7 +49,7 @@ export type PickupRequest = {
   pickupId: string;
   status: "Pending" | "Scheduled" | "Cancelled" | "Completed" | "Rescheduled";
 }
-// export type PickupCancelData = Pick<PickupRequest, '_id'>;
+
 export type PickupCancelData = {
   pickupReqId: string;
   reason: string;

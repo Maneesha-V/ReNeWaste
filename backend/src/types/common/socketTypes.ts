@@ -4,7 +4,7 @@ declare global {
   var io: Server | undefined;
 }
 
-export interface ChatMessage {
+export type ChatMessage = {
   senderId: string;
   receiverId: string;
   text: string;

@@ -1,13 +1,13 @@
-import { string } from "zod";
 
-export interface VerifyPaymentPayload {
+
+export type VerifyPaymentPayload = {
   razorpay_order_id: string;
   razorpay_payment_id: string;
   razorpay_signature: string;
   pickupReqId?: string;
   amount: number;
 }
-export interface SubptnVerifyPaymentPayload {
+export type SubptnVerifyPaymentPayload = {
   razorpay_order_id: string;
   razorpay_payment_id: string;
   razorpay_signature: string;

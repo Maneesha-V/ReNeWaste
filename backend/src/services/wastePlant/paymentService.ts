@@ -137,7 +137,7 @@ console.log("paymentData",paymentData);
 
     if (paymentData.billingCycle === "Monthly") {
       expiredAt = new Date(paidAt);
-      expiredAt.setDate(paidAt.getDate() + 2);
+      expiredAt.setDate(paidAt.getDate() + 30);
     } else {
       expiredAt = new Date(paidAt);
       expiredAt.setDate(paidAt.getDate() + 360);

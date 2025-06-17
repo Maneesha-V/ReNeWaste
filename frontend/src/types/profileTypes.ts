@@ -1,4 +1,4 @@
-export interface Address {
+export type Address = {
     addressLine1: string;
     addressLine2: string;
     taluk: string;
@@ -8,7 +8,7 @@ export interface Address {
     state: string;
   }
   
-  export interface UserProfile {
+  export type UserProfile = {
     firstName: string;
     lastName: string;
     email: string;
