@@ -19,7 +19,7 @@ const NotificationPanel: React.FC<NotificationPanelProps> = ({
   visible,
   onClose,
 }) => {
-  const driverId = sessionStorage.getItem("driver_id") || "";
+  const driverId = localStorage.getItem("driver_id") || "";
   console.log("Loaded driverId:", driverId);
   const dispatch = useAppDispatch();
   const socket = useSafeSocket();

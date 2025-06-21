@@ -42,10 +42,13 @@ export class AuthController implements IAuthController {
               role: driver.role,
             });
       
+            const isProduction = process.env.NODE_ENV === "production";
             const cookieOptions = {
               httpOnly: true,
-              secure: process.env.NODE_ENV === "production",
-              sameSite: "strict" as "strict",
+              secure: isProduction,
+              // sameSite: "strict" as "strict",
+              sameSite: isProduction ? 'none' as const : 'lax' as const,
+              path: "/api/driver",
               maxAge: 7 * 24 * 60 * 60 * 1000,
             };
             res.cookie("refreshToken", refreshToken, cookieOptions).status(200).json({
@@ -64,10 +67,12 @@ export class AuthController implements IAuthController {
   }
   async driverLogout(req: Request, res: Response): Promise<void> {
     try {
+      const isProduction = process.env.NODE_ENV === "production";
       const cookieOptions = {
         httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "strict" as const,
+        secure: isProduction,
+        sameSite: isProduction ? 'none' as const : 'lax' as const,
+        path: "/api/driver"
       };
 
       res.clearCookie("refreshToken", cookieOptions);

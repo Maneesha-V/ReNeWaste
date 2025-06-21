@@ -210,6 +210,14 @@ console.log("paymentData",paymentData);
         plantId,
         subptnPlanData._id.toString()
       );
+      if(!paymentData){
+        throw new Error("Subscription paymnets not found.")
+      }
+      paymentData.sort((a, b) => {
+  const dateA = a.expiredAt ? new Date(a.expiredAt).getTime(): 0;
+  const dateB = b.expiredAt ? new Date(b.expiredAt).getTime(): 0;
+  return dateB - dateA;  
+});
     const planData = {
       planName: subptnPlanData.planName,
       plantName: plant.plantName,

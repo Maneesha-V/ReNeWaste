@@ -57,11 +57,13 @@ export class UserController implements IUserController {
         userId: user._id.toString(),
         role: user.role,
       });
-
+      const isProduction = process.env.NODE_ENV === "production";
       const cookieOptions = {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
-        sameSite: "strict" as "strict",
+        // sameSite: "strict" as "strict",
+        sameSite: isProduction ? 'none' as const : 'lax' as const,
+        path: "/api", 
         maxAge: 7 * 24 * 60 * 60 * 1000,
       };
       res.cookie("refreshToken", refreshToken, cookieOptions).status(200).json({
@@ -79,10 +81,13 @@ export class UserController implements IUserController {
 
   async logout(req: Request, res: Response): Promise<void> {
     try {
+      const isProduction = process.env.NODE_ENV === "production";
       const cookieOptions = {
         httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "strict" as const,
+        secure: isProduction,
+        // sameSite: "strict" as const,
+        sameSite: isProduction ? 'none' as const : 'lax' as const,
+        path: "/api"
       };
 
       res.clearCookie("refreshToken", cookieOptions);

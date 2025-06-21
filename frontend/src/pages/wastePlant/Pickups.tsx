@@ -44,8 +44,8 @@ const Pickups = () => {
     : rawPickups
     ? [rawPickups]
     : [];
-  const token = sessionStorage.getItem("wasteplant_token");
 
+  const token = localStorage.getItem("wasteplant_token");
   useEffect(() => {
     if (!token) {
       navigate("/waste-plant/");

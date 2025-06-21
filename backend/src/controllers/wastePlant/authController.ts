@@ -42,10 +42,13 @@ export class AuthController implements IAuthController {
         role: wastePlant.role,
       });
 
+      const isProduction = process.env.NODE_ENV === "production";
+
       const cookieOptions = {
         httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "strict" as "strict",
+        secure: isProduction,
+        sameSite: isProduction ? 'none' as const : 'lax' as const,
+        path: "/api/waste-plant", 
         maxAge: 7 * 24 * 60 * 60 * 1000,
       };
       res.cookie("refreshToken", refreshToken, cookieOptions).status(200).json({
@@ -55,7 +58,7 @@ export class AuthController implements IAuthController {
         plantId: safeWastePlant._id,
         token,
       });
-      // res.status(200).json({ wastePlant, token });
+     
     } catch (error: any) {
       console.error("err", error);
       res.status(400).json({ error: error.message });
@@ -63,18 +66,17 @@ export class AuthController implements IAuthController {
   }
   async wastePlantLogout(req: Request, res: Response): Promise<void> {
     try {
+      const isProduction = process.env.NODE_ENV === "production";
       const cookieOptions = {
         httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "strict" as const,
+        secure: isProduction,
+        // sameSite: "strict" as const,
+        sameSite: isProduction ? 'none' as const : 'lax' as const,
+        path: "/api/waste-plant"
       };
 
       res.clearCookie("refreshToken", cookieOptions);
-      // res.clearCookie("token", {
-      //   httpOnly: true,
-      //   secure: true,
-      //   sameSite: "strict",
-      // });
+    
       res.status(200).json({ success: true, message: "Logout successful" });
     } catch (error: any) {
       res

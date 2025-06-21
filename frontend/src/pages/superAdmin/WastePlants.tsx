@@ -31,7 +31,7 @@ const WastePlants: React.FC = () => {
   );
 
   useEffect(() => {
-    if (!sessionStorage.getItem("admin_token")) {
+    if (!localStorage.getItem("admin_token")) {
       navigate("/super-admin/");
       return;
     }

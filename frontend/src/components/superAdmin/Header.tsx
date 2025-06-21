@@ -26,7 +26,7 @@ const Header = ({ collapsed, toggleCollapse, isNotifOpen, setIsNotifOpen }: Admi
     await dispatch(superAdminLogout());
     navigate('/super-admin'); 
   };
-  const adminId = sessionStorage.getItem("admin_id") || "";
+  const adminId = localStorage.getItem("admin_id") || "";
   console.log("Loaded adminId:", adminId);
 
   const menu = (

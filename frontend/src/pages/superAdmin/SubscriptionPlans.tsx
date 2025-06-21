@@ -86,14 +86,14 @@ const SubscriptionPlans = () => {
             <Table.Column title="Drivers" dataIndex="driverLimit" key="driverLimit" />
             <Table.Column title="Users" dataIndex="userLimit" key="userLimit" />
             <Table.Column title="Trucks" dataIndex="truckLimit" key="truckLimit" />
-            <Table.Column title="Trial Days" dataIndex="trialDays" key="trialDays" />
+            {/* <Table.Column title="Trial Days" dataIndex="trialDays" key="trialDays" /> */}
             <Table.Column
               title="Status"
-              dataIndex="isActive"
-              key="isActive"
-              render={(isActive: boolean) => (
-                <Tag color={isActive ? "green" : "red"}>
-                  {isActive ? "Active" : "Inactive"}
+              dataIndex="status"
+              key="status"
+              render={(status: string) => (
+                <Tag color={status === "Active" ? "green" : status === "Inactive" ? "red" : "orange"}>
+                  {status}
                 </Tag>
               )}
             />

@@ -21,4 +21,5 @@ export interface IWastePlantRepository {
   findByPincode(pincode: string): Promise<void>;
   deleteWastePlantById(id: string): Promise<IWastePlantDocument | null>;
   getAllActiveWastePlants(): Promise<IWastePlantDocument[] | null>;
+  updatePlantStatus(plantId: string, status: string): Promise<void>;
 }

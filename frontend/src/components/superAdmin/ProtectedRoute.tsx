@@ -2,9 +2,8 @@ import { Navigate, Outlet } from "react-router-dom";
 import { ProtectedRouteProps } from "../../types/commonTypes";
 
   export const ProtectedRoute = ({ allowedRoles }: ProtectedRouteProps) => {
-
-    const token = sessionStorage.getItem("admin_token");
-    const storedRole = sessionStorage.getItem("admin_role");
+    const token = localStorage.getItem("admin_token");
+    const storedRole = localStorage.getItem("admin_role");
     console.log({token, storedRole});
     
     const isLoggedIn = !!token;
@@ -22,7 +21,9 @@ import { ProtectedRouteProps } from "../../types/commonTypes";
   };
   
   export const ProtectedAuthRoute = () => {
-    const token = sessionStorage.getItem("admin_token");
-    const isLoggedIn = !!token;
+    const token = localStorage.getItem("admin_token");
+    const role = localStorage.getItem("admin_role");
+    const isLoggedIn = !!token && !!role;
+    // const isLoggedIn = !!token;
     return isLoggedIn ? <Navigate to="/super-admin/dashboard" replace /> : <Outlet />;
   };

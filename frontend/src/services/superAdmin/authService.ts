@@ -21,11 +21,9 @@ export const loginSuperAdmin = async (superAdminData: LoginRequest) => {
     console.log("res", response);
 
     if (response.data) {
-      // localStorage.setItem("token", response.data.token);
-      // localStorage.setItem("role", response.data.admin.role);
-      sessionStorage.setItem("admin_token", response.data.token);
-      sessionStorage.setItem("admin_role", response.data.role);
-      sessionStorage.setItem("admin_id", response.data.adminId);
+      localStorage.setItem("admin_token", response.data.token);
+      localStorage.setItem("admin_role", response.data.role);
+      localStorage.setItem("admin_id", response.data.adminId);
     }
     return response.data;
   } catch (error: any) {
@@ -38,11 +36,9 @@ export const signupSuperAdmin = async (
   try {
     const response = await axiosSuperadmin.post(`/signup`, superAdminData);
     if (response.data) {
-      // localStorage.setItem("token", response.data.token);
-      // localStorage.setItem("role", response.data.admin.role);
-      sessionStorage.setItem("admin_token", response.data.token);
-      sessionStorage.setItem("admin_role", response.data.role);
-      sessionStorage.setItem("admin_id", response.data.adminId);
+      localStorage.setItem("admin_token", response.data.token);
+      localStorage.setItem("admin_role", response.data.role);
+      localStorage.setItem("admin_id", response.data.adminId);
     }
     return response.data;
   } catch (error: any) {
@@ -52,9 +48,9 @@ export const signupSuperAdmin = async (
 export const logoutSuperAdmin = async () => {
   try {
     const response = await axiosSuperadmin.post(`/logout`, {});
-    sessionStorage.removeItem("admin_token");
-    sessionStorage.removeItem("admin_role");
-    sessionStorage.removeItem("admin_id");
+    localStorage.removeItem("admin_token");
+    localStorage.removeItem("admin_role");
+    localStorage.removeItem("admin_id");
     return response.data;
   } catch (error: any) {
     console.error("err", error);

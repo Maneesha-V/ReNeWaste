@@ -56,7 +56,6 @@ export class WastePlantService implements IWastePlantService {
     }
     const now = new Date();
 
-    // Create a map of latest payment per plantId
     const latestPaymentsMap = new Map();
 
     for (const payment of paidPayments) {
@@ -73,31 +72,69 @@ export class WastePlantService implements IWastePlantService {
     }
 
     // Add latestSubscription info to each plant
-    const updatedPlants = plantData.map((plant: any) => {
+    const updatedPlants: ReturnAdminWastePlant[] = [];
+
+    for (const plant of plantData) {
       const plantIdStr = plant._id.toString();
       const latestPayment = latestPaymentsMap.get(plantIdStr);
 
       if (latestPayment) {
         const expiredAt = new Date(latestPayment.expiredAt);
-        const daysLeft = Math.ceil(
-          (expiredAt.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)
+        const startOfToday = new Date(
+          now.getFullYear(),
+          now.getMonth(),
+          now.getDate()
+        );
+        const startOfExpiry = new Date(
+          expiredAt.getFullYear(),
+          expiredAt.getMonth(),
+          expiredAt.getDate()
         );
 
-        return {
+        const daysLeft = Math.max(
+          0,
+          Math.floor(
+            (startOfExpiry.getTime() - startOfToday.getTime()) /
+              (1000 * 60 * 60 * 24)
+          )
+        );
+        // const expiredAt = new Date(latestPayment.expiredAt);
+        // const daysLeft = Math.max(
+        //   0,
+        //   Math.floor((expiredAt.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))
+        // );
+
+        if (daysLeft === 0 && plant.status !== "Inactive") {
+          await this.wastePlantRepository.updatePlantStatus(
+            plant._id.toString(),
+            "Inactive"
+          );
+          plant.status = "Inactive";
+        }
+
+        updatedPlants.push({
           plantData: plant,
           latestSubscription: {
-            status: latestPayment.status,
+            subPaymentStatus: latestPayment.status,
             expiredAt,
             daysLeft,
           },
-        };
+        });
       } else {
-        return {
+        // if (plant.status !== "Inactive") {
+        //   await this.wastePlantRepository.updatePlantStatus(
+        //     plant._id.toString(),
+        //     "Inactive"
+        //   );
+        //   plant.status = "Inactive";
+        // }
+
+        updatedPlants.push({
           plantData: plant,
           latestSubscription: null,
-        };
+        });
       }
-    });
+    }
 
     return updatedPlants;
   }

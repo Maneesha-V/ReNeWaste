@@ -4,7 +4,10 @@ import {
   markAsReadService,
   saveWasteMeasurementService,
 } from "../../../services/wastePlant/notificationService";
-import { Notification, SaveWasteMeasurementPayload } from "../../../types/notificationTypes";
+import {
+  Notification,
+  SaveWasteMeasurementPayload,
+} from "../../../types/notificationTypes";
 
 interface NotificationState {
   notifications: Notification[];
@@ -19,7 +22,7 @@ const initialState: NotificationState = {
   loading: false,
   error: null,
   saveLoading: false,
-  measuredNotificationId: null
+  measuredNotificationId: null,
 };
 
 export const fetchNotifications = createAsyncThunk(
@@ -52,13 +55,15 @@ export const saveWasteMeasurement = createAsyncThunk(
   "wastePlantNotifications/saveWasteMeasurement",
   async (data: SaveWasteMeasurementPayload, { rejectWithValue }) => {
     try {
-      console.log("data",data);
+      console.log("data", data);
       const response = await saveWasteMeasurementService(data);
- console.log("response",response);
+      console.log("response", response);
       return response;
     } catch (error: any) {
-      console.error("err",error)
-      return rejectWithValue(error.response?.data || "Failed to measure weight.");
+      console.error("err", error);
+      return rejectWithValue(
+        error.response?.data || "Failed to measure weight."
+      );
     }
   }
 );
@@ -96,22 +101,29 @@ const wastePlantNotificationSlice = createSlice({
         state.error = action.payload as string;
       })
       .addCase(saveWasteMeasurement.pending, (state) => {
-        state.saveLoading  = true;
+        state.saveLoading = true;
         state.measuredNotificationId = null;
       })
       .addCase(saveWasteMeasurement.fulfilled, (state, action) => {
-        console.log("action",action.payload);
-        state.saveLoading  = false;
+        console.log("action", action.payload);
+        state.saveLoading = false;
+        // state.measuredNotificationId = action.payload.data.notificationId;
         state.measuredNotificationId = action.payload.data.notificationId;
+        const notification = state.notifications.find(
+          (n) => n._id === action.payload.data.notificationId
+        );
+        if (notification) {
+          (notification as any).isMeasured = true;
+        }
       })
       .addCase(saveWasteMeasurement.rejected, (state, action) => {
-        state.saveLoading  = false;
+        state.saveLoading = false;
         state.measuredNotificationId = null;
         state.error = action.payload as string;
       });
-      
   },
 });
 
-export const { addNotification } = wastePlantNotificationSlice.actions;
+export const { addNotification } =
+  wastePlantNotificationSlice.actions;
 export default wastePlantNotificationSlice.reducer;

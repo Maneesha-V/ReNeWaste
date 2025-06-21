@@ -4,9 +4,6 @@ import { store } from "../redux/store";
 
 const axiosSuperadmin = axios.create({
   baseURL: import.meta.env.VITE_SUPER_ADMIN_API_URL,
-  // headers: {
-  //   "Content-Type": "application/json",
-  // },
   withCredentials: true,
 });
 
@@ -14,8 +11,7 @@ axiosSuperadmin.interceptors.request.use(
   async (config) => {
     console.log("config",config);
     
-    const token = sessionStorage.getItem("admin_token");
-    
+    const token = localStorage.getItem("admin_token");
     const allowedRoutes = [
       "/",
       "/signup",
@@ -62,7 +58,7 @@ axiosSuperadmin.interceptors.response.use(
         if (refreshResult.meta.requestStatus === "fulfilled") {
           // If token refresh is successful, update the authorization header
           const newToken = refreshResult.payload; 
-          sessionStorage.setItem("admin_token", newToken);
+          localStorage.setItem("admin_token", newToken);
           originalRequest.headers["Authorization"] = `Bearer ${newToken}`;
 
           // Retry the original request with the new token
@@ -70,7 +66,8 @@ axiosSuperadmin.interceptors.response.use(
         }
       } catch (refreshError) {
         console.error("Token refresh failed", refreshError);
-        return Promise.reject(refreshError); // Reject the promise if token refresh fails
+        window.location.href = "/super-admin"; 
+        return Promise.reject(refreshError); 
       }
     }
 

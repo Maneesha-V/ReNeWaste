@@ -12,8 +12,8 @@ const axiosDriver = axios.create({
 axiosDriver.interceptors.request.use(
   async (config) => {
     console.log("config",config);
-    
-    const token = sessionStorage.getItem("driver_token");
+    const token = localStorage.getItem("driver_token");
+    // const token = sessionStorage.getItem("driver_token");
     console.log("TOKEN IN INTERCEPTOR:", token);
     const allowedRoutes = [
       "/",
@@ -54,8 +54,8 @@ axiosDriver.interceptors.response.use(
         console.log("res-refresh",res);
         
         const newAccessToken = res.data.token;
-        // localStorage.setItem("token", newAccessToken);
-        sessionStorage.setItem("driver_token",newAccessToken); 
+        localStorage.setItem("driver_token", newAccessToken);
+        // sessionStorage.setItem("driver_token",newAccessToken); 
         axiosDriver.defaults.headers.common['Authorization'] = `Bearer ${newAccessToken}`;
         originalRequest.headers['Authorization'] = `Bearer ${newAccessToken}`;
 

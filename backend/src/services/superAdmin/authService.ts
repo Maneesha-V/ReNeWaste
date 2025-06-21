@@ -35,7 +35,8 @@ export class SuperAdminAuthService implements ISuperAdminAuthService {
       }
   
       const accessToken = jwt.sign(
-        { userId: admin._id, role: admin.role },
+        // { userId: admin._id, role: admin.role },
+        { userId: decoded.userId, role: decoded.role },
         process.env.JWT_SECRET!,
         { expiresIn: "15min" }
       );

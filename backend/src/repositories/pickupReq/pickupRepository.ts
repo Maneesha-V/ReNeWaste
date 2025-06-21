@@ -246,11 +246,11 @@ export class PickupRepository
       })
       .populate({
         path: "driverId",
-        select: "name contact assignedTruckId",
-        populate: {
-          path: "assignedTruckId",
-          select: "name vehicleNumber",
-        },
+        select: "name contact",
+      })
+      .populate({
+        path: "truckId",
+        select: "name vehicleNumber"
       })
       .lean();
 

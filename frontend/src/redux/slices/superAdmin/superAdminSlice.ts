@@ -73,10 +73,6 @@ export const superAdminLogout = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       await logoutSuperAdmin();
-      // localStorage.removeItem("token");
-      // localStorage.removeItem("role");
-      sessionStorage.removeItem("admin_token"); 
-      sessionStorage.removeItem("admin_role"); 
       return null;
     } catch (error: any) {
       return rejectWithValue("Logout failed. Please try again.");

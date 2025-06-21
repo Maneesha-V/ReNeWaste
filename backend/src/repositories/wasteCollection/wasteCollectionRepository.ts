@@ -8,7 +8,12 @@ import { IDriverRepository } from "../driver/interface/IDriverRepository";
 import { ITruckRepository } from "../truck/interface/ITruckRepository";
 import { INotificationRepository } from "../notification/interface/INotifcationRepository";
 import mongoose from "mongoose";
-import { InputWasteMeasurement, ReturnTotalWasteAmount, ReturnWasteMeasurement } from "./types/wasteCollectionTypes";
+import {
+  InputWasteMeasurement,
+  ReturnTotalWasteAmount,
+  ReturnWasteMeasurement,
+} from "./types/wasteCollectionTypes";
+import { FilterReport } from "../../types/wastePlant/reportTypes";
 
 @injectable()
 export class WasteCollectionRepository
@@ -89,5 +94,39 @@ export class WasteCollectionRepository
       totalResidWaste,
       totalCommWaste,
     };
+  }
+  async fetchWasteCollectionReportsByPlantId(plantId: string) {
+    const collectionReports = await this.model
+      .find({
+        wasteplantId: plantId,
+      })
+      .populate({
+        path: "driverId",
+        select: "name",
+      })
+      .populate({
+        path: "truckId",
+        select: "name",
+      });
+    return collectionReports;
+  }
+  async filterWasteCollectionReportsByPlantId(data: FilterReport) {
+    const fromDate = new Date(`${data.from}T00:00:00.000Z`);
+    const toDate = new Date(`${data.to}T23:59:59.999Z`);
+
+    const filterReports = await this.model
+      .find({
+        wasteplantId: data.plantId,
+        createdAt: { $gte: fromDate, $lte: toDate },
+      })
+      .populate({
+        path: "driverId",
+        select: "name",
+      })
+      .populate({
+        path: "truckId",
+        select: "name",
+      });
+    return filterReports;
   }
 }

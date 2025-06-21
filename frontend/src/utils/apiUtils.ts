@@ -3,15 +3,14 @@ export const handleUserLogout = () => {
     window.location.replace("/"); 
   };
   export const handleDriverLogout = () => {
-    sessionStorage.removeItem("driver_token");
+    localStorage.removeItem("driver_token");
     window.location.replace("/driver"); 
   };
   export const handlePlantLogout = () => {
-    // localStorage.removeItem("wasteplant_token");
-    sessionStorage.removeItem("wasteplant_token");
+    localStorage.removeItem("wasteplant_token");
     window.location.replace("/waste-plant"); 
   };
   export const handleAdminLogout = () => {
-    sessionStorage.removeItem("admin_token");
+    localStorage.removeItem("admin_token");
     window.location.replace("/super-admin"); 
   };

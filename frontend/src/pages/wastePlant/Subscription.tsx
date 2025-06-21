@@ -36,7 +36,7 @@ const Subscription = () => {
   const plantData = subscriptionPlan?.plantData;
   console.log("subscriptionData", subscriptionData);
   console.log("plantData", plantData);
-
+  
   useEffect(() => {
     dispatch(fetchSubscriptionPlan());
     dispatch(fetchSubscrptnPayments());
@@ -66,7 +66,6 @@ const Subscription = () => {
   };
   const handlePay = (plan: SubcptnPaymtPayload) => {
     console.log("plan", plan);
-
     setSelectedPlan(plan);
     setIsPayNowModalOpen(true);
   };
@@ -127,17 +126,6 @@ const Subscription = () => {
                 });
               });
             })
-            // .then(() => {
-            //   Swal.fire({
-            //     icon: "success",
-            //     title: "Payment Successful!",
-            //     text: "Your payment was verified successfully.",
-            //     confirmButtonColor: "#28a745",
-            //   }).then(() => {
-            //     dispatch(fetchSubscrptnPayments());
-            //     // navigate("/waste-plant/subscription-plan");
-            //   });
-            // })
             .catch(() => {
               Swal.fire({
                 icon: "error",
@@ -184,7 +172,7 @@ const Subscription = () => {
       if (hasPendingPayment) {
         return <span style={{ color: "#fa8c16" }}>Payment Pending</span>;
       }
-      if (hasSuccessfulPayment) {
+      if (hasSuccessfulPayment && plantData?.status === "Active") {
       return (
         <span style={{ color: "#52c41a", fontWeight: "bold" }}>
           Subscribed
@@ -237,6 +225,27 @@ const Subscription = () => {
       // );
     },
   };
+  
+
+const firstPayment = payments?.paymentData?.[0];
+const expiredAt = firstPayment?.expiredAt || null;
+
+
+ const expiryColumn = {
+  title: "Expired At",
+  dataIndex: "expiryDate",
+  key: "expiryDate",
+  render: (_: any, record: any) => {
+    console.log("record",record);
+    const expiryDate = record.expiredAt
+    return (
+      <span style={{ color: "red", fontWeight: "bold" }}>
+        {expiryDate ? new Date(expiryDate).toLocaleDateString() : "N/A"}
+      </span>
+    );
+  }
+};
+
   const subPlanColumns = [
     {
       title: "Plan Name",
@@ -371,7 +380,7 @@ const Subscription = () => {
 
   const columns =
     plantData?.status === "Active"
-      ? subPlanColumns
+      ? [...subPlanColumns, expiryColumn]
       : [...subPlanColumns, subActionColumn];
   const payHistoryColumns = [
     ...paymentColumns,
@@ -392,6 +401,7 @@ const Subscription = () => {
           {
             ...subscriptionData,
             createdAt: plantData?.createdAt,
+            expiredAt: expiredAt,
             plantStatus: plantData?.status,
           },
         ]}

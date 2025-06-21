@@ -14,8 +14,8 @@ axiosWasteplant.interceptors.request.use(
   async (config) => {
     console.log("config",config);
     
-    // const token = localStorage.getItem("wasteplant_token");
-    const token = sessionStorage.getItem("wasteplant_token");
+    const token = localStorage.getItem("wasteplant_token");
+
     // if (token) {
     //   const decoded = jwtDecode(token);
     //   console.log("Decoded Token:", decoded);
@@ -59,8 +59,8 @@ axiosWasteplant.interceptors.response.use(
         console.log("res-refresh",res);
         
         const newAccessToken = res.data.token;
-        // localStorage.setItem("wasteplant_token", newAccessToken);
-        sessionStorage.setItem("wasteplant_token",newAccessToken); 
+        localStorage.setItem("wasteplant_token", newAccessToken);
+
         axiosWasteplant.defaults.headers.common['Authorization'] = `Bearer ${newAccessToken}`;
         originalRequest.headers['Authorization'] = `Bearer ${newAccessToken}`;
 

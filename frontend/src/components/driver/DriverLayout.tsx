@@ -11,7 +11,7 @@ const DriverLayout = () => {
   const [isNotifOpen, setIsNotifOpen] = useState(false);
   const toggleCollapse = () => setCollapsed(!collapsed);
   const dispatch = useAppDispatch();
-  const driverId = sessionStorage.getItem("driver_id") || "";
+  const driverId = localStorage.getItem("driver_id") || "";
 useEffect(() => {
   if (driverId) {
     dispatch(fetchNotifications());

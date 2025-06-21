@@ -40,12 +40,13 @@ const NotificationPanel: React.FC<NotificationPanelProps> = ({
   const socket = useSafeSocket();
 
   const [activeTab, setActiveTab] = useState<"unread" | "all">("unread");
+  const [disabledMeasureIds, setDisabledMeasureIds] = useState<string[]>([]);
 
   useEffect(() => {
     if (visible && plantId) {
       dispatch(fetchNotifications());
     }
-  }, [visible, plantId, dispatch, measuredNotificationId]);
+  }, [visible, plantId, dispatch]);
 
   useEffect(() => {
     if (!socket || !plantId) return;
@@ -70,6 +71,7 @@ const NotificationPanel: React.FC<NotificationPanelProps> = ({
   };
 
   const handleOpenWasteWeight = (notification: Notification) => {
+    setDisabledMeasureIds(prev => [...prev, notification._id]);
     const messageParts = notification.message.split(" ");
     const vehicleNumber = messageParts[1];
     const driverName = messageParts[messageParts.length - 1];
@@ -144,7 +146,7 @@ const NotificationPanel: React.FC<NotificationPanelProps> = ({
                     <div className="text-sm text-gray-800">{n.message}</div>
                     <div className="flex items-center space-x-2">
                       {n.type === "truck_returned" &&
-                        (measuredNotificationId === n._id ? (
+                        ((n as any).isMeasured || measuredNotificationId === n._id || disabledMeasureIds.includes(n._id) ? (
                           <span className="text-sm text-gray-500 italic">
                             Measured
                           </span>

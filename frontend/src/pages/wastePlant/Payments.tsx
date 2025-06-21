@@ -173,22 +173,22 @@ const Payments = () => {
             );
           }}
         />
-          <Table.Column
+        <Table.Column
           title="Refund At"
           dataIndex={["payment", "refundAt"]}
           key="refundAt"
           render={(value) => {
-            if(value && !isNaN(Date.parse(value))){
-            const { date, time } = extractDateTimeParts(value);
-            return (
-              <div>
-                <div>{date}</div>
-                <div className="text-sm text-gray-500">{time}</div>
-              </div>
-            );
-          }else{
-            return "";
-          }
+            if (value && !isNaN(Date.parse(value))) {
+              const { date, time } = extractDateTimeParts(value);
+              return (
+                <div>
+                  <div>{date}</div>
+                  <div className="text-sm text-gray-500">{time}</div>
+                </div>
+              );
+            } else {
+              return "";
+            }
           }}
         />
         <Table.Column
@@ -208,7 +208,16 @@ const Payments = () => {
           title="Action"
           key="action"
           render={(_, record: PaymentRecord) => {
-            if (record.payment.refundRequested) {
+            if (
+              record.payment.refundRequested &&
+              record.payment.refundStatus === null
+            ) {
+              return (
+                <button className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600">
+                  Read Refund Notification
+                </button>
+              );
+            } else if (record.payment.refundRequested) {
               return (
                 <button
                   className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600"

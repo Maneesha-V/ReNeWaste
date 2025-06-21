@@ -204,11 +204,11 @@ const PickupPlans = () => {
                         <p>Driver Contact: {pickup?.driverId?.contact}</p>
                         <p>
                           Vehicle Name:{" "}
-                          {pickup?.driverId?.assignedTruckId?.name}
+                          {pickup?.truckId?.name}
                         </p>
                         <p>
                           Vehicle Number:{" "}
-                          {pickup?.driverId?.assignedTruckId?.vehicleNumber}
+                          {pickup?.truckId?.vehicleNumber}
                         </p>
                       </>
                     )}

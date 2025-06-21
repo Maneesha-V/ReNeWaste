@@ -23,6 +23,7 @@ export class AuthController implements IAuthController {
          return;
       }
       const {token} = await this.authService.verifyToken(refreshToken)
+      
       res.status(200).json({ token });
     } catch (error: any) {
       console.error("err", error);
@@ -39,11 +40,14 @@ export class AuthController implements IAuthController {
       const { password: _, ...safeAdmin } = admin.toObject();
 
       const refreshToken = await generateRefreshToken({userId: admin._id.toString(), role: admin.role})
-  
+      const isProduction = process.env.NODE_ENV === "production";
+
       const cookieOptions = {
         httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "strict" as "strict",
+        secure: isProduction,
+        sameSite: isProduction ? 'none' as const : 'lax' as const,
+        path: "/api/super-admin", 
+        // sameSite: "strict" as "strict",
         maxAge: 7 * 24 * 60 * 60 * 1000
       };
       res
@@ -52,7 +56,6 @@ export class AuthController implements IAuthController {
       .json({
         success: true,
         message: "Login successful",
-        // admin: safeAdmin,
         role: safeAdmin.role,
         adminId: safeAdmin._id,
         token
@@ -84,10 +87,13 @@ export class AuthController implements IAuthController {
   }
   async superAdminLogout(req: Request, res: Response): Promise<void> {
     try {
+      const isProduction = process.env.NODE_ENV === "production";
       const cookieOptions = {
         httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "strict" as const,
+        secure: isProduction,
+        // sameSite: "strict" as const,
+        sameSite: isProduction ? 'none' as const : 'lax' as const,
+        path: "/api/super-admin"
       };
 
       res.clearCookie("refreshToken", cookieOptions);

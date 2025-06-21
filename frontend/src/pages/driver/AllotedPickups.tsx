@@ -12,7 +12,7 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 
 const AllotedPickups = () => {
-  const driverCategory = sessionStorage.getItem("driver_category");
+  const driverCategory = localStorage.getItem("driver_category");
   const [activeTab, setActiveTab] = useState<"Residential" | "Commercial">(
    driverCategory === "Commercial" ? "Commercial" : "Residential"
   );
@@ -21,7 +21,7 @@ const AllotedPickups = () => {
   const { loading, error, pickups } = useSelector(
     (state: RootState) => state.driverPickups
   );
-  const token = sessionStorage.getItem("driver_token");
+  const token = localStorage.getItem("driver_token");
   
   console.log("category", driverCategory);
 
@@ -42,7 +42,7 @@ const AllotedPickups = () => {
   };
 
   const filteredPickups = pickups?.filter(
-    (item: any) => item.wasteType === activeTab
+    (item: any) => item.wasteType === activeTab && item.payment?.refundRequested === false
   );
 
   return (

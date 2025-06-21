@@ -100,5 +100,8 @@ export class WastePlantRepository extends BaseRepository<IWastePlantDocument> im
   async getAllActiveWastePlants(){
     return await this.model.find({status: "Active"})
   }
+  async updatePlantStatus(plantId: string, status: string): Promise<void> {
+    await this.model.findByIdAndUpdate(plantId, { status });
+  }
 }
 

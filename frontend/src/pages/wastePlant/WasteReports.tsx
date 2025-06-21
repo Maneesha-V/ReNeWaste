@@ -13,7 +13,12 @@ import {
   Cell,
   Tooltip,
   Legend,
-  ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid 
+  ResponsiveContainer,
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
 } from "recharts";
 import {
   fetchWasteReports,
@@ -40,7 +45,7 @@ const WasteReports = () => {
   const today = dayjs().format("YYYY-MM-DD");
   const [fromDate, setFromDate] = useState<string | null>(today);
   const [toDate, setToDate] = useState<string | null>(today);
-const [showLineChart, setShowLineChart] = useState(false);
+  const [showLineChart, setShowLineChart] = useState(false);
 
   useEffect(() => {
     dispatch(fetchWasteReports());
@@ -53,16 +58,29 @@ const [showLineChart, setShowLineChart] = useState(false);
     }
   };
   const exportToCSV = () => {
+    // const formattedData = dataToUse.map((item: any) => ({
+    //   "Pickup ID": item.pickupId,
+    //   "Waste Type": item.wasteType,
+    //   Status: item.status,
+    //   Driver: item.driverId?.name || "N/A",
+    //   Amount: `₹${item.payment?.amount || 0}`,
+    //   "Paid At": item.payment?.paidAt
+    //     ? formatDateToDDMMYYYY(item.payment.paidAt)
+    //     : "N/A",
+    // }));
+
     const formattedData = dataToUse.map((item: any) => ({
-      "Pickup ID": item.pickupId,
+      Date: item.createdAt ? formatDateToDDMMYYYY(item.createdAt) : "N/A",
       "Waste Type": item.wasteType,
-      Status: item.status,
       Driver: item.driverId?.name || "N/A",
-      Amount: `₹${item.payment?.amount || 0}`,
-      "Paid At": item.payment?.paidAt
-        ? formatDateToDDMMYYYY(item.payment.paidAt)
+      Truck: item.truckId?.name || "N/A",
+      "Measured Weight": item.measuredWeight,
+      "Collected Weight": item.collectedWeight,
+      "Returned At": item.returnedAt
+        ? formatDateToDDMMYYYY(item.returnedAt)
         : "N/A",
     }));
+
     // const worksheet = XLSX.utils.json_to_sheet(formattedData);
     // const workbook = XLSX.utils.book_new();
     const worksheet = XLSX.utils.json_to_sheet([]);
@@ -96,20 +114,22 @@ const [showLineChart, setShowLineChart] = useState(false);
     doc.setFontSize(14);
     doc.text(title, 14, 15);
     const tableColumn = [
-      "Pickup ID",
+      "Date",
       "Waste Type",
-      "Status",
       "Driver",
-      "Amount",
-      "Paid At",
+      "Truck",
+      "Measured Weight",
+      "Collected Weight",
+      "Returned At",
     ];
     const tableRows = dataToUse.map((item: any) => [
-      item.pickupId,
+      item.createdAt,
       item.wasteType,
-      item.status,
       item.driverId?.name || "N/A",
-      `₹${item.payment?.amount || 0}`,
-      item.payment?.paidAt ? formatDateToDDMMYYYY(item.payment.paidAt) : "N/A",
+      item.truckId?.name || "N/A",
+      item.measuredWeight,
+      item.collectedWeight,
+      item.returnedAt ? formatDateToDDMMYYYY(item.returnedAt) : "N/A",
     ]);
     autoTable(doc, { head: [tableColumn], body: tableRows, startY: 20 });
     doc.save("WasteReport.pdf");
@@ -117,43 +137,83 @@ const [showLineChart, setShowLineChart] = useState(false);
 
   const dataToUse = (showFiltered ? filteredData : wasteData) || [];
 
+  // const pieChartData = dataToUse.reduce((acc: any[], report: any) => {
+  //   const type = report.wasteType;
+  //   const amount = report.payment?.amount || 0;
+
+  //   const existing = acc.find((item) => item.type === type);
+  //   if (existing) {
+  //     existing.amount += amount;
+  //   } else {
+  //     acc.push({ type, amount });
+  //   }
+
+  //   return acc;
+  // }, []);
+
   const pieChartData = dataToUse.reduce((acc: any[], report: any) => {
     const type = report.wasteType;
-    const amount = report.payment?.amount || 0;
+    const weight = report.collectedWeight || 0;
 
     const existing = acc.find((item) => item.type === type);
     if (existing) {
-      existing.amount += amount;
+      existing.weight += weight;
     } else {
-      acc.push({ type, amount });
+      acc.push({ type, weight });
     }
 
     return acc;
   }, []);
+
+  //   const lineChartData = dataToUse.reduce((acc: any[], report: any) => {
+  //   const paidDate = report.payment?.paidAt
+  //     ? formatDateToDDMMYYYY(report.payment.paidAt)
+  //     : null;
+
+  //   if (paidDate) {
+  //     const existing = acc.find((item) => item.date === paidDate);
+  //     if (existing) {
+  //       existing.amount += report.payment?.amount || 0;
+  //     } else {
+  //       acc.push({
+  //         date: paidDate,
+  //         amount: report.payment?.amount || 0,
+  //       });
+  //     }
+  //   }
+
+  //   return acc;
+  // }, []);
+
   const lineChartData = dataToUse.reduce((acc: any[], report: any) => {
-  const paidDate = report.payment?.paidAt
-    ? formatDateToDDMMYYYY(report.payment.paidAt)
-    : null;
+    const date = report.createdAt
+      ? formatDateToDDMMYYYY(report.createdAt)
+      : null;
 
-  if (paidDate) {
-    const existing = acc.find((item) => item.date === paidDate);
-    if (existing) {
-      existing.amount += report.payment?.amount || 0;
-    } else {
-      acc.push({
-        date: paidDate,
-        amount: report.payment?.amount || 0,
-      });
+    if (date) {
+      const existing = acc.find((item) => item.date === date);
+      if (existing) {
+        existing.collectedWeight += report.collectedWeight || 0;
+      } else {
+        acc.push({
+          date: date,
+          collectedWeight: report.collectedWeight || 0,
+        });
+      }
     }
-  }
 
-  return acc;
-}, []);
+    return acc;
+  }, []);
 
   const columns = [
-    { title: "Pickup ID", dataIndex: "pickupId", key: "pickupId" },
+    {
+      title: "Date",
+      dataIndex: "createdAt",
+      key: "createdAt",
+      render: (createdAt: string) =>
+        createdAt ? formatDateToDDMMYYYY(createdAt) : "N/A",
+    },
     { title: "Waste Type", dataIndex: "wasteType", key: "wasteType" },
-    { title: "Status", dataIndex: "status", key: "status" },
     {
       title: "Driver",
       dataIndex: ["driverId", "name"],
@@ -161,250 +221,183 @@ const [showLineChart, setShowLineChart] = useState(false);
       render: (name: string) => name,
     },
     {
-      title: "Amount",
-      dataIndex: ["payment", "amount"],
-      key: "amount",
-      render: (amount: number) => `₹${amount}`,
+      title: "Truck",
+      dataIndex: ["truckId", "name"],
+      key: "name",
+      render: (name: string) => name,
     },
     {
-      title: "Paid At",
-      dataIndex: ["payment", "paidAt"],
-      key: "paidAt",
-      render: (paidAt: string) =>
-        paidAt ? formatDateToDDMMYYYY(paidAt) : "N/A",
+      title: "Measured Weight",
+      dataIndex: "measuredWeight",
+      key: "measuredWeight",
+      render: (weight: number) => `${weight} Kg`,
+    },
+    {
+      title: "Collected Weight",
+      dataIndex: "collectedWeight",
+      key: "collectedWeight",
+      render: (weight: number) => `${weight} Kg`,
     },
   ];
+  // const columns = [
+  //   { title: "Pickup ID", dataIndex: "pickupId", key: "pickupId" },
+  //   { title: "Waste Type", dataIndex: "wasteType", key: "wasteType" },
+  //   { title: "Status", dataIndex: "status", key: "status" },
+  //   {
+  //     title: "Driver",
+  //     dataIndex: ["driverId", "name"],
+  //     key: "name",
+  //     render: (name: string) => name,
+  //   },
+  //   {
+  //     title: "Amount",
+  //     dataIndex: ["payment", "amount"],
+  //     key: "amount",
+  //     render: (amount: number) => `₹${amount}`,
+  //   },
+  //   {
+  //     title: "Paid At",
+  //     dataIndex: ["payment", "paidAt"],
+  //     key: "paidAt",
+  //     render: (paidAt: string) =>
+  //       paidAt ? formatDateToDDMMYYYY(paidAt) : "N/A",
+  //   },
+  // ];
+
   return (
-  <div style={{ padding: "1rem" }} className="bg-green-50">
-    <h2 style={{ textAlign: "center", marginBottom: "1rem" }} className="text-green-700 text-2xl font-bold">Waste Reports</h2>
+    <div style={{ padding: "1rem" }} className="bg-green-50">
+      <h2
+        style={{ textAlign: "center", marginBottom: "1rem" }}
+        className="text-green-700 text-2xl font-bold"
+      >
+        Waste Reports
+      </h2>
 
-    {/* Date Filter + Actions */}
-    <div
-      style={{
-        marginBottom: 20,
-        display: "flex",
-        flexWrap: "wrap",
-        gap: "10px",
-        alignItems: "center",
-        justifyContent: "center",
-      }}
-    >
-      <div>
-        <span style={{ marginRight: 5 }}>From:</span>
-        <DatePicker
-          onChange={(_, dateString) => {
-            if (typeof dateString === "string") {
-              setFromDate(dateString);
-            }
-          }}
-        />
+      {/* Date Filter + Actions */}
+      <div
+        style={{
+          marginBottom: 20,
+          display: "flex",
+          flexWrap: "wrap",
+          gap: "10px",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        <div>
+          <span style={{ marginRight: 5 }}>From:</span>
+          <DatePicker
+            onChange={(_, dateString) => {
+              if (typeof dateString === "string") {
+                setFromDate(dateString);
+              }
+            }}
+          />
+        </div>
+
+        <div>
+          <span style={{ marginRight: 5 }}>To:</span>
+          <DatePicker
+            onChange={(_, dateString) => {
+              if (typeof dateString === "string") {
+                setToDate(dateString);
+              }
+            }}
+          />
+        </div>
+
+        <Button type="primary" onClick={handleFilter}>
+          Filter
+        </Button>
+
+        <Button onClick={exportToCSV}>Export CSV</Button>
+        <Button onClick={exportToPDF}>Export PDF</Button>
+        <Button onClick={() => setShowLineChart(!showLineChart)}>
+          {showLineChart ? "Show Pie Chart" : "Show Line Chart"}
+        </Button>
       </div>
 
-      <div>
-        <span style={{ marginRight: 5 }}>To:</span>
-        <DatePicker
-          onChange={(_, dateString) => {
-            if (typeof dateString === "string") {
-              setToDate(dateString);
-            }
-          }}
-        />
-      </div>
-
-      <Button type="primary" onClick={handleFilter}>
-        Filter
-      </Button>
-
-      <Button onClick={exportToCSV}>Export CSV</Button>
-      <Button onClick={exportToPDF}>Export PDF</Button>
-      <Button onClick={() => setShowLineChart(!showLineChart)}>
-        {showLineChart ? "Show Pie Chart" : "Show Line Chart"}
-      </Button>
-    </div>
-
-    {/* Chart Section */}
-    <div style={{ display: "flex", justifyContent: "center", marginBottom: "2rem" }}>
-      <div style={{ width: "100%", maxWidth: "800px", padding: "0 1rem" }}>
-        {showLineChart ? (
-          <>
-            <h3 style={{ textAlign: "center" }}>Payment Trends (Line Chart)</h3>
-            <ResponsiveContainer width="100%" height={300}>
-              <LineChart
-                data={lineChartData}
-                margin={{ top: 20, right: 30, left: 0, bottom: 0 }}
-              >
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="date" />
-                <YAxis />
-                <Tooltip />
-                <Legend />
-                <Line
-                  type="monotone"
-                  dataKey="amount"
-                  stroke="#8884d8"
-                  activeDot={{ r: 8 }}
-                />
-              </LineChart>
-            </ResponsiveContainer>
-          </>
-        ) : (
-          <>
-            <h3 style={{ textAlign: "center" }}>Payment Distribution (Pie Chart)</h3>
-            <ResponsiveContainer width="100%" height={300}>
-              <PieChart>
-                <Pie
-                  data={pieChartData}
-                  dataKey="amount"
-                  nameKey="type"
-                  cx="50%"
-                  cy="50%"
-                  outerRadius={100}
-                  fill="#8884d8"
-                  label
+      {/* Chart Section */}
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          marginBottom: "2rem",
+        }}
+      >
+        <div style={{ width: "100%", maxWidth: "800px", padding: "0 1rem" }}>
+          {showLineChart ? (
+            <>
+              <h3 style={{ textAlign: "center" }}>
+                Payment Trends (Line Chart)
+              </h3>
+              <ResponsiveContainer width="100%" height={300}>
+                <LineChart
+                  data={lineChartData}
+                  margin={{ top: 20, right: 30, left: 0, bottom: 0 }}
                 >
-                  {pieChartData.map((entry: any, index: number) => (
-                    <Cell
-                      key={`cell-${index}`}
-                      fill={
-                        ["#0088FE", "#00C49F", "#FFBB28", "#FF8042"][index % 4]
-                      }
-                    />
-                  ))}
-                </Pie>
-                <Tooltip />
-                <Legend />
-              </PieChart>
-            </ResponsiveContainer>
-          </>
-        )}
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="date" />
+                  <YAxis />
+                  <Tooltip />
+                  <Legend />
+                  <Line
+                    type="monotone"
+                    dataKey="collectedWeight"
+                    stroke="#8884d8"
+                    activeDot={{ r: 8 }}
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            </>
+          ) : (
+            <>
+              <h3 style={{ textAlign: "center" }}>
+                Payment Distribution (Pie Chart)
+              </h3>
+              <ResponsiveContainer width="100%" height={300}>
+                <PieChart>
+                  <Pie
+                    data={pieChartData}
+                    dataKey="weight"
+                    nameKey="type"
+                    cx="50%"
+                    cy="50%"
+                    outerRadius={100}
+                    fill="#8884d8"
+                    label
+                  >
+                    {pieChartData.map((entry: any, index: number) => (
+                      <Cell
+                        key={`cell-${index}`}
+                        fill={
+                          ["#0088FE", "#00C49F", "#FFBB28", "#FF8042"][
+                            index % 4
+                          ]
+                        }
+                      />
+                    ))}
+                  </Pie>
+                  <Tooltip />
+                  <Legend />
+                </PieChart>
+              </ResponsiveContainer>
+            </>
+          )}
+        </div>
+      </div>
+
+      {/* Table Section */}
+      <div style={{ overflowX: "auto" }}>
+        <Table
+          dataSource={dataToUse}
+          columns={columns}
+          rowKey="_id"
+          pagination={{ pageSize: 5 }}
+        />
       </div>
     </div>
-
-    {/* Table Section */}
-    <div style={{ overflowX: "auto" }}>
-      <Table
-        dataSource={dataToUse}
-        columns={columns}
-        rowKey="_id"
-        pagination={{ pageSize: 5 }}
-      />
-    </div>
-  </div>
-);
-
-//   return (
-//     <div>
-//       <h2>Waste Reports</h2>
-
-//       {/* Date Filter */}
-//       <div
-//         style={{
-//           marginBottom: 20,
-//           display: "flex",
-//           gap: "10px",
-//           alignItems: "center",
-//         }}
-//       >
-//         <div>
-//           <span style={{ marginRight: 5 }}>From:</span>
-//           <DatePicker
-//             onChange={(_, dateString) => {
-//               if (typeof dateString === "string") {
-//                 console.log(dateString);
-
-//                 setFromDate(dateString);
-//               }
-//             }}
-//           />
-//         </div>
-
-//         <div>
-//           <span style={{ marginRight: 5 }}>To:</span>
-//           <DatePicker
-//             onChange={(_, dateString) => {
-//               if (typeof dateString === "string") {
-//                 setToDate(dateString);
-//               }
-//             }}
-//           />
-//         </div>
-
-//         <Button type="primary" onClick={handleFilter}>
-//           Filter
-//         </Button>
-
-//         <Button onClick={exportToCSV}>Export CSV</Button>
-
-//         <Button onClick={exportToPDF}>Export PDF</Button>
-
-//   <Button onClick={() => setShowLineChart(!showLineChart)}>
-//     {showLineChart ? "Show Pie Chart" : "Show Line Chart"}
-//   </Button>
-
-
-//       </div>
-
-// <div style={{ display: "flex", justifyContent: "center" }}>
-//   <div style={{ width: "800px", maxWidth: "100%" }}>
-//     {showLineChart ? (
-//       <>
-//         <h3 style={{ textAlign: "center" }}>Payment Trends (Line Chart)</h3>
-//         <ResponsiveContainer width="100%" height={400}>
-//           <LineChart
-//             data={lineChartData}
-//             margin={{ top: 20, right: 30, left: 0, bottom: 0 }}
-//           >
-//             <CartesianGrid strokeDasharray="3 3" />
-//             <XAxis dataKey="date" />
-//             <YAxis />
-//             <Tooltip />
-//             <Legend />
-//             <Line
-//               type="monotone"
-//               dataKey="amount"
-//               stroke="#8884d8"
-//               activeDot={{ r: 8 }}
-//             />
-//           </LineChart>
-//         </ResponsiveContainer>
-//       </>
-//     ) : (
-//       <>
-//         <h3 style={{ textAlign: "center" }}>Payment Distribution (Pie Chart)</h3>
-//         <ResponsiveContainer width="100%" height={400}>
-//           <PieChart>
-//             <Pie
-//               data={pieChartData}
-//               dataKey="amount"
-//               nameKey="type"
-//               cx="50%"
-//               cy="50%"
-//               outerRadius={150}
-//               fill="#8884d8"
-//               label
-//             >
-//               {pieChartData.map((entry: any, index: number) => (
-//                 <Cell
-//                   key={`cell-${index}`}
-//                   fill={
-//                     ["#0088FE", "#00C49F", "#FFBB28", "#FF8042"][index % 4]
-//                   }
-//                 />
-//               ))}
-//             </Pie>
-//             <Tooltip />
-//             <Legend />
-//           </PieChart>
-//         </ResponsiveContainer>
-//       </>
-//     )}
-//   </div>
-// </div>
-
-
-//       <Table dataSource={dataToUse} columns={columns} rowKey="_id" />
-//     </div>
-//   );
+  );
 };
 
 export default WasteReports;

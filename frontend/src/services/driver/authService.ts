@@ -8,10 +8,10 @@ export const loginDriver = async (driverData: LoginRequest) => {
     console.log("res",response);
     
     if (response.data) {
-      sessionStorage.setItem("driver_token", response.data.token);
-      sessionStorage.setItem("driver_role", response.data.role);
-      sessionStorage.setItem("driver_id", response.data.driverId);
-      sessionStorage.setItem("driver_category", response.data.category);
+      localStorage.setItem("driver_token", response.data.token);
+      localStorage.setItem("driver_role", response.data.role);
+      localStorage.setItem("driver_id", response.data.driverId);
+      localStorage.setItem("driver_category", response.data.category);
     }
     console.log("res",response);
 
@@ -27,10 +27,10 @@ export const logoutDriver = async () => {
       `/logout`,
       {}
     );
-    sessionStorage.removeItem("driver_token");
-    sessionStorage.removeItem("driver_role");
-    sessionStorage.removeItem("driver_id");
-    sessionStorage.removeItem("driver_category");
+    localStorage.removeItem("driver_token");
+    localStorage.removeItem("driver_role");
+    localStorage.removeItem("driver_id");
+    localStorage.removeItem("driver_category");
     return response.data;
   } catch (error: any) {
     console.error("err",error)
