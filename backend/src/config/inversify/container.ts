@@ -58,6 +58,8 @@ import { IDashboardController as IPlantDashboardController } from "../../control
 import { DashboardController as PlantDashboardController } from "../../controllers/wastePlant/dashboardController";
 import { ReportController as PlantReportController } from "../../controllers/wastePlant/reportController";
 import { IReportController as IPlantReportController } from "../../controllers/wastePlant/interface/IReportController";
+import { IProfileController as IPlantProfileController } from "../../controllers/wastePlant/interface/IProfileController";
+import { ProfileController as PlantProfileController } from "../../controllers/wastePlant/profileController";
 
 //driver
 import { IAuthController as IDriverAuthController } from "../../controllers/driver/interface/IAuthController";
@@ -133,6 +135,8 @@ import { IDashboardService as IPlantDashboardService } from "../../services/wast
 import { DashboardService as PlantDashboardService } from "../../services/wastePlant/dashboardService";
 import { IReportService as IPlantReportService } from "../../services/wastePlant/interface/IReportService";
 import { ReportService as PlantReportService } from "../../services/wastePlant/reportService";
+import { IProfileService as IPlantProfileService } from "../../services/wastePlant/interface/IProfileService";
+import { ProfileService as PlantProfileService } from "../../services/wastePlant/profileService";
 
 //driver
 import { IAuthService as IDriverAuthService } from "../../services/driver/interface/IAuthService";
@@ -216,6 +220,7 @@ container.bind<IPlantSubscriptionController>(TYPES.PlantSubscriptionController).
 container.bind<IPlantPaymentController>(TYPES.PlantPaymentController).to(PlantPaymentController);
 container.bind<IPlantDashboardController>(TYPES.PlantDashboardController).to(PlantDashboardController);
 container.bind<IPlantReportController>(TYPES.PlantReportController).to(PlantReportController);
+container.bind<IPlantProfileController>(TYPES.PlantProfileController).to(PlantProfileController);
 
 //driver
 container.bind<IDriverAuthController>(TYPES.DriverAuthController).to(DriverAuthController);
@@ -259,6 +264,7 @@ container.bind<IPlantSubscriptionService>(TYPES.PlantSubscriptionService).to(Pla
 container.bind<IPlantPaymentService>(TYPES.PlantPaymentService).to(PlantPaymentService);
 container.bind<IPlantDashboardService>(TYPES.PlantDashboardService).to(PlantDashboardService);
 container.bind<IPlantReportService>(TYPES.PlantReportService).to(PlantReportService);
+container.bind<IPlantProfileService>(TYPES.PlantProfileService).to(PlantProfileService);
 
 //driver
 container.bind<IDriverAuthService>(TYPES.DriverAuthService).to(DriverAuthService);
