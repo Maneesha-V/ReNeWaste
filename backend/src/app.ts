@@ -16,6 +16,8 @@ import driverRoutes from "./routes/driverRoutes";
 import mapsRoutes from "./routes/mapRoutes";
 
 import socketHandler from "./socket/socketHandler";
+import { errorHandler } from "./middlewares/errorHandler";
+import { ApiError } from "./utils/ApiError";
 
 dotenv.config();
 
@@ -59,7 +61,6 @@ app.use(cookieParser());
 app.use(morgan("dev"));
 
 
-
 app.use("/api", userRoutes);
 app.use("/api/super-admin", superAdminRoutes);
 app.use("/api/waste-plant", wastePlantRoutes);
@@ -68,8 +69,11 @@ app.use("/api/maps", mapsRoutes);
 
 // 404 handler
 app.use((req, res, next) => {
-  res.status(404).json({ message: "Route not found" });
+  next(new ApiError(404, "Route not found"));
+  // res.status(404).json({ message: "Route not found" });
 });
+
+app.use(errorHandler);
 
 // When using Express + Socket.IO
 server.listen(PORT, () => {
