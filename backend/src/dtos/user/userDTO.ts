@@ -1,0 +1,73 @@
+import { IUser } from "../../models/user/interfaces/userInterface";
+import { BaseDTO } from "../base/BaseDTO";
+
+type Role = "user" | "driver" | "superadmin" | "wasteplant";
+export interface UserDTO extends BaseDTO {
+      firstName: string;
+      lastName: string;
+      email: string;
+      agreeToTerms: boolean;
+      role: Role;
+      phone?: string;
+      googleId: string | null;
+      addresses: AddressDTO[];
+      wasteplantId?: string;
+      isBlocked: boolean;
+}
+
+export interface AddressDTO {
+  _id: string;
+  addressLine1: string;
+  addressLine2?: string;
+  taluk: string;
+  location: string;
+  state: string;
+  pincode: string;
+  district: string;
+  latitude?: number;
+  longitude?: number;
+}
+export interface UserLoginDTO {
+  _id: string;
+  role: string;
+}
+export interface LoginRequest {
+  email: string;
+  password: string;
+}
+
+export interface LoginResponse {
+  user: UserLoginDTO;
+  token: string;
+}
+
+type WasteType = 'Residential' | 'Commercial';
+
+export interface UpdatedResidentialData {
+  phone: string;
+  pickupDate: string; 
+  pickupTime: string; 
+  wasteType: WasteType; 
+  firstName: string;
+  lastName: string;
+  email: string;
+  selectedAddressId: string;
+}
+export interface GoogleSignUpReq {
+  email: string; 
+  displayName: string;
+   uid: string;
+}
+export interface GoogleSignUpResp {
+  role: string;
+  token: string;
+}
+export type GoogleLoginReq = {
+  email: string; 
+  googleId: string; 
+}
+export type GoogleLoginResp = {
+  role: string;
+  token: string;
+  userId: string;
+}
