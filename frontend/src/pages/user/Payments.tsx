@@ -4,8 +4,10 @@ import { useSelector } from "react-redux";
 import { RootState } from "../../redux/store";
 import { useEffect, useState } from "react";
 import {
+  clearPaymentError,
   getAllPayments,
   repay,
+  updatePaymentStatus,
   verifyPayment,
 } from "../../redux/slices/user/userPaymentSlice";
 import { formatDateToDDMMYYYY } from "../../utils/formatDate";
@@ -13,6 +15,8 @@ import { useAppDispatch } from "../../redux/hooks";
 import { toast } from "react-toastify";
 import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
+import { RazorpayResponse } from "../../types/pickupReq/paymentTypes";
+
 
 const Payments = () => {
   const [activeTab, setActiveTab] = useState<"paid" | "refund" | "pending">(
@@ -20,10 +24,22 @@ const Payments = () => {
   );
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
-  const payments = useSelector(
-    (state: RootState) => state.userPayment.payments
+  const { payments, error } = useSelector(
+    (state: RootState) => state.userPayment
   );
+ 
 
+  useEffect(() => {
+    if (error) {
+      Swal.fire({
+        icon: "error",
+        title: "Retry Failed",
+        text: error,
+        confirmButtonColor: "#d33",
+      });
+      dispatch(clearPaymentError());
+    }
+  }, [error, dispatch]);
   useEffect(() => {
     dispatch(getAllPayments());
   }, [dispatch]);
@@ -38,14 +54,9 @@ const Payments = () => {
     });
   };
   const handleRetry = async (pickupReqId: string, amount: number) => {
-    const response = await dispatch(repay({ pickupReqId, amount }));
-    console.log("respp", response);
+    const response = await dispatch(repay({ pickupReqId, amount })).unwrap();
 
-    const {
-      orderId,
-      amount: repayAmt,
-      pickupReqId: pickupId,
-    } = response.payload;
+    const { orderId, amount: repayAmt, pickupReqId: pickupId } = response;
     console.log("razorpayOrderId", repayAmt, orderId);
     const res = await loadRazorpayScript();
     if (!res) {
@@ -55,12 +66,12 @@ const Payments = () => {
     if (orderId && repayAmt) {
       const options = {
         key: import.meta.env.VITE_RAZORPAY_KEY_ID,
-        amount: repayAmt,
+        amount: repayAmt * 100,
         currency: "INR",
-        name: "Your Company Name",
+        name: "ReNeWaste",
         description: "Payment for Pickup Request",
         order_id: orderId,
-        handler: function (response: any) {
+        handler: function (response: RazorpayResponse) {
           console.log("Payment successful", response);
           const { razorpay_order_id, razorpay_payment_id, razorpay_signature } =
             response;
@@ -74,34 +85,41 @@ const Payments = () => {
             })
           )
             .unwrap()
-            .then(() => {
+            .then((res) => {
+              console.log("resss",res);
+              
+              dispatch(
+                updatePaymentStatus({
+                  pickupReqId: pickupId,
+                  updatedPayment: res.updatedPayment.payment,
+                })
+              );
               Swal.fire({
                 icon: "success",
                 title: "Payment Successful!",
-                text: "Your payment was verified successfully.",
+                text: res.message || "Your payment was verified successfully.",
                 confirmButtonColor: "#28a745",
-              }).then(() => {
-                dispatch(getAllPayments());
-                navigate("/payment-history");
-              });
+              })
+              // .then(() => {
+              //   dispatch(getAllPayments());
+              //   navigate("/payment-history");
+              // });
             })
-            .catch(() => {
+            .catch((error) => {
               Swal.fire({
                 icon: "error",
                 title: "Payment Failed",
-                text: "Payment verification failed. Please try again.",
+                text: error || "Payment verification failed. Please try again.",
                 confirmButtonColor: "#d33",
               });
             });
         },
         prefill: {
-          name: "Your Name",
-          email: "your-email@example.com",
+          name: "Renewaste",
+          email: "renewaste@example.com",
           contact: "9999999999",
         },
-        notes: {
-          // You can add additional notes if needed
-        },
+        notes: {},
       };
 
       const razorpay = new (window as any).Razorpay(options);
@@ -159,7 +177,11 @@ const Payments = () => {
                     payment?.payment?.refundStatus === null
                   );
                 } else if (activeTab === "pending") {
-                  return payment?.payment?.status === "Pending";
+                  return (
+                    payment?.payment?.status === "Pending" ||
+                    payment?.payment?.status === "InProgress"
+                  );
+                  // return payment?.payment?.status === "Pending";
                 } else {
                   return payment?.payment?.refundStatus !== null;
                 }
@@ -217,13 +239,24 @@ const Payments = () => {
                     <p>
                       <strong>Waste Type:</strong> {payment.wasteType}
                     </p>
-                    <p>
-                      <strong>Payment Date:</strong>{" "}
-                      {formatDateToDDMMYYYY(payment?.payment?.paidAt)}
-                    </p>
+                    {payment.payment.status === "Paid" && (
+                      <>
+                        {payment.payment.refundRequested ? (
+                          <p>
+                            <strong>Refund Date:</strong>{" "}
+                            {formatDateToDDMMYYYY(payment?.payment?.refundAt)}
+                          </p>
+                        ) : (
+                          <p>
+                            <strong>Payment Date:</strong>{" "}
+                            {formatDateToDDMMYYYY(payment?.payment?.paidAt)}
+                          </p>
+                        )}
+                      </>
+                    )}
                   </div>
 
-                  {payment?.payment?.status === "Pending" && (
+                  {/* {payment?.payment?.status === "Pending" || payment?.payment?.status === "InProgress" && (
                     <button
                       className="bg-red-500 hover:bg-red-700 text-white px-4 py-2 rounded"
                       onClick={() =>
@@ -232,7 +265,44 @@ const Payments = () => {
                     >
                       Retry Payment
                     </button>
-                  )}
+                  )} */}
+                  {(() => {
+                    const status = payment?.payment?.status;
+                    const expiresAt = payment?.payment?.inProgressExpiresAt;
+                    const now = new Date();
+                    const expired =
+                      status === "InProgress" &&
+                      expiresAt &&
+                      new Date(expiresAt) <= now;
+
+                    if (status === "Pending" || expired) {
+                      return (
+                        <button
+                          className="bg-red-500 hover:bg-red-700 text-white px-4 py-2 rounded"
+                          onClick={() =>
+                            handleRetry(payment._id, payment?.payment?.amount)
+                          }
+                        >
+                          Retry Payment
+                        </button>
+                      );
+                    } else if (status === "InProgress") {
+                      return (
+                        <p className="text-sm text-orange-600">
+                          You’ve already initiated a payment. Please wait a few
+                          minutes (until{" "}
+                          <strong>
+                            {new Date(expiresAt).toLocaleTimeString([], {
+                              hour: "2-digit",
+                              minute: "2-digit",
+                            })}
+                          </strong>{" "}
+                          ) to retry.
+                        </p>
+                      );
+                    }
+                    return null;
+                  })()}
                 </div>
               ))}
           </div>

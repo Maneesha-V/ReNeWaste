@@ -23,10 +23,17 @@ export const useWastePlantValidation = () => {
       case "location":
       case "state":
       case "contactInfo":
+      // case "name":
+      //   if (!value.trim()) error = `${label} is required.`;
+      //   else if (!/^[A-Za-z\s]+$/.test(value))
+      //     error = `${label} must contain only letters.`;
+      //   break;
       case "name":
-        if (!value.trim()) error = `${label} is required.`;
-        else if (!/^[A-Za-z\s]+$/.test(value))
-          error = `${label} must contain only letters.`;
+        if (!value.trim()) {
+          error = `${label} is required.`;
+        } else if (!/^[A-Za-z]+( [A-Za-z]+)*$/.test(value)) {
+          error = `${label} must contain only letters and single spaces (no extra spaces).`;
+        }
         break;
 
       case "email":
@@ -54,14 +61,14 @@ export const useWastePlantValidation = () => {
           const [hours, minutes] = value.split(":").map(Number);
           const totalMinutes = hours * 60 + minutes;
 
-          const minMinutes = 9 * 60; // 09:00 AM
-          const maxMinutes = 17 * 60; // 05:00 PM
+          const minMinutes = 9 * 60; 
+          const maxMinutes = 17 * 60; 
 
           if (totalMinutes < minMinutes || totalMinutes > maxMinutes) {
             error = "Pickup time must be between 9:00 AM and 5:00 PM.";
           }
         }
-        break;   
+        break;
       case "vehicleNumber":
       case "licenseNumber":
         if (!value.trim()) error = `${label} is required.`;

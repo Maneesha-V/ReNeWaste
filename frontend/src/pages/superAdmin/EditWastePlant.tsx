@@ -4,6 +4,7 @@ import { useAppDispatch } from "../../redux/hooks";
 import { useSelector } from "react-redux";
 import { RootState } from "../../redux/store";
 import {
+  fetchPostOffices,
   fetchWastePlantById,
   updateWastePlant,
 } from "../../redux/slices/superAdmin/superAdminWastePlantSlice";
@@ -15,6 +16,10 @@ import {
 } from "../../types/wastePlantTypes";
 import { toast } from "react-toastify";
 import { fetchSubscriptionPlans } from "../../redux/slices/superAdmin/superAdminSubscriptionPlanSlice";
+import LicenseDocumentViewer from "../../components/wastePlant/LicenseDocumentViewer";
+import { SubsptnPlans } from "../../types/subscription/subscriptionTypes";
+import { PostOffice } from "../../types/wasteplant/wastePlantTypes";
+import { getAxiosErrorMessage } from "../../utils/handleAxiosError";
 
 const EditWastePlant = () => {
   const { id } = useParams<{ id: string }>();
@@ -25,17 +30,20 @@ const EditWastePlant = () => {
   const { wastePlant, loading } = useSelector(
     (state: RootState) => state.superAdminWastePlant
   );
+
   const [formData, setFormData] = useState<PartialWastePlantFormData>({
     services: [],
   });
-      const { subscriptionPlans } = useSelector(
-        (state: RootState) => state.superAdminSubscriptionPlan
-      );
-      
+  const [postOffices, setPostOffices] = useState<PostOffice[]>([]);
+
+  const { subscriptionPlans } = useSelector(
+    (state: RootState) => state.superAdminSubscriptionPlan
+  );
+
   useEffect(() => {
     dispatch(fetchSubscriptionPlans());
-  },[dispatch])
-  
+  }, [dispatch]);
+
   useEffect(() => {
     if (id) dispatch(fetchWastePlantById(id));
   }, [id, dispatch]);
@@ -55,10 +63,22 @@ const EditWastePlant = () => {
     const { name, value } = e.target;
     validateField(name, value);
   };
-  const handleChange = (
+  const handleChange = async (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+
+    if (name === "pincode" && value.length === 6) {
+      try {
+        const res = await dispatch(fetchPostOffices(value)).unwrap();
+        setPostOffices(res);
+      } catch (error) {
+        toast.error("Failed to fetch post offices for this PIN");
+        setPostOffices([]);
+        setFormData((prev) => ({ ...prev, location: "", taluk: "" }));
+      }
+    }
   };
   const handleServiceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { value, checked } = e.target;
@@ -126,8 +146,10 @@ const EditWastePlant = () => {
       setTimeout(() => {
         navigate("/super-admin/waste-plants");
       }, 2000);
-    } catch (error: any) {
-      toast.error("Waste Plant updation failed. Please try again.");
+    } catch (error) {
+      // toast.error("Waste Plant updation failed. Please try again.");
+      const msg = getAxiosErrorMessage(error);
+      toast.error(msg);
     }
   };
 
@@ -167,55 +189,6 @@ const EditWastePlant = () => {
             <p className="text-red-500 text-sm">{errors.ownerName}</p>
           )}
         </div>
-
-        <div>
-          <label className="block text-gray-700">Location</label>
-          <input
-            type="text"
-            name="location"
-            value={formData.location}
-            onChange={handleChange}
-            onBlur={handleBlur}
-            className="w-full p-2 border rounded"
-          />
-          {errors.location && (
-            <p className="text-red-500 text-sm">{errors.location}</p>
-          )}
-        </div>
-        {/* District */}
-        <div>
-          <label className="block text-gray-700 font-medium">District</label>
-          <input
-            type="text"
-            name="district"
-            value="Malappuram"
-            disabled
-            className="w-full border px-3 py-2 rounded-md bg-gray-100 text-gray-600"
-          />
-        </div>
-        {/* Taluk */}
-        <div>
-          <label className="block text-gray-700 font-medium">Taluk</label>
-          <select
-            name="taluk"
-            value={formData.taluk}
-            onChange={handleChange}
-            onBlur={handleBlur}
-            className="w-full border px-3 py-2 rounded-md focus:ring-2 focus:ring-green-500"
-          >
-            <option value="">Select Taluk</option>
-            <option value="Tirur">Tirur</option>
-            <option value="Perinthalmanna">Perinthalmanna</option>
-            <option value="Ponnani">Ponnani</option>
-            <option value="Kondotty">Kondotty</option>
-            <option value="Tirurangadi">Tirurangadi</option>
-            <option value="Nilambur">Nilambur</option>
-            <option value="Eranad">Eranad</option>
-          </select>
-          {errors.taluk && (
-            <p className="text-red-500 text-sm">{errors.taluk}</p>
-          )}
-        </div>
         {/* Pincode */}
         <div>
           <label className="block text-gray-700 font-medium">Pincode</label>
@@ -233,13 +206,79 @@ const EditWastePlant = () => {
         </div>
 
         <div>
+          <label className="block text-gray-700">Location</label>
+          {postOffices.length > 0 ? (
+            <select
+              name="location"
+              value={formData.location}
+              onChange={(e) => {
+                const selectedLocation = postOffices.find(
+                  (po) => po.name === e.target.value
+                );
+                setFormData((prev) => ({
+                  ...prev,
+                  location: selectedLocation?.name || "",
+                  taluk: selectedLocation?.taluk || "",
+                }));
+              }}
+              className="w-full border px-3 py-2 rounded-md focus:ring-2 focus:ring-green-500"
+            >
+              <option value="">Select Location</option>
+              {postOffices.map((po, i) => (
+                <option key={i} value={po.name}>
+                  {po.name}
+                </option>
+              ))}
+            </select>
+          ) : (
+            <input
+              type="text"
+              name="location"
+              value={formData.location}
+              onChange={handleChange}
+              onBlur={handleBlur}
+              className="w-full border px-3 py-2 rounded-md focus:ring-2 focus:ring-green-500"
+            />
+          )}
+          {errors.location && (
+            <p className="text-red-500 text-sm">{errors.location}</p>
+          )}
+        </div>
+
+        {/* Taluk */}
+        <div>
+          <label className="block text-gray-700 font-medium">Taluk</label>
+          <input
+            type="text"
+            name="taluk"
+            value={formData.taluk}
+            readOnly
+            className="w-full border px-3 py-2 rounded-md bg-gray-100 text-gray-600"
+          />
+          {errors.taluk && (
+            <p className="text-red-500 text-sm">{errors.taluk}</p>
+          )}
+        </div>
+
+        {/* District */}
+        <div>
+          <label className="block text-gray-700 font-medium">District</label>
+          <input
+            type="text"
+            name="district"
+            value="Malappuram"
+            disabled
+            className="w-full border px-3 py-2 rounded-md bg-gray-100 text-gray-600"
+          />
+        </div>
+        <div>
           <label className="block text-gray-700">State</label>
           <input
             type="text"
             name="state"
             value="Kerala"
             disabled
-            className="w-full p-2 border rounded"
+            className="w-full border px-3 py-2 rounded-md bg-gray-100 text-gray-600"
           />
           {errors.state && (
             <p className="text-red-500 text-sm">{errors.state}</p>
@@ -317,7 +356,7 @@ const EditWastePlant = () => {
               "E-Waste",
               "Plastic Waste",
               "Food Waste",
-              "Residential Waste"
+              "Residential Waste",
             ].map((service) => (
               <label key={service} className="flex items-center space-x-2">
                 <input
@@ -380,7 +419,7 @@ const EditWastePlant = () => {
             className="w-full border px-3 py-2 rounded-md focus:ring-2 focus:ring-green-500"
           >
             <option value="">Select Plan</option>
-            {subscriptionPlans.map((plan: any) => (
+            {subscriptionPlans.map((plan: SubsptnPlans) => (
               <option key={plan._id} value={plan.planName}>
                 {plan.planName}
               </option>
@@ -395,22 +434,16 @@ const EditWastePlant = () => {
           <label className="block text-gray-700">License Document</label>
           <input
             type="file"
+            accept=".pdf"
             className="w-full p-2 border rounded"
             onChange={handleFileChange}
             onBlur={handleBlur}
           />
-          {wastePlant.licenseDocumentPath && (
-            <a
-              href={`/${wastePlant.licenseDocumentPath}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-blue-600 text-sm"
-            >
-              View current document
-            </a>
-          )}
-          {errors.subscriptionPlan && (
-            <p className="text-red-500 text-sm">{errors.subscriptionPlan}</p>
+          {wastePlant.cloudinaryPublicId && (
+            <LicenseDocumentViewer
+              apiBaseUrl={import.meta.env.VITE_SUPER_ADMIN_API_URL}
+              cloudinaryPublicId={wastePlant.cloudinaryPublicId}
+            />
           )}
         </div>
 

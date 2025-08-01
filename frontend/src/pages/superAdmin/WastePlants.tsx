@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useCallback, useEffect } from "react";
 import { Table, Button, Popconfirm, Spin, Tooltip } from "antd";
 import {
   EditOutlined,
@@ -6,7 +6,6 @@ import {
   PlusOutlined,
   PlusCircleOutlined,
   RedoOutlined,
-  StopOutlined,
   ReloadOutlined,
 } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
@@ -22,21 +21,30 @@ import { useSelector } from "react-redux";
 import { RootState } from "../../redux/store";
 import Breadcrumbs from "../../components/common/Breadcrumbs";
 import { toast } from "react-toastify";
+import usePagination from "../../hooks/usePagination";
+import { debounce } from "lodash";
+import PaginationSearch from "../../components/common/PaginationSearch";
 
 const WastePlants: React.FC = () => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
-  const { wastePlant, loading, error } = useSelector(
+  const { wastePlant, loading, error, total } = useSelector(
     (state: RootState) => state.superAdminWastePlant
   );
-
+  const { currentPage, setCurrentPage, pageSize, search, setSearch } =
+    usePagination();
+  const debouncedFetchWastePlants = useCallback(
+    debounce((page: number, limit: number, query: string) => {
+      dispatch(fetchWastePlants({ page, limit, search: query }));
+    }, 500),
+    [dispatch]
+  );
   useEffect(() => {
-    if (!localStorage.getItem("admin_token")) {
-      navigate("/super-admin/");
-      return;
-    }
-    dispatch(fetchWastePlants());
-  }, [dispatch, navigate]);
+    debouncedFetchWastePlants(currentPage, pageSize, search);
+    return () => {
+      debouncedFetchWastePlants.cancel();
+    };
+  }, [currentPage, pageSize, search, debouncedFetchWastePlants]);
 
   const handleEdit = async (id: string) => {
     try {
@@ -65,7 +73,7 @@ const WastePlants: React.FC = () => {
 
   const remindRenew = async (plantId: string, daysLeft: number) => {
     try {
-      await dispatch(sendRenewNotification({plantId, daysLeft})).unwrap();
+      await dispatch(sendRenewNotification({ plantId, daysLeft })).unwrap();
       toast.success("Renew notification sent successfully");
     } catch (error) {
       console.error("Failed to send renew notification:", error);
@@ -73,7 +81,7 @@ const WastePlants: React.FC = () => {
     }
   };
 
-   const remindRecharge = async (plantId: string) => {
+  const remindRecharge = async (plantId: string) => {
     try {
       await dispatch(sendRechargeNotification(plantId)).unwrap();
       toast.success("Renew notification sent successfully");
@@ -104,208 +112,168 @@ const WastePlants: React.FC = () => {
       </div>
 
       {/* Table */}
-      {loading ? (
-        <div className="flex justify-center items-center min-h-[200px]">
-          <Spin size="large" />
-        </div>
-      ) : error ? (
+      {error ? (
         <p className="text-red-500">{error}</p>
       ) : (
         <div className="overflow-x-auto">
-          <Table
-            dataSource={Array.isArray(wastePlant) ? wastePlant : []}
-            rowKey={(record) => record.plantData._id}
-            bordered
-            className="shadow-sm"
-            pagination={{ pageSize: 10 }}
-            rowClassName={(record: any) => {
-              const daysLeft = record.latestSubscription?.daysLeft;
-              if (
-                daysLeft !== undefined &&
-                daysLeft !== null &&
-                daysLeft <= 2
-              ) {
-                return "blink-row";
-              }
-              return "";
-            }}
-          >
-            <Table.Column
-              title="Name"
-              dataIndex={["plantData", "plantName"]}
-              key="plantName"
-            />
-            <Table.Column
-              title="Location"
-              dataIndex={["plantData", "location"]}
-              key="location"
-            />
-            <Table.Column
-              title="Capacity (Kg/Day)"
-              dataIndex={["plantData", "capacity"]}
-              key="capacity"
-            />
-            <Table.Column
-              title="Contact"
-              dataIndex={["plantData", "contactNo"]}
-              key="contactNo"
-            />
-            <Table.Column
-              title="Subscription Plan"
-              dataIndex={["plantData", "subscriptionPlan"]}
-              key="subscriptionPlan"
-            />
-            <Table.Column
-              title="Status"
-              dataIndex="status"
-              key="status"
-              render={(_: any, record: any) => {
-                const status = record.plantData.status;
-                return (
-                  <span
-                    className={`px-2 py-1 rounded-full text-xs font-medium ${
-                      status === "Active"
-                        ? "bg-green-100 text-green-800"
-                        : status === "Inactive"
-                        ? "bg-red-100 text-red-800"
-                        : "bg-yellow-100 text-yellow-800"
-                    }`}
-                  >
-                    {status}
-                  </span>
-                );
+          <PaginationSearch
+            total={total}
+            currentPage={currentPage}
+            pageSize={pageSize}
+            onPageChange={setCurrentPage}
+            onSearchChange={setSearch}
+            searchValue={search}
+          />
+          <Spin spinning={loading}>
+            <Table
+              dataSource={Array.isArray(wastePlant) ? wastePlant : []}
+              rowKey={(record) => record.plantData._id}
+              bordered
+              className="shadow-sm"
+              pagination={false}
+              rowClassName={(record: any) => {
+                const daysLeft = record.latestSubscription?.daysLeft;
+                if (
+                  daysLeft !== undefined &&
+                  daysLeft !== null &&
+                  daysLeft <= 2
+                ) {
+                  return "blink-row";
+                }
+                return "";
               }}
-            />
-            <Table.Column
-              title="Reminder"
-              key="reminder"
-              render={(_: any, record: any) => {
-                const status = record.plantData.status;
-                const daysLeft = record.latestSubscription?.daysLeft ?? null;
-                return (
-                  <div className="flex flex-wrap gap-2">
-                    {status === "Pending" && (
-                      <Button
-                        type="primary"
-                        size="small"
-                        icon={<PlusCircleOutlined />}
-                        onClick={() => remindSubscribe(record.plantData._id)}
-                      >
-                        Subscribe
-                      </Button>
-                    )}
-                    {status === "Active" &&
-                      daysLeft !== null &&
-                      daysLeft <= 2 && (
-                        <Tooltip
-                          title={`Subscription expires in ${daysLeft} day(s)`}
+            >
+              <Table.Column
+                title="Name"
+                dataIndex={["plantData", "plantName"]}
+                key="plantName"
+              />
+              <Table.Column
+                title="Location"
+                dataIndex={["plantData", "location"]}
+                key="location"
+              />
+              <Table.Column
+                title="Capacity (Kg/Day)"
+                dataIndex={["plantData", "capacity"]}
+                key="capacity"
+              />
+              <Table.Column
+                title="Contact"
+                dataIndex={["plantData", "contactNo"]}
+                key="contactNo"
+              />
+              <Table.Column
+                title="Subscription Plan"
+                dataIndex={["plantData", "subscriptionPlan"]}
+                key="subscriptionPlan"
+              />
+              <Table.Column
+                title="Status"
+                dataIndex="status"
+                key="status"
+                render={(_: any, record: any) => {
+                  const status = record.plantData.status;
+                  return (
+                    <span
+                      className={`px-2 py-1 rounded-full text-xs font-medium ${
+                        status === "Active"
+                          ? "bg-green-100 text-green-800"
+                          : status === "Inactive"
+                          ? "bg-red-100 text-red-800"
+                          : "bg-yellow-100 text-yellow-800"
+                      }`}
+                    >
+                      {status}
+                    </span>
+                  );
+                }}
+              />
+              <Table.Column
+                title="Reminder"
+                key="reminder"
+                render={(_: any, record: any) => {
+                  const status = record.plantData.status;
+                  const daysLeft = record.latestSubscription?.daysLeft ?? null;
+                  return (
+                    <div className="flex flex-wrap gap-2">
+                      {status === "Pending" && (
+                        <Button
+                          type="primary"
+                          size="small"
+                          icon={<PlusCircleOutlined />}
+                          onClick={() => remindSubscribe(record.plantData._id)}
                         >
-                          <Button
-                            style={{
-                              backgroundColor: "#FAAD14",
-                              color: "#fff",
-                              border: "none",
-                            }}
-                            size="small"
-                            icon={<RedoOutlined />}
-                            onClick={() => remindRenew(record.plantData._id, daysLeft)}
+                          Subscribe
+                        </Button>
+                      )}
+                      {status === "Active" &&
+                        daysLeft !== null &&
+                        daysLeft <= 2 && (
+                          <Tooltip
+                            title={`Subscription expires in ${daysLeft} day(s)`}
                           >
-                            Renew
+                            <Button
+                              style={{
+                                backgroundColor: "#FAAD14",
+                                color: "#fff",
+                                border: "none",
+                              }}
+                              size="small"
+                              icon={<RedoOutlined />}
+                              onClick={() =>
+                                remindRenew(record.plantData._id, daysLeft)
+                              }
+                            >
+                              Renew
+                            </Button>
+                          </Tooltip>
+                        )}
+                      {status === "Inactive" && (
+                        <Tooltip title="Send recharge reminder">
+                          <Button
+                            type="default"
+                            size="small"
+                            icon={<ReloadOutlined />}
+                            danger
+                            onClick={() => remindRecharge(record.plantData._id)}
+                          >
+                            Recharge
                           </Button>
                         </Tooltip>
                       )}
-                    {status === "Inactive" && (
-                      <Tooltip title="Send recharge reminder">
-                        <Button
-                          type="default"
-                          size="small"
-                          icon={<ReloadOutlined />}
-                          danger
-                          onClick={() => remindRecharge(record.plantData._id)}
-                        >
-                          Recharge
-                        </Button>
-                      </Tooltip>
-                    )}
+                    </div>
+                  );
+                }}
+              />
+
+              <Table.Column
+                title="Action"
+                key="action"
+                render={(_: any, record: any) => (
+                  <div className="flex flex-wrap gap-2">
+                    <Button
+                      icon={<EditOutlined />}
+                      size="small"
+                      onClick={() => handleEdit(record.plantData._id)}
+                    >
+                      Edit
+                    </Button>
+                    <Popconfirm
+                      title="Are you sure you want to delete?"
+                      onConfirm={() => handleDelete(record.plantData._id)}
+                      okText="Yes"
+                      cancelText="No"
+                    >
+                      <Button icon={<DeleteOutlined />} size="small" danger>
+                        Delete
+                      </Button>
+                    </Popconfirm>
                   </div>
-                );
-              }}
-            />
-            {/* <Table.Column
-              title="Reminder"
-              key="reminder"
-              render={(_: any, record: any) => (
-                <div className="flex flex-wrap gap-2">
-                <Tooltip title="Send subscription reminder">
-                  {record.status === "Pending" && (
-                    <Button
-                      type="primary"
-                      size="small"
-                      icon={<PlusCircleOutlined />}
-                      onClick={() => remindSubscribe(record._id)}
-                    >
-                      Subscribe
-                    </Button>
-                  )}
-
-                  {record.status === "Inactive" && (
-                    <Button
-                      style={{
-                        backgroundColor: "#FAAD14",
-                        color: "#fff",
-                        border: "none",
-                      }}
-                      size="small"
-                      icon={<RedoOutlined />}
-                      onClick={() => remindRenew(record._id)}
-                    >
-                      Renew
-                    </Button>
-                  )}
-
-                  {record.status === "Active" && (
-                  <Tooltip title="Send rejection reminder">
-                    <Button
-                      type="default"
-                      size="small"
-                      icon={<StopOutlined />}
-                      danger
-                      onClick={() => remindReject(record._id)}
-                    >
-                      Reject
-                    </Button>
-                    </Tooltip>
-                  )}
-                  </Tooltip>
-                </div>
-              )}
-            /> */}
-            <Table.Column
-              title="Action"
-              key="action"
-              render={(_: any, record: any) => (
-                <div className="flex flex-wrap gap-2">
-                  <Button
-                    icon={<EditOutlined />}
-                    size="small"
-                    onClick={() => handleEdit(record.plantData._id)}
-                  >
-                    Edit
-                  </Button>
-                  <Popconfirm
-                    title="Are you sure you want to delete?"
-                    onConfirm={() => handleDelete(record.plantData._id)}
-                    okText="Yes"
-                    cancelText="No"
-                  >
-                    <Button icon={<DeleteOutlined />} size="small" danger>
-                      Delete
-                    </Button>
-                  </Popconfirm>
-                </div>
-              )}
-            />
-          </Table>
+                )}
+              />
+            </Table>
+          </Spin>
         </div>
       )}
     </div>

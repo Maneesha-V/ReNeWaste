@@ -1,7 +1,10 @@
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
-import { addWastePlant } from "../../redux/slices/superAdmin/superAdminWastePlantSlice";
+import {
+  addWastePlant,
+  fetchPostOffices,
+} from "../../redux/slices/superAdmin/superAdminWastePlantSlice";
 import { useAppDispatch } from "../../redux/hooks";
 import { useWastePlantValidation } from "../../hooks/useWastePlantValidation";
 import {
@@ -12,6 +15,9 @@ import Breadcrumbs from "../../components/common/Breadcrumbs";
 import { fetchSubscriptionPlans } from "../../redux/slices/superAdmin/superAdminSubscriptionPlanSlice";
 import { RootState } from "../../redux/store";
 import { useSelector } from "react-redux";
+import { PostOffice } from "../../types/wasteplant/wastePlantTypes";
+import { getAxiosErrorMessage } from "../../utils/handleAxiosError";
+import { SubsptnPlans } from "../../types/subscription/subscriptionTypes";
 
 const AddWastePlant = () => {
   const navigate = useNavigate();
@@ -20,7 +26,7 @@ const AddWastePlant = () => {
   const { subscriptionPlans } = useSelector(
     (state: RootState) => state.superAdminSubscriptionPlan
   );
-
+  console.log("subscriptionPlans", subscriptionPlans);
   useEffect(() => {
     dispatch(fetchSubscriptionPlans());
   }, [dispatch]);
@@ -43,6 +49,7 @@ const AddWastePlant = () => {
     licenseDocument: undefined,
     services: [],
   });
+  const [postOffices, setPostOffices] = useState<PostOffice[]>([]);
 
   const handleBlur = (
     e: React.FocusEvent<HTMLInputElement | HTMLSelectElement>
@@ -50,11 +57,22 @@ const AddWastePlant = () => {
     const { name, value } = e.target;
     validateField(name, value);
   };
-  const handleChange = (
+  const handleChange = async (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
+    if (name === "pincode" && value.length === 6) {
+      try {
+        const res = await dispatch(fetchPostOffices(value)).unwrap();
+        setPostOffices(res);
+      } catch (error) {
+        const msg = getAxiosErrorMessage(error);
+        toast.error(msg);
+        setPostOffices([]);
+        setFormData((prev) => ({ ...prev, location: "", taluk: "" }));
+      }
+    }
   };
   const handleServiceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { value, checked } = e.target;
@@ -91,6 +109,10 @@ const AddWastePlant = () => {
         }
       }
     });
+    if (formData.pincode.length === 6 && postOffices.length === 0) {
+      currentErrors.pincode =
+        "Please enter a valid Malappuram district PIN code.";
+    }
     if (Object.keys(currentErrors).length > 0) {
       setErrors(currentErrors);
       return;
@@ -123,19 +145,21 @@ const AddWastePlant = () => {
       setTimeout(() => {
         navigate("/super-admin/waste-plants");
       }, 2000);
-    } catch (error: any) {
-      toast.error("Waste Plant creation failed. Please try again.");
+    } catch (error) {
+      // toast.error("Waste Plant creation failed. Please try again.");
+      const msg = getAxiosErrorMessage(error);
+      toast.error(msg);
     }
   };
 
   return (
     <div className="px-4 py-4">
-      <Breadcrumbs
+      {/* <Breadcrumbs
         paths={[
           { label: "Waste Plants", path: "/super-admin/waste-plants" },
           { label: "Add Waste Plant" },
         ]}
-      />
+      /> */}
       <div className="max-w-5xl mx-auto bg-white p-6 rounded-lg shadow-md">
         <h2 className="text-2xl font-bold text-center mb-6 text-green-700">
           Add Waste Plant
@@ -180,21 +204,6 @@ const AddWastePlant = () => {
               <p className="text-red-500 text-sm">{errors.ownerName}</p>
             )}
           </div>
-          {/* Location Address */}
-          <div>
-            <label className="block text-gray-700 font-medium">Location</label>
-            <input
-              type="text"
-              name="location"
-              value={formData.location}
-              onChange={handleChange}
-              onBlur={handleBlur}
-              className="w-full border px-3 py-2 rounded-md focus:ring-2 focus:ring-green-500"
-            />
-            {errors.location && (
-              <p className="text-red-500 text-sm">{errors.location}</p>
-            )}
-          </div>
 
           {/* Pincode */}
           <div>
@@ -212,17 +221,47 @@ const AddWastePlant = () => {
             )}
           </div>
 
-          {/* District */}
+          {/* Location */}
           <div>
-            <label className="block text-gray-700 font-medium">District</label>
-            <input
-              type="text"
-              name="district"
-              value="Malappuram"
-              readOnly
-              className="w-full border px-3 py-2 rounded-md bg-gray-100 text-gray-600"
-            />
+            <label className="block text-gray-700 font-medium">Location</label>
+            {postOffices.length > 0 ? (
+              <select
+                name="location"
+                value={formData.location}
+                onChange={(e) => {
+                  const selectedLocation = postOffices.find(
+                    (po) => po.name === e.target.value
+                  );
+                  setFormData({
+                    ...formData,
+                    location: selectedLocation?.name || "",
+                    taluk: selectedLocation?.taluk || "",
+                  });
+                }}
+                className="w-full border px-3 py-2 rounded-md focus:ring-2 focus:ring-green-500"
+              >
+                <option value="">Select Location</option>
+                {postOffices.map((po, i) => (
+                  <option key={i} value={po.name}>
+                    {po.name}
+                  </option>
+                ))}
+              </select>
+            ) : (
+              <input
+                type="text"
+                name="location"
+                value={formData.location}
+                onChange={handleChange}
+                onBlur={handleBlur}
+                className="w-full border px-3 py-2 rounded-md focus:ring-2 focus:ring-green-500"
+              />
+            )}
+            {errors.location && (
+              <p className="text-red-500 text-sm">{errors.location}</p>
+            )}
           </div>
+
           {/* Taluk */}
           <div>
             <label className="block text-gray-700 font-medium">Taluk</label>
@@ -245,6 +284,18 @@ const AddWastePlant = () => {
             {errors.taluk && (
               <p className="text-red-500 text-sm">{errors.taluk}</p>
             )}
+          </div>
+
+          {/* District */}
+          <div>
+            <label className="block text-gray-700 font-medium">District</label>
+            <input
+              type="text"
+              name="district"
+              value="Malappuram"
+              readOnly
+              className="w-full border px-3 py-2 rounded-md bg-gray-100 text-gray-600"
+            />
           </div>
 
           {/* State */}
@@ -335,6 +386,7 @@ const AddWastePlant = () => {
             </label>
             <input
               type="file"
+              accept=".pdf"
               name="licenseDocument"
               onChange={handleFileChange}
               onBlur={handleBlur}
@@ -379,7 +431,7 @@ const AddWastePlant = () => {
           {/* Capacity */}
           <div>
             <label className="block text-gray-700 font-medium">
-              Capacity (Tons/Day)
+              Capacity (Kg/Day)
             </label>
             <input
               type="number"
@@ -424,8 +476,8 @@ const AddWastePlant = () => {
               className="w-full border px-3 py-2 rounded-md focus:ring-2 focus:ring-green-500"
             >
               <option value="">Select Plan</option>
-              {subscriptionPlans.map((plan: any) => (
-                <option key={plan._id} value={plan._id}>
+              {subscriptionPlans.map((plan: SubsptnPlans) => (
+                <option key={plan._id} value={plan.planName}>
                   {plan.planName}
                 </option>
               ))}
