@@ -5,7 +5,7 @@ export const PaymentSchema: Schema<IPaymentDocument> = new Schema(
   {
     status: {
       type: String,
-      enum: ["Pending", "Paid", "Failed"],
+      enum: ["Pending","InProgress", "Paid", "Failed"],
       default: "Pending",
     },
     method: {
@@ -48,7 +48,12 @@ export const PaymentSchema: Schema<IPaymentDocument> = new Schema(
     razorpayRefundId: {
       type: String,
       default: null,
+    },
+    inProgressExpiresAt: {
+      type: Date,
+      default: null,
     }
+
   },
   { _id: false } 
 );

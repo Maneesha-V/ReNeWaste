@@ -28,10 +28,10 @@ export const wastePlantSchema: Schema<IWastePlantDocument> = new Schema({
       default: 'Pending'
     },
     licenseDocumentPath: { type: String, required: true },
+    cloudinaryPublicId: { type: String, required: true },
     subscriptionPlan: { 
       type: String,
-      enum: ['Basic','Premium', 'Pro'],
-      default: 'Basic'
+      required: true,
      },
     password: { type: String, required: true },
     role: { 
