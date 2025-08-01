@@ -6,6 +6,7 @@ import { SuperAdminModel } from "../models/superAdmin/superAdminModel";
 import { DriverModel } from "../models/driver/driverModel";
 import { WastePlantModel } from "../models/wastePlant/wastePlantModel";
 import { AuthRequest } from "../types/common/middTypes";
+import { ApiError } from "../utils/ApiError";
 
 export const authenticateUser = async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
@@ -13,22 +14,21 @@ export const authenticateUser = async (req: AuthRequest, res: Response, next: Ne
     console.log("Received Token:", token); 
     if (!token) return res.status(401).json({ error: "No token, authorization denied" });
 
-    const decoded: any = jwt.verify(token, process.env.JWT_SECRET!)as {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET!)as {
       userId: string;
       role: string;
     };
     console.log("Decoded Token:", decoded);
-    const user = await UserModel.findById(new mongoose.Types.ObjectId(decoded.userId)).select("-password");
+    req.user = { id: decoded.userId, role: decoded.role };
+    // const user = await UserModel.findById(new mongoose.Types.ObjectId(decoded.userId)).select("-password");
 
-    if (!user) return res.status(404).json({ error: "User not found" });
+    // if (!user) return res.status(404).json({ error: "User not found" });
 
-    req.user = { id: user._id.toString(), role: user.role }; 
+    // req.user = { id: user._id.toString(), role: user.role }; 
     next();
-  } catch (err: any) {
-    // if (err.name === "TokenExpiredError") {
-    //   return res.status(401).json({ error: "Access token expired" });
-    // }
-    res.status(401).json({ error: "Invalid token" });
+  } catch (err) {
+    // res.status(401).json({ error: "Invalid token" });
+    next(new ApiError(401, "Invalid token"));
   }
 };
 
