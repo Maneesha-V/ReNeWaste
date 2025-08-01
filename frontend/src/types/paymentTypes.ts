@@ -32,6 +32,7 @@ export type PaymentRecord = {
     method?: string; 
     razorpayOrderId?: string;
     razorpaySignature?: string;
+    inProgressExpiresAt: Date;
   };
   driverName?: string;
   userName?: string;

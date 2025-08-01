@@ -1,10 +1,5 @@
 import { ReactNode } from "react";
 
-export interface PaginationPayload {
-  page: number;
-  limit: number;
-  search: string;
-}
 export interface ProtectedRouteProps {
     allowedRoles: string[];
 }
@@ -27,11 +22,3 @@ export type MainContentProps = {
 export type NotificationBadgeProps = {
     count: number;
 };
-export interface PaginationSearchProps {
-  total: number;
-  currentPage: number;
-  pageSize: number;
-  onPageChange: (page: number) => void;
-  onSearchChange: (search: string) => void;
-  searchValue: string;
-}

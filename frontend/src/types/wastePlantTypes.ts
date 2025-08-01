@@ -17,6 +17,7 @@ export type WastePlantFormData = {
     subscriptionPlan: string;
     password:string;
     licenseDocument?: File;
+    cloudinaryPublicId?: string;
     services: string[];
   }
 export type PartialWastePlantFormData = Partial<WastePlantFormData>;
