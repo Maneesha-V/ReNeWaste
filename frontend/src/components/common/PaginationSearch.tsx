@@ -1,7 +1,6 @@
 import React from "react";
 import { Input, Pagination, Space } from "antd";
-import { PaginationSearchProps } from "../../types/commonTypes";
-
+import { PaginationSearchProps } from "../../types/common/commonTypes";
 
 const PaginationSearch: React.FC<PaginationSearchProps> = ({
   total,

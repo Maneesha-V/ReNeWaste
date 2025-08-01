@@ -11,6 +11,8 @@ import { useAppDispatch } from "../../redux/hooks";
 import { Eye, EyeOff } from "lucide-react";
 import { validatePassword } from "../../utils/passwordValidator";
 import { useNavigate } from "react-router-dom";
+import { RootState } from "../../redux/store";
+import { SendOtpError } from "../../types/common/commonTypes";
 
 const ForgotPassword = () => {
   const [step, setStep] = useState(1);
@@ -21,13 +23,13 @@ const ForgotPassword = () => {
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [resendLoading, setResendLoading] = useState(false);
-  const [timer, setTimer] = useState(30); 
+  const [timer, setTimer] = useState(30);
   const [canResend, setCanResend] = useState(false);
-  const [error, setError] = useState("");
+  const [localError, setLocalError] = useState("");
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
 
-  const { loading } = useSelector((state: any) => state.user);
+  const { loading } = useSelector((state: RootState) => state.user);
 
   useEffect(() => {
     let countdown: NodeJS.Timeout;
@@ -40,86 +42,90 @@ const ForgotPassword = () => {
     }
     return () => clearInterval(countdown);
   }, [timer]);
-  
+
   const handleSendOtp = () => {
     if (!email.trim()) {
-      setError("Email is required");
+      setLocalError("Email is required");
       return;
     }
-    setError("");
-    dispatch(sendOtp(email)).then((res: any) => {
-      console.log("ressendOtp", res);
-      if (res.payload?.message) {
-        toast.success("OTP sent successfully!");
+    setLocalError("");
+    dispatch(sendOtp(email))
+      .unwrap()
+      .then((res) => {
+        toast.success(res.message);
         setStep(2);
         setTimer(30);
         setCanResend(false);
-      } else {
-        setError(res.payload || "Failed to send OTP");
-      }
-    });
+      })
+      .catch((err: SendOtpError) => {
+        setLocalError(err.message || "Failed to send OTP");
+      });
   };
   const handleVerifyOtp = () => {
     if (!otp.trim()) {
-      setError("OTP is required")
+      setLocalError("OTP is required");
       return;
     }
-    setError("");
-    dispatch(verifyOtp({ email, otp })).then((res: any) => {
-      if (res.error) {
-        setError(res.payload || "Invalid OTP");
-        setOtp("")
-      } else {
-        toast.success("OTP verified successfully!");
+    setLocalError("");
+    dispatch(verifyOtp({ email, otp }))
+      .unwrap()
+      .then((res) => {
+        console.log("res", res);
+        toast.success(res.message);
         setStep(3);
-      }
-    });
+      })
+      .catch((err) => {
+        console.log("error", err);
+        setLocalError(err.message || "Invalid OTP");
+        setOtp("");
+      });
   };
   const handleResendOtp = async () => {
     if (!canResend) return;
     setResendLoading(true);
     dispatch(resendOtp(email))
-    .then((res: any) => {
-      if (res.payload?.message) {
-        toast.success("OTP resent successfully!");
+      .unwrap()
+      .then((res) => {
+        toast.success(res.message);
         setTimer(30);
         setCanResend(false);
         setOtp("");
-      } else {
-        setError(res.payload || "Failed to resend OTP");
-      }
-    })
-    .finally(() => setResendLoading(false));
+      })
+      .catch((err: SendOtpError) => {
+        setLocalError(err.message || "Failed to resend OTP");
+      })
+      .finally(() => setResendLoading(false));
   };
   const handleResetPassword = async () => {
     if (!newPassword || !confirmPassword) {
-      setError("Both password fields are required");
+      setLocalError("Both password fields are required");
       return;
     }
 
     const validationError = validatePassword(newPassword);
     if (validationError) {
-      setError(validationError);
+      setLocalError(validationError);
       return;
     }
 
     if (newPassword !== confirmPassword) {
-      setError("Passwords do not match");
+      setLocalError("Passwords do not match");
       return;
     }
-    dispatch(resetPassword({ email, password: newPassword })).then(
-      (res: any) => {
-        if (res.payload?.message) {
-          toast.success("Password reset successfully!");
-          setStep(4);
-          setTimeout(() => {
-            navigate("/");
-          }, 3000);
-        } else {
-          setError(res.payload || "Failed to reset password");
-        }
-      }
-    );
+
+    dispatch(resetPassword({ email, password: newPassword }))
+      .unwrap()
+      .then((res) => {
+        toast.success(res.message);
+        setStep(4);
+        setLocalError("");
+        setTimeout(() => {
+          navigate("/");
+        }, 3000);
+      })
+      .catch((err: SendOtpError) => {
+        setLocalError(err.message || "Failed to reset password");
+      });
   };
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100 p-4">
@@ -127,7 +133,9 @@ const ForgotPassword = () => {
         <h2 className="text-2xl font-semibold text-center text-green-600 mb-4">
           Forgot Password
         </h2>
-        {error && <p className="text-red-500 text-center mb-2">{error}</p>}
+        {localError && (
+          <p className="text-red-500 text-center mb-2">{localError}</p>
+        )}
         {step === 1 && (
           <div>
             <input
@@ -169,7 +177,11 @@ const ForgotPassword = () => {
               }`}
               disabled={!canResend || resendLoading}
             >
-              {resendLoading ? "Resending..." : canResend ? "Resend OTP" : `Resend OTP (${timer}s)`}
+              {resendLoading
+                ? "Resending..."
+                : canResend
+                ? "Resend OTP"
+                : `Resend OTP (${timer}s)`}
             </button>
           </div>
         )}

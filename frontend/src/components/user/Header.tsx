@@ -7,6 +7,8 @@ import NotificationPanel from "./NotificationPanel";
 import { useSelector } from "react-redux";
 import { RootState } from "../../redux/store";
 import NotificationBadge from "../common/NotificationBadge";
+import { toast } from "react-toastify";
+import { getAxiosErrorMessage } from "../../utils/handleAxiosError";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -39,8 +41,10 @@ const Header = () => {
     try {
       await dispatch(logout()).unwrap();
       navigate("/");
-    } catch (err: any) {
-      console.error("Logout failed:", err);
+    } catch (error: unknown) {
+      const errorMessage = getAxiosErrorMessage(error);
+      console.error("Logout failed:", errorMessage);
+      toast.error(errorMessage);
     }
   };
 
@@ -97,7 +101,7 @@ const Header = () => {
                   onClick={() => handleNavigation("/pickup-plans")}
                   className="block w-full px-4 py-2 text-left hover:bg-gray-600"
                 >
-                  Pickup Plan
+                  Pickup Plans
                 </button>
                 <button
                   onClick={handleLogout}
@@ -120,7 +124,7 @@ const Header = () => {
               onClick={() => handleNavigation("/pickup-plans")}
               className="hover:text-green-600"
             >
-              Pickup Plan
+              Pickup Plans
             </button>
             <button
               onClick={() => handleNavigation("/payment-history")}

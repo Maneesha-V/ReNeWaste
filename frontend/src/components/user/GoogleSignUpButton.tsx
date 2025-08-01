@@ -3,18 +3,23 @@ import googleLogo from "../../assets/google_logo.png";
 import { useAppDispatch } from "../../redux/hooks";
 import { googleSignUp } from "../../redux/slices/user/userSlice";
 import { toast } from "react-toastify";
+import { auth, googleProvider } from "../../config/firebase";
 
 const GoogleSignUpButton = () => {
-  const dispatch = useAppDispatch()
-  const navigate = useNavigate()
+  const dispatch = useAppDispatch();
+  const navigate = useNavigate();
 
   const handleGoogleSignUp = async () => {
-   try {
-    await dispatch(googleSignUp()).unwrap()
-    navigate("/home");
-   } catch(error: any){
-    toast.error(error?.message  || "Google Signup failed. Please try again.");
-   }
+    try {
+      const res = await dispatch(
+        googleSignUp({ auth, googleProvider })
+      ).unwrap();
+      toast.success(res.message || "Google Signup successful!");
+      navigate("/home");
+    } catch (err) {  
+      const error = err as { message: string };
+      toast.error(error.message || "Google Signup failed. Please try again.");
+    }
   };
   return (
     <div className="mt-1">

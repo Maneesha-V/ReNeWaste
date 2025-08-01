@@ -6,6 +6,7 @@ import GoogleLoginButton from "../../components/user/GoogleLoginButton";
 import { LoginRequest } from "../../types/authTypes";
 import { login } from "../../redux/slices/user/userSlice";
 import { useAppDispatch } from "../../redux/hooks";
+import { getAxiosErrorMessage } from "../../utils/handleAxiosError";
 
 const Login = () => {
   const dispatch = useAppDispatch();
@@ -30,9 +31,9 @@ const Login = () => {
       console.log("Login Data:", formData);
       await dispatch(login(formData)).unwrap();
       navigate("/home");
-    } catch (error: any) {
+    } catch (error: unknown) {
 
-      const errorMessage = error?.message || error;
+      const errorMessage = getAxiosErrorMessage(error);
 
       if (errorMessage.includes("blocked")) {
         toast.error("Your account has been blocked.");
