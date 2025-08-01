@@ -248,4 +248,7 @@ export class TruckRepository
 
     return { active, inactive, maintenance };
   }
+  async getTotalTrucks(): Promise<number> {
+    return await this.model.countDocuments()
+  }
 }

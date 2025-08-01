@@ -1,6 +1,7 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { getResidentialService, updateResidentialPickupService } from "../../../services/user/residentialService";
 import { ResidPickupReqArgs } from "../../../types/pickupTypes";
+import { getAxiosErrorMessage } from "../../../utils/handleAxiosError";
 
 interface UserState {
     user: any;
@@ -30,17 +31,23 @@ interface UserState {
     }
   );
 
-   export const updateResidentialPickup = createAsyncThunk(
+   export const updateResidentialPickup = createAsyncThunk<
+   void,
+   ResidPickupReqArgs,
+   { rejectValue: {message : string}}
+   >(
       "userResidential/updateResidentialPickup",
-      async ({ data }: ResidPickupReqArgs, thunkAPI) => {
+      async ({ data }: ResidPickupReqArgs, { rejectWithValue }) => {
         try {
           console.log("data",data);
           const response = await updateResidentialPickupService(data); 
           return response.data;
-        } catch (error: any) {
-          return thunkAPI.rejectWithValue(
-            error.response?.data?.message || "Failed to submit"
-          );
+        } catch (err) {
+          // return thunkAPI.rejectWithValue(
+          //   error.response?.data?.message || "Failed to submit"
+          // );
+          const msg = getAxiosErrorMessage(err);
+          return rejectWithValue({ message: msg });
         }
       }
     );
@@ -68,11 +75,12 @@ const userResidentialSlice = createSlice({
         })
         .addCase(updateResidentialPickup.fulfilled, (state, action) => {
           state.loading = false;
-          state.user = action.payload.user;
+          state.message = action.payload.message;
         })
         .addCase(updateResidentialPickup.rejected, (state, action) => {
           state.loading = false;
-          state.error = action.payload as string;
+          // state.error = action.payload as string;
+          state.error = action.payload?.message || "Something went wrong";
         })
     },
   });

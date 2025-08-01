@@ -7,6 +7,8 @@ import { toast } from "react-toastify";
 import { updateResidentialPickup } from "../../redux/slices/user/residentialSlice";
 import { useNavigate } from "react-router-dom";
 import { PickupResidentialFormModalProps } from "../../types/userTypes";
+import { RootState } from "../../redux/store";
+import { useSelector } from "react-redux";
 
 const PickupResidentialFormModal: React.FC<PickupResidentialFormModalProps> = ({
   isOpen,
@@ -33,6 +35,7 @@ const PickupResidentialFormModal: React.FC<PickupResidentialFormModalProps> = ({
   });
   const [pickupTimeError, setPickupTimeError] = useState("");
   const { errors, validateField, setErrors } = useWastePlantValidation();
+
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   useEffect(() => {
@@ -54,43 +57,44 @@ const PickupResidentialFormModal: React.FC<PickupResidentialFormModalProps> = ({
     setNewAddress((prev) => ({ ...prev, [name]: value }));
     validateField(name, value);
   };
-  const validatePickupTime = (value: string, selectedDateStr?: string): string => {
+  const validatePickupTime = (
+    value: string,
+    selectedDateStr?: string
+  ): string => {
     if (!value) return "Pickup time is required.";
-  
+
     const [hour, minute] = value.split(":").map(Number);
     const totalMinutes = hour * 60 + minute;
-  
-    const minTime = 9 * 60; // 9:00 AM
-    const maxTime = 18 * 60; // 6:00 PM
-  
+
+    const minTime = 9 * 60;
+    const maxTime = 18 * 60;
+
     if (totalMinutes < minTime || totalMinutes > maxTime) {
       return "Pickup time must be between 9:00 AM and 6:00 PM.";
     }
-  
-    if (selectedDateStr) {
 
+    if (selectedDateStr) {
       const selectDate = new Date(selectedDateStr);
       const today = new Date();
-  
+
       const isToday =
         selectDate.getDate() === today.getDate() &&
         selectDate.getMonth() === today.getMonth() &&
         selectDate.getFullYear() === today.getFullYear();
-  
+
       if (isToday) {
         const now = new Date();
         const currentMinutes = now.getHours() * 60 + now.getMinutes();
-        console.log("totalMinutes",totalMinutes);
-         console.log("currentMinutes",currentMinutes);
+        console.log("totalMinutes", totalMinutes);
+        console.log("currentMinutes", currentMinutes);
         if (totalMinutes < currentMinutes) {
           return "Pickup time cannot be earlier than the current time.";
         }
       }
     }
-  
+
     return "";
   };
-  
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
     const { name, value } = e.target;
@@ -117,7 +121,8 @@ const PickupResidentialFormModal: React.FC<PickupResidentialFormModalProps> = ({
     const currentErrors: Record<string, string> = {};
 
     const pickupTimeValidationError = validatePickupTime(
-      formData.pickupTime ?? "", selectedDate ?? undefined
+      formData.pickupTime ?? "",
+      selectedDate ?? undefined
     );
     if (pickupTimeValidationError) {
       currentErrors.pickupTime = pickupTimeValidationError;
@@ -154,9 +159,9 @@ const PickupResidentialFormModal: React.FC<PickupResidentialFormModalProps> = ({
       email: user.email,
       pickupDate: selectedDate ? selectedDate : undefined,
     };
-    if(selectedAddressIndex === "add-new"){
-      finalData.addresses = [newAddress]
-    }else {
+    if (selectedAddressIndex === "add-new") {
+      finalData.addresses = [newAddress];
+    } else {
       finalData.selectedAddressId = user.addresses[selectedAddressIndex]._id;
     }
 
@@ -164,10 +169,11 @@ const PickupResidentialFormModal: React.FC<PickupResidentialFormModalProps> = ({
       const result = await dispatch(
         updateResidentialPickup({ data: finalData })
       );
-      if (result.payload?.error) {
-        toast.error(result.payload.error);
+      if (updateResidentialPickup.rejected.match(result)) {
+        toast.error(result.payload?.message || "Submission failed.");
         return;
       }
+
       toast.success("Pickup form submitted successfully!");
       onClose();
       setTimeout(() => navigate("/residential"), 2000);
@@ -181,13 +187,13 @@ const PickupResidentialFormModal: React.FC<PickupResidentialFormModalProps> = ({
       <div className="fixed inset-0 bg-black/30 flex items-center justify-center p-4">
         <Dialog.Panel className="bg-white rounded-lg p-6 w-full max-w-lg">
           <Dialog.Title className="text-xl font-semibold mb-4">
-            Schedule Pickup for {
-              selectedDate ? (() => {
-                const [month, day, year] = selectedDate.split('-');
-                return `${day}-${month}-${year}`;
-              })()
-              : 'No date selected'
-            }
+            Schedule Pickup for{" "}
+            {selectedDate
+              ? (() => {
+                  const [month, day, year] = selectedDate.split("-");
+                  return `${day}-${month}-${year}`;
+                })()
+              : "No date selected"}
           </Dialog.Title>
           <form
             className="grid grid-cols-2 gap-x-6 gap-y-4"

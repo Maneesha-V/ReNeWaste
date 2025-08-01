@@ -1,5 +1,6 @@
+import { GoogleLoginReq, GoogleLoginResp, GoogleSignUpReq, GoogleSignUpResp, LoginRequest, LoginResponse } from "../../../dtos/user/userDTO";
 import { IUser, IUserDocument } from "../../../models/user/interfaces/userInterface";
-import { SignupResponse, LoginRequest, LoginResponse, GoogleLoginReq, GoogleLoginResp } from "../../../types/user/authTypes";
+import { SignupResponse } from "../../../types/user/authTypes";
 
 export interface IAuthService {
   verifyToken(token: string): Promise<{ token: string }>;
@@ -8,10 +9,10 @@ export interface IAuthService {
   sendOtpSignupService(email: string): Promise<{ message: string; otp: string }>;
   resendOtpSignupService(email: string): Promise<{ message: string; otp: string }>;
   verifyOtpSignupService(email: string, otp: string): Promise<boolean>;
-  sendOtpService(email: string): Promise<{ message: string; otp: string }>;
-  resendOtpService(email: string): Promise<{ message: string; otp: string }>;
+  sendOtpService(email: string): Promise<void>;
+  resendOtpService(email: string): Promise<boolean>;
   verifyOtpService(email: string, otp: string): Promise<boolean>;
   resetPasswordService(email: string, newPassword: string): Promise<void>;
-  googleSignUpService(email: string, displayName: string, uid: string): Promise<{ user: IUserDocument; token: string }>;
+  googleSignUpService(  {email,displayName,uid} : GoogleSignUpReq): Promise<GoogleSignUpResp>;
   googleLoginService(googleLoginData: GoogleLoginReq): Promise<GoogleLoginResp>;
 }

@@ -15,7 +15,8 @@ export interface IWastePlant {
   capacity: number;
   services: string[];
   status: "Pending" | "Active" | "Inactive" | "Rejected";
-  licenseDocumentPath: string;
+  licenseDocumentPath?: string;
+  cloudinaryPublicId?: string;
   subscriptionPlan?: string;
   password: string;
   role: "user" | "driver" | "superadmin" | "wasteplant";

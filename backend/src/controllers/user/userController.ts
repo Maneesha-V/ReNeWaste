@@ -1,16 +1,19 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import { IUserController } from "./interface/IUserController";
 import { generateRefreshToken } from "../../utils/authUtils";
 import { inject, injectable } from "inversify";
 import TYPES from "../../config/inversify/types";
 import { IAuthService } from "../../services/user/interface/IAuthService";
+import { AuthRequest } from "../../types/common/middTypes";
+import { MESSAGES, STATUS_CODES } from "../../utils/constantUtils";
+import { ApiError } from "../../utils/ApiError";
 
 @injectable()
 export class UserController implements IUserController {
   constructor(
     @inject(TYPES.UserAuthService)
-    private authService: IAuthService
-  ){}
+    private _authService: IAuthService
+  ) {}
   async refreshToken(req: Request, res: Response): Promise<void> {
     try {
       const refreshToken = req.cookies?.refreshToken;
@@ -20,7 +23,7 @@ export class UserController implements IUserController {
         res.status(401).json({ error: "No refresh token provided." });
         return;
       }
-      const { token } = await this.authService.verifyToken(refreshToken);
+      const { token } = await this._authService.verifyToken(refreshToken);
       res.status(200).json({ token });
     } catch (error: any) {
       console.error("err", error);
@@ -37,7 +40,9 @@ export class UserController implements IUserController {
       }
       const { confirmPassword, ...userWithoutConfirm } = userData;
 
-      const { user, token } = await this.authService.signupUser(userWithoutConfirm);
+      const { user, token } = await this._authService.signupUser(
+        userWithoutConfirm
+      );
       console.log("user", user);
 
       res.status(201).json({ user, token });
@@ -47,60 +52,65 @@ export class UserController implements IUserController {
     }
   }
 
-  async login(req: Request, res: Response): Promise<void> {
+  async login(
+    req: AuthRequest,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
     try {
-      console.log("body", req.body);
       const { email, password } = req.body;
-      const { user, token } = await this.authService.loginUser({ email, password });
-      const { password: _, ...safeUser } = user.toObject();
+      const { user, token } = await this._authService.loginUser({
+        email,
+        password,
+      });
+
       const refreshToken = await generateRefreshToken({
-        userId: user._id.toString(),
+        userId: user._id,
         role: user.role,
       });
       const isProduction = process.env.NODE_ENV === "production";
       const cookieOptions = {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
-        // sameSite: "strict" as "strict",
-        sameSite: isProduction ? 'none' as const : 'lax' as const,
-        path: "/api", 
+        sameSite: isProduction ? ("none" as const) : ("lax" as const),
+        path: "/api",
         maxAge: 7 * 24 * 60 * 60 * 1000,
       };
       res.cookie("refreshToken", refreshToken, cookieOptions).status(200).json({
         success: true,
         message: "Login successful",
-        role: safeUser.role,
-        userId: safeUser._id,
+        role: user.role,
+        userId: user._id,
         token,
       });
-    } catch (error: any) {
+    } catch (error) {
       console.error("err", error);
-      res.status(400).json({ error: error.message });
+      next(error);
     }
   }
 
-  async logout(req: Request, res: Response): Promise<void> {
+  async logout(
+    req: AuthRequest,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
     try {
       const isProduction = process.env.NODE_ENV === "production";
       const cookieOptions = {
         httpOnly: true,
         secure: isProduction,
-        // sameSite: "strict" as const,
-        sameSite: isProduction ? 'none' as const : 'lax' as const,
-        path: "/api"
+        sameSite: isProduction ? ("none" as const) : ("lax" as const),
+        path: "/api",
       };
 
       res.clearCookie("refreshToken", cookieOptions);
-      res.status(200).json({
-        success: true,
-        message: "Logout successful",
-      });
-    } catch (error: any) {
+
+      res
+        .status(STATUS_CODES.SUCCESS)
+        .json({ message: MESSAGES.COMMON.SUCCESS.LOGOUT });
+    } catch (error) {
       console.error("err", error);
-      res.status(500).json({
-        success: false,
-        message: "Logout failed",
-      });
+      next(error);
     }
   }
 
@@ -109,7 +119,7 @@ export class UserController implements IUserController {
       console.log("otp-body", req.body);
       const { email } = req.body;
 
-      const otpResponse = await this.authService.sendOtpSignupService(email);
+      const otpResponse = await this._authService.sendOtpSignupService(email);
 
       res.status(200).json(otpResponse);
     } catch (error: any) {
@@ -125,7 +135,7 @@ export class UserController implements IUserController {
         res.status(400).json({ error: "Email is required" });
       }
 
-      const success = await this.authService.resendOtpSignupService(email);
+      const success = await this._authService.resendOtpSignupService(email);
       if (success) {
         res.status(200).json({ message: "OTP resent successfully" });
       } else {
@@ -144,7 +154,10 @@ export class UserController implements IUserController {
         return;
       }
 
-      const isValid = await this.authService.verifyOtpSignupService(email, otp);
+      const isValid = await this._authService.verifyOtpSignupService(
+        email,
+        otp
+      );
 
       if (!isValid) {
         res.status(400).json({ error: "Invalid or expired OTP" });
@@ -157,112 +170,159 @@ export class UserController implements IUserController {
       res.status(500).json({ error: "Something went wrong!" });
     }
   }
-  async sendOtp(req: Request, res: Response): Promise<void> {
+  async sendOtp(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
     try {
       console.log("otp-body", req.body);
       const { email } = req.body;
 
-      const otpResponse = await this.authService.sendOtpService(email);
+      await this._authService.sendOtpService(email);
 
-      res.status(200).json(otpResponse);
-    } catch (error: any) {
+      res
+        .status(STATUS_CODES.SUCCESS)
+        .json({ message: MESSAGES.COMMON.SUCCESS.OTP_SENT });
+    } catch (error) {
       console.error("Error sending OTP:", error);
-      res.status(500).json({ error: error.message || "Internal Server Error" });
+      next(error);
     }
   }
-  async resendOtp(req: Request, res: Response): Promise<void> {
+  async resendOtp(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
     console.log("body", req.body);
     try {
       const { email } = req.body;
       if (!email) {
-        res.status(400).json({ error: "Email is required" });
+        throw new ApiError(
+          STATUS_CODES.NOT_FOUND,
+          MESSAGES.COMMON.ERROR.EMAIL_NOT_FOUND
+        );
       }
 
-      const success = await this.authService.resendOtpService(email);
+      const success = await this._authService.resendOtpService(email);
+      console.log("success", success);
+
       if (success) {
-        res.status(200).json({ message: "OTP resent successfully" });
+        res
+          .status(STATUS_CODES.SUCCESS)
+          .json({ message: MESSAGES.COMMON.SUCCESS.OTP_SENT });
       } else {
-        res.status(500).json({ error: "Failed to resend OTP" });
+        throw new ApiError(
+          STATUS_CODES.SERVER_ERROR,
+          MESSAGES.COMMON.ERROR.FAILED_OTP
+        );
       }
     } catch (error) {
-      res.status(500).json({ error: "Server error, please try again later" });
+      next(error);
     }
   }
-  async verifyOtp(req: Request, res: Response): Promise<void> {
+  async verifyOtp(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
     try {
       const { email, otp } = req.body;
       console.log(req.body);
 
       if (!email || !otp) {
-        res.status(400).json({ error: "Email and OTP are required" });
+        res
+          .status(STATUS_CODES.NOT_FOUND)
+          .json({ error: MESSAGES.COMMON.ERROR.EMAIL_OTP_REQUIRED });
         return;
       }
 
-      const isValid = await this.authService.verifyOtpService(email, otp);
+      const isValid = await this._authService.verifyOtpService(email, otp);
 
       if (!isValid) {
-        res.status(400).json({ error: "Invalid or expired OTP" });
-        return;
+        throw new ApiError(
+          STATUS_CODES.NOT_FOUND,
+          MESSAGES.COMMON.ERROR.INVALID_EXPIRED_OTP
+        );
       }
 
-      res.status(200).json({ message: "OTP verified successfully" });
+      res
+        .status(STATUS_CODES.SUCCESS)
+        .json({ message: MESSAGES.COMMON.SUCCESS.OTP_VERIFIED });
     } catch (error) {
       console.error("Error verifying OTP:", error);
-      res.status(500).json({ error: "Something went wrong!" });
+      next(error);
     }
   }
-  async resetPassword(req: Request, res: Response): Promise<void> {
+  async resetPassword(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
     try {
       console.log("body", req.body);
       const { email, password } = req.body;
       if (!email || !password) {
-        res.status(400).json({ message: "Email and password are required" });
-        return;
+        throw new ApiError(
+          STATUS_CODES.NOT_FOUND,
+          MESSAGES.COMMON.ERROR.EMAIL_PASSWORD_REQUIRED
+        );
+        // res.status(STATUS_CODES.NOT_FOUND).json({ message: MESSAGES.COMMON.ERROR.EMAIL_PASSWORD_REQUIRED });
+        // return;
       }
-      await this.authService.resetPasswordService(email, password);
-      res.status(200).json({ message: "Password reset successfully" });
-    } catch (error: any) {
+      await this._authService.resetPasswordService(email, password);
+      res
+        .status(STATUS_CODES.SUCCESS)
+        .json({ message: MESSAGES.COMMON.SUCCESS.PASSWORD_RESET });
+    } catch (error) {
       console.error(error);
-      res.status(500).json({ message: "Server error" });
+      next(error);
+      // res.status(500).json({ message: "Server error" });
     }
   }
 
-  async googleSignUp(req: Request, res: Response): Promise<void> {
+  async googleSignUp(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
     try {
       console.log("body", req.body);
       const { email, displayName, uid } = req.body;
       if (!email || !uid) {
-        res.status(400).json({ message: "Email and UID are required" });
-        return;
+        throw new ApiError(
+          STATUS_CODES.NOT_FOUND,
+          MESSAGES.COMMON.ERROR.EMAIL_UID_REQUIRED
+        );
+        // res.status(400).json({ message: "Email and UID are required" });
+        // return;
       }
-      const { user, token } = await this.authService.googleSignUpService(
-        email,
+      const { role, token } = await this._authService.googleSignUpService(
+{        email,
         displayName,
-        uid
+        uid}
       );
       res
-        .status(200)
-        .json({ message: "User signed in successfully", user, token });
-    } catch (error: any) {
+        .status(STATUS_CODES.SUCCESS)
+        .json({ message: MESSAGES.COMMON.SUCCESS.SIGNUP, role, token });
+    } catch (error) {
       console.error("Google Sign-Up Error:", error);
-      res
-        .status(500)
-        .json({ message: error.message || "Internal Server Error" });
+      next(error)
     }
   }
 
-  async googleLogin(req: Request, res: Response): Promise<void> {
+  async googleLogin(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       console.log("body", req.body);
       const { email, googleId } = req.body;
-      const response = await this.authService.googleLoginService({
+      const response = await this._authService.googleLoginService({
         email,
-        googleId
+        googleId,
       });
-      const { user, token } = response;
-        const refreshToken = await generateRefreshToken({
-        userId: user._id.toString(),
-        role: user.role,
+      const { role, token, userId } = response;
+      const refreshToken = await generateRefreshToken({
+        userId: userId,
+        role: role,
       });
 
       const cookieOptions = {
@@ -273,19 +333,16 @@ export class UserController implements IUserController {
       };
       res.cookie("refreshToken", refreshToken, cookieOptions).status(200).json({
         success: true,
-        message: "Login successful",
-        user,
+        message: "Google signin successful",
+        role,
         token,
       });
-
-    } catch (error: any) {
+    } catch (error) {
       console.error("Google login error:", error);
-      res
-        .status(500)
-        .json({
-          message: error.message || "Something went wrong during login",
-        });
+      next(error)
+      // res.status(500).json({
+      //   message: error.message || "Something went wrong during login",
+      // });
     }
   }
 }
-

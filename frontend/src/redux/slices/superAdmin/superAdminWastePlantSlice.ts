@@ -2,6 +2,7 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import {
   createWastePlant,
   deleteWastePlantById,
+  getPostOffices,
   getWastePlantById,
   getWastePlants,
   sendRechargeNotificationService,
@@ -10,12 +11,16 @@ import {
   updateWastePlantById,
 } from "../../../services/superAdmin/wastePlantService";
 import { RenewNotificationPayload } from "../../../types/wastePlantTypes";
+import { PostOffice } from "../../../types/wasteplant/wastePlantTypes";
+import { getAxiosErrorMessage } from "../../../utils/handleAxiosError";
+import { PaginationPayload } from "../../../types/common/commonTypes";
 
 interface WastePlantState {
   wastePlant: any;
   loading: boolean;
   message: string | null;
   error: string | null;
+  total: number;
 }
 
 const initialState: WastePlantState = {
@@ -23,6 +28,7 @@ const initialState: WastePlantState = {
   loading: false,
   message: null,
   error: null,
+  total: 0,
 };
 
 export const addWastePlant = createAsyncThunk(
@@ -31,18 +37,17 @@ export const addWastePlant = createAsyncThunk(
     try {
       const response = await createWastePlant(formData);
       return response;
-    } catch (error: any) {
-      return rejectWithValue(
-        error.response?.data || "Failed to add waste plant"
-      );
+    } catch (err) {
+      const msg = getAxiosErrorMessage(err); 
+      return rejectWithValue({ message: msg });
     }
   }
 );
 export const fetchWastePlants = createAsyncThunk(
   "superAdminWastePlant/fetchWastePlants",
-  async (_, { rejectWithValue }) => {
+  async ({page, limit, search} : PaginationPayload, { rejectWithValue }) => {
     try {
-      const response = await getWastePlants();
+      const response = await getWastePlants({page, limit, search});
       console.log("res", response);
       return response;
     } catch (error: any) {
@@ -115,7 +120,6 @@ export const sendRenewNotification = createAsyncThunk(
     }
   }
 );
-
 export const sendRechargeNotification = createAsyncThunk(
   "superAdminWastePlant/sendRechargeNotification",
   async (plantId: string, thunkAPI) => {
@@ -126,6 +130,22 @@ export const sendRechargeNotification = createAsyncThunk(
       return thunkAPI.rejectWithValue(
         error.response.data || "Failed to send recharge reminder."
       );
+    }
+  }
+);
+export const fetchPostOffices = createAsyncThunk<
+  PostOffice[],               
+  string,     
+  { rejectValue: { message: string } } 
+>(
+  "superAdminWastePlant/fetchPostOffices",
+  async (pincode, { rejectWithValue }) => {
+    try {
+      const response = await getPostOffices(pincode);
+      return response;
+    } catch (err) {
+      const msg = getAxiosErrorMessage(err); 
+      return rejectWithValue({ message: msg });
     }
   }
 );
@@ -140,8 +160,10 @@ const superAdminWastePlantSlice = createSlice({
         state.error = null;
       })
       .addCase(addWastePlant.fulfilled, (state, action) => {
+        console.log("action",action);
+        
         state.loading = false;
-        state.wastePlant = action.payload || [];
+        // state.wastePlant = action.payload || [];
       })
       .addCase(addWastePlant.rejected, (state, action) => {
         state.loading = false;
@@ -153,7 +175,8 @@ const superAdminWastePlantSlice = createSlice({
       })
       .addCase(fetchWastePlants.fulfilled, (state, action) => {
         state.loading = false;
-        state.wastePlant = action.payload;
+        state.wastePlant = action.payload.wasteplants;
+        state.total = action.payload.total;
       })
       .addCase(fetchWastePlants.rejected, (state, action) => {
         state.loading = false;
@@ -185,8 +208,8 @@ const superAdminWastePlantSlice = createSlice({
       })
       .addCase(deleteWastePlant.fulfilled, (state, action) => {
         state.message = action.payload.message;
-        state.wastePlant = state.wastePlant.filter((plant: any) => {
-          return plant._id !== action.payload.updatedPlant._id;
+        state.wastePlant = state.wastePlant.filter((plant: any) => {      
+          return plant.plantData._id !== action.payload.updatedPlant.plantId;
         });
       })
       .addCase(sendSubscribeNotification.pending, (state) => {
@@ -200,7 +223,18 @@ const superAdminWastePlantSlice = createSlice({
       .addCase(sendSubscribeNotification.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
-      });
+      })
+      .addCase(fetchPostOffices.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchPostOffices.fulfilled, (state) => {
+        state.loading = false;
+      })
+      .addCase(fetchPostOffices.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload?.message || "Something went wrong";
+      })
   },
 });
 

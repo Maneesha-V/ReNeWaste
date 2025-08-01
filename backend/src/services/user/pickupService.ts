@@ -4,6 +4,8 @@ import TYPES from "../../config/inversify/types";
 import { IPickupRepository } from "../../repositories/pickupReq/interface/IPickupRepository";
 import { cancelPickupReasonData } from "../../types/user/pickupTypes";
 import { INotificationRepository } from "../../repositories/notification/interface/INotifcationRepository";
+import { PickupRequestMapper } from "../../mappers/PIckupReqMapper";
+import { PickupPlansDTO } from "../../dtos/pickupReq/pickupReqDTO";
 
 @injectable()
 export class PickupService implements IPickupService {
@@ -13,12 +15,13 @@ export class PickupService implements IPickupService {
     @inject(TYPES.NotificationRepository)
     private notificationRepository: INotificationRepository
   ) {}
-  async getPickupPlanService(userId: string) {
+  async getPickupPlanService(userId: string): Promise<PickupPlansDTO[]> {
     const pickups = await this.pickupRepository.getPickupPlansByUserId(userId);
     console.log("pickups", pickups);
 
     if (!pickups) throw new Error("No pickup plans found");
-    return pickups;
+    // return pickups;
+    return pickups.map((p) => PickupRequestMapper.toPickupPlansDTO(p));
   }
   async cancelPickupPlanService(pickupReqId: string) {
     const pickup = await this.pickupRepository.getPickupById(pickupReqId);

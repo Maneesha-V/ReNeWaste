@@ -4,6 +4,8 @@ import { AuthRequest } from "../../types/common/middTypes";
 import { inject, injectable } from "inversify";
 import TYPES from "../../config/inversify/types";
 import { IPickupService } from "../../services/user/interface/IPIckupService";
+import { MESSAGES, STATUS_CODES } from "../../utils/constantUtils";
+import { handleControllerError } from "../../utils/errorHandler";
 
 @injectable()
 export class PickupController implements IPickupController {
@@ -17,15 +19,22 @@ export class PickupController implements IPickupController {
       console.log("user", userId);
 
       if (!userId) {
-        res.status(401).json({ error: "Unauthorized" });
+        res
+          .status(STATUS_CODES.UNAUTHORIZED)
+          .json({ message: MESSAGES.COMMON.ERROR.UNAUTHORIZED });
         return;
       }
       const pickups = await this.pickupService.getPickupPlanService(userId);
       console.log("pickups", pickups);
-
+      if (!pickups) {
+        res
+          .status(STATUS_CODES.NOT_FOUND)
+          .json({ message: MESSAGES.COMMON.ERROR.FETCH_PICKUP_FAIL });
+        return;
+      }
       res.status(200).json({ pickups });
-    } catch (error: any) {
-      res.status(400).json({ error: error.message });
+    } catch (error) {
+      handleControllerError(error, res, 500);
     }
   }
   async cancelPickupPlan(req: AuthRequest, res: Response): Promise<void> {
@@ -66,8 +75,8 @@ export class PickupController implements IPickupController {
         pickupReqId,
         reason,
       });
-      console.log("result",result);
-      
+      console.log("result", result);
+
       res.status(200).json({
         message: "Pickup request canceled successfully",
         data: result,

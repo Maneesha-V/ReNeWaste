@@ -21,7 +21,6 @@ export class NotificationController implements INotificationController {
         const notifications = await this.notificationService.getNotifications(
           adminId
         );
-        console.log("notifications",notifications);
         
         res.status(200).json(notifications);
       } catch (error) {

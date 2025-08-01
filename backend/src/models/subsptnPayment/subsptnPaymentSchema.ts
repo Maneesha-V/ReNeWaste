@@ -15,7 +15,7 @@ export const SubscriptionPaymentSchema: Schema<ISubscriptionPaymentDocument> = n
     },
     status: {
       type: String,
-      enum: ["Pending", "Paid", "Failed"],
+      enum: ["Pending", "InProgress", "Paid", "Failed"],
       default: "Pending",
     },
     method: {
@@ -52,13 +52,17 @@ export const SubscriptionPaymentSchema: Schema<ISubscriptionPaymentDocument> = n
     },
     refundStatus: {
       type: String,
-      enum: ["Pending", "Refunded", "Rejected", null],
+      enum: ["Pending", "Processing", "Refunded", "Rejected", null],
       default: null,
     },
     refundAt: {
       type: Date,
       default: null,
     },
+    inProgressExpiresAt: {
+      type: Date,
+      default: null,
+    }
   },
   {
     timestamps: true, 

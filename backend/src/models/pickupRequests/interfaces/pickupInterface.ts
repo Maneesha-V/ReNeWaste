@@ -38,6 +38,8 @@ export interface IPickupRequest extends Document {
       state: string;
       pincode: string;
       district: string;
+      latitude?: number;
+      longitude?: number
     }
     export interface PopulatedUser {
       _id: Types.ObjectId;
@@ -49,3 +51,4 @@ export interface IPickupRequest extends Document {
   export type PopulatedPickup = Omit<IPickupRequestDocument, 'userId'> & {
   userId: PopulatedUser;
 };
+

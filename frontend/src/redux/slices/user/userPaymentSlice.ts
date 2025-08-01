@@ -1,87 +1,139 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { createPaymentOrderService, getAllPaymentsService, repayService, verifyPaymentService } from "../../../services/user/paymentService";
-import { VerifyPaymentPayload } from "../../../types/paymentTypes";
+import {
+  createPaymentOrderService,
+  getAllPaymentsService,
+  repayService,
+  verifyPaymentService,
+} from "../../../services/user/paymentService";
+import {
+  CreatePaymentPayload,
+  CreatePaymentResponse,
+  PaymentSummary,
+  VerifyPaymentPayload,
+  VerifyPaymentResponse,
+} from "../../../types/pickupReq/paymentTypes";
+import { RepaymentOrderResponse } from "../../../types/pickupReq/paymentTypes";
+import { getAxiosErrorMessage } from "../../../utils/handleAxiosError";
 
 interface PickupState {
   loading: boolean;
+  repayLoading: boolean;
   message: string | null;
   error: string | null;
-  payments: any;
-  paymentOrder: any | null;
-  repaymentOrder: any | null;
+  // repayError: string | null;
+  payments: PaymentSummary[];
+  paymentOrder: CreatePaymentResponse | null;
+  repaymentOrder: RepaymentOrderResponse | null;
   pickup: any | null;
   amount: number | null;
 }
 
 const initialState: PickupState = {
   loading: false,
+  repayLoading: false,
   message: null,
   error: null,
+  // repayError: null,
   payments: [],
-  paymentOrder: null, 
-  repaymentOrder: null, 
+  paymentOrder: null,
+  repaymentOrder: null,
   pickup: null,
   amount: null,
 };
-export const createPaymentOrder = createAsyncThunk(
+export const createPaymentOrder = createAsyncThunk<
+  CreatePaymentResponse,
+  CreatePaymentPayload,
+  { rejectValue: { error: string } }
+>(
   "userPayment/createPaymentOrder",
-  async ({ amount, pickupReqId }: { amount: number; pickupReqId: string }, { rejectWithValue }
-  ) => {
+  async (paymentData, { rejectWithValue }) => {
     try {
-      const response = await createPaymentOrderService(amount, pickupReqId);
+      const response = await createPaymentOrderService(paymentData);
+      console.log("response", response);
+
       return response;
-    } catch (error: any) {
-      console.error("err",error);
-      return rejectWithValue(error.response?.data || "Failed to create payment");
+    } catch (err) {
+      console.error("err", err);
+      // return rejectWithValue(
+      //   error.response?.data || "Failed to create payment"
+      // );
+      const msg = getAxiosErrorMessage(err);
+      return rejectWithValue({ error: msg });
     }
   }
 );
 
-export const verifyPayment = createAsyncThunk(
-  "userPayment/verifyPayment",
-  async (paymentData:VerifyPaymentPayload , { rejectWithValue }) => {
-    try {
-      const response = await verifyPaymentService(paymentData);
-      return response.data;
-    } catch (err: any) {
-      return rejectWithValue(err.response?.data || "Verification failed");
-    }
-  }
-);
+export const verifyPayment = createAsyncThunk<
+  VerifyPaymentResponse,
+  VerifyPaymentPayload,
+  { rejectValue: { error: string } }
+>("userPayment/verifyPayment", async (paymentData, { rejectWithValue }) => {
+  try {
+    const response = await verifyPaymentService(paymentData);
+    console.log("response", response);
 
-export const getAllPayments = createAsyncThunk(
-  "userPayment/getAllPayments",
-  async (_, { rejectWithValue }) => {
-    try {
-      const response = await getAllPaymentsService();
-      console.log("response",response);
-      
-      return response;
-    } catch (err: any) {
-      return rejectWithValue(err.response?.data || "Fetch payments failed");
-    }
+    return response;
+  } catch (err) {
+    // return rejectWithValue(err.response?.data || "Verification failed");
+    const msg = getAxiosErrorMessage(err);
+    return rejectWithValue({ error: msg });
   }
-);
-export const repay = createAsyncThunk(
-  "userPayment/repay",
-  async ({ pickupReqId, amount }: { pickupReqId: string, amount: number }, { rejectWithValue }) => {
-    try {
-      console.log(pickupReqId, amount);
-      
-      const response = await repayService(pickupReqId, amount);
-      return response;
-    } catch (err: any) {
-      return rejectWithValue(err.response?.data || "Fetch payments failed");
-    }
+});
+
+export const getAllPayments = createAsyncThunk<
+  PaymentSummary[],
+  void,
+  { rejectValue: { error: string } }
+>("userPayment/getAllPayments", async (_, { rejectWithValue }) => {
+  try {
+    const response = await getAllPaymentsService();
+    console.log("response", response);
+
+    return response;
+  } catch (err) {
+    const msg = getAxiosErrorMessage(err);
+    return rejectWithValue({ error: msg });
+    // return rejectWithValue(err.response?.data || "Fetch payments failed");
   }
-);
+});
+export const repay = createAsyncThunk<
+  RepaymentOrderResponse,
+  { pickupReqId: string; amount: number },
+  { rejectValue: { error: string } }
+>("userPayment/repay", async ({ pickupReqId, amount }, { rejectWithValue }) => {
+  try {
+    console.log(pickupReqId, amount);
+
+    const response = await repayService(pickupReqId, amount);
+    return response;
+  } catch (err) {
+    console.log("err", err);
+
+    // return rejectWithValue(err.response?.data || "Fetch payments failed");
+    const msg = getAxiosErrorMessage(err);
+    return rejectWithValue({ error: msg });
+  }
+});
+
 const userPaymentSlice = createSlice({
   name: "userPayment",
   initialState,
   reducers: {
+    clearPaymentError: (state) => {
+      state.error = null;
+    },
     setPaymentData: (state, action) => {
       state.pickup = action.payload.pickup;
       state.amount = action.payload.amount;
+    },
+    updatePaymentStatus: (state, action) => {
+      const { pickupReqId, updatedPayment } = action.payload;
+      const index = state.payments.findIndex(
+        (p: PaymentSummary) => p._id === pickupReqId
+      );
+      if (index !== -1) {
+        state.payments[index].payment.status = updatedPayment.payment.status;
+      }
     },
   },
   extraReducers: (builder) => {
@@ -92,29 +144,32 @@ const userPaymentSlice = createSlice({
         state.paymentOrder = null;
       })
       .addCase(createPaymentOrder.fulfilled, (state, action) => {
+        console.log("acc", action.payload);
         state.loading = false;
-        state.paymentOrder = action.payload.paymentOrder;
+        state.paymentOrder = action.payload;
       })
       .addCase(createPaymentOrder.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload as string;
+        state.error =
+          (action.payload as { error: string })?.error ||
+          "Failed to create payment.";
       })
-       .addCase(verifyPayment.pending, (state) => {
+      .addCase(verifyPayment.pending, (state) => {
         state.loading = true;
         state.error = null;
+        state.message = null;
       })
-      .addCase(verifyPayment.fulfilled, (state) => {
+      .addCase(verifyPayment.fulfilled, (state, action) => {
         state.loading = false;
-        state.message = "Payment verified successfully";
+        state.message = action.payload.message;
       })
       .addCase(verifyPayment.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload as string;
+        state.error = action.payload?.error || "Verification failed";
       })
-        .addCase(getAllPayments.pending, (state) => {
+      .addCase(getAllPayments.pending, (state) => {
         state.loading = true;
         state.error = null;
-         state.payments = null;
       })
       .addCase(getAllPayments.fulfilled, (state, action) => {
         state.loading = false;
@@ -122,26 +177,26 @@ const userPaymentSlice = createSlice({
       })
       .addCase(getAllPayments.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload as string;
+        state.error =
+          (action.payload as { error: string })?.error ||
+          "Fetch payments failed.";
       })
-       .addCase(repay.pending, (state) => {
-        state.loading = true;
+      .addCase(repay.pending, (state) => {
+        state.repayLoading = true;
         state.error = null;
         state.repaymentOrder = null;
       })
       .addCase(repay.fulfilled, (state, action) => {
-        state.loading = false;
-        console.log("action",action.payload);
-        
+        state.repayLoading = false;
         state.repaymentOrder = action.payload;
       })
       .addCase(repay.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload as string;
-      })
+        state.repayLoading = false;
+        state.error = action.payload?.error || "Retry failed";
+      });
   },
 });
 
-export const { setPaymentData } = userPaymentSlice.actions;
+export const { setPaymentData, updatePaymentStatus, clearPaymentError } = userPaymentSlice.actions;
 
 export default userPaymentSlice.reducer;

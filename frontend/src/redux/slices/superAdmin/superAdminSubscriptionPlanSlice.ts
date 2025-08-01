@@ -10,15 +10,16 @@ import {
   getSubscrptionPlanById,
   updateSubscriptionPlanById,
 } from "../../../services/superAdmin/subscriptionService";
+import { SubsptnPlans } from "../../../types/subscription/subscriptionTypes";
 
-interface DropSpotState {
+interface SubsptnPlanState {
   loading: boolean;
   error: string | null;
   success: boolean;
-  subscriptionPlans: any;
+  subscriptionPlans: SubsptnPlans[];
 }
 
-const initialState: DropSpotState = {
+const initialState: SubsptnPlanState = {
   loading: false,
   error: null,
   success: false,
@@ -27,7 +28,7 @@ const initialState: DropSpotState = {
 
 export const createSubscriptionPlan = createAsyncThunk(
   "superAdminSubscriptionPlan/createSubscriptionPlan",
-  async (subscptnPlanData: SubsptnPlanData, { rejectWithValue }) => {
+  async (subscptnPlanData: SubsptnPlans, { rejectWithValue }) => {
     try {
       const response = await createSubscriptionPlanService(subscptnPlanData);
       return response;
@@ -139,7 +140,7 @@ const superAdminSubscriptionPlanSlice = createSlice({
       })
       .addCase(deleteSubscriptionPlan.fulfilled, (state, action) => {
         state.subscriptionPlans = state.subscriptionPlans.filter(
-          (plan: any) => plan._id !== action.payload
+          (plan: SubsptnPlans) => plan._id !== action.payload
         );
       })
       .addCase(updateSubscriptionPlan.pending, (state) => {

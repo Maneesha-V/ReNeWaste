@@ -7,4 +7,5 @@ export interface IWasteCollectionRepository {
  totalWasteAmount(plantId: string): Promise<ReturnTotalWasteAmount>;
  fetchWasteCollectionReportsByPlantId(plantId: string): Promise<IWasteCollectionDocument[]>;
  filterWasteCollectionReportsByPlantId(data: FilterReport): Promise<IWasteCollectionDocument[]>;
+ getTotalWasteCollected(): Promise<number>;
 }

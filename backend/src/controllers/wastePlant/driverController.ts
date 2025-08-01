@@ -83,9 +83,12 @@ export class DriverController implements IDriverController {
         return;
       }
       console.log(req.query);
-
+      const DEFAULT_LIMIT = 5;
+      const MAX_LIMIT = 50;
       const page = parseInt(req.query.page as string) || 1;
-      const limit = parseInt(req.query.limit as string) || 5;
+      // let limit = parseInt(req.query.limit as string) || DEFAULT_LIMIT;
+      let limit = Math.min(parseInt(req.query.limit as string) || DEFAULT_LIMIT, MAX_LIMIT);
+
       const search = (req.query.search as string) || "";
 
       const { drivers, total } = await this.driverService.getAllDrivers(

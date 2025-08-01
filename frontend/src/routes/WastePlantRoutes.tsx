@@ -22,6 +22,8 @@ import Users from "../pages/wastePlant/Users";
 import Payments from "../pages/wastePlant/Payments";
 import Subscription from "../pages/wastePlant/Subscription";
 import WasteReports from "../pages/wastePlant/WasteReports";
+import ProfileWasteplant from "../pages/wastePlant/ProfileWasteplant";
+import EditProfileWasteplant from "../pages/wastePlant/EditProfileWasteplant";
 
 const WastePlantRoutes = () => {
   return (
@@ -36,6 +38,8 @@ const WastePlantRoutes = () => {
       {/* Protected routes */}
       <Route element={<ProtectedRoute allowedRoles={["wasteplant"]} />}>
         <Route element={<WastePlantLayout />}>
+          <Route path="/profile" element={<ProfileWasteplant />} />
+          <Route path="/edit-profile" element={<EditProfileWasteplant />} />
           <Route path="/dashboard" element={<DashboardWastePlant />} />
           <Route path="/pickups" element={<Pickups />} />
           <Route path="/drivers" element={<Drivers />} />

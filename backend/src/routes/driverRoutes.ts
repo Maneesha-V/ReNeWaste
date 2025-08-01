@@ -9,6 +9,7 @@ import { ChatController } from "../controllers/driver/chatController";
 import TYPES from "../config/inversify/types";
 import container from "../config/inversify/container";
 import { NotificationController } from "../controllers/driver/notificationController";
+import { DashboardController } from "../controllers/driver/dashboardController";
 
 const router = express.Router()
 const upload = multer();
@@ -19,6 +20,7 @@ const driverProfCtrl = container.get<ProfileController>(TYPES.DriverProfileContr
 const driverPickupCtrl = container.get<PickupController>(TYPES.DriverPickupController);
 const driverTruckCtrl = container.get<TruckController>(TYPES.DriverTruckController);
 const driverNotificationCtrl = container.get<NotificationController>(TYPES.DriverNotificationController);
+const driverDashboardCtrl = container.get<DashboardController>(TYPES.DriverDashboardController);
 
 router.get("/refresh-token", driverCtrl.refreshToken.bind(driverCtrl))
 router.post("/",driverCtrl.driverLogin.bind(driverCtrl))
@@ -39,11 +41,13 @@ router.patch("/pickup/:pickupReqId/tracking-status", authenticateDriver as Reque
 router.get("/assigned-trucks/:wasteplantId", authenticateDriver as RequestHandler, driverTruckCtrl.fetchTruckForDriver.bind(driverTruckCtrl))
 router.post("/req-truck", authenticateDriver as RequestHandler, driverTruckCtrl.requestTruckForDriver.bind(driverTruckCtrl))
 router.get("/driver/chat")
-router.post("/conversation", authenticateDriver as RequestHandler, driverChatCtrl.getConversationId.bind(driverChatCtrl))
-router.post("/chat-messages", authenticateDriver as RequestHandler, driverChatCtrl.getChatMessages.bind(driverChatCtrl))
-router.put("/truck/mark-returned", authenticateDriver as RequestHandler, driverTruckCtrl.markTruckReturn.bind(driverTruckCtrl))
-router.get("/notifications", authenticateDriver as RequestHandler, driverNotificationCtrl.fetchNotifications.bind(driverNotificationCtrl))
-router.patch("/notifications/:notifId/read", authenticateDriver as RequestHandler, driverNotificationCtrl.markReadNotification.bind(driverNotificationCtrl))
+router.post("/conversation", authenticateDriver as RequestHandler, driverChatCtrl.getConversationId.bind(driverChatCtrl));
+router.post("/chat-messages", authenticateDriver as RequestHandler, driverChatCtrl.getChatMessages.bind(driverChatCtrl));
+router.put("/truck/mark-returned", authenticateDriver as RequestHandler, driverTruckCtrl.markTruckReturn.bind(driverTruckCtrl));
+router.get("/notifications", authenticateDriver as RequestHandler, driverNotificationCtrl.fetchNotifications.bind(driverNotificationCtrl));
+router.patch("/notifications/:notifId/read", authenticateDriver as RequestHandler, driverNotificationCtrl.markReadNotification.bind(driverNotificationCtrl));
+router.get("/dashboard", authenticateDriver as RequestHandler, driverDashboardCtrl.fetchDriverDashboard.bind(driverDashboardCtrl));
+router.get("/support", authenticateDriver as RequestHandler, driverDashboardCtrl.fetchWastePlantSupport.bind(driverDashboardCtrl));
 
 export default router;
 

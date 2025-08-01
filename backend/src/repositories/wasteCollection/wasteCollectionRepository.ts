@@ -129,4 +129,15 @@ export class WasteCollectionRepository
       });
     return filterReports;
   }
+  async getTotalWasteCollected(): Promise<number> {
+    const result = await this.model.aggregate([
+      {
+        $group: {
+          _id: null,
+          total: {$sum: "$collectedWeight"}
+        }
+      }
+    ])
+    return result[0]?.total || 0;
+  }
 }

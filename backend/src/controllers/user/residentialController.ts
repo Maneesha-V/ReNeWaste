@@ -5,6 +5,7 @@ import { AuthRequest } from "../../types/common/middTypes";
 import { inject, injectable } from "inversify";
 import TYPES from "../../config/inversify/types";
 import { IResidentialService } from "../../services/user/interface/IResidentialService";
+import { handleControllerError } from "../../utils/errorHandler";
 
 @injectable()
 export class ResidentialController implements IResidentialController {
@@ -33,45 +34,35 @@ export class ResidentialController implements IResidentialController {
   ): Promise<void> {
     try {
       const userId = req.user?.id;
-      console.log("userId", userId);
 
       if (!userId) {
         res.status(400).json({ message: "User ID is required" });
         return;
       }
       const updatedData = req.body;
-      console.log("updatedData", updatedData);
-
+      console.log("updatedData",updatedData);
+      
       const pickupDateString = updatedData.pickupDate;
       const formattedDate = moment(
         pickupDateString,
         "MM-DD-YYYY",
         true
       ).toDate();
-      console.log("formattedDate", formattedDate);
       if (isNaN(formattedDate.getTime())) {
         res.status(400).json({ message: "Invalid pickup date format" });
         return;
       }
 
       updatedData.pickupDate = formattedDate;
-      const updatedUser =
-        await this.residentialService.updateResidentialPickupService(
-          userId,
-          updatedData
-        );
-      console.log("updatedUser", updatedUser);
-      if (!updatedUser) {
-        res.status(404).json({ message: "User not found" });
-        return;
-      }
+      await this.residentialService.updateResidentialPickupService(
+        userId,
+        updatedData
+      );
+      res.status(200).json({ message: "Updated successfully" });
 
-      res
-        .status(200)
-        .json({ message: "Updated successfully", user: updatedUser });
     } catch (error) {
       console.error("Error in updation:", error);
-      res.status(500).json({ message: "Server error, please try again later" });
+       handleControllerError(error, res, 500);
     }
   }
 }

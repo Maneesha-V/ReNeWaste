@@ -41,4 +41,5 @@ export interface ITruckRepository {
   ): Promise<ITruckDocument>;
   findTruckByName(name: string): Promise<ITruckDocument | null>;
   fetchAllTrucksByPlantId(plantId: string): Promise<ReturnFetchAllTrucksByPlantId>;
+  getTotalTrucks(): Promise<number>;
 }

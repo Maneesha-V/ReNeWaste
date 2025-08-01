@@ -15,6 +15,8 @@ import { DashboardController } from "../controllers/wastePlant/dashboardControll
 import { SubscriptionController } from "../controllers/wastePlant/subscriptionController";
 import { PaymentController } from "../controllers/wastePlant/paymentController";
 import { ReportController } from "../controllers/wastePlant/reportController";
+import { ProfileController } from "../controllers/wastePlant/profileController";
+import upload from "../config/multer";
 
 const router = express.Router();
 const plantCtrl = container.get<AuthController>(TYPES.PlantAuthController);
@@ -29,7 +31,7 @@ const plantDashboardCtrl = container.get<DashboardController>(TYPES.PlantDashboa
 const plantSubscriptionCtrl = container.get<SubscriptionController>(TYPES.PlantSubscriptionController);
 const plantPaymentCtrl = container.get<PaymentController>(TYPES.PlantPaymentController);
 const plantReportCtrl =  container.get<ReportController>(TYPES.PlantReportController);
-
+const plantProfileCtrl = container.get<ProfileController>(TYPES.PlantProfileController);
 
 router.get("/refresh-token", plantCtrl.refreshToken.bind(plantCtrl));
 router.post("/", plantCtrl.wastePlantLogin.bind(plantCtrl));
@@ -94,5 +96,11 @@ router.post("/payment/update-status", authenticateWastePlant as RequestHandler, 
 router.post("/payment/refund", authenticateWastePlant as RequestHandler, plantPaymentCtrl.refundPayment.bind(plantPaymentCtrl));
 router.get("/waste-reports", authenticateWastePlant as RequestHandler, plantReportCtrl.getWasteReports.bind(plantReportCtrl))
 router.get("/waste-reports/from=:from&to=:to", authenticateWastePlant as RequestHandler, plantReportCtrl.filterWasteReports.bind(plantReportCtrl))
+
+router.get("/profile", authenticateWastePlant as RequestHandler, plantProfileCtrl.getPlantProfile.bind(plantProfileCtrl));
+router.patch("/edit-profile", authenticateWastePlant as RequestHandler, 
+ upload.single("licenseDocument"),
+ plantProfileCtrl.updatePlantProfile.bind(plantProfileCtrl));
+router.get("/view-license/:publicId(*)", plantProfileCtrl.viewLicenseDocument.bind(plantProfileCtrl))
 
 export default router;

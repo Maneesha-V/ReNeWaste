@@ -63,6 +63,7 @@ export type ReturnRetryPaymntPayload = {
     amount: number;
     currency: string;
     planId: string;
+    expires: string;
 }
 export type FetchPaymentPayload = {
   plantId: string

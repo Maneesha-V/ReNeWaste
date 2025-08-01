@@ -1,29 +1,15 @@
+import { CreatePaymentReq, CreatePaymentResp, VerifyPaymentReq, VerifyPaymentResp } from "../../../dtos/pickupReq/paymentDTO";
+import { PickupPaymentSummaryDTO } from "../../../dtos/pickupReq/pickupReqDTO";
 import { IPickupRequest, IPickupRequestDocument } from "../../../models/pickupRequests/interfaces/pickupInterface";
 
 export interface IPaymentService {
   createPaymentOrderService(
-    amount: number,
-    pickupReqId: string,
-    userId: string
-  ): Promise<{
-    orderId: string;
-    amount: number;
-    currency: string;
-    pickupReqId: string;
-  }>;
+  data: CreatePaymentReq
+  ): Promise<CreatePaymentResp>;
 
-  verifyPaymentService(
-    paymentDetails: {
-      razorpay_order_id: string;
-      razorpay_payment_id: string;
-      razorpay_signature: string;
-      pickupReqId: string;
-      amount: number;
-    },
-    userId: string
-  ): Promise<IPickupRequestDocument>;
+  verifyPaymentService(data: VerifyPaymentReq): Promise<VerifyPaymentResp>;
 
-  getAllPaymentsService(userId: string): Promise<Partial<IPickupRequest>[]>;
+  getAllPaymentsService(userId: string): Promise<PickupPaymentSummaryDTO[]>;
 
   rePaymentService(
     userId: string,
@@ -34,5 +20,6 @@ export interface IPaymentService {
     amount: number | null;
     currency: string;
     pickupReqId: string;
+    expiresAt: string;
   }>;
 }

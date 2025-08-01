@@ -3,7 +3,7 @@ import mongoose, { Document, Types } from "mongoose";
 export interface ISubscriptionPayment  {
   wasteplantId: mongoose.Types.ObjectId;
   planId: mongoose.Types.ObjectId;
-  status: "Pending" | "Paid" | "Failed";
+  status: "Pending" | "InProgress" | "Paid" | "Failed";
   method: string;
   razorpayOrderId: string | null;
   razorpayPaymentId: string | null;
@@ -14,6 +14,9 @@ export interface ISubscriptionPayment  {
   refundRequested: boolean;
   refundStatus: "Pending" | "Processing" | "Refunded" | "Rejected" | null;
   refundAt: Date | null;
+  inProgressExpiresAt: Date | null;
+  createdAt: Date | null;
+  updatedAt: Date | null;
 }
 export interface ISubscriptionPaymentDocument
   extends ISubscriptionPayment,

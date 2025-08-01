@@ -7,10 +7,16 @@ import TYPES from "../../config/inversify/types";
 import { IWastePlantRepository } from "../../repositories/wastePlant/interface/IWastePlantRepository";
 import {
   notificationPayload,
-  ReturnAdminWastePlant,
+  ReturnDeleteWP,
 } from "../../types/superAdmin/wastePlantTypes";
 import { INotificationRepository } from "../../repositories/notification/interface/INotifcationRepository";
 import { ISubscriptionPaymentRepository } from "../../repositories/subscriptionPayment/interface/ISubscriptionPaymentRepository";
+import { PaginationInput } from "../../dtos/common/commonDTO";
+import {
+  PaginatedReturnAdminWastePlants,
+  ReturnAdminWastePlant,
+} from "../../dtos/wasteplant/WasteplantDTO";
+import { WastePlantMapper } from "../../mappers/WastePlantMapper";
 
 @injectable()
 export class WastePlantService implements IWastePlantService {
@@ -22,7 +28,7 @@ export class WastePlantService implements IWastePlantService {
     @inject(TYPES.SubscriptionPaymentRepository)
     private subscriptionPaymentRepository: ISubscriptionPaymentRepository
   ) {}
-  async addWastePlant(data: IWastePlant): Promise<IWastePlant> {
+  async addWastePlant(data: IWastePlant) {
     await checkForDuplicateWastePlant(
       {
         email: data.email,
@@ -37,15 +43,25 @@ export class WastePlantService implements IWastePlantService {
       ...data,
       password: hashedPassword,
     };
-    return await this.wastePlantRepository.createWastePlant(newData);
+    const createdPlant = await this.wastePlantRepository.createWastePlant(
+      newData
+    );
+    if (!createdPlant) {
+      throw new Error("Failed to create waste plant");
+    }
+    return {
+      success: true,
+    };
   }
 
   // async getAllWastePlants(): Promise<IWastePlant[]> {
   //   const updatedData = return await this.wastePlantRepository.getAllWastePlants();
   //   return plantData;
   // }
-  async getAllWastePlants(): Promise<ReturnAdminWastePlant[]> {
-    const plantData = await this.wastePlantRepository.getAllWastePlants();
+  async getAllWastePlants(
+    data: PaginationInput
+  ): Promise<PaginatedReturnAdminWastePlants> {
+    const plantData = await this.wastePlantRepository.getAllWastePlants(data);
     if (!plantData) {
       throw new Error("Wasteplants not found.");
     }
@@ -74,10 +90,10 @@ export class WastePlantService implements IWastePlantService {
     // Add latestSubscription info to each plant
     const updatedPlants: ReturnAdminWastePlant[] = [];
 
-    for (const plant of plantData) {
+    for (const plant of plantData.wasteplants) {
       const plantIdStr = plant._id.toString();
       const latestPayment = latestPaymentsMap.get(plantIdStr);
-
+      const dto = WastePlantMapper.mapWastePlantDTO(plant);
       if (latestPayment) {
         const expiredAt = new Date(latestPayment.expiredAt);
         const startOfToday = new Date(
@@ -98,22 +114,18 @@ export class WastePlantService implements IWastePlantService {
               (1000 * 60 * 60 * 24)
           )
         );
-        // const expiredAt = new Date(latestPayment.expiredAt);
-        // const daysLeft = Math.max(
-        //   0,
-        //   Math.floor((expiredAt.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))
-        // );
 
         if (daysLeft === 0 && plant.status !== "Inactive") {
           await this.wastePlantRepository.updatePlantStatus(
-            plant._id.toString(),
+            plantIdStr,
             "Inactive"
           );
           plant.status = "Inactive";
+          dto.status = "Inactive";
         }
 
         updatedPlants.push({
-          plantData: plant,
+          plantData: dto,
           latestSubscription: {
             subPaymentStatus: latestPayment.status,
             expiredAt,
@@ -121,22 +133,17 @@ export class WastePlantService implements IWastePlantService {
           },
         });
       } else {
-        // if (plant.status !== "Inactive") {
-        //   await this.wastePlantRepository.updatePlantStatus(
-        //     plant._id.toString(),
-        //     "Inactive"
-        //   );
-        //   plant.status = "Inactive";
-        // }
-
         updatedPlants.push({
-          plantData: plant,
+          plantData: dto,
           latestSubscription: null,
         });
       }
     }
 
-    return updatedPlants;
+    return {
+      total: plantData.total,
+      wasteplants: updatedPlants,
+    };
   }
   async getWastePlantByIdService(id: string): Promise<IWastePlant | null> {
     try {
@@ -147,7 +154,7 @@ export class WastePlantService implements IWastePlantService {
   }
   async updateWastePlantByIdService(
     id: string,
-    data: any
+    data: IWastePlant
   ): Promise<IWastePlant | null> {
     try {
       return await this.wastePlantRepository.updateWastePlantById(id, data);
@@ -155,8 +162,12 @@ export class WastePlantService implements IWastePlantService {
       throw new Error("Error updating waste plant in service");
     }
   }
-  async deleteWastePlantByIdService(id: string) {
-    return await this.wastePlantRepository.deleteWastePlantById(id);
+  async deleteWastePlantByIdService(id: string): Promise<ReturnDeleteWP> {
+    const plant = await this.wastePlantRepository.deleteWastePlantById(id);
+    if (!plant) {
+      throw new Error("Plant not found.");
+    }
+    return { plantId: plant._id.toString() };
   }
   async sendSubscribeNotification(data: notificationPayload) {
     const plant = await this.wastePlantRepository.getWastePlantById(

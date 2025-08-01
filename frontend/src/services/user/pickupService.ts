@@ -1,10 +1,8 @@
 import axiosUser from "../../api/axiosUser";
+import { PickupPlansResp } from "../../types/pickupReq/pickupTypes";
 import { PickupCancelData } from "../../types/wastePlantTypes";
 
-export const getUserPickups = async () => {
-  const token = localStorage.getItem("token");
-  console.log("token", token);
-
+export const getUserPickups = async (): Promise<PickupPlansResp[]> => {
   const response = await axiosUser.get(`/pickup-plans`);
   return response.data.pickups;
 };

@@ -29,6 +29,7 @@ import {
 } from "../../types/wastePlant/paymentTypes";
 import { populate } from "dotenv";
 import { FilterReport } from "../../types/wastePlant/reportTypes";
+import { PopulatedPIckupPlans } from "../../dtos/pickupReq/pickupReqDTO";
 
 @injectable()
 export class PickupRepository
@@ -239,7 +240,9 @@ export class PickupRepository
     console.log("trackk", res);
   }
 
-  async getPickupPlansByUserId(userId: string) {
+  async getPickupPlansByUserId(
+    userId: string
+  ): Promise<PopulatedPIckupPlans[]> {
     const pickups = await this.model
       .find({
         userId: new mongoose.Types.ObjectId(userId),
@@ -250,7 +253,7 @@ export class PickupRepository
       })
       .populate({
         path: "truckId",
-        select: "name vehicleNumber"
+        select: "name vehicleNumber",
       })
       .lean();
 
@@ -282,7 +285,7 @@ export class PickupRepository
       const bStatusPriority = statusOrder[b.status as TrackingStatus] ?? 99;
 
       if (aStatusPriority !== bStatusPriority) {
-        return aStatusPriority - bStatusPriority; // lower priority number comes first
+        return aStatusPriority - bStatusPriority;
       }
 
       const aDate = new Date(a.rescheduledPickupDate || a.originalPickupDate);
@@ -298,7 +301,21 @@ export class PickupRepository
       return aDateTime.getTime() - bDateTime.getTime();
     });
 
-    return sortedPickups;
+    // return sortedPickups as PopulatedPIckupPlans[];
+    return sortedPickups.map((p) => ({
+      ...p,
+      user: user
+        ? {
+            firstName: user.firstName,
+            lastName: user.lastName,
+            phone: user.phone,
+          }
+        : null,
+      address:
+        user?.addresses?.find(
+          (a) => a._id.toString() === p.addressId?.toString()
+        ) ?? null,
+    })) as unknown as PopulatedPIckupPlans[];
   }
 
   async updateTrackingStatus(
@@ -356,23 +373,21 @@ export class PickupRepository
       userId: userId,
     });
   }
-  async savePaymentDetails(
-    pickupReqId: string,
-    paymentData: any,
-    userId: string
-  ) {
-    const pickup = await this.model.findOneAndUpdate(
-      { _id: pickupReqId, userId },
-      { $set: { payment: paymentData } },
-      { new: true }
-    );
+  // async savePaymentDetails({
+  //   pickupReqId,
+  //   paymentData,
+  //   userId,
+  // }: SavePaymentReq) {
+  //   const pickup = await this.model.findOneAndUpdate(
+  //     { _id: pickupReqId, userId },
+  //     { $set: { payment: paymentData } },
+  //     { new: true }
+  //   );
 
-    if (!pickup) {
-      throw new Error("Pickup not found or unauthorized");
-    }
-
-    return pickup;
-  }
+  //   if (!pickup) {
+  //     throw new Error("Pickup not found or unauthorized");
+  //   }
+  // }
 
   async getAllPaymentsByUser(userId: string) {
     return await this.model
@@ -452,28 +467,6 @@ export class PickupRepository
     }
 
     return result;
-    // let pending = 0;
-    // let scheduled = 0;
-    // let rescheduled = 0;
-    // let cancelled = 0;
-    // let completed = 0;
-    // let activePickups = 0;
-    // for (const record of pickupCounts) {
-    //   if (record._id === "Pending") {
-    //     pending = record.totalCount;
-    //   } else if (record._id === "Scheduled") {
-    //     scheduled = record.totalCount;
-    //   } else if (record._id === "Rescheduled") {
-    //     rescheduled = record.totalCount;
-    //   }else if (record._id === "Completed") {
-    //     completed = record.totalCount;
-    //   } else if (record._id === "Cancelled") {
-    //     cancelled = record.totalCount;
-    //   }
-    //   activePickups = scheduled + rescheduled;
-    // }
-
-    // return { pending, activePickups, completed, cancelled };
   }
   async totalRevenueByPlantId(plantId: string): Promise<RevenueByWasteType> {
     const result = await this.model.aggregate([
@@ -581,6 +574,7 @@ export class PickupRepository
           "payment.refundStatus": 1,
           "payment.refundRequested": 1,
           "payment.refundAt": 1,
+          "payment.inProgressExpiresAt": 1,
           driverName: "$driver.name",
           userName: { $concat: ["$user.firstName", " ", "$user.lastName"] },
           dueDate: {
@@ -709,7 +703,7 @@ export class PickupRepository
     return pickups;
   }
   async fetchWasteReportsByPlantId(plantId: string) {
-     const pickups = await this.model
+    const pickups = await this.model
       .find({
         wasteplantId: plantId,
         status: "Completed",
@@ -721,5 +715,122 @@ export class PickupRepository
       });
 
     return pickups;
+  }
+  async getDriverTotalPickups(driverId: string): Promise<{
+    assignedCount: number;
+    completedCount: number;
+  }> {
+    const pickups = await this.model.find({
+      driverId: driverId,
+      status: { $in: ["Scheduled", "Rescheduled", "Completed"] },
+    });
+
+    let assignedCount = 0;
+    let completedCount = 0;
+
+    for (const pickup of pickups) {
+      if (pickup.status === "Completed") {
+        completedCount++;
+      } else {
+        assignedCount++;
+      }
+    }
+
+    return {
+      assignedCount,
+      completedCount,
+    };
+  }
+  async getMonthlyPickupPlansByUserId(
+    userId: string
+  ): Promise<{ count: number }> {
+    const now = new Date();
+    const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    const lastDayOfMonth = new Date(
+      now.getFullYear(),
+      now.getMonth() + 1,
+      0,
+      23,
+      59,
+      59,
+      999
+    );
+    const result = await this.model.aggregate([
+      {
+        $match: {
+          userId: new mongoose.Types.ObjectId(userId),
+          wasteType: "Residential",
+        },
+      },
+      {
+        $addFields: {
+          effectiveDate: {
+            $cond: [
+              { $ifNull: ["$rescheduledPickupDate", false] },
+              "$rescheduledPickupDate",
+              "$originalPickupDate",
+            ],
+          },
+        },
+      },
+      {
+        $match: {
+          effectiveDate: {
+            $gte: firstDayOfMonth,
+            $lte: lastDayOfMonth,
+          },
+        },
+      },
+      {
+        $count: "pickupCount",
+      },
+    ]);
+    console.log("result", result);
+
+    const count = result.length > 0 ? result[0].pickupCount : 0;
+    return { count };
+  }
+  async totalRevenueByMonth(): Promise<{ month: string; totalRevenue: number }[]> {
+    const result =  await this.model.aggregate([
+      {
+        $match: {
+          "payment.status": "Paid",
+          "payment.refundStatus": null,
+          "payment.paidAt": { $ne: null },
+        },
+      },
+      {
+        $group: {
+          _id: {
+            year: { $year: "$payment.paidAt" },
+            month: { $month: "$payment.paidAt" },
+          },
+          totalRevenue: { $sum: "$payment.amount" },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          month: {
+            $concat: [
+              { $toString: "$_id.year" },
+              "-",
+              {
+                $cond: [
+                  { $lt: ["$_id.month", 10] },
+                  { $concat: ["0", { $toString: "$_id.month" }] },
+                  { $toString: "$_id.month" },
+                ],
+              },
+            ],
+          },
+          totalRevenue: 1,
+        },
+      },
+      {
+        $sort:{ month: 1}
+      }
+    ]);
+    return result;
   }
 }

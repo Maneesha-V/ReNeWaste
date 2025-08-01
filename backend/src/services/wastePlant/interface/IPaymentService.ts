@@ -1,15 +1,14 @@
+import { RefundStatusUpdateResp, UpdateStatusReq } from "../../../dtos/pickupReq/paymentDTO";
+import { RetrySubPaymntReq, RetrySubPaymntRes } from "../../../dtos/subscription/subscptnPaymentDTO";
 import { IPickupRequestDocument } from "../../../models/pickupRequests/interfaces/pickupInterface";
 import { ISubscriptionPaymentDocument } from "../../../models/subsptnPayment/interface/subsptnPaymentInterface";
 import {
   FetchPaymentPayload,
   PaginatedPaymentsResult,
   RefundDataReq,
-  RetryPaymntPayload,
-  ReturnRetryPaymntPayload,
   ReturnSubcptnPaymentResult,
   ReurnSubcptnCreatePaymt,
   SubCreatePaymtPayload,
-  UpdateStatusPayload,
   VerifyPaymtPayload,
 } from "../../../types/wastePlant/paymentTypes";
 
@@ -24,7 +23,7 @@ export interface IPaymentService {
   fetchSubscriptionPayments(
     plantId: string
   ): Promise<ReturnSubcptnPaymentResult>;
-  retrySubscriptionPayment(data: RetryPaymntPayload): Promise<ReturnRetryPaymntPayload>;
-  updateRefundStatusPayment(data: UpdateStatusPayload): Promise<IPickupRequestDocument>;
+  retrySubscriptionPayment(data: RetrySubPaymntReq): Promise<RetrySubPaymntRes>;
+  updateRefundStatusPayment(data: UpdateStatusReq): Promise<RefundStatusUpdateResp>;
   refundPayment(plantId: string, data: RefundDataReq): Promise<IPickupRequestDocument>;
 }

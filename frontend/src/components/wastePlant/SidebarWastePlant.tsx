@@ -12,6 +12,7 @@ import {
 } from "@ant-design/icons";
 import { SidebarWastePlantProps } from "../../types/wastePlantTypes";
 import { toast } from "react-toastify";
+import { FaUserCircle } from "react-icons/fa";
 
 const SidebarWastePlant = ({
   collapsed,
@@ -93,14 +94,16 @@ const SidebarWastePlant = ({
         collapsed ? "w-20" : "w-64"
       }`}
     >
-      <div className="h-16 flex items-center justify-center border-b border-green-700">
-        <h2
-          className={`text-white font-semibold ${
-            collapsed ? "text-lg" : "text-xl"
-          }`}
-        >
-          {collapsed ? "WP" : "Waste Plant"}
-        </h2>
+      <div className="h-16 flex items-center justify-start border-b border-green-700 px-3">
+        <button onClick={() => navigate("/waste-plant/profile")}>
+          <FaUserCircle className="w-8 h-8 cursor-pointer hover:text-green-600" />
+        </button>
+        {!collapsed && (
+          <h2 className="text-white font-semibold text-xl ml-3">Waste Plant</h2>
+        )}
+        {collapsed && (
+          <h2 className="text-white font-semibold text-lg ml-2">WP</h2>
+        )}
       </div>
       <nav className="p-2">
         <ul className="space-y-1">

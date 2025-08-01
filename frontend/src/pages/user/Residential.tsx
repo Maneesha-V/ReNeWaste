@@ -7,37 +7,25 @@ import PickupResidentialFormModal from "../../components/user/PickupResidentialF
 import { getResidential } from "../../redux/slices/user/residentialSlice";
 import { useAppDispatch } from "../../redux/hooks";
 import { useSelector } from "react-redux";
-import { Spin } from "antd";
 
 const Residential = () => {
   const [currentMonth, setCurrentMonth] = useState(dayjs());
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const dispatch = useAppDispatch();
-  const { user, loading } = useSelector(
+  const { user } = useSelector(
     (state: any) => state.userResidential
   );
-  const token = localStorage.getItem("token");
-
+  
   const startOfMonth = currentMonth.startOf("month");
   const endOfMonth = currentMonth.endOf("month");
   const startDay = startOfMonth.day();
   const daysInMonth = currentMonth.daysInMonth();
 
-  console.log("token", token);
-  console.log("user", user);
   useEffect(() => {
-    if (!token) return;
     dispatch(getResidential());
   }, [dispatch]);
   
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center h-64">
-        <Spin size="large" />
-      </div>
-    );
-  }
 
   const handlePrevMonth = () => {
     setCurrentMonth(currentMonth.subtract(1, "month"));
@@ -107,15 +95,6 @@ const Residential = () => {
               <div key={`empty-${idx}`}></div>
             ))}
 
-          {/* {Array.from({ length: daysInMonth }, (_, i) => (
-            <div
-              key={i}
-              className="p-2 cursor-pointer rounded hover:bg-green-100 bg-green-50"
-              onClick={() => handleDateClick(i + 1)}
-            >
-              {i + 1}
-            </div>
-          ))} */}
           {Array.from({ length: daysInMonth }, (_, i) => {
             const date = currentMonth.date(i + 1);
             const isPastDate = date.isBefore(dayjs().startOf("day"));

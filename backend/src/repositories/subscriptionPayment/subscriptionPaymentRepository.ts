@@ -4,8 +4,17 @@ import { ISubscriptionPaymentDocument } from "../../models/subsptnPayment/interf
 import { SubscriptionPaymentModel } from "../../models/subsptnPayment/subsptnPaymentModel";
 import { ISubscriptionPaymentRepository } from "./interface/ISubscriptionPaymentRepository";
 import { CreateSubsptnPaymentPayload } from "./types/subscriptnPaymentTypes";
-import { PaymentUpdate, UpdateSubscptnPayload } from "../../types/wastePlant/paymentTypes";
-import mongoose from "mongoose";
+import {
+  PaymentUpdate,
+  UpdateSubscptnPayload,
+} from "../../types/wastePlant/paymentTypes";
+import mongoose, { PipelineStage } from "mongoose";
+import { PaginationInput } from "../../dtos/common/commonDTO";
+import {
+  SubscriptionPaymentHisDTO,
+  SubscriptionPaymentHisResult,
+} from "../../dtos/subscription/subscptnPaymentDTO";
+import { SubscriptionPaymentMapper } from "../../mappers/SubscriptionPaymentMapper";
 
 @injectable()
 export class SubscriptionPaymentRepository
@@ -29,52 +38,174 @@ export class SubscriptionPaymentRepository
     await newPayment.save();
     return newPayment;
   }
-  async updateSubscriptionPayment(data: UpdateSubscptnPayload){
+  async updateSubscriptionPayment(data: UpdateSubscptnPayload) {
     const { planId, paymentUpdate, plantId } = data;
     const updatedPayment = await this.model.findOneAndUpdate(
-    {
-      planId: planId,
-      wasteplantId: plantId,
-    },
-    {
-      $set: paymentUpdate,
-    },
-    {
-      new: true, 
-    }
-  );
-
-  if (!updatedPayment) {
-    throw new Error("Subscription payment not found for update.");
-  }
-
-  return updatedPayment;
-  }
-  async findSubscriptionPayments(plantId: string, planId: string): Promise<ISubscriptionPaymentDocument[] |null> {
-    return await this.model.find({
-        wasteplantId: plantId,
-        planId
-    })
-  }
-  async findSubscriptionPaymentById(id: string){
-    return await this.model.findById(id);
-  }
-  async updateSubscriptionPaymentById(id: string, paymentUpdate: PaymentUpdate): Promise<ISubscriptionPaymentDocument>{
-   const updatedData = await this.model.findByIdAndUpdate(
       {
-        _id: new mongoose.Types.ObjectId(id)
+        planId: planId,
+        wasteplantId: plantId,
       },
       {
-        $set: paymentUpdate
-      },{ new: true}
-    )
-    if (!updatedData) {
-    throw new Error("Subscription payment not found for update.");
+        $set: paymentUpdate,
+      },
+      {
+        new: true,
+      }
+    );
+
+    if (!updatedPayment) {
+      throw new Error("Subscription payment not found for update.");
+    }
+
+    return updatedPayment;
   }
+  async findSubscriptionPayments(
+    plantId: string,
+    planId: string
+  ): Promise<ISubscriptionPaymentDocument[] | null> {
+    return await this.model.find({
+      wasteplantId: plantId,
+      planId,
+    });
+  }
+  async findSubscriptionPaymentById(id: string) {
+    return await this.model.findById(id);
+  }
+  async updateSubscriptionPaymentById(
+    id: string,
+    paymentUpdate: PaymentUpdate
+  ): Promise<ISubscriptionPaymentDocument> {
+    const updatedData = await this.model.findByIdAndUpdate(
+      {
+        _id: new mongoose.Types.ObjectId(id),
+      },
+      {
+        $set: paymentUpdate,
+      },
+      { new: true }
+    );
+    if (!updatedData) {
+      throw new Error("Subscription payment not found for update.");
+    }
     return updatedData;
   }
-  async findPaidSubscriptionPayments(){
-    return await this.model.find({status: "Paid"})
+  async findPaidSubscriptionPayments() {
+    return await this.model.find({ status: "Paid" });
   }
-  
+
+  async getAllSubscptnPayments(
+    data: PaginationInput
+  ): Promise<SubscriptionPaymentHisResult> {
+    const { page, limit, search } = data;
+    const skip = (page - 1) * limit;
+    const searchRegex = new RegExp(search, "i");
+    const date = new Date(search);
+    const isValidDate = !isNaN(date.getTime());
+
+    const matchStage: PipelineStage.Match = {
+      $match: {
+        $or: [
+          { status: { $regex: searchRegex } },
+          { method: { $regex: searchRegex } },
+          { "wasteplant.plantName": { $regex: searchRegex } },
+          { "plan.planName": { $regex: searchRegex } },
+          ...(isValidDate
+            ? [
+                {
+                  paidAt: {
+                    $gte: new Date(date.setHours(0, 0, 0, 0)),
+                    $lt: new Date(date.setHours(23, 59, 59, 999)),
+                  },
+                },
+              ]
+            : []),
+          ...(isNaN(Number(search)) ? [] : [{ amount: Number(search) }]),
+        ],
+      },
+    };
+
+    const baseAggregation: PipelineStage[] = [
+      {
+        $lookup: {
+          from: "wasteplants",
+          localField: "wasteplantId",
+          foreignField: "_id",
+          as: "wasteplant",
+        },
+      },
+      { $unwind: "$wasteplant" },
+      {
+        $lookup: {
+          from: "subscriptionplans",
+          localField: "planId",
+          foreignField: "_id",
+          as: "plan",
+        },
+      },
+      { $unwind: "$plan" },
+    ];
+
+    const aggregation: PipelineStage[] = [
+      ...baseAggregation,
+      matchStage,
+      { $sort: { createdAt: -1 } },
+      { $skip: skip },
+      { $limit: limit },
+      {
+        $project: {
+          _id: 1,
+          wasteplantId: "$wasteplant",
+          planId: "$plan",
+          status: 1,
+          method: 1,
+          razorpayOrderId: 1,
+          razorpayPaymentId: 1,
+          razorpaySignature: 1,
+          amount: 1,
+          paidAt: 1,
+          expiredAt: 1,
+        },
+      },
+    ];
+
+    const result = await this.model.aggregate(aggregation);
+
+    const totalAggregation: PipelineStage[] = [
+      ...baseAggregation,
+      matchStage,
+      { $count: "total" },
+    ];
+
+    const totalResult = await this.model.aggregate(totalAggregation);
+    const total = totalResult[0]?.total || 0;
+
+    return { paymentHis: result, total };
+  }
+  async findLatestInProgressPayment(plantId: string) {
+    const payment = await this.model
+      .findOne({
+        wasteplantId: plantId,
+        status: "InProgress",
+      })
+      .sort({ createdAt: -1 });
+    const now = new Date();
+    if (
+      payment &&
+      payment.inProgressExpiresAt &&
+      payment.inProgressExpiresAt < now
+    ) {
+      payment.status = "Pending";
+      payment.inProgressExpiresAt = null;
+      await payment.save();
+      return null;
+    }
+    if (
+      payment &&
+      payment.inProgressExpiresAt &&
+      payment.inProgressExpiresAt > now
+    ) {
+      return payment;
+    }
+    return null;
+  }
 }

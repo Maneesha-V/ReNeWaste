@@ -8,10 +8,18 @@ import {
   updateRefundStatusService,
   verifyPaymentService,
 } from "../../../services/wastePlant/paymentService";
-import { subPaymnetPayload } from "../../../types/subscriptionTypes";
-import { RefundPaymntPayload, retryPaymentData, SubptnVerifyPaymentPayload, UpdateStatusPayload } from "../../../types/paymentTypes";
-import { PaginationPayload } from "../../../types/commonTypes";
-
+import {
+  RefundPaymntPayload,
+  retryPaymentData,
+  SubptnVerifyPaymentPayload,
+} from "../../../types/paymentTypes";
+import { PaginationPayload } from "../../../types/common/commonTypes";
+import { getAxiosErrorMessage } from "../../../utils/handleAxiosError";
+import {
+  RefundStatusUpdateResp,
+  UpdateStatusPayload,
+} from "../../../types/pickupReq/paymentTypes";
+import { RetrySubptnPaymntResp, SubCreatePaymtResp, subPaymnetPayload } from "../../../types/subscriptionPayment/paymentTypes";
 
 interface PaymentState {
   message: string | null;
@@ -52,10 +60,14 @@ export const fetchPayments = createAsyncThunk(
     }
   }
 );
-export const createSubscriptionOrder = createAsyncThunk(
+export const createSubscriptionOrder = createAsyncThunk<
+SubCreatePaymtResp,
+subPaymnetPayload,
+{ rejectValue: {error: string} }
+>(
   "wastePlantPayments/createSubscriptionOrder",
   async (
-    { amount, planId, plantName }: subPaymnetPayload,
+    { amount, planId, plantName },
     { rejectWithValue }
   ) => {
     try {
@@ -65,11 +77,13 @@ export const createSubscriptionOrder = createAsyncThunk(
         plantName,
       });
       return response;
-    } catch (error: any) {
-      console.error("err", error);
-      return rejectWithValue(
-        error.response?.data || "Failed to create payment"
-      );
+    } catch (err) {
+      console.error("err", err);
+      const msg = getAxiosErrorMessage(err);
+      return rejectWithValue({ error: msg });
+      // return rejectWithValue(
+      //   error.response?.data || "Failed to create payment"
+      // );
     }
   }
 );
@@ -97,34 +111,43 @@ export const fetchSubscrptnPayments = createAsyncThunk(
     }
   }
 );
-export const repay = createAsyncThunk(
-  "userPayment/repay",
-  async (
-    { planId, amount, subPaymtId }: retryPaymentData,
-    { rejectWithValue }
-  ) => {
+export const repay = createAsyncThunk<
+RetrySubptnPaymntResp,
+retryPaymentData,
+{ rejectValue: {error : string}}
+>(
+  "wastePlantPayments/repay",
+  async ({ planId, amount, subPaymtId }, { rejectWithValue }) => {
     try {
       const response = await repayService({ planId, amount, subPaymtId });
       return response;
-    } catch (err: any) {
-      return rejectWithValue(err.response?.data || "Fetch payments failed");
+    } catch (err) {
+      // return rejectWithValue(err.response?.data || "Fetch payments failed");
+      const msg = getAxiosErrorMessage(err);
+      return rejectWithValue({ error: msg });
     }
   }
 );
-export const updateRefundStatus = createAsyncThunk(
-   "wastePlantPayments/updateRefundStatus",
-  async ({pickupReqId, status} : UpdateStatusPayload, { rejectWithValue }) => {
+export const updateRefundStatus = createAsyncThunk<
+  RefundStatusUpdateResp,
+  UpdateStatusPayload,
+  { rejectValue: { error: string } }
+>(
+  "wastePlantPayments/updateRefundStatus",
+  async ({ pickupReqId, status }, { rejectWithValue }) => {
     try {
-      const response = await updateRefundStatusService({pickupReqId, status});
+      const response = await updateRefundStatusService({ pickupReqId, status });
       console.log("response", response);
 
       return response;
-    } catch (err: any) {
-      console.error("err",err);
-      return rejectWithValue(err.response?.data || "Fetch payments failed");
+    } catch (err) {
+      console.error("err", err);
+      const msg = getAxiosErrorMessage(err);
+      return rejectWithValue({ error: msg });
+      // return rejectWithValue(err.response?.data || "Fetch payments failed");
     }
   }
-)
+);
 
 export const triggerPickupRefund = createAsyncThunk(
   "wastePlantPayments/triggerPickupRefund",
@@ -134,16 +157,14 @@ export const triggerPickupRefund = createAsyncThunk(
   ) => {
     try {
       const response = await triggerPickupRefundService({
-      pickupReqId,
-      amount,
-      razorpayPaymentId
+        pickupReqId,
+        amount,
+        razorpayPaymentId,
       });
       return response;
     } catch (error: any) {
       console.error("err", error);
-      return rejectWithValue(
-        error.response?.data || "Failed to create refund"
-      );
+      return rejectWithValue(error.response?.data || "Failed to create refund");
     }
   }
 );
@@ -151,6 +172,9 @@ const wastePlantPaymentSlice = createSlice({
   name: "wastePlantPayments",
   initialState,
   reducers: {
+    clearPaymentError: (state) => {
+      state.error = null;
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -179,7 +203,7 @@ const wastePlantPaymentSlice = createSlice({
       })
       .addCase(createSubscriptionOrder.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload as string;
+        state.error = (action.payload as { error: string })?.error;
       })
       .addCase(verifySubscriptionPayment.pending, (state) => {
         state.loading = true;
@@ -219,7 +243,7 @@ const wastePlantPaymentSlice = createSlice({
       })
       .addCase(repay.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload as string;
+       state.error = (action.payload as { error: string })?.error;
       })
       .addCase(updateRefundStatus.pending, (state) => {
         state.loading = true;
@@ -227,14 +251,20 @@ const wastePlantPaymentSlice = createSlice({
       })
       .addCase(updateRefundStatus.fulfilled, (state, action) => {
         state.loading = false;
-        state.updatedStatus = action.payload.payment;
+        state.payments = state.payments.filter((p: any) => {
+          if (p._id === action.payload._id) {
+            p.refundStatus = action.payload.refundStatus;
+            p.inProgressExpiresAt = action.payload.inProgressExpiresAt;
+          }
+        });
+        // state.updatedStatus = action.payload.payment;
       })
       .addCase(updateRefundStatus.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload as string;
+        state.error = (action.payload as { error: string })?.error;
       })
-      
-       .addCase(triggerPickupRefund.pending, (state) => {
+
+      .addCase(triggerPickupRefund.pending, (state) => {
         state.loading = true;
         state.error = null;
         state.refundOrder = null;
@@ -247,9 +277,10 @@ const wastePlantPaymentSlice = createSlice({
       .addCase(triggerPickupRefund.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
-      })
+      });
   },
 });
 
+export const { clearPaymentError } = wastePlantPaymentSlice.actions;
 
 export default wastePlantPaymentSlice.reducer;

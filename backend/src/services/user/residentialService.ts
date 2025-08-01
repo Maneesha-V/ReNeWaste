@@ -6,6 +6,7 @@ import { inject, injectable } from "inversify";
 import TYPES from "../../config/inversify/types";
 import { IUserRepository } from "../../repositories/user/interface/IUserRepository";
 import { IPickupRepository } from "../../repositories/pickupReq/interface/IPickupRepository";
+import { UpdatedResidentialData } from "../../dtos/user/userDTO";
 
 @injectable()
 export class ResidentialService implements IResidentialService {
@@ -21,10 +22,20 @@ export class ResidentialService implements IResidentialService {
     return user;
   }
 
-  async updateResidentialPickupService(userId: string, updatedData: any) {
+  async updateResidentialPickupService(
+    userId: string,
+    updatedData: UpdatedResidentialData
+  ): Promise<void> {
     const user = await this.userRepository.findUserById(userId);
     if (!user) throw new Error("User not found");
+    const pickupCount =
+      await this.pickupRepository.getMonthlyPickupPlansByUserId(
+        user._id.toString()
+      );
 
+    if (pickupCount.count > 3) {
+      throw new Error("Monthly residential pickup limit exceeded.");
+    }
     const updatedUser = await this.userRepository.updatePartialProfileById(
       userId,
       updatedData
@@ -36,28 +47,27 @@ export class ResidentialService implements IResidentialService {
       const latestAddress = addressList[addressList.length - 1] as IAddress & {
         _id: Types.ObjectId;
       };
-      console.log("latestAddress", latestAddress);
-
       if (!latestAddress || !latestAddress._id)
         throw new Error("Address ID not found");
-      
+
       addressIdToUse = new Types.ObjectId(latestAddress._id);
     } else if (updatedData.selectedAddressId) {
       addressIdToUse = new Types.ObjectId(updatedData.selectedAddressId);
     } else {
       throw new Error("No address provided or selected.");
     }
+
     const newPickuData = {
       userId: new Types.ObjectId(userId),
       wasteplantId: user?.wasteplantId,
       addressId: addressIdToUse,
       wasteType: updatedData.wasteType,
-      originalPickupDate: updatedData.pickupDate,
+      originalPickupDate: new Date(updatedData.pickupDate),
       pickupTime: updatedData.pickupTime,
       status: "Pending",
     };
-    const newPickupReq: IPickupRequestDocument =
-      await this.pickupRepository.createPickup(newPickuData);
-    return { user: updatedUser, pickupRequest: newPickupReq };
+
+    await this.pickupRepository.createPickup(newPickuData);
   }
+
 }

@@ -1,8 +1,9 @@
 import axiosSuperadmin from "../../api/axiosSuperadmin";
-import { SubsptnPlanData, updateSubscptnData } from "../../types/subscriptionTypes";
+import { SubsptnPlans } from "../../types/subscription/subscriptionTypes";
+import { updateSubscptnData } from "../../types/subscriptionTypes";
 
 export const createSubscriptionPlanService = async (
-  subscptnPlanData: SubsptnPlanData
+  subscptnPlanData: SubsptnPlans
 ) => {
   try {
     const response = await axiosSuperadmin.post(

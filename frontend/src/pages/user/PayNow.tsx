@@ -8,12 +8,16 @@ import { useAppDispatch } from "../../redux/hooks";
 import { RootState } from "../../redux/store";
 import { useSelector } from "react-redux";
 import {
+  clearPaymentError,
   createPaymentOrder,
   verifyPayment,
 } from "../../redux/slices/user/userPaymentSlice";
 import { toast } from "react-toastify";
 import Swal from "sweetalert2";
-import { fetchtPickupPlans } from "../../redux/slices/user/userPickupSlice";
+import {
+  fetchtPickupPlans,
+  updatePickupPaymentStatus,
+} from "../../redux/slices/user/userPickupSlice";
 import { PayNowProps } from "../../types/userTypes";
 
 const PayNow = ({ onClose }: PayNowProps) => {
@@ -22,27 +26,49 @@ const PayNow = ({ onClose }: PayNowProps) => {
 
   const pickup = useSelector((state: RootState) => state.userPayment.pickup);
   const amount = useSelector((state: RootState) => state.userPayment.amount);
-
+ const { paymentOrder, error } = useSelector(
+    (state: RootState) => state.userPayment
+  );
+  console.log("paymentOrder", paymentOrder);
   console.log("pickup", pickup);
   console.log("amount", amount);
   console.log("pickupId", pickup._id);
+useEffect(() => {
+  if (error) {
+    Swal.fire({
+      icon: "error",
+      title: "Payment Error",
+      text: error,
+      confirmButtonColor: "#d33",
+    }).then(() => {
+      dispatch(clearPaymentError());
+      if (
+        error.includes("already in progress")
+      ) {
+        onClose();
+      }
+    })
+    
+  }
+}, [error, dispatch, onClose]);
   useEffect(() => {
-    if (!pickup || !amount) {
-      navigate("/pickup-plans", { replace: true });
-    }
-  }, [pickup, amount, navigate]);
+    const initiatePayment = async () => {
+      if (!pickup || !amount) {
+        navigate("/pickup-plans", { replace: true });
+        return;
+      }
+      const pickupReqId = pickup._id;
 
-  const pickupReqId = pickup?._id;
-  useEffect(() => {
-    if (pickup && amount) {
-      console.log("Dispatching with:", { amount, pickupReqId });
-      dispatch(createPaymentOrder({ amount, pickupReqId }));
-    }
-  }, [dispatch, pickup, amount]);
-  const paymentOrder = useSelector(
-    (state: RootState) => state.userPayment.paymentOrder
-  );
-  console.log("paymentOrder", paymentOrder);
+      if(pickupReqId) {
+        console.log("Dispatching payment:", { amount, pickupReqId });
+        await dispatch(createPaymentOrder({ amount, pickupReqId })).unwrap();
+      }
+      // onClose(); 
+    };
+
+    initiatePayment();
+  }, [pickup, amount, navigate, dispatch, onClose]);
+ 
 
   const loadRazorpayScript = () => {
     return new Promise((resolve, reject) => {
@@ -63,10 +89,10 @@ const PayNow = ({ onClose }: PayNowProps) => {
     if (paymentOrder) {
       const options = {
         key: import.meta.env.VITE_RAZORPAY_KEY_ID,
-        amount: paymentOrder.amount,
+        amount: paymentOrder.amount * 100,
         currency: paymentOrder.currency,
-        name: "Your Company Name",
-        description: "Pickup Payment",
+        name: "Renewaste",
+        description: "Payment for pickup request",
         order_id: paymentOrder.orderId,
         handler: function (response: any) {
           console.log("response", response);
@@ -84,22 +110,30 @@ const PayNow = ({ onClose }: PayNowProps) => {
             })
           )
             .unwrap()
-            .then(() => {
+            .then((res) => {
+              dispatch(
+                updatePickupPaymentStatus({
+                  pickupReqId: res.updatedPayment.pickupReqId,
+                  updatedPayment: res.updatedPayment.payment,
+                })
+              );
+              dispatch(fetchtPickupPlans())
               Swal.fire({
                 icon: "success",
                 title: "Payment Successful!",
-                text: "Your payment was verified successfully.",
+                text: res.message || "Your payment was verified successfully.",
                 confirmButtonColor: "#28a745",
               }).then(() => {
                 onClose();
-                dispatch(fetchtPickupPlans());
               });
             })
-            .catch(() => {
+            .catch((err) => {
               Swal.fire({
                 icon: "error",
                 title: "Payment Failed",
-                text: "Payment verification failed. Please try again.",
+                text:
+                  err?.error ||
+                  "Payment verification failed. Please try again.",
                 confirmButtonColor: "#d33",
               });
             });
@@ -203,10 +237,10 @@ const PayNow = ({ onClose }: PayNowProps) => {
                   <span className="font-medium">Location:</span>{" "}
                   {pickup?.address?.location}
                 </p>
-                <p>
+                {/* <p>
                   <span className="font-medium">Taluk:</span>{" "}
                   {pickup?.address?.taluk}
-                </p>
+                </p> */}
               </div>
 
               {/* Right Address Column */}
@@ -233,7 +267,7 @@ const PayNow = ({ onClose }: PayNowProps) => {
               Amount to Pay: ₹{amount}
             </p>
             <button
-              className="bg-green-600 hover:bg-green-700 text-white font-semibold px-6 py-2 rounded w-full"
+              className="bg-green-600 hover:bg-green-700 text-white font-semibold px-6 py-2 rounded w-full cursor-pointer"
               onClick={handlePayment}
             >
               Pay ₹{amount} Now

@@ -15,6 +15,7 @@ import {
 import Unauthorized from "../pages/driver/Unauthorized";
 import NotFoundPage from "../pages/driver/NotFoundPage";
 import DriverChat from "../pages/driver/DriverChat";
+import Support from "../pages/driver/Support";
 
 const DriverRoutes = () => {
   return (
@@ -35,6 +36,7 @@ const DriverRoutes = () => {
           <Route path="/track-pickup/:pickupReqId" element={<TrackPickup />} />
           <Route path="/assigned-trucks" element={<AssignedTrucks />} />        
           <Route path="/chat" element={<DriverChat />} />
+          <Route path="/support" element={<Support />} />
         </Route>
       </Route>
       

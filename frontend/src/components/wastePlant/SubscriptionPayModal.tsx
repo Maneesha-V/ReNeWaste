@@ -97,6 +97,11 @@ const SubscriptionPayModal = ({
               Swal.fire("Error", "Payment verification failed.", "error");
             });
         },
+        modal: {
+          ondismiss: function () {
+            onClose();
+          },
+        },
         prefill: {
           name: plan.plantName,
         },

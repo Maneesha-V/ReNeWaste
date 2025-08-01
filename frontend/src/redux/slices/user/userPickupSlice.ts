@@ -5,9 +5,11 @@ import {
   getUserPickups,
 } from "../../../services/user/pickupService";
 import { PickupCancelData } from "../../../types/wastePlantTypes";
+import { PickupPlansResp } from "../../../types/pickupReq/pickupTypes";
+import { getAxiosErrorMessage } from "../../../utils/handleAxiosError";
 
 interface PickupState {
-  pickups: any;
+  pickups: PickupPlansResp[];
   selectedPickup: any;
   eta: string | null;
   loading: boolean;
@@ -23,17 +25,20 @@ const initialState: PickupState = {
   message: null,
   error: null,
 };
-export const fetchtPickupPlans = createAsyncThunk(
-  "userPickups/fetchtPickupPlans",
-  async (_, { rejectWithValue }) => {
-    try {
-      const response = await getUserPickups();
-      return response;
-    } catch (error: any) {
-      return rejectWithValue(error.response?.data || "Failed to fetch pickups");
-    }
+export const fetchtPickupPlans = createAsyncThunk<
+  PickupPlansResp[],
+  void,
+  { rejectValue: { error: string } }
+>("userPickups/fetchtPickupPlans", async (_, { rejectWithValue }) => {
+  try {
+    const response = await getUserPickups();
+    return response;
+  } catch (err) {
+    const msg = getAxiosErrorMessage(err);
+    return rejectWithValue({ error: msg });
+    // return rejectWithValue(error.response?.data || "Failed to fetch pickups");
   }
-);
+});
 export const cancelPickupPlan = createAsyncThunk(
   "userPickups/cancelPickupPlan",
   async (pickupReqId: string, { rejectWithValue }) => {
@@ -62,7 +67,15 @@ export const cancelPickupReq = createAsyncThunk(
 const userPickupSlice = createSlice({
   name: "userPickups",
   initialState,
-  reducers: {},
+  reducers: {
+    updatePickupPaymentStatus: (state, action) => {
+      const { pickupReqId, updatedPayment } = action.payload;
+      const index = state.pickups.findIndex((p: PickupPlansResp) => p._id === pickupReqId);
+      if (index !== -1) {
+        state.pickups[index].payment = updatedPayment;
+      }
+    },
+  },
   extraReducers: (builder) => {
     builder
       .addCase(fetchtPickupPlans.pending, (state) => {
@@ -75,24 +88,21 @@ const userPickupSlice = createSlice({
       })
       .addCase(fetchtPickupPlans.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload as string;
+        state.error =
+          (action.payload as { error: string })?.error ||
+          "Fetch pickup plans failed.";
       })
       .addCase(cancelPickupPlan.rejected, (state, action) => {
         state.error = action.payload as string;
       })
-    .addCase(cancelPickupReq.fulfilled, (state, action) => {
-      console.log("act",action.payload);
-      
-      state.pickups = state.pickups.filter(
-        
-        
-        (pickups: any) => {
-          console.log("pi",pickups);
-          pickups._id !== action.payload
-        }
-      );
-    })
+      .addCase(cancelPickupReq.fulfilled, (state, action) => {
+        state.pickups = state.pickups.filter((pickups: PickupPlansResp) => {
+          pickups._id !== action.payload;
+        });
+      });
   },
 });
+
+export const { updatePickupPaymentStatus } = userPickupSlice.actions;
 
 export default userPickupSlice.reducer;

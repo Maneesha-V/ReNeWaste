@@ -25,11 +25,24 @@ export type PaymentRecord = {
     amount: number;
     paidAt: Date;
     refundRequested?: boolean;
-    refundStatus?: "Pending" | "Processing" |"Refunded" | "Rejected" | null;
+    refundStatus?: "Pending" | "Processing" | "Refunded" | "Rejected" | null;
     refundAt?: Date;
+    inProgressExpiresAt: Date;
   };
   driverName?: string;
   userName?: string;
   dueDate: Date;
 };
 
+// export type SavePaymentReq = {
+//   paymentData: {
+//     status: "Paid";
+//     razorpayOrderId: string;
+//     razorpayPaymentId: string;
+//     razorpaySignature: string;
+//     amount: number;
+//     paidAt: Date;
+//   };
+//   pickupReqId: string;
+//   userId: string;
+// };

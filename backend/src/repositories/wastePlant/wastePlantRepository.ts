@@ -10,14 +10,19 @@ import BaseRepository from "../baseRepository/baseRepository";
 import { IWastePlantRepository } from "./interface/IWastePlantRepository";
 import TYPES from "../../config/inversify/types";
 import { IOtpRepository } from "../otp/interface/IOtpRepository";
+import { PaginationInput } from "../../dtos/common/commonDTO";
+import { Number } from "mongoose";
 
 @injectable()
-export class WastePlantRepository extends BaseRepository<IWastePlantDocument> implements IWastePlantRepository {
+export class WastePlantRepository
+  extends BaseRepository<IWastePlantDocument>
+  implements IWastePlantRepository
+{
   constructor(
     @inject(TYPES.OtpRepository)
     private otpRepository: IOtpRepository
-  ){
-    super(WastePlantModel)
+  ) {
+    super(WastePlantModel);
   }
   async createWastePlant(data: IWastePlant): Promise<IWastePlantDocument> {
     try {
@@ -47,20 +52,44 @@ export class WastePlantRepository extends BaseRepository<IWastePlantDocument> im
     return await this.model.findOne({ plantName });
   }
 
-  async getAllWastePlants(): Promise<IWastePlantDocument[] | null> {
-    return await this.model.find({isDeleted: false});
+  async getAllWastePlants(data: PaginationInput) {
+    const { page, limit, search } = data;
+    const searchRegex = new RegExp(search, "i");
+    const query: any = {
+      isDeleted: false,
+      $or: [
+        { plantName: { $regex: searchRegex } },
+        { location: { $regex: searchRegex } },
+        { subscriptionPlan: { $regex: searchRegex } },
+        { contactNo: { $regex: searchRegex } },
+        { status: { $regex: searchRegex } },
+      ],
+    };
+    if (!isNaN(Number(search))) {
+      query.$or.push({ capacity: Number(search) });
+    }
+    const skip = (page - 1) * limit;
+
+    const wasteplants = await this.model
+      .find(query)
+      .skip(skip)
+      .limit(limit)
+      .sort({ createdAt: -1 });
+
+    const total = await this.model.countDocuments(query);
+    return { wasteplants, total };
   }
   async getWastePlantById(id: string) {
     return await this.model.findById(id);
   }
   async updateWastePlantById(
     id: string,
-    data: any
+    data: IWastePlant
   ): Promise<IWastePlant | null> {
     return await this.model.findByIdAndUpdate(id, data, { new: true });
   }
   async saveOtp(email: string, otp: string): Promise<void> {
-    await this.otpRepository.saveOtp( email, otp);
+    await this.otpRepository.saveOtp(email, otp);
   }
   async reSaveOtp(email: string, otp: string): Promise<void> {
     await this.otpRepository.reSaveOtp(email, otp);
@@ -83,25 +112,27 @@ export class WastePlantRepository extends BaseRepository<IWastePlantDocument> im
   }
   async findByPincode(pincode: string): Promise<void> {
     await this.model.findOne({
-      servicePincodes: pincode
+      servicePincodes: pincode,
     });
   }
   async deleteWastePlantById(id: string) {
     const updatedPlant = await this.model.findByIdAndUpdate(
       id,
-      {isDeleted: true, status: "Inactive"},
-      {new : true}
-    )
-    if(!updatedPlant){
+      { isDeleted: true, status: "Inactive" },
+      { new: true }
+    );
+    if (!updatedPlant) {
       throw new Error("Plant not found");
     }
     return updatedPlant;
   }
-  async getAllActiveWastePlants(){
-    return await this.model.find({status: "Active"})
+  async getAllActiveWastePlants() {
+    return await this.model.find({ status: "Active" });
   }
   async updatePlantStatus(plantId: string, status: string): Promise<void> {
     await this.model.findByIdAndUpdate(plantId, { status });
   }
+  async getTotalWastePlants(): Promise<number> {
+    return await this.model.countDocuments();
+  }
 }
-

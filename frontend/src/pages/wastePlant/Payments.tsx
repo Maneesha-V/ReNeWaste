@@ -2,6 +2,7 @@ import { Table } from "antd";
 import { useCallback, useEffect, useState } from "react";
 import { useAppDispatch } from "../../redux/hooks";
 import {
+  clearPaymentError,
   fetchPayments,
   triggerPickupRefund,
   updateRefundStatus,
@@ -24,10 +25,22 @@ const Payments = () => {
   const [refundModalVisible, setRefundModalVisible] = useState(false);
 
   const dispatch = useAppDispatch();
-
+ const { payments, total, error } = useSelector(
+    (state: RootState) => state.wastePlantPayments
+  );
   const { currentPage, setCurrentPage, pageSize, search, setSearch } =
     usePagination();
-
+  useEffect(() => {
+    if (error) {
+      Swal.fire({
+        icon: "error",
+        title: "Retry Failed",
+        text: error,
+        confirmButtonColor: "#d33",
+      });
+      dispatch(clearPaymentError());
+    }
+  }, [error, dispatch]);
   const debouncedFetchPayments = useCallback(
     debounce((page: number, limit: number, query: string) => {
       dispatch(fetchPayments({ page, limit, search: query }));
@@ -45,10 +58,7 @@ const Payments = () => {
       debouncedFetchPayments.cancel();
     };
   }, [currentPage, pageSize, search, debouncedFetchPayments]);
-
-  const { payments, total } = useSelector(
-    (state: RootState) => state.wastePlantPayments
-  );
+ 
   console.log("payments", payments);
   console.log("total", total);
   const dataWithSerial = payments.map((item: PaymentRecord, index: number) => ({
@@ -57,6 +67,11 @@ const Payments = () => {
     serial: index + 1,
   }));
   const viewRefundDetails = (record: PaymentRecord) => {
+ const status = record?.payment?.refundStatus;
+  const inProgressExpiresAt = record?.payment?.inProgressExpiresAt;
+console.log("status", status);
+  console.log("inProgressExpiresAt", inProgressExpiresAt);
+  
     setSelectedRecord(record);
     setRefundModalVisible(true);
   };

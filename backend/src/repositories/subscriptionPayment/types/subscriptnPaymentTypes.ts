@@ -12,5 +12,6 @@ export type CreateSubsptnPaymentPayload = {
     refundRequested: boolean;
     refundStatus: string | null;
     refundAt: Date | null;
+    inProgressExpiresAt: Date | null;
   }
 }

@@ -1,11 +1,13 @@
+import { PaginationInput } from "../../../dtos/common/commonDTO";
+import { AddWastePlantResult, PaginatedReturnAdminWastePlants, ReturnAdminWastePlant } from "../../../dtos/wasteplant/WasteplantDTO";
 import { IWastePlant } from "../../../models/wastePlant/interfaces/wastePlantInterface";
-import { notificationPayload, ReturnAdminWastePlant } from "../../../types/superAdmin/wastePlantTypes";
+import { notificationPayload, ReturnDeleteWP } from "../../../types/superAdmin/wastePlantTypes";
 
 export interface IWastePlantService {
-    addWastePlant(data: IWastePlant): Promise<IWastePlant>;
-    getAllWastePlants(): Promise<ReturnAdminWastePlant[]>;
+    addWastePlant(data: IWastePlant): Promise<AddWastePlantResult>;
+    getAllWastePlants(data: PaginationInput): Promise<PaginatedReturnAdminWastePlants>;
     getWastePlantByIdService(id: string): Promise<IWastePlant | null>;
-    updateWastePlantByIdService(id: string,data: any): Promise<IWastePlant | null>;
-    deleteWastePlantByIdService(id: string): Promise<IWastePlant | null>;
+    updateWastePlantByIdService(id: string,data: IWastePlant): Promise<IWastePlant | null>;
+    deleteWastePlantByIdService(id: string): Promise<ReturnDeleteWP>;
     sendSubscribeNotification(data: notificationPayload): Promise<any>;
   }

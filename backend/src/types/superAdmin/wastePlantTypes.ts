@@ -1,5 +1,8 @@
 import { IWastePlantDocument } from "../../models/wastePlant/interfaces/wastePlantInterface";
 
+export type ReturnDeleteWP = {
+  plantId: string;
+};
 export type notificationPayload = {
   plantId: string;
   adminId: string;

@@ -15,7 +15,9 @@ import {
   MarkTruckReturnResult,
 } from "../../types/driver/truckTypes";
 import { INotificationRepository } from "../notification/interface/INotifcationRepository";
-import { ReturnFetchAllDriversByPlantId } from "./types/driverTypes";
+import {
+  ReturnFetchAllDriversByPlantId,
+} from "./types/driverTypes";
 
 @injectable()
 export class DriverRepository
@@ -101,11 +103,11 @@ export class DriverRepository
   async deleteDriverById(driverId: string) {
     const updatedDriver = await this.model.findByIdAndUpdate(
       driverId,
-      {isDeleted: true, status: "Inactive"},
-      {new: true}
-    )
-    if(!updatedDriver){
-      throw new Error("Driver not found.")
+      { isDeleted: true, status: "Inactive" },
+      { new: true }
+    );
+    if (!updatedDriver) {
+      throw new Error("Driver not found.");
     }
     return updatedDriver;
   }
@@ -219,7 +221,9 @@ export class DriverRepository
 
     return { driver, truck };
   }
-  async fetchAllDriversByPlantId(wastePlantId: string): Promise<ReturnFetchAllDriversByPlantId> {
+  async fetchAllDriversByPlantId(
+    wastePlantId: string
+  ): Promise<ReturnFetchAllDriversByPlantId> {
     const driverCounts = await this.model.aggregate([
       {
         $match: {
@@ -247,5 +251,8 @@ export class DriverRepository
     }
 
     return { active, inactive, suspended };
+  }
+  async getTotalDrivers(): Promise<number> {
+    return await this.model.countDocuments();
   }
 }

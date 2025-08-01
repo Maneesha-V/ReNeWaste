@@ -7,6 +7,7 @@ import { fetchSubscriptionPlan } from "../../redux/slices/wastePlant/wastePlantS
 import SubscriptionPayModal from "../../components/wastePlant/SubscriptionPayModal";
 import { SubcptnPaymtPayload } from "../../types/subscriptionTypes";
 import {
+  clearPaymentError,
   fetchSubscrptnPayments,
   repay,
   verifySubscriptionPayment,
@@ -14,6 +15,7 @@ import {
 import Swal from "sweetalert2";
 import { toast } from "react-toastify";
 import { loadRazorpayScript } from "../../utils/razorpayUtils";
+import { RazorpayResponse } from "../../types/pickupReq/paymentTypes";
 
 const { Title } = Typography;
 
@@ -29,23 +31,19 @@ const Subscription = () => {
     userLimit: 0,
   });
   const [paymentRows, setPaymentRows] = useState<any[]>([]);
-  const subscriptionPlan = useSelector(
+
+  const { subscriptionData, plantData } = useSelector(
     (state: RootState) => state.wastePlantSubscription.selectedPlan
   );
-  const subscriptionData = subscriptionPlan?.subscriptionData;
-  const plantData = subscriptionPlan?.plantData;
-  console.log("subscriptionData", subscriptionData);
-  console.log("plantData", plantData);
-  
+  const { payments, error } = useSelector(
+    (state: RootState) => state.wastePlantPayments
+  );
+
   useEffect(() => {
     dispatch(fetchSubscriptionPlan());
     dispatch(fetchSubscrptnPayments());
   }, [dispatch]);
 
-  const payments = useSelector(
-    (state: RootState) => state.wastePlantPayments.payments
-  );
-  console.log("payments", payments);
   useEffect(() => {
     if (payments?.paymentData?.length) {
       setPaymentRows(
@@ -56,10 +54,21 @@ const Subscription = () => {
       );
     }
   }, [payments]);
+  useEffect(() => {
+    if (error) {
+      Swal.fire({
+        icon: "error",
+        title: "Retry Failed",
+        text: error,
+        confirmButtonColor: "#d33",
+      });
+      dispatch(clearPaymentError());
+    }
+  }, [error, dispatch]);
   const handleViewDetails = () => {
-    if (subscriptionPlan.subscriptionData) {
+    if (subscriptionData) {
       const { truckLimit, driverLimit, userLimit, description } =
-        subscriptionPlan.subscriptionData;
+        subscriptionData;
       setViewData({ truckLimit, driverLimit, userLimit, description });
       setIsModalVisible(true);
     }
@@ -76,18 +85,13 @@ const Subscription = () => {
     subPaymtId: string,
     billingCycle: string
   ) => {
-    console.log("billingCycle", billingCycle);
+  
+    const response = await dispatch(
+      repay({ planId, amount, subPaymtId })
+    ).unwrap();
 
-    const response = await dispatch(repay({ planId, amount, subPaymtId }));
-    console.log("respp", response);
-
-    const {
-      orderId,
-      amount: repayAmt,
-      currency,
-      planId: subPlanId,
-    } = response.payload;
-    console.log("razorpayOrderId", repayAmt, orderId);
+    const { orderId, amount: repayAmt, currency, planId: subPlanId } = response;
+ 
     const res = await loadRazorpayScript();
     if (!res) {
       toast("Razorpay SDK failed to load.");
@@ -101,7 +105,7 @@ const Subscription = () => {
         name: "Your Company Name",
         description: "Payment for Pickup Request",
         order_id: orderId,
-        handler: function (response: any) {
+        handler: function (response: RazorpayResponse) {
           console.log("Payment successful", response);
           const { razorpay_order_id, razorpay_payment_id, razorpay_signature } =
             response;
@@ -135,19 +139,22 @@ const Subscription = () => {
               });
             });
         },
+        modal: {
+          ondismiss: function () {
+            setIsPayNowModalOpen(false);
+          },
+        },
         prefill: {
           name: "Your Name",
           email: "your-email@example.com",
           contact: "9999999999",
-        },
-        notes: {
-          // You can add additional notes if needed
-        },
+        }
       };
 
       const razorpay = new (window as any).Razorpay(options);
       razorpay.open();
     }
+
   };
   const subActionColumn = {
     title: "Action",
@@ -160,9 +167,9 @@ const Subscription = () => {
       const hasPendingPayment = payments?.paymentData?.some(
         (p: any) => p.status?.trim().toLowerCase() === "pending"
       );
-       const hasSuccessfulPayment = payments?.paymentData?.some(
-      (p: any) => p.status?.trim().toLowerCase() === "paid"
-    );
+      const hasSuccessfulPayment = payments?.paymentData?.some(
+        (p: any) => p.status?.trim().toLowerCase() === "paid"
+      );
       if (!isAfter24Hours) {
         return (
           <span style={{ color: "#8c8c8c" }}>Pay available after 24h</span>
@@ -173,12 +180,12 @@ const Subscription = () => {
         return <span style={{ color: "#fa8c16" }}>Payment Pending</span>;
       }
       if (hasSuccessfulPayment && plantData?.status === "Active") {
-      return (
-        <span style={{ color: "#52c41a", fontWeight: "bold" }}>
-          Subscribed
-        </span>
-      );
-    }
+        return (
+          <span style={{ color: "#52c41a", fontWeight: "bold" }}>
+            Subscribed
+          </span>
+        );
+      }
       return (
         <Space>
           <Button
@@ -225,26 +232,24 @@ const Subscription = () => {
       // );
     },
   };
-  
 
-const firstPayment = payments?.paymentData?.[0];
-const expiredAt = firstPayment?.expiredAt || null;
+  const firstPayment = payments?.paymentData?.[0];
+  const expiredAt = firstPayment?.expiredAt || null;
 
-
- const expiryColumn = {
-  title: "Expired At",
-  dataIndex: "expiryDate",
-  key: "expiryDate",
-  render: (_: any, record: any) => {
-    console.log("record",record);
-    const expiryDate = record.expiredAt
-    return (
-      <span style={{ color: "red", fontWeight: "bold" }}>
-        {expiryDate ? new Date(expiryDate).toLocaleDateString() : "N/A"}
-      </span>
-    );
-  }
-};
+  const expiryColumn = {
+    title: "Expired At",
+    dataIndex: "expiryDate",
+    key: "expiryDate",
+    render: (_: any, record: any) => {
+      console.log("record", record);
+      const expiryDate = record.expiredAt;
+      return (
+        <span style={{ color: "red", fontWeight: "bold" }}>
+          {expiryDate ? new Date(expiryDate).toLocaleDateString() : "N/A"}
+        </span>
+      );
+    },
+  };
 
   const subPlanColumns = [
     {
@@ -408,6 +413,7 @@ const expiredAt = firstPayment?.expiredAt || null;
         rowKey="_id"
         pagination={false}
         bordered
+        scroll={{ x: 'max-content' }}
       />
       <Title level={4} style={{ marginTop: "32px" }}>
         Payment History
@@ -424,6 +430,7 @@ const expiredAt = firstPayment?.expiredAt || null;
         rowKey="_id"
         bordered
         pagination={{ pageSize: 5 }}
+        scroll={{ x: 'max-content' }}
       />
       <Modal
         title="Subscription Details"

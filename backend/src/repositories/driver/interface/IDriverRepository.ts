@@ -46,4 +46,5 @@ export interface IDriverRepository {
     driverId: string
   ): Promise<MarkTruckReturnResult>;
   fetchAllDriversByPlantId(wastePlantId: string): Promise<ReturnFetchAllDriversByPlantId>;
+  getTotalDrivers(): Promise<number>;
 }

@@ -1,7 +1,7 @@
 import { Types } from "mongoose";
 
 export interface IPayment {
-  status: 'Pending' | 'Paid' | 'Failed';
+  status: "Pending" | "InProgress" | "Paid" | "Failed";
   method: string;
   razorpayOrderId: string | null;
   razorpayPaymentId: string | null;
@@ -9,10 +9,11 @@ export interface IPayment {
   amount: number;
   paidAt: Date | null;
   refundRequested: boolean;
-  refundStatus: "Pending" | "Processing"| "Refunded" | "Rejected" | null;
+  refundStatus: "Pending" | "Processing" | "Refunded" | "Rejected" | null;
   refundAt: Date | null;
   razorpayRefundId: string | null;
+  inProgressExpiresAt: Date | null;
 }
- export interface IPaymentDocument extends IPayment, Document {
-      _id: Types.ObjectId;
-    }
+export interface IPaymentDocument extends IPayment, Document {
+  _id: Types.ObjectId;
+}

@@ -10,8 +10,6 @@ import {
   FetchPaymentPayload,
   PaginatedPaymentsResult,
   RefundDataReq,
-  RetryPaymntPayload,
-  ReturnRetryPaymntPayload,
   ReturnSubcptnPaymentResult,
   ReurnSubcptnCreatePaymt,
   SubCreatePaymtPayload,
@@ -24,6 +22,16 @@ import { ISubscriptionPaymentDocument } from "../../models/subsptnPayment/interf
 import { ISubscriptionPlanRepository } from "../../repositories/subscriptionPlan/interface/ISubscriptionPlanRepository";
 import { INotificationRepository } from "../../repositories/notification/interface/INotifcationRepository";
 import { ISuperAdminRepository } from "../../repositories/superAdmin/interface/ISuperAdminRepository";
+import {
+  RefundStatusUpdateResp,
+  UpdateStatusReq,
+} from "../../dtos/pickupReq/paymentDTO";
+import {
+  RetrySubPaymntReq,
+  RetrySubPaymntRes,
+  SubCreatePaymtReq,
+  SubCreatePaymtResp,
+} from "../../dtos/subscription/subscptnPaymentDTO";
 
 @injectable()
 export class PaymentService implements IPaymentService {
@@ -63,8 +71,8 @@ export class PaymentService implements IPaymentService {
   }
 
   async createPaymentOrder(
-    data: SubCreatePaymtPayload
-  ): Promise<ReurnSubcptnCreatePaymt> {
+    data: SubCreatePaymtReq
+  ): Promise<SubCreatePaymtResp> {
     const { plantId, planId, amount, plantName } = data;
     const plant = await this.wastePlantRepository.findWastePlantByName(
       plantName
@@ -82,6 +90,31 @@ export class PaymentService implements IPaymentService {
     if (!existingPlan || existingPlan.status !== "Active") {
       throw new Error("This subscription plan is not active.");
     }
+    const existingInProgressPayment =
+      await this.subscriptionPaymentRepository.findLatestInProgressPayment(
+        plantId
+      );
+
+    const now = new Date();
+    if (
+      existingInProgressPayment &&
+      existingInProgressPayment.status === "InProgress" &&
+      existingInProgressPayment.inProgressExpiresAt &&
+      existingInProgressPayment.inProgressExpiresAt > now
+    ) {
+      const remainingMinutes = Math.ceil(
+        (existingInProgressPayment.inProgressExpiresAt.getTime() -
+          now.getTime()) /
+          1000 /
+          60
+      );
+      throw new Error(
+        `A payment is already in progress. Please try again after ${remainingMinutes} minutes.`
+      );
+    }
+
+    const newExpiry = new Date(Date.now() + 5 * 60 * 1000);
+
     const order = await this.razorpay.orders.create({
       amount: amount * 100,
       currency: "INR",
@@ -99,7 +132,7 @@ export class PaymentService implements IPaymentService {
         amount,
         paymentDetails: {
           method: "Razorpay",
-          status: "Pending",
+          status: "InProgress",
           razorpayOrderId: order.id,
           razorpayPaymentId: null,
           razorpaySignature: null,
@@ -107,6 +140,7 @@ export class PaymentService implements IPaymentService {
           refundRequested: false,
           refundStatus: null,
           refundAt: null,
+          inProgressExpiresAt: newExpiry,
         },
       });
     return {
@@ -121,7 +155,7 @@ export class PaymentService implements IPaymentService {
     data: VerifyPaymtPayload
   ): Promise<ISubscriptionPaymentDocument> {
     const { paymentData, plantId } = data;
-console.log("paymentData",paymentData);
+    console.log("paymentData", paymentData);
 
     const body = `${paymentData.razorpay_order_id}|${paymentData.razorpay_payment_id}`;
     const expectedSignature = crypto
@@ -158,17 +192,17 @@ console.log("paymentData",paymentData);
         paymentUpdate,
         plantId,
       });
-      const plant = await this.wastePlantRepository.getWastePlantById(plantId);
-      if(!plant){
-        throw new Error("Plant not found to update status to Active.")
-      }
-      plant.status = "Active"
-      await plant.save();
-      const admin = await this.superAdminRepository.findAdminByRole("superadmin")
-      if(!admin){
-        throw new Error("Superadmin not found.")
-      }
- const io = global.io;
+    const plant = await this.wastePlantRepository.getWastePlantById(plantId);
+    if (!plant) {
+      throw new Error("Plant not found to update status to Active.");
+    }
+    plant.status = "Active";
+    await plant.save();
+    const admin = await this.superAdminRepository.findAdminByRole("superadmin");
+    if (!admin) {
+      throw new Error("Superadmin not found.");
+    }
+    const io = global.io;
 
     const adminId = admin._id.toString();
     const adminMessage = `${plant.plantName} has successfully recharged their subscription plan (${plant.subscriptionPlan}, ${paymentData.billingCycle}).`;
@@ -210,14 +244,31 @@ console.log("paymentData",paymentData);
         plantId,
         subptnPlanData._id.toString()
       );
-      if(!paymentData){
-        throw new Error("Subscription paymnets not found.")
+    if (!paymentData) {
+      throw new Error("Subscription paymnets not found.");
+    }
+    const now = new Date();
+
+    let updated = false;
+    paymentData.sort((a, b) => {
+      const dateA = a.expiredAt ? new Date(a.expiredAt).getTime() : 0;
+      const dateB = b.expiredAt ? new Date(b.expiredAt).getTime() : 0;
+      return dateB - dateA;
+    });
+    for (const payment of paymentData) {
+      if (
+        !updated &&
+        payment.status === "InProgress" &&
+        payment.inProgressExpiresAt &&
+        payment.inProgressExpiresAt < now
+      ) {
+        payment.status = "Pending";
+        payment.inProgressExpiresAt = null;
+        await payment.save();
+        updated = true;
+        break;
       }
-      paymentData.sort((a, b) => {
-  const dateA = a.expiredAt ? new Date(a.expiredAt).getTime(): 0;
-  const dateB = b.expiredAt ? new Date(b.expiredAt).getTime(): 0;
-  return dateB - dateA;  
-});
+    }
     const planData = {
       planName: subptnPlanData.planName,
       plantName: plant.plantName,
@@ -226,8 +277,8 @@ console.log("paymentData",paymentData);
     return { paymentData, planData };
   }
   async retrySubscriptionPayment(
-    data: RetryPaymntPayload
-  ): Promise<ReturnRetryPaymntPayload> {
+    data: RetrySubPaymntReq
+  ): Promise<RetrySubPaymntRes> {
     const { plantId, planId, amount, subPaymtId } = data;
     const subptnPaymentData =
       await this.subscriptionPaymentRepository.findSubscriptionPaymentById(
@@ -236,11 +287,35 @@ console.log("paymentData",paymentData);
     if (!subptnPaymentData) {
       throw new Error("Payment not found.");
     }
+    const now = new Date();
+    if (
+      subptnPaymentData.status === "InProgress" &&
+      subptnPaymentData.inProgressExpiresAt &&
+      subptnPaymentData.inProgressExpiresAt <= now
+    ) {
+      subptnPaymentData.status = "Pending";
+      subptnPaymentData.inProgressExpiresAt = null;
+    }
+    if (
+      subptnPaymentData.status === "InProgress" &&
+      subptnPaymentData.inProgressExpiresAt &&
+      subptnPaymentData.inProgressExpiresAt > now
+    ) {
+      const waitTime = Math.ceil(
+        (subptnPaymentData.inProgressExpiresAt.getTime() - now.getTime()) /
+          60000
+      );
+      throw new Error(
+        `Another payment is in progress. Try again in ${waitTime} minutes.`
+      );
+    }
+
+    const newExpiry = new Date(Date.now() + 5 * 60 * 1000);
 
     const paymentUpdate = {
-      amount: amount * 100,
+      amount: amount,
       method: "Razorpay",
-      status: "Pending",
+      status: "InProgress",
       razorpayOrderId: subptnPaymentData.razorpayOrderId || null,
       razorpayPaymentId: null,
       razorpaySignature: null,
@@ -248,6 +323,7 @@ console.log("paymentData",paymentData);
       refundRequested: false,
       refundStatus: null,
       refundAt: null,
+      inProgressExpiresAt: newExpiry,
     };
 
     const updatedData =
@@ -263,9 +339,14 @@ console.log("paymentData",paymentData);
       amount: updatedData.amount,
       currency: "INR",
       planId: updatedData.planId.toString(),
+      inProgressExpiry: updatedData.inProgressExpiresAt
+        ? updatedData.inProgressExpiresAt?.toISOString()
+        : "",
     };
   }
-  async updateRefundStatusPayment(data: UpdateStatusPayload) {
+  async updateRefundStatusPayment(
+    data: UpdateStatusReq
+  ): Promise<RefundStatusUpdateResp> {
     const { plantId, statusUpdateData } = data;
     const { pickupReqId, status } = statusUpdateData;
     console.log({ data, statusUpdateData });
@@ -276,7 +357,34 @@ console.log("paymentData",paymentData);
     if (pickupReq.wasteplantId?.toString() !== plantId) {
       throw new Error("Not belongs in wasteplant.");
     }
+
+    const currentStatus = pickupReq.payment.refundStatus;
+    const inProgressExpiresAt = pickupReq.payment.inProgressExpiresAt;
+    if (
+      currentStatus === "Processing" &&
+      inProgressExpiresAt &&
+      new Date(inProgressExpiresAt) > new Date()
+    ) {
+      const expireTime = new Date(inProgressExpiresAt).toLocaleTimeString(
+        "en-IN",
+        {
+          hour: "2-digit",
+          minute: "2-digit",
+          hour12: true,
+        }
+      );
+      throw new Error(
+        `Refund is already being processed. Try again after ${expireTime}.`
+      );
+    }
     pickupReq.payment.refundStatus = status;
+    if (status === "Processing") {
+      pickupReq.payment.inProgressExpiresAt = new Date(
+        Date.now() + 5 * 60 * 1000
+      );
+    } else {
+      pickupReq.payment.inProgressExpiresAt = null;
+    }
     await pickupReq.save();
 
     const io = global.io;
@@ -298,7 +406,12 @@ console.log("paymentData",paymentData);
       io.to(`${userId}`).emit("newNotification", userNotification);
     }
 
-    return pickupReq;
+    // return pickupReq;
+    return {
+      _id: pickupReq._id.toString(),
+      refundStatus: pickupReq.payment.refundStatus,
+      inProgressExpiresAt: pickupReq.payment.inProgressExpiresAt,
+    };
   }
   async refundPayment(plantId: string, data: RefundDataReq) {
     const pickupReq = await this.pickupRepository.getPickupById(
