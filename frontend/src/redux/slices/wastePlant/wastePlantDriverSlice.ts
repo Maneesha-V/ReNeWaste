@@ -7,7 +7,7 @@ import {
   getDrivers,
   updateDriverById,
 } from "../../../services/wastePlant/driverService";
-import { PaginationPayload } from "../../../types/commonTypes";
+import { PaginationPayload } from "../../../types/common/commonTypes"
 import { driverLogin } from "../driver/driverSlice";
 
 interface DriverState {
@@ -174,8 +174,6 @@ const wastePlantDriverSlice = createSlice({
         state.error = action.payload as string;
       })
       .addCase(deleteDriver.fulfilled, (state, action) => {
-        console.log("accc",action.payload);
-
         state.message = action.payload.message;
         state.driver = state.driver.filter((d:any)=>{
           return d._id !== action.payload.updatedDriver._id

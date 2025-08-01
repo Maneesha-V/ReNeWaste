@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useSelector } from "react-redux";
-import { Truck, Users, Recycle, DollarSign, Activity } from "lucide-react";
+import { Truck, Users, Recycle, Activity } from "lucide-react";
 import { useAppDispatch } from "../../redux/hooks";
 import { RootState } from "../../redux/store";
 import { fetchDashboardData } from "../../redux/slices/wastePlant/wastePlantDashboardSlice";
@@ -63,10 +63,6 @@ const DashboardWastePlant = () => {
         Waste Plant Dashboard
       </h1>
 
-      {loading ? (
-        <p className="text-green-700">Loading dashboard data...</p>
-      ) : (
-        <>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
             {stats.map((stat, index) => (
               <div
@@ -154,8 +150,7 @@ const DashboardWastePlant = () => {
               </div>
             </div>
           )} */}
-        </>
-      )}
+
     </div>
   );
 };

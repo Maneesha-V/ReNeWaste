@@ -1,5 +1,6 @@
-import { Request, Response } from "express";
+import { NextFunction, Response } from "express";
+import { AuthRequest } from "../../../types/common/middTypes";
 
 export interface IDashboardController {
-    fetchDashboard(req: Request, res: Response): Promise<void>;
+    fetchSuperAdminDashboard(req: AuthRequest, res: Response, next: NextFunction): Promise<void>;
 }

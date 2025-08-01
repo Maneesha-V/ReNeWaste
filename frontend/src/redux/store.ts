@@ -4,6 +4,8 @@ import superadminReducer from "../redux/slices/superAdmin/superAdminSlice";
 import superAdminWastePlantReducer from "../redux/slices/superAdmin/superAdminWastePlantSlice";
 import superAdminSubscriptionPlanReducer from "../redux/slices/superAdmin/superAdminSubscriptionPlanSlice";
 import superAdminNotificationsReducer from "../redux/slices/superAdmin/superAdminNotificationSlice";
+import superAdminPaymentsReducer from "../redux/slices/superAdmin/superAdminPaymentSlice";
+import superAdminDashboardReducer from "../redux/slices/superAdmin/superAdminDashboardSlice";
 
 import wasteplantReducer from "../redux/slices/wastePlant/wastePlantSlice";
 import wastePlantDriverReducer from "../redux/slices/wastePlant/wastePlantDriverSlice";
@@ -17,6 +19,7 @@ import wastePlantNotificationsReducer from "../redux/slices/wastePlant/wastePlan
 import wastePlantPaymentsReducer from "../redux/slices/wastePlant/wastePlantPaymentSlice";
 import wastePlantSubscriptionReducer from "../redux/slices/wastePlant/wastePlantSubscriptionSlice";
 import wastePlantReportsReducer from "../redux/slices/wastePlant/wastePlantReportsSlice";
+import wastePlantProfileReducer from "../redux/slices/wastePlant/wastePlantProfileSlice";
 
 import driverReducer from "../redux/slices/driver/driverSlice";
 import driverProfileReducer from "../redux/slices/driver/profileDriverSlice";
@@ -26,6 +29,7 @@ import driverPickupsReducer from "../redux/slices/driver/pickupDriverSlice";
 import driverTrucksReducer from "../redux/slices/driver/truckDriverSlice";
 import driverChatsReducer from "../redux/slices/driver/chatDriverSlice";
 import driverNotificationsReducer from "../redux/slices/driver/driverNotificationSlice";
+import driverDashboardReducer from "../redux/slices/driver/dashboardDriverSlice";
 
 import  userReducer  from "../redux/slices/user/userSlice";
 import userPickupReducer from "../redux/slices/user/userPickupSlice";
@@ -48,6 +52,8 @@ export const store = configureStore({
         superAdminWastePlant: superAdminWastePlantReducer,
         superAdminSubscriptionPlan: superAdminSubscriptionPlanReducer,
         superAdminNotifications: superAdminNotificationsReducer,
+        superAdminPayments: superAdminPaymentsReducer,
+        superAdminDashboard: superAdminDashboardReducer,
         wasteplant: wasteplantReducer,
         wastePlantDriver: wastePlantDriverReducer,
         wastePlantTruck: wastePlantTruckReducer,
@@ -60,12 +66,14 @@ export const store = configureStore({
         wastePlantPayments: wastePlantPaymentsReducer,
         wastePlantSubscription: wastePlantSubscriptionReducer,
         wastePlantReports: wastePlantReportsReducer,
+        wastePlantProfile: wastePlantProfileReducer,
         driver: driverReducer,
         driverProfile: driverProfileReducer,
         driverPickups: driverPickupsReducer,
         driverTrucks: driverTrucksReducer,
         driverChats: driverChatsReducer,
-        driverNotifications: driverNotificationsReducer
+        driverNotifications: driverNotificationsReducer,
+        driverDashboard: driverDashboardReducer,
     }
 })
 

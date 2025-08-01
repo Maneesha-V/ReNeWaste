@@ -41,6 +41,7 @@ const TYPES = {
   DriverProfileController: Symbol.for("DriverProfileController"),
   DriverTruckController: Symbol.for("DriverTruckController"),
   DriverNotificationController: Symbol.for("DriverNotificationController"),
+  DriverDashboardController: Symbol.for("DriverDashboardController"),
 
 //--services--
 
@@ -51,6 +52,7 @@ const TYPES = {
   SuperAdminNotificationService: Symbol.for("SuperAdminNotificationService"),
   SuperAdminSubscriptionService: Symbol.for("SuperAdminSubscriptionService"),
   SuperAdminPaymentService: Symbol.for("SuperAdminPaymentService"),
+
 //user
   UserAuthService: Symbol.for("UserAuthService"),
   UserProfileService: Symbol.for("UserProfileService"),
@@ -84,6 +86,7 @@ const TYPES = {
   DriverProfileService: Symbol.for("DriverProfileService"),
   DriverTruckService: Symbol.for("DriverTruckService"),
   DriverNotificationService: Symbol.for("DriverNotificationService"),
+  DriverDashboardService: Symbol.for("DriverDashboardService"),
 
 //--repositories--
   SuperAdminRepository: Symbol.for("SuperAdminRepository"),

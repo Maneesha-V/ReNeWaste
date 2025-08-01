@@ -32,7 +32,7 @@ interface DashboardState {
     totalWasteCollected: { totalResidWaste: number; totalCommWaste: number };
     totalRevenue: number;
   };
-  pickupStatus: any; 
+  pickupStatus: any;
 }
 
 const initialState: DashboardState = {
@@ -44,9 +44,9 @@ const initialState: DashboardState = {
     totalActivePickups: 0,
     totalCompletedPickups: 0,
     totalWasteCollected: { totalResidWaste: 0, totalCommWaste: 0 },
-    totalRevenue: 0
+    totalRevenue: 0,
   },
-  pickupStatus: null
+  pickupStatus: null,
 };
 
 export const fetchDashboardData = createAsyncThunk(
@@ -85,10 +85,10 @@ const wasteplantDashboardSlice = createSlice({
       //   state.waste = totalWasteCollected;
       // })
       .addCase(fetchDashboardData.fulfilled, (state, action) => {
-  state.loading = false;
-  state.summary = action.payload.summary;
-  state.pickupStatus = action.payload.pickupStatus;
-})
+        state.loading = false;
+        state.summary = action.payload.summary;
+        state.pickupStatus = action.payload.pickupStatus;
+      })
       .addCase(fetchDashboardData.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;

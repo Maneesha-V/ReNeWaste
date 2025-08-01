@@ -1,27 +1,44 @@
-import { Request, Response } from "express";
+import { NextFunction, Response } from "express";
 import TYPES from "../../config/inversify/types";
 import { inject, injectable } from "inversify";
 import { IDashboardService } from "../../services/superAdmin/interface/IDashboardService";
 import { IDashboardController } from "./interface/IDashboardController";
+import { AuthRequest } from "../../types/common/middTypes";
+import { MESSAGES, STATUS_CODES } from "../../utils/constantUtils";
+import { handleControllerError } from "../../utils/errorHandler";
 
 @injectable()
 export class DashboardController implements IDashboardController {
   constructor(
     @inject(TYPES.SuperAdminDashboardService)
-    private dashboardService: IDashboardService
-  ){}
-    async fetchDashboard(req: Request,res: Response): Promise<void> {
-      try { 
-        // const data = await this.dashboardService.fetchDashboardData();
-   
-        // res.status(200).json({
-        //   success: true,
-        //   message: "Fetch waste plants successfully",
-        //   data: data,
-        // });
-      }catch (error:any){
-        console.error("err",error);
-        res.status(500).json({ message: "Error fetching waste plants", error });
+    private _dashboardService: IDashboardService
+  ) {}
+  async fetchSuperAdminDashboard(
+    req: AuthRequest,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
+    try {
+      const adminId = req.user?.id;
+      if (!adminId) {
+        res
+          .status(STATUS_CODES.UNAUTHORIZED)
+          .json({ message: MESSAGES.COMMON.ERROR.UNAUTHORIZED });
+        return;
       }
+
+      const dashboardData =
+        await this._dashboardService.fetchSuperAdminDashboard(adminId);
+      console.log("dashboardData", dashboardData);
+
+      res.status(STATUS_CODES.SUCCESS).json({
+        dashboardData,
+        success: true,
+      });
+    } catch (error) {
+      console.error("err", error);
+      next(error);
+      // handleControllerError(error, res, 500);
     }
+  }
 }

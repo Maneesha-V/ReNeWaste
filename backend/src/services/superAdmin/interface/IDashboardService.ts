@@ -1,5 +1,5 @@
-import { IWastePlant } from "../../../models/wastePlant/interfaces/wastePlantInterface";
+import { SuperAdminDashboardData } from "../../../dtos/superadmin/superadminDTO";
 
 export interface IDashboardService {
-    // fetchDashboardData(): Promise<IWastePlant[]>
+    fetchSuperAdminDashboard(adminId: string): Promise<SuperAdminDashboardData>
 }

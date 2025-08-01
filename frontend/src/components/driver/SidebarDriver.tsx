@@ -6,6 +6,7 @@ import {
   DollarOutlined,
   InboxOutlined,
   BarChartOutlined,
+  CustomerServiceOutlined,
 } from '@ant-design/icons';
 import { FaUserCircle } from 'react-icons/fa';
 import { DriverSidebarProps } from '../../types/driverTypes';
@@ -17,9 +18,8 @@ const SidebarDriver = ({ collapsed }: DriverSidebarProps) => {
     { key: 'dashboard', icon: <DashboardOutlined />, label: 'Dashboard', path: '/driver/dashboard' },
     { key: 'pickups', icon: <InboxOutlined />, label: 'Alloted Pickups', path: '/driver/alloted-pickups' },
     { key: 'assigned-trucks', icon: <CarOutlined />, label: 'Assigned Trucks', path: '/driver/assigned-trucks' },
-    { key: 'pay-bills', icon: <DollarOutlined />, label: 'Pay & Bills', path: '/driver/pay-bills' },
-    { key: 'reports', icon: <FileTextOutlined />, label: 'Reports', path: '/driver/reports' },
-    { key: 'stats', icon: <BarChartOutlined />, label: 'Stats', path: '/driver/stats' },
+    // { key: 'stats', icon: <BarChartOutlined />, label: 'Stats', path: '/driver/stats' },
+    { key: 'support', icon: <CustomerServiceOutlined />, label: 'Support', path: '/driver/support' } 
   ];
 
   const handleNavigation = (path: string) => {

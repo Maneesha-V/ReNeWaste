@@ -76,6 +76,9 @@ import { IMapController as IDriverMapController } from "../../controllers/driver
 import { MapController as DriverMapController } from "../../controllers/driver/mapController";
 import { INotificationController as IDriverNotificationController } from "../../controllers/driver/interface/INotificationController";
 import { NotificationController as DriverNotificationController } from "../../controllers/driver/notificationController";
+import { IDashboardController as IDriverDashboardController } from "../../controllers/driver/interface/IDashboardController";
+import { DashboardController as DriverDashboardController } from "../../controllers/driver/dashboardController";
+
 //-- Services & their interfaces --
 
 //superadmin
@@ -153,6 +156,8 @@ import { IMapService as IDriverMapService } from "../../services/driver/interfac
 import { MapService as DriverMapService  } from "../../services/driver/mapService";
 import { INotificationService as IDriverNotificationService } from "../../services/driver/interface/INotificationService";
 import { NotificationService as DriverNotificationService } from "../../services/driver/notificationService";
+import { IDashboardService as IDriverDashboardService } from "../../services/driver/interface/IDashboardService";
+import { DashboardService as DriverDashboardService } from "../../services/driver/dashboardService";
 
 //-- Repositories & their interfaces --
 import { SuperAdminRepository } from "../../repositories/superAdmin/superAdminRepository";
@@ -183,7 +188,6 @@ import { ISubscriptionPlanRepository } from "../../repositories/subscriptionPlan
 import { SubscriptionPlanRepository } from "../../repositories/subscriptionPlan/subscriptionPlanRepository";
 import { ISubscriptionPaymentRepository } from "../../repositories/subscriptionPayment/interface/ISubscriptionPaymentRepository";
 import { SubscriptionPaymentRepository } from "../../repositories/subscriptionPayment/subscriptionPaymentRepository";
-
 
 
 //Create the container
@@ -230,6 +234,7 @@ container.bind<IDriverPickupController>(TYPES.DriverPickupController).to(DriverP
 container.bind<IDriverTruckController>(TYPES.DriverTruckController).to(DriverTruckController);
 container.bind<IDriverMapController>(TYPES.DriverMapController).to(DriverMapController);
 container.bind<IDriverNotificationController>(TYPES.DriverNotificationController).to(DriverNotificationController);
+container.bind<IDriverDashboardController>(TYPES.DriverDashboardController).to(DriverDashboardController);
 
 //--Bind Services--
 
@@ -274,6 +279,7 @@ container.bind<IDriverPickupService>(TYPES.DriverPickupService).to(DriverPickupS
 container.bind<IDriverTruckService>(TYPES.DriverTruckService).to(DriverTruckService);
 container.bind<IDriverMapService>(TYPES.DriverMapService).to(DriverMapService);
 container.bind<IDriverNotificationService>(TYPES.DriverNotificationService).to(DriverNotificationService);
+container.bind<IDriverDashboardService>(TYPES.DriverDashboardService).to(DriverDashboardService);
 
 //--Bind Repositories--
 container.bind<ISuperAdminRepository>(TYPES.SuperAdminRepository).to(SuperAdminRepository);

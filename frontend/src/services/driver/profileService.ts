@@ -6,7 +6,7 @@ export const getDriverProfile = async () => {
         return response.data;
     } catch (error: any) {
       console.error("err", error);
-      throw error.response?.data?.error || "Login failed. Please try again.";
+      throw error.response?.data?.error || "Fetch profile failed.";
     }
   };
   export const updateProfile = async (formData: FormData) => {
