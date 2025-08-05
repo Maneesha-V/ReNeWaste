@@ -38,7 +38,7 @@ export class PickupRepository
 {
   constructor(
     @inject(TYPES.UserRepository)
-    private userRepository: IUserRepository
+    private _userRepository: IUserRepository
   ) {
     super(PickupModel);
   }
@@ -210,7 +210,7 @@ export class PickupRepository
 
     if (!pickup) return null;
 
-    const user = await this.userRepository.findOne(
+    const user = await this._userRepository.findOne(
       { _id: pickup.userId, "addresses._id": pickup.addressId },
       { "addresses.$": 1, firstName: 1, lastName: 1 },
       true
@@ -240,13 +240,32 @@ export class PickupRepository
     console.log("trackk", res);
   }
 
-  async getPickupPlansByUserId(
-    userId: string
-  ): Promise<PopulatedPIckupPlans[]> {
-    const pickups = await this.model
-      .find({
-        userId: new mongoose.Types.ObjectId(userId),
-      })
+ async getPickupPlansByUserId(
+    userId: string, page: number, limit: number, search: string, filter: string
+  ): Promise<{ pickupPlans: PopulatedPIckupPlans[]; total: number }> {
+
+    const searchRegex = new RegExp(search, "i");
+
+  const query: any = {
+    userId: new mongoose.Types.ObjectId(userId),
+  };
+if(filter && filter !== "All"){
+  query.status = filter
+}
+  if (search.trim()) {
+    query.$or = [
+      { status: { $regex: searchRegex } },
+      { pickupTime: { $regex: searchRegex } },
+      { pickupId: { $regex: searchRegex } },
+    ];
+  }
+
+  const skip = (page - 1) * limit;
+ const [pickups, total] = await Promise.all([
+    this.model
+      .find(query)
+      .skip(skip)
+      .limit(limit)
       .populate({
         path: "driverId",
         select: "name contact",
@@ -255,9 +274,11 @@ export class PickupRepository
         path: "truckId",
         select: "name vehicleNumber",
       })
-      .lean();
+      .lean(),
+    this.model.countDocuments(query),
+  ]);
 
-    const user: IUserDocument = await this.userRepository.findById(
+    const user: IUserDocument = await this._userRepository.findById(
       userId,
       true
     );
@@ -301,8 +322,20 @@ export class PickupRepository
       return aDateTime.getTime() - bDateTime.getTime();
     });
 
-    // return sortedPickups as PopulatedPIckupPlans[];
-    return sortedPickups.map((p) => ({
+  return {
+  pickupPlans: sortedPickups.map((p) => {
+    const matchedAddress = user?.addresses?.find(
+      (a) => a._id.toString() === p.addressId?.toString()
+    );
+
+    const address = matchedAddress
+      ? {
+          ...matchedAddress, 
+          _id: matchedAddress._id.toString(), 
+        }
+      : null;
+
+    return {
       ...p,
       user: user
         ? {
@@ -311,11 +344,12 @@ export class PickupRepository
             phone: user.phone,
           }
         : null,
-      address:
-        user?.addresses?.find(
-          (a) => a._id.toString() === p.addressId?.toString()
-        ) ?? null,
-    })) as unknown as PopulatedPIckupPlans[];
+      address,
+    };
+  }) as PopulatedPIckupPlans[],
+  total,
+};
+
   }
 
   async updateTrackingStatus(

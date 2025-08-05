@@ -5,8 +5,9 @@ import {
   getUserPickups,
 } from "../../../services/user/pickupService";
 import { PickupCancelData } from "../../../types/wastePlantTypes";
-import { PickupPlansResp } from "../../../types/pickupReq/pickupTypes";
+import { PickupPlansResp, PickupPlansResponse } from "../../../types/pickupReq/pickupTypes";
 import { getAxiosErrorMessage } from "../../../utils/handleAxiosError";
+import { PaginationPayload } from "../../../types/common/commonTypes";
 
 interface PickupState {
   pickups: PickupPlansResp[];
@@ -15,6 +16,7 @@ interface PickupState {
   loading: boolean;
   message: string | null;
   error: string | null;
+  total: number;
 }
 
 const initialState: PickupState = {
@@ -24,14 +26,18 @@ const initialState: PickupState = {
   loading: false,
   message: null,
   error: null,
+  total: 0,
 };
 export const fetchtPickupPlans = createAsyncThunk<
-  PickupPlansResp[],
-  void,
+  PickupPlansResponse,
+  PaginationPayload,
   { rejectValue: { error: string } }
->("userPickups/fetchtPickupPlans", async (_, { rejectWithValue }) => {
+>(
+  "userPickups/fetchtPickupPlans", async ({ page, limit, search, filter }, { rejectWithValue }) => {
   try {
-    const response = await getUserPickups();
+    const response = await getUserPickups({page, limit, search, filter});
+    console.log("response",response);
+    
     return response;
   } catch (err) {
     const msg = getAxiosErrorMessage(err);
@@ -83,8 +89,11 @@ const userPickupSlice = createSlice({
         state.error = null;
       })
       .addCase(fetchtPickupPlans.fulfilled, (state, action) => {
+        console.log("action",action.payload);
+        
         state.loading = false;
-        state.pickups = action.payload;
+        state.pickups = action.payload.pickups;
+        state.total = action.payload.total;
       })
       .addCase(fetchtPickupPlans.rejected, (state, action) => {
         state.loading = false;

@@ -111,19 +111,23 @@ useEffect(() => {
           )
             .unwrap()
             .then((res) => {
-              dispatch(
-                updatePickupPaymentStatus({
-                  pickupReqId: res.updatedPayment.pickupReqId,
-                  updatedPayment: res.updatedPayment.payment,
-                })
-              );
-              dispatch(fetchtPickupPlans())
+              console.log("verify---res",res);
+              
+              // dispatch(
+              //   updatePickupPaymentStatus({
+              //     pickupReqId: res.updatedPayment.pickupReqId,
+              //     updatedPayment: res.updatedPayment.payment,
+              //   })
+              // );
+
               Swal.fire({
                 icon: "success",
                 title: "Payment Successful!",
                 text: res.message || "Your payment was verified successfully.",
                 confirmButtonColor: "#28a745",
               }).then(() => {
+                navigate("/pickup-plans", { state: { refresh: true } });
+
                 onClose();
               });
             })

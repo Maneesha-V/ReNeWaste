@@ -35,3 +35,8 @@ export interface PickupPlansResp {
   address: Address;
   payment: PickupReqPayment;
 }
+
+export interface PickupPlansResponse {
+  pickups: PickupPlansResp[];
+  total: number;
+}

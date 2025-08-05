@@ -126,15 +126,6 @@ const userPaymentSlice = createSlice({
       state.pickup = action.payload.pickup;
       state.amount = action.payload.amount;
     },
-    updatePaymentStatus: (state, action) => {
-      const { pickupReqId, updatedPayment } = action.payload;
-      const index = state.payments.findIndex(
-        (p: PaymentSummary) => p._id === pickupReqId
-      );
-      if (index !== -1) {
-        state.payments[index].payment.status = updatedPayment.payment.status;
-      }
-    },
   },
   extraReducers: (builder) => {
     builder
@@ -197,6 +188,6 @@ const userPaymentSlice = createSlice({
   },
 });
 
-export const { setPaymentData, updatePaymentStatus, clearPaymentError } = userPaymentSlice.actions;
+export const { setPaymentData, clearPaymentError } = userPaymentSlice.actions;
 
 export default userPaymentSlice.reducer;

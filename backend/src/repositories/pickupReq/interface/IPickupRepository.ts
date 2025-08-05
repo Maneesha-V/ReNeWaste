@@ -45,7 +45,7 @@ export interface IPickupRepository {
     pickupReqId: string,
     updateFields: { eta: { text: string; value: number } }
   ): Promise<void>;
-  getPickupPlansByUserId(userId: string): Promise<PopulatedPIckupPlans[]>;
+  getPickupPlansByUserId(userId: string, page: number, limit: number, search: string, filter: string): Promise<{ pickupPlans: PopulatedPIckupPlans[]; total: number }>;
   updateTrackingStatus(
     pickupReqId: string,
     trackingStatus: string

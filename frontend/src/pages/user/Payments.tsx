@@ -7,7 +7,6 @@ import {
   clearPaymentError,
   getAllPayments,
   repay,
-  updatePaymentStatus,
   verifyPayment,
 } from "../../redux/slices/user/userPaymentSlice";
 import { formatDateToDDMMYYYY } from "../../utils/formatDate";
@@ -88,22 +87,17 @@ const Payments = () => {
             .then((res) => {
               console.log("resss",res);
               
-              dispatch(
-                updatePaymentStatus({
-                  pickupReqId: pickupId,
-                  updatedPayment: res.updatedPayment.payment,
-                })
-              );
               Swal.fire({
                 icon: "success",
                 title: "Payment Successful!",
                 text: res.message || "Your payment was verified successfully.",
                 confirmButtonColor: "#28a745",
               })
-              // .then(() => {
-              //   dispatch(getAllPayments());
-              //   navigate("/payment-history");
-              // });
+
+              .then(() => {
+                dispatch(getAllPayments());
+                navigate("/payment-history");
+              });
             })
             .catch((error) => {
               Swal.fire({

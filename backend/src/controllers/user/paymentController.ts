@@ -1,4 +1,4 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import { AuthRequest } from "../../types/common/middTypes";
 import { IPaymentController } from "./interface/IPaymentController";
 import { inject, injectable } from "inversify";
@@ -6,48 +6,53 @@ import TYPES from "../../config/inversify/types";
 import { IPaymentService } from "../../services/user/interface/IPaymentService";
 import { MESSAGES, STATUS_CODES } from "../../utils/constantUtils";
 import { handleControllerError } from "../../utils/errorHandler";
+import { ApiError } from "../../utils/ApiError";
 
 @injectable()
 export class PaymentController implements IPaymentController {
   constructor(
     @inject(TYPES.UserPaymentService)
-    private paymentService: IPaymentService
+    private _paymentService: IPaymentService
   ) {}
-  async createPaymentOrder(req: AuthRequest, res: Response): Promise<void> {
+  async createPaymentOrder(
+    req: AuthRequest,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
     try {
       const userId = req.user?.id;
       const { amount, pickupReqId } = req.body.paymentData;
       console.log("user", userId);
       console.log("amount", amount, pickupReqId);
       if (!userId) {
-        res
-          .status(STATUS_CODES.UNAUTHORIZED)
-          .json({ message: MESSAGES.COMMON.ERROR.UNAUTHORIZED });
-        return;
+        throw new ApiError(
+          STATUS_CODES.UNAUTHORIZED,
+          MESSAGES.COMMON.ERROR.UNAUTHORIZED
+        );
       }
-      const paymentOrder = await this.paymentService.createPaymentOrderService({
+      const paymentOrder = await this._paymentService.createPaymentOrderService({
         amount,
         pickupReqId,
         userId,
       });
       console.log("paymentOrder", paymentOrder);
       if (!paymentOrder) {
-        res.status(STATUS_CODES.BAD_REQUEST).json({
-          message: MESSAGES.COMMON.ERROR.CREATE_PAYMENT_FAIL,
-        });
-        return;
+        throw new ApiError(
+          STATUS_CODES.BAD_REQUEST,
+          MESSAGES.COMMON.ERROR.CREATE_PAYMENT_FAIL
+        );
       }
       res.status(STATUS_CODES.CREATED).json(paymentOrder);
     } catch (error) {
-      handleControllerError(error, res, 500);
       console.error("err", error);
-      // res.status(500).json({
-      //   success: false,
-      //   message: error.message || "Payment creation failed",
-      // });
+      next(error);
     }
   }
-  async verifyPayment(req: AuthRequest, res: Response): Promise<void> {
+  async verifyPayment(
+    req: AuthRequest,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
     try {
       console.log("body", req.body);
 
@@ -60,12 +65,12 @@ export class PaymentController implements IPaymentController {
       } = req.body.paymentData;
       const userId = req.user?.id;
       if (!userId) {
-        res
-          .status(STATUS_CODES.UNAUTHORIZED)
-          .json({ message: MESSAGES.COMMON.ERROR.UNAUTHORIZED });
-        return;
+        throw new ApiError(
+          STATUS_CODES.UNAUTHORIZED,
+          MESSAGES.COMMON.ERROR.UNAUTHORIZED
+        );
       }
-      const updatedPayment = await this.paymentService.verifyPaymentService({
+      const updatedPayment = await this._paymentService.verifyPaymentService({
         razorpay_order_id,
         razorpay_payment_id,
         razorpay_signature,
@@ -74,10 +79,10 @@ export class PaymentController implements IPaymentController {
         userId,
       });
       if (!updatedPayment) {
-        res.status(STATUS_CODES.BAD_REQUEST).json({
-          message: MESSAGES.COMMON.ERROR.VERIFY_PAYMENT_FAIL,
-        });
-        return;
+        throw new ApiError(
+          STATUS_CODES.BAD_REQUEST,
+          MESSAGES.COMMON.ERROR.VERIFY_PAYMENT_FAIL
+        );
       }
       console.log("updatedPayment", updatedPayment);
 
@@ -87,59 +92,58 @@ export class PaymentController implements IPaymentController {
       });
     } catch (error) {
       console.error("error", error);
-      handleControllerError(error, res, 500);
-      // const msg = err instanceof Error ? err.message : "Verification failed";
-      // res.status(STATUS_CODES.NOT_FOUND).json({
-      //   success: false,
-      //   message: msg,
-      // });
+      next(error);
     }
   }
 
-  async getAllPayments(req: AuthRequest, res: Response): Promise<void> {
+  async getAllPayments(
+    req: AuthRequest,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
     try {
       const userId = req.user?.id;
 
       if (!userId) {
-        res
-          .status(STATUS_CODES.UNAUTHORIZED)
-          .json({ message: MESSAGES.COMMON.ERROR.UNAUTHORIZED });
-        return;
+        throw new ApiError(
+          STATUS_CODES.UNAUTHORIZED,
+          MESSAGES.COMMON.ERROR.UNAUTHORIZED
+        );
       }
-      const payments = await this.paymentService.getAllPaymentsService(userId);
+      const payments = await this._paymentService.getAllPaymentsService(userId);
       if (!payments) {
-        res
-          .status(STATUS_CODES.NOT_FOUND)
-          .json({ message: MESSAGES.COMMON.ERROR.FETCH_PAYMENT_FAIL });
-        return;
+        throw new ApiError(
+          STATUS_CODES.NOT_FOUND,
+          MESSAGES.COMMON.ERROR.FETCH_PAYMENT_FAIL
+        );
       }
       console.log("payments", payments);
 
       res.status(STATUS_CODES.SUCCESS).json({ success: true, payments });
     } catch (error) {
-      handleControllerError(error, res, 500);
-      // res.status(400).json({
-      //   success: false,
-      //   message: err.message || "Fetch payments failed",
-      // });
+      next(error);
     }
   }
 
-  async rePayment(req: AuthRequest, res: Response): Promise<void> {
+  async rePayment(
+    req: AuthRequest,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
     try {
       console.log("bbbb", req.body);
 
       const userId = req.user?.id;
 
       if (!userId) {
-        res
-          .status(STATUS_CODES.UNAUTHORIZED)
-          .json({ message: MESSAGES.COMMON.ERROR.UNAUTHORIZED });
-        return;
+        throw new ApiError(
+          STATUS_CODES.UNAUTHORIZED,
+          MESSAGES.COMMON.ERROR.UNAUTHORIZED
+        );
       }
       const { pickupReqId, amount } = req.body;
 
-      const repaymentOrder = await this.paymentService.rePaymentService(
+      const repaymentOrder = await this._paymentService.rePaymentService(
         userId,
         pickupReqId,
         amount
@@ -152,13 +156,7 @@ export class PaymentController implements IPaymentController {
         repaymentOrder,
       });
     } catch (error) {
-      handleControllerError(error, res, 500);
-      // res.status(500).json({ message: error.message || "Internal server error" });
-      // res.status(500).json({
-      //   success: false,
-      //   message: "Payment retry failed.",
-      //   error: error.message,
-      // });
+      next(error);
     }
   }
 }

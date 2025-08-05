@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Footer from "../../components/user/Footer";
 import Header from "../../components/user/Header";
 import { toast } from "react-toastify";
@@ -20,6 +20,7 @@ import {
   Popconfirm,
   Tabs,
   Modal,
+  Pagination,
 } from "antd";
 import {
   formatDateToDDMMYYYY,
@@ -32,6 +33,9 @@ import { setPaymentData } from "../../redux/slices/user/userPaymentSlice";
 import PayNow from "./PayNow";
 import InputMessage from "../../components/common/InputMessage";
 import { PickupPlansResp } from "../../types/pickupReq/pickupTypes";
+import usePagination from "../../hooks/usePagination";
+import { debounce } from "lodash";
+import PaginationSearch from "../../components/common/PaginationSearch";
 
 const { Meta } = Card;
 
@@ -45,10 +49,10 @@ const PickupPlans = () => {
   const [selectedEta, setSelectedEta] = useState<{
     text: string | null;
   } | null>(null);
-  const [activeTab, setActiveTab] = useState<string>("1");
+  // const [activeTab, setActiveTab] = useState<string>("1");
 
   const dispatch = useAppDispatch();
-  const { pickups, loading, error } = useSelector(
+  const { pickups, total, loading, error } = useSelector(
     (state: RootState) => state.userPickups
   );
   const location = useLocation();
@@ -56,18 +60,42 @@ const PickupPlans = () => {
   const [cancelPickup, setCancelPickup] = useState<string | null>(null);
 
   console.log("pickups", pickups);
+  const {
+    currentPage,
+    setCurrentPage,
+    pageSize,
+    search,
+    setSearch,
+    statusFilter,
+    setStatusFilter,
+  } = usePagination();
 
+  const debouncedFetchPickupPlans = useCallback(
+    debounce((page: number, limit: number, query: string, filter?: string) => {
+      dispatch(fetchtPickupPlans({ page, limit, search: query, filter }));
+    }, 500),
+    [dispatch]
+  );
   useEffect(() => {
-    const fetchPickups = async () => {
-      try {
-        await dispatch(fetchtPickupPlans());
-      } catch (err: any) {
-        toast.error("Error fetching pickup plans");
-      }
+    debouncedFetchPickupPlans(currentPage, pageSize, search, statusFilter);
+    return () => {
+      debouncedFetchPickupPlans.cancel();
     };
-
-    fetchPickups();
-  }, [dispatch, location.pathname]);
+  }, [currentPage, pageSize, search, statusFilter, debouncedFetchPickupPlans]);
+  
+const shouldRefresh = location.state?.refresh;
+useEffect(() => {
+  if (shouldRefresh) {
+    dispatch(
+      fetchtPickupPlans({
+        page: currentPage,
+        limit: pageSize,
+        search,
+        filter: statusFilter,
+      })
+    );
+  }
+}, [shouldRefresh]);
 
   const handleTrackClick = (pickup: any) => {
     if (!pickup || !pickup.pickupId) return null;
@@ -88,8 +116,14 @@ const PickupPlans = () => {
         setSelectedTrackingStatus(null);
         setSelectedEta(null);
         setIsModalOpen(false);
-        await dispatch(fetchtPickupPlans());
-        setActiveTab("3");
+        await dispatch(
+          fetchtPickupPlans({
+            page: currentPage,
+            limit: pageSize,
+            search,
+            filter: statusFilter,
+          })
+        );
       } catch (err: any) {
         toast.error(err?.message || "Failed to cancel pickup");
       }
@@ -312,28 +346,63 @@ const PickupPlans = () => {
     );
   };
 
-  const pendingPickups = pickups.filter(
-    (p: any) =>
-      !p.trackingStatus &&
-      p.status !== "Cancelled" &&
-      p.payment?.status !== "Pending"
-  );
-  const processedPickups = pickups.filter(
-    (p: any) => p.trackingStatus && p.status !== "Cancelled"
-  );
-  const cancelledPickups = pickups.filter((p: any) => p.status === "Cancelled");
+  // const pendingPickups = pickups.filter(
+  //   (p: any) =>
+  //     !p.trackingStatus &&
+  //     p.status !== "Cancelled" &&
+  //     p.payment?.status !== "Pending"
+  // );
+  // const processedPickups = pickups.filter(
+  //   (p: any) => p.trackingStatus && p.status !== "Cancelled"
+  // );
+  // const cancelledPickups = pickups.filter((p: any) => p.status === "Cancelled");
+
+  const filteredPickups = pickups.filter((pickup: any) => {
+    const matchesSearch =
+      search === "" ||
+      pickup.pickupId?.toLowerCase().includes(search.toLowerCase());
+
+    const matchesFilter =
+      statusFilter === "All" || pickup.status === statusFilter;
+
+    return matchesSearch && matchesFilter;
+  });
 
   return (
     <div className="min-h-screen bg-green-100">
       <Header />
       <div className="px-4 py-6 max-w-6xl mx-auto">
         <h2 className="text-2xl font-semibold mb-4">Your Pickup Plans</h2>
+        {/* <PaginationSearch searchValue={search} onSearchChange={setSearch} /> */}
 
+        <PaginationSearch
+          searchValue={search}
+          onSearchChange={setSearch}
+          filterValue={statusFilter}
+          onFilterChange={setStatusFilter}
+          filterOptions={[
+            { value: "All", label: "All" },
+            { value: "Pending", label: "Pending" },
+            { value: "Scheduled", label: "Scheduled" },
+            { value: "Rescheduled", label: "Rescheduled" },
+            { value: "Completed", label: "Completed" },
+            { value: "Cancelled", label: "Cancelled" },
+          ]}
+        />
         {loading ? (
-          <div className="flex justify-center items-center h-64">
-            <Spin size="large" />
+          <div className="text-center mt-4">
+            <Spin />
           </div>
-        ) : error ? (
+        ) : filteredPickups.length > 0 ? (
+          renderPickupCards(filteredPickups)
+        ) : (
+          <Empty
+            image={Empty.PRESENTED_IMAGE_SIMPLE}
+            description="No pickup plans found"
+            className="mt-4"
+          />
+        )}
+        {/* {error ? (
           <div className="text-center text-red-500">{error}</div>
         ) : (
           <Tabs activeKey={activeTab} onChange={setActiveTab}>
@@ -347,7 +416,15 @@ const PickupPlans = () => {
               {renderPickupCards(cancelledPickups)}
             </TabPane>
           </Tabs>
-        )}
+        )} */}
+        <Pagination
+          current={currentPage}
+          pageSize={pageSize}
+          total={total}
+          onChange={setCurrentPage}
+          showSizeChanger={false}
+          style={{ marginTop: 16 }}
+        />
         {isModalOpen && selectedPickupId && (
           <TrackModal
             visible={isModalOpen}
@@ -371,7 +448,16 @@ const PickupPlans = () => {
           onClose={() => setCancelModalVisible(false)}
           pickupId={cancelPickup}
           cancelAction={cancelPickupReq}
-          onSuccess={() => dispatch(fetchtPickupPlans())}
+          onSuccess={() =>
+            dispatch(
+              fetchtPickupPlans({
+                page: currentPage,
+                limit: pageSize,
+                search,
+                filter: statusFilter,
+              })
+            )
+          }
         />
       </div>
       <Footer />

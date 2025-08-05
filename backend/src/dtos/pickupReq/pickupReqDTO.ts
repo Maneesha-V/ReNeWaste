@@ -66,7 +66,12 @@ export interface PickupPaymentSummaryDTO {
   };
 }
 export interface PopulatedPIckupPlans extends Omit<IPickupRequestDocument, 'driverId' | 'truckId' > {
-  user: IUserDocument;
+  // user: IUserDocument;
+  user: {
+    firstName: string;
+    lastName: string;
+    phone: string;
+  };
   driverId?: IDriverDocument;
   truckId?: ITruckDocument;
   address: Address;

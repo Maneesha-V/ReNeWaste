@@ -22,9 +22,10 @@ export type GoogleSignUpResp = {
 }
 
 export type PaginationPayload = {
-  page: number;
-  limit: number;
+  page?: number;
+  limit?: number;
   search: string;
+  filter?: string;
 }
 export interface PaginationSearchProps {
   total: number;
@@ -33,4 +34,15 @@ export interface PaginationSearchProps {
   onPageChange: (page: number) => void;
   onSearchChange: (search: string) => void;
   searchValue: string;
+}
+interface FilterOption {
+  label: string;
+  value: string;
+}
+
+export interface PaginationSearchFilterProps extends Pick<PaginationSearchProps, "searchValue" | "onSearchChange"> {
+  filterValue?: string;
+  onFilterChange?: (value: string) => void;
+  filterOptions?: FilterOption[];
+  placeholder?: string;
 }

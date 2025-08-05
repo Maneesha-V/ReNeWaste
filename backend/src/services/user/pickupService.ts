@@ -11,20 +11,32 @@ import { PickupPlansDTO } from "../../dtos/pickupReq/pickupReqDTO";
 export class PickupService implements IPickupService {
   constructor(
     @inject(TYPES.PickupRepository)
-    private pickupRepository: IPickupRepository,
+    private _pickupRepository: IPickupRepository,
     @inject(TYPES.NotificationRepository)
-    private notificationRepository: INotificationRepository
+    private _notificationRepository: INotificationRepository
   ) {}
-  async getPickupPlanService(userId: string): Promise<PickupPlansDTO[]> {
-    const pickups = await this.pickupRepository.getPickupPlansByUserId(userId);
-    console.log("pickups", pickups);
+  async getPickupPlanService(userId: string, page: number, limit: number, search: string, filter: string): Promise<{ pickups: PickupPlansDTO[]; total: number }> {
+    const { pickupPlans, total } = await this._pickupRepository.getPickupPlansByUserId(
+      userId,
+      page,
+      limit,
+      search,
+      filter
+    );
 
-    if (!pickups) throw new Error("No pickup plans found");
-    // return pickups;
-    return pickups.map((p) => PickupRequestMapper.toPickupPlansDTO(p));
+     if (!pickupPlans || pickupPlans.length === 0) {
+    throw new Error("No pickup plans found");
+  }
+
+   return {
+    pickups: pickupPlans.map((p) => PickupRequestMapper.toPickupPlansDTO(p)),
+    total,
+  };
+  
+    // return pickups.map((p) => PickupRequestMapper.toPickupPlansDTO(p));
   }
   async cancelPickupPlanService(pickupReqId: string) {
-    const pickup = await this.pickupRepository.getPickupById(pickupReqId);
+    const pickup = await this._pickupRepository.getPickupById(pickupReqId);
     if (!pickup) {
       throw new Error("Pickup not found");
     }
@@ -33,14 +45,14 @@ export class PickupService implements IPickupService {
       throw new Error("Pickup already canceled");
     }
 
-    return await this.pickupRepository.updatePickupStatus(
+    return await this._pickupRepository.updatePickupStatus(
       pickupReqId,
       "Cancelled"
     );
   }
   async cancelPickupReasonRequest(data: cancelPickupReasonData) {
     const updatedPickupRequest =
-      await this.pickupRepository.updatePaymentStatus(data.pickupReqId);
+      await this._pickupRepository.updatePaymentStatus(data.pickupReqId);
       if (!updatedPickupRequest) throw new Error("Pickup not updated.");
       if (!updatedPickupRequest.wasteplantId) {
   throw new Error("Wasteplant ID not found in pickup request.");
@@ -51,7 +63,7 @@ export class PickupService implements IPickupService {
 
     const userMessage = `PickupID ${updatedPickupRequest.pickupId} is requested with refund.${data.reason}`;
     const plantNotification =
-      await this.notificationRepository.createNotification({
+      await this._notificationRepository.createNotification({
         receiverId: plantId,
         receiverType: "wasteplant",
         senderId: data.userId,

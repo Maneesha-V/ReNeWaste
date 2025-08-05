@@ -18,7 +18,7 @@ export class PaymentService implements IPaymentService {
   private razorpay: Razorpay;
   constructor(
     @inject(TYPES.PickupRepository)
-    private pickupRepository: IPickupRepository
+    private _pickupRepository: IPickupRepository
   ) {
     const key_id = process.env.RAZORPAY_KEY_ID!;
     const key_secret = process.env.RAZORPAY_KEY_SECRET!;
@@ -39,7 +39,7 @@ export class PaymentService implements IPaymentService {
   ): Promise<CreatePaymentResp> {
     const { pickupReqId, userId, amount } = data;
     const pickupRequest =
-      await this.pickupRepository.getPickupByUserIdAndPickupReqId(
+      await this._pickupRepository.getPickupByUserIdAndPickupReqId(
         pickupReqId,
         userId
       );
@@ -48,20 +48,7 @@ export class PaymentService implements IPaymentService {
       throw new Error("Pickup request not found for the user.");
     }
 
-    //  pickupRequest.payment = {
-    //   amount,
-    //   method: "Razorpay",
-    //   status: "Pending",
-    //   razorpayOrderId: null,
-    //   razorpayPaymentId: null,
-    //   razorpaySignature: null,
-    //   paidAt: null,
-    //   refundRequested: false,
-    //   refundStatus: null,
-    //   refundAt: null,
-    //   razorpayRefundId: null,
-    //   inProgressExpiresAt: null,
-    // };
+    
     const now = new Date();
     const payment = pickupRequest.payment;
     if (
@@ -113,6 +100,8 @@ export class PaymentService implements IPaymentService {
   async verifyPaymentService(
     data: VerifyPaymentReq
   ): Promise<VerifyPaymentResp> {
+    console.log("data",data);
+    
     const {
       razorpay_order_id,
       razorpay_payment_id,
@@ -131,7 +120,7 @@ export class PaymentService implements IPaymentService {
       throw new Error("Invalid signature. Payment could not be verified.");
     }
     const pickupRequest =
-      await this.pickupRepository.getPickupByUserIdAndPickupReqId(
+      await this._pickupRepository.getPickupByUserIdAndPickupReqId(
         pickupReqId,
         userId
       );
@@ -144,12 +133,7 @@ export class PaymentService implements IPaymentService {
     if (!payment) {
       throw new Error("Payment details not found in the pickup request.");
     }
-    // payment.status = "Paid";
-    // payment.razorpayOrderId = razorpay_order_id;
-    // payment.razorpayPaymentId = razorpay_payment_id;
-    // payment.razorpaySignature = razorpay_signature;
-    // payment.amount = amount;
-    // payment.paidAt = new Date();
+
     pickupRequest.payment = {
       ...pickupRequest.payment,
       amount,
@@ -164,34 +148,18 @@ export class PaymentService implements IPaymentService {
     console.log("✅ Saved payment status:", pickupRequest.payment);
     return PickupRequestMapper.toPaymentDTO(pickupRequest);
 
-    // const paymentUpdate = {
-    //   status: "Paid",
-    //   razorpayOrderId: razorpay_order_id,
-    //   razorpayPaymentId: razorpay_payment_id,
-    //   razorpaySignature: razorpay_signature,
-    //   amount: amount,
-    //   paidAt: new Date(),
-    // };
-
-    // const updatedPickup = await this.pickupRepository.savePaymentDetails({
-    //   pickupReqId,
-    //   paymentData: paymentUpdate,
-    //   userId
-    // });
-
-    // return updatedPickup;
   }
 
   async getAllPaymentsService(
     userId: string
   ): Promise<PickupPaymentSummaryDTO[]> {
-    const pickups = await this.pickupRepository.getAllPaymentsByUser(userId);
+    const pickups = await this._pickupRepository.getAllPaymentsByUser(userId);
     return pickups.map((p) => PickupRequestMapper.toSummaryDTO(p));
   }
 
   async rePaymentService(userId: string, pickupReqId: string, amount: number) {
     const pickupRequest =
-      await this.pickupRepository.getPickupByUserIdAndPickupReqId(
+      await this._pickupRepository.getPickupByUserIdAndPickupReqId(
         pickupReqId,
         userId
       );
@@ -243,28 +211,6 @@ export class PaymentService implements IPaymentService {
       pickupReqId,
       expiresAt: payment.inProgressExpiresAt?.toISOString(),
     };
-    // pickupRequest.payment = {
-    //   amount: amount,
-    //   method: "Razorpay",
-    //   status: "InProgress",
-    //   razorpayOrderId: pickupRequest.payment?.razorpayOrderId || null,
-    //   razorpayPaymentId: null,
-    //   razorpaySignature: null,
-    //   paidAt: null,
-    //   refundRequested: false,
-    //   refundStatus: null,
-    //   refundAt: null,
-    //   razorpayRefundId: null,
-    //   inProgressExpiresAt: null
-    // };
-    // await pickupRequest.save();
-
-    // return {
-    //   orderId: pickupRequest.payment?.razorpayOrderId,
-    //   amount: pickupRequest.payment?.amount,
-    //   currency: "INR",
-    //   pickupReqId,
-    //   expiresAt: payment.inProgressExpiresAt,
-    // };
+   
   }
 }
