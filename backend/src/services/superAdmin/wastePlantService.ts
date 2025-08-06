@@ -22,11 +22,11 @@ import { WastePlantMapper } from "../../mappers/WastePlantMapper";
 export class WastePlantService implements IWastePlantService {
   constructor(
     @inject(TYPES.WastePlantRepository)
-    private wastePlantRepository: IWastePlantRepository,
+    private _wastePlantRepository: IWastePlantRepository,
     @inject(TYPES.NotificationRepository)
-    private notificationRepository: INotificationRepository,
+    private _notificationRepository: INotificationRepository,
     @inject(TYPES.SubscriptionPaymentRepository)
-    private subscriptionPaymentRepository: ISubscriptionPaymentRepository
+    private _subscriptionPaymentRepository: ISubscriptionPaymentRepository
   ) {}
   async addWastePlant(data: IWastePlant) {
     await checkForDuplicateWastePlant(
@@ -35,7 +35,7 @@ export class WastePlantService implements IWastePlantService {
         licenseNumber: data.licenseNumber,
         plantName: data.plantName,
       },
-      this.wastePlantRepository
+      this._wastePlantRepository
     );
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(data.password, salt);
@@ -43,7 +43,7 @@ export class WastePlantService implements IWastePlantService {
       ...data,
       password: hashedPassword,
     };
-    const createdPlant = await this.wastePlantRepository.createWastePlant(
+    const createdPlant = await this._wastePlantRepository.createWastePlant(
       newData
     );
     if (!createdPlant) {
@@ -54,19 +54,15 @@ export class WastePlantService implements IWastePlantService {
     };
   }
 
-  // async getAllWastePlants(): Promise<IWastePlant[]> {
-  //   const updatedData = return await this.wastePlantRepository.getAllWastePlants();
-  //   return plantData;
-  // }
   async getAllWastePlants(
     data: PaginationInput
   ): Promise<PaginatedReturnAdminWastePlants> {
-    const plantData = await this.wastePlantRepository.getAllWastePlants(data);
+    const plantData = await this._wastePlantRepository.getAllWastePlants(data);
     if (!plantData) {
       throw new Error("Wasteplants not found.");
     }
     const paidPayments =
-      await this.subscriptionPaymentRepository.findPaidSubscriptionPayments();
+      await this._subscriptionPaymentRepository.findPaidSubscriptionPayments();
     if (!paidPayments) {
       throw new Error("Paid subscription plans not found.");
     }
@@ -116,7 +112,7 @@ export class WastePlantService implements IWastePlantService {
         );
 
         if (daysLeft === 0 && plant.status !== "Inactive") {
-          await this.wastePlantRepository.updatePlantStatus(
+          await this._wastePlantRepository.updatePlantStatus(
             plantIdStr,
             "Inactive"
           );
@@ -147,7 +143,7 @@ export class WastePlantService implements IWastePlantService {
   }
   async getWastePlantByIdService(id: string): Promise<IWastePlant | null> {
     try {
-      return await this.wastePlantRepository.getWastePlantById(id);
+      return await this._wastePlantRepository.getWastePlantById(id);
     } catch (error) {
       throw new Error("Error fetching waste plant from service");
     }
@@ -157,20 +153,20 @@ export class WastePlantService implements IWastePlantService {
     data: IWastePlant
   ): Promise<IWastePlant | null> {
     try {
-      return await this.wastePlantRepository.updateWastePlantById(id, data);
+      return await this._wastePlantRepository.updateWastePlantById(id, data);
     } catch (error) {
       throw new Error("Error updating waste plant in service");
     }
   }
   async deleteWastePlantByIdService(id: string): Promise<ReturnDeleteWP> {
-    const plant = await this.wastePlantRepository.deleteWastePlantById(id);
+    const plant = await this._wastePlantRepository.deleteWastePlantById(id);
     if (!plant) {
       throw new Error("Plant not found.");
     }
     return { plantId: plant._id.toString() };
   }
   async sendSubscribeNotification(data: notificationPayload) {
-    const plant = await this.wastePlantRepository.getWastePlantById(
+    const plant = await this._wastePlantRepository.getWastePlantById(
       data.plantId
     );
     if (!plant) {
@@ -192,7 +188,7 @@ export class WastePlantService implements IWastePlantService {
     const message = `Reminder: Your plant subscription is pending. Please subscribe to activate features.`;
 
     const plantNotification =
-      await this.notificationRepository.createNotification({
+      await this._notificationRepository.createNotification({
         receiverId: data.plantId,
         receiverType: "wasteplant",
         senderId: data.adminId,

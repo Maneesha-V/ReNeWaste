@@ -215,72 +215,6 @@ useEffect(() => {
                 );
               })()}
 
-              // extra={
-              //   <>
-              //     {(() => {
-              //       const status = pickup?.payment?.status;
-              //       const expiresAt = pickup?.payment?.inProgressExpiresAt;
-              //       const now = new Date();
-              //       const isExpired =
-              //         status === "InProgress" &&
-              //         expiresAt &&
-              //         new Date(expiresAt) <= now;
-
-              //       if (
-              //         (pickup.status === "Scheduled" ||
-              //           pickup.status === "Rescheduled") &&
-              //         (!status || status === "Pending" || isExpired)
-              //       ) {
-              //         return (
-              //           <Button
-              //             type="primary"
-              //             className="mr-2"
-              //             onClick={() => handlePay(pickup)}
-              //           >
-              //             Pay
-              //           </Button>
-              //         );
-              //       } else if (status === "InProgress" && !isExpired) {
-              //         return (
-              //           <div className="bg-orange-50 border border-orange-300 p-2 rounded text-sm text-orange-700 font-medium mb-2">
-              //             Payment already initiated. Please wait until{" "}
-              //             <strong>
-              //               {new Date(expiresAt).toLocaleTimeString([], {
-              //                 hour: "2-digit",
-              //                 minute: "2-digit",
-              //               })}
-              //             </strong>{" "}
-              //             to try again.
-              //           </div>
-              //         );
-              //       }
-
-              //       return null;
-              //     })()}
-
-              //     {pickup.status ===
-              //     "Cancelled" ? null : pickup.trackingStatus ? (
-              //       <Button
-              //         type="primary"
-              //         onClick={() => handleTrackClick(pickup)}
-              //       >
-              //         {pickup.trackingStatus === "Completed" ? "View" : "Track"}
-              //       </Button>
-              //     ) : (
-              //       <Popconfirm
-              //         title="Are you sure to cancel this pickup?"
-              //         okText="Yes"
-              //         cancelText="No"
-              //         onConfirm={() => handleCancel(pickup)}
-              //         okType="danger"
-              //       >
-              //         <Button type="default" danger>
-              //           Cancel
-              //         </Button>
-              //       </Popconfirm>
-              //     )}
-              //   </>
-              // }
             >
               <Meta
                 title={`Pickup Date: ${
@@ -346,16 +280,6 @@ useEffect(() => {
     );
   };
 
-  // const pendingPickups = pickups.filter(
-  //   (p: any) =>
-  //     !p.trackingStatus &&
-  //     p.status !== "Cancelled" &&
-  //     p.payment?.status !== "Pending"
-  // );
-  // const processedPickups = pickups.filter(
-  //   (p: any) => p.trackingStatus && p.status !== "Cancelled"
-  // );
-  // const cancelledPickups = pickups.filter((p: any) => p.status === "Cancelled");
 
   const filteredPickups = pickups.filter((pickup: any) => {
     const matchesSearch =
@@ -373,21 +297,12 @@ useEffect(() => {
       <Header />
       <div className="px-4 py-6 max-w-6xl mx-auto">
         <h2 className="text-2xl font-semibold mb-4">Your Pickup Plans</h2>
-        {/* <PaginationSearch searchValue={search} onSearchChange={setSearch} /> */}
 
         <PaginationSearch
           searchValue={search}
           onSearchChange={setSearch}
           filterValue={statusFilter}
           onFilterChange={setStatusFilter}
-          filterOptions={[
-            { value: "All", label: "All" },
-            { value: "Pending", label: "Pending" },
-            { value: "Scheduled", label: "Scheduled" },
-            { value: "Rescheduled", label: "Rescheduled" },
-            { value: "Completed", label: "Completed" },
-            { value: "Cancelled", label: "Cancelled" },
-          ]}
         />
         {loading ? (
           <div className="text-center mt-4">
@@ -402,28 +317,14 @@ useEffect(() => {
             className="mt-4"
           />
         )}
-        {/* {error ? (
-          <div className="text-center text-red-500">{error}</div>
-        ) : (
-          <Tabs activeKey={activeTab} onChange={setActiveTab}>
-            <TabPane tab="Pending Pickups" key="1">
-              {renderPickupCards(pendingPickups)}
-            </TabPane>
-            <TabPane tab="Processed Pickups" key="2">
-              {renderPickupCards(processedPickups)}
-            </TabPane>
-            <TabPane tab="Cancelled Pickups" key="3">
-              {renderPickupCards(cancelledPickups)}
-            </TabPane>
-          </Tabs>
-        )} */}
+      
         <Pagination
           current={currentPage}
           pageSize={pageSize}
           total={total}
           onChange={setCurrentPage}
           showSizeChanger={false}
-          style={{ marginTop: 16 }}
+           style={{ marginTop: 16, textAlign: "right" }}
         />
         {isModalOpen && selectedPickupId && (
           <TrackModal

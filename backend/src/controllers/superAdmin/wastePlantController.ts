@@ -1,4 +1,4 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import { IWastePlant } from "../../models/wastePlant/interfaces/wastePlantInterface";
 import { IWastePlantController } from "./interface/IWastePlantController";
 import { AuthRequest } from "../../types/common/middTypes";
@@ -13,27 +13,21 @@ import {
   PostOfficeEntry,
 } from "../../dtos/wasteplant/WasteplantDTO";
 import { MESSAGES, STATUS_CODES } from "../../utils/constantUtils";
-import { handleControllerError } from "../../utils/errorHandler";
+import { ApiError } from "../../utils/ApiError";
 
 @injectable()
 export class WastePlantController implements IWastePlantController {
   constructor(
     @inject(TYPES.SuperAdminPlantService)
-    private wastePlantService: IWastePlantService
+    private _wastePlantService: IWastePlantService
   ) {}
-  async addWastePlant(req: Request, res: Response): Promise<void> {
+  async addWastePlant(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       if (!req.file) {
-        res
-          .status(STATUS_CODES.NOT_FOUND)
-          .json({ error: MESSAGES.WASTEPLANT.ERROR.DOCUMENT_REQUIRED });
-        return;
+        throw new ApiError(STATUS_CODES.NOT_FOUND,MESSAGES.WASTEPLANT.ERROR.DOCUMENT_REQUIRED)
       }
       if (req.file.mimetype !== "application/pdf") {
-        res
-          .status(STATUS_CODES.NOT_FOUND)
-          .json({ error: MESSAGES.WASTEPLANT.ERROR.PDF_FILES_REQUIRED });
-        return;
+        throw new ApiError(STATUS_CODES.NOT_FOUND,MESSAGES.WASTEPLANT.ERROR.PDF_FILES_REQUIRED)
       }
 
       const uploadFromBuffer = (): Promise<any> => {
@@ -82,7 +76,7 @@ export class WastePlantController implements IWastePlantController {
         cloudinaryPublicId: publicId,
       } as IWastePlant;
 
-      const newWastePlant = await this.wastePlantService.addWastePlant(
+      const newWastePlant = await this._wastePlantService.addWastePlant(
         wastePlantData
       );
       console.log("✅ Inserted Waste Plant:", newWastePlant);
@@ -92,13 +86,10 @@ export class WastePlantController implements IWastePlantController {
       });
     } catch (error) {
       console.error("err", error);
-      handleControllerError(error, res, 500);
-      // res
-      //   .status(500)
-      //   .json({ error: error.message || "Failed to create waste plant" });
+      next(error);
     }
   }
-  async viewLicenseDocument(req: Request, res: Response): Promise<void> {
+  async viewLicenseDocument(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const publicId = req.params.publicId;
 
@@ -112,12 +103,12 @@ export class WastePlantController implements IWastePlantController {
       res.setHeader("Content-Type", "application/pdf");
       res.setHeader("Content-Disposition", "inline");
       response.data.pipe(res);
-    } catch (error: any) {
+    } catch (error) {
       console.error("Error while fetching license document:", error);
-      res.status(500).json({ error: "Failed to retrieve document" });
+      next(error);
     }
   }
-  async fetchPostOffices(req: Request, res: Response): Promise<void> {
+  async fetchPostOffices(req: Request, res: Response, next: NextFunction): Promise<void> {
     const { pincode } = req.params;
     try {
       const response = await axios.get<IndiaPostAPIResponse[]>(
@@ -127,20 +118,14 @@ export class WastePlantController implements IWastePlantController {
       const result = response.data[0];
 
       if (result.Status !== "Success" || !result.PostOffice) {
-        res
-          .status(STATUS_CODES.NOT_FOUND)
-          .json({ message: "No post offices found for this PIN code." });
-        return;
+        throw new ApiError(STATUS_CODES.NOT_FOUND,MESSAGES.COMMON.ERROR.POST_OFFICE_ERROR)
       }
       console.log("postOffices", result.PostOffice);
       const isMalappuram = result.PostOffice.some(
         (po: PostOfficeEntry) => po.District.toLowerCase() === "malappuram"
       );
       if (!isMalappuram) {
-        res.status(STATUS_CODES.FORBIDDEN).json({
-          message: "Only pincodes from Malappuram district are allowed",
-        });
-        return;
+        throw new ApiError(STATUS_CODES.FORBIDDEN,MESSAGES.COMMON.ERROR.PINCODE_ALLOW_ERROR)
       }
       const postOffices = result.PostOffice.map((po: PostOfficeEntry) => ({
         name: po.Name,
@@ -150,12 +135,14 @@ export class WastePlantController implements IWastePlantController {
       res.status(STATUS_CODES.SUCCESS).json(postOffices);
     } catch (error) {
       console.error("Error fetching post office data:", error);
-      res
-        .status(STATUS_CODES.SERVER_ERROR)
-        .json({ message: "Failed to fetch location info" });
+      next(error);
     }
   }
-  async fetchWastePlants(req: AuthRequest, res: Response): Promise<void> {
+  async fetchWastePlants(
+    req: AuthRequest,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
     try {
       console.log(req.query);
       const DEFAULT_LIMIT = 5;
@@ -166,56 +153,75 @@ export class WastePlantController implements IWastePlantController {
         MAX_LIMIT
       );
       const search = (req.query.search as string) || "";
+
+      const capacityRangeStr = req.query.capacityRange as string;
+      let minCapacity = 0;
+      let maxCapacity = Infinity;
+
+      if (capacityRangeStr) {
+        const [minStr, maxStr] = capacityRangeStr.split("-");
+        minCapacity = parseInt(minStr);
+        maxCapacity = parseInt(maxStr);
+      }
+
       const { total, wasteplants } =
-        await this.wastePlantService.getAllWastePlants({ page, limit, search });
-      // const total, wasteplants = await this.wastePlantService.getAllWastePlants();
+        await this._wastePlantService.getAllWastePlants({
+          page,
+          limit,
+          search,
+          minCapacity,
+          maxCapacity,
+        });
+
       console.log({ total, wasteplants });
 
-      res.status(200).json({
+      res.status(STATUS_CODES.SUCCESS).json({
         success: true,
-        message: "Fetch waste plants successfully",
+        message: MESSAGES.WASTEPLANT.SUCCESS.FETCH,
         wasteplants,
         total,
       });
-    } catch (error: any) {
+    } catch (error) {
       console.error("err", error);
-      res.status(500).json({ message: "Error fetching waste plants", error });
+      next(error);
     }
   }
-  async getWastePlantById(req: Request, res: Response): Promise<void> {
+  async getWastePlantById(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const { id } = req.params;
-      const wastePlant = await this.wastePlantService.getWastePlantByIdService(
+      const wastePlant = await this._wastePlantService.getWastePlantByIdService(
         id
       );
       console.log("wastePlant", wastePlant);
 
       if (!wastePlant) {
-        res.status(404).json({ message: "Waste Plant not found" });
-        return;
+       throw new ApiError(STATUS_CODES.NOT_FOUND,MESSAGES.WASTEPLANT.ERROR.NOT_FOUND)
       }
 
-      res.status(200).json({ data: wastePlant });
-    } catch (error: any) {
+      res.status(STATUS_CODES.SUCCESS).json({ data: wastePlant });
+    } catch (error) {
       console.error("Error fetching waste plant:", error);
-      res.status(500).json({ message: "Server error" });
+      next(error);
     }
   }
-  async updateWastePlant(req: Request, res: Response): Promise<void> {
+  async updateWastePlant(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const { id } = req.params;
 
       if (!id) {
-        res.status(400).json({ message: "Super Admin ID is required" });
-        return;
+         throw new ApiError(
+          STATUS_CODES.UNAUTHORIZED,
+          MESSAGES.COMMON.ERROR.UNAUTHORIZED
+        );
       }
       const updatedData = req.body;
       if (req.file) {
         if (req.file.mimetype !== "application/pdf") {
-          res
-            .status(400)
-            .json({ error: "Only PDF files are allowed for license upload." });
-          return;
+           throw new ApiError(
+          STATUS_CODES.BAD_REQUEST,
+          MESSAGES.WASTEPLANT.ERROR.PDF_FILES_REQUIRED
+        );
+
         }
         const uploadFromBuffer = (): Promise<any> => {
           return new Promise((resolve, reject) => {
@@ -256,65 +262,66 @@ export class WastePlantController implements IWastePlantController {
           .map((item) => item.trim());
       }
       const updatedWastePlant =
-        await this.wastePlantService.updateWastePlantByIdService(
+        await this._wastePlantService.updateWastePlantByIdService(
           id,
           updatedData
         );
       console.log("wastePlant", updatedWastePlant);
       if (!updatedWastePlant) {
-        res.status(404).json({ message: "Waste plant not found" });
-        return;
+        throw new ApiError(STATUS_CODES.NOT_FOUND,MESSAGES.WASTEPLANT.ERROR.NOT_FOUND)
       }
-      res.status(200).json({
-        message: "Waste Plant updated successfully",
+      res.status(STATUS_CODES.SUCCESS).json({
+        message: MESSAGES.WASTEPLANT.SUCCESS.UPDATED,
         wastePlant: updatedWastePlant,
       });
-    } catch (error: any) {
+    } catch (error) {
       console.error("Error updating waste plant:", error);
-      res.status(500).json({ message: "Server error" });
+      next(error);
     }
   }
-  async deleteWastePlantById(req: Request, res: Response): Promise<void> {
+  async deleteWastePlantById(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const { id } = req.params;
       const updatedPlant =
-        await this.wastePlantService.deleteWastePlantByIdService(id);
+        await this._wastePlantService.deleteWastePlantByIdService(id);
 
       if (!updatedPlant) {
-        res.status(404).json({ message: "Waste Plant not found" });
-        return;
+        throw new ApiError(STATUS_CODES.NOT_FOUND,MESSAGES.WASTEPLANT.ERROR.NOT_FOUND)
       }
 
-      res.status(200).json({
+      res.status(STATUS_CODES.SUCCESS).json({
         success: true,
         updatedPlant,
-        message: "Waste Plant deleted successfully",
+        message: MESSAGES.WASTEPLANT.SUCCESS.DELETED,
       });
-    } catch (error: any) {
+    } catch (error) {
       console.error("Error in deleting waste plant:", error);
-      res.status(500).json({ message: "Server error" });
+      next(error);
     }
   }
   async sendSubscribeNotification(
     req: AuthRequest,
-    res: Response
+    res: Response,
+    next: NextFunction
   ): Promise<void> {
     try {
       const adminId = req.user?.id;
       if (!adminId) {
-        res.status(404).json({ message: "Unauthorized Id is not found." });
-        return;
+         throw new ApiError(
+          STATUS_CODES.UNAUTHORIZED,
+          MESSAGES.COMMON.ERROR.UNAUTHORIZED
+        );
       }
       const plantId = req.params.id;
-      await this.wastePlantService.sendSubscribeNotification({
+      await this._wastePlantService.sendSubscribeNotification({
         adminId,
         plantId,
       });
 
-      res.status(200).json({ message: "Send notification successfully" });
-    } catch (error: any) {
+      res.status(200).json({ message: MESSAGES.COMMON.SUCCESS.SEND_NOTIFICATION });
+    } catch (error) {
       console.error("Error in sending notification:", error);
-      res.status(500).json({ error: error.message || "Server error" });
+      next(error);
     }
   }
 }

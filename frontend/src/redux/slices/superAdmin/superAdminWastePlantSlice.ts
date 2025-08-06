@@ -14,6 +14,7 @@ import { RenewNotificationPayload } from "../../../types/wastePlantTypes";
 import { PostOffice } from "../../../types/wasteplant/wastePlantTypes";
 import { getAxiosErrorMessage } from "../../../utils/handleAxiosError";
 import { PaginationPayload } from "../../../types/common/commonTypes";
+import { PaginatedReturnAdminWastePlants } from "../../../types/superadmin/superAdminTypes";
 
 interface WastePlantState {
   wastePlant: any;
@@ -43,17 +44,20 @@ export const addWastePlant = createAsyncThunk(
     }
   }
 );
-export const fetchWastePlants = createAsyncThunk(
+export const fetchWastePlants = createAsyncThunk<
+PaginatedReturnAdminWastePlants,
+PaginationPayload,
+{ rejectValue: { error: string } }
+>(
   "superAdminWastePlant/fetchWastePlants",
-  async ({page, limit, search} : PaginationPayload, { rejectWithValue }) => {
+  async ({page, limit, search, capacityRange}, { rejectWithValue }) => {
     try {
-      const response = await getWastePlants({page, limit, search});
+      const response = await getWastePlants({page, limit, search, capacityRange});
       console.log("res", response);
       return response;
-    } catch (error: any) {
-      return rejectWithValue(
-        error.response?.data || "Failed to fetch waste plants"
-      );
+    } catch (err) {
+        const msg = getAxiosErrorMessage(err);
+    return rejectWithValue({ error: msg });
     }
   }
 );
@@ -180,7 +184,8 @@ const superAdminWastePlantSlice = createSlice({
       })
       .addCase(fetchWastePlants.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload as string;
+          state.error =
+          (action.payload as { error: string })?.error;
       })
       .addCase(fetchWastePlantById.pending, (state) => {
         state.loading = true;

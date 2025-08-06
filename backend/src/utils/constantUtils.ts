@@ -17,7 +17,8 @@ export const MESSAGES = {
       REFUND_UPDTAE_SUCCESS : "Update refund status successfully.",
       RETRY_ORDER_PAY_SUCCESS: "Retry payment order suceess.",
       SIGNUP: "User signup successfully.",
-      SIGNIN: "User signin successfully."
+      SIGNIN: "User signin successfully.",
+      SEND_NOTIFICATION: "Send notification successfully."
     },
     ERROR: {
       FETCH_PAYMENT_FAIL: "Fetch payments failed.",
@@ -51,10 +52,13 @@ export const MESSAGES = {
       BLOCKED: "Your account is blocked",
       JWT_SECRET_MISSING: "JWT token is not configured",
       NO_TOKEN: "Token not found",
+      POST_OFFICE_ERROR: "No post offices found for this PIN code.",
+      PINCODE_ALLOW_ERROR: "Only pincodes from Malappuram district are allowed.",
     },
   },
   WASTEPLANT: {
     SUCCESS: {
+      FETCH: "Fetch waste plants successfully.",
       CREATED: "Waste plant created successfully.",
       UPDATED: "Waste plant updated successfully.",
       DELETED: "Waste plant deleted successfully.",
@@ -62,6 +66,7 @@ export const MESSAGES = {
     ERROR: {
       DOCUMENT_REQUIRED: "License document is required.",
       PDF_FILES_REQUIRED: "Only PDF files are allowed.",
+      NOT_FOUND: "Waste Plant not found."
     },
   },
   DRIVER: {

@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect } from "react";
-import { Table, Button, Popconfirm, Spin, Tooltip } from "antd";
+import { Table, Button, Popconfirm, Spin, Tooltip, Pagination } from "antd";
 import {
   EditOutlined,
   DeleteOutlined,
@@ -31,20 +31,38 @@ const WastePlants: React.FC = () => {
   const { wastePlant, loading, error, total } = useSelector(
     (state: RootState) => state.superAdminWastePlant
   );
-  const { currentPage, setCurrentPage, pageSize, search, setSearch } =
-    usePagination();
+  const {
+    currentPage,
+    setCurrentPage,
+    pageSize,
+    search,
+    setSearch,
+    capacityFilter,
+    setCapacityFilter,
+  } = usePagination();
   const debouncedFetchWastePlants = useCallback(
-    debounce((page: number, limit: number, query: string) => {
-      dispatch(fetchWastePlants({ page, limit, search: query }));
-    }, 500),
+    debounce(
+      (page: number, limit: number, query: string, capacityRange: string) => {
+        dispatch(
+          fetchWastePlants({ page, limit, search: query, capacityRange })
+        );
+      },
+      500
+    ),
     [dispatch]
   );
   useEffect(() => {
-    debouncedFetchWastePlants(currentPage, pageSize, search);
+    debouncedFetchWastePlants(currentPage, pageSize, search, capacityFilter);
     return () => {
       debouncedFetchWastePlants.cancel();
     };
-  }, [currentPage, pageSize, search, debouncedFetchWastePlants]);
+  }, [
+    currentPage,
+    pageSize,
+    search,
+    capacityFilter,
+    debouncedFetchWastePlants,
+  ]);
 
   const handleEdit = async (id: string) => {
     try {
@@ -117,12 +135,10 @@ const WastePlants: React.FC = () => {
       ) : (
         <div className="overflow-x-auto">
           <PaginationSearch
-            total={total}
-            currentPage={currentPage}
-            pageSize={pageSize}
-            onPageChange={setCurrentPage}
             onSearchChange={setSearch}
             searchValue={search}
+            capacityFilterValue={capacityFilter}
+            onCapacityFilterChange={setCapacityFilter}
           />
           <Spin spinning={loading}>
             <Table
@@ -273,6 +289,13 @@ const WastePlants: React.FC = () => {
                 )}
               />
             </Table>
+            <Pagination
+              current={currentPage}
+              pageSize={pageSize}
+              total={total}
+              onChange={setCurrentPage}
+              style={{ marginTop: 16, textAlign: "right" }}
+            />
           </Spin>
         </div>
       )}

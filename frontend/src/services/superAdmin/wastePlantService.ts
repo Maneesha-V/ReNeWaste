@@ -10,9 +10,9 @@ export const createWastePlant = async (wastePlantData: FormData) => {
     console.log("res", response);
     return response.data;
 };
-export const getWastePlants = async ({ page, limit, search }: PaginationPayload) => {
+export const getWastePlants = async ({ page, limit, search, capacityRange }: PaginationPayload) => {
     const response = await axiosSuperadmin.get(`/waste-plants`,{
-      params: { page, limit, search },
+      params: { page, limit, search, capacityRange },
     });
     return response.data;
 };

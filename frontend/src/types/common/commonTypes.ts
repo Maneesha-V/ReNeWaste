@@ -26,6 +26,7 @@ export type PaginationPayload = {
   limit?: number;
   search: string;
   filter?: string;
+  capacityRange?: string;
 }
 export interface PaginationSearchProps {
   total: number;
@@ -35,14 +36,11 @@ export interface PaginationSearchProps {
   onSearchChange: (search: string) => void;
   searchValue: string;
 }
-interface FilterOption {
-  label: string;
-  value: string;
-}
 
 export interface PaginationSearchFilterProps extends Pick<PaginationSearchProps, "searchValue" | "onSearchChange"> {
   filterValue?: string;
   onFilterChange?: (value: string) => void;
-  filterOptions?: FilterOption[];
   placeholder?: string;
+  capacityFilterValue?: string;
+  onCapacityFilterChange?: (val: string) => void;
 }

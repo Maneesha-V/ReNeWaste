@@ -53,7 +53,7 @@ export class WastePlantRepository
   }
 
   async getAllWastePlants(data: PaginationInput) {
-    const { page, limit, search } = data;
+    const { page, limit, search, minCapacity, maxCapacity } = data;
     const searchRegex = new RegExp(search, "i");
     const query: any = {
       isDeleted: false,
@@ -67,6 +67,10 @@ export class WastePlantRepository
     };
     if (!isNaN(Number(search))) {
       query.$or.push({ capacity: Number(search) });
+    }
+
+    if (minCapacity !== undefined && maxCapacity !== undefined) {
+      query.capacity = { $gte: minCapacity, $lte: maxCapacity };
     }
     const skip = (page - 1) * limit;
 
