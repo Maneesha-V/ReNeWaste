@@ -56,6 +56,14 @@ export class AuthService implements IAuthService {
     ) {
       throw new Error("Invalid email or password.");
     }
+    // if (wastePlant?.status === "Inactive") {
+    //   throw new Error(
+    //     "Your plant is inactive. Please subscribe to continue."
+    //   );
+    // }
+    if (wastePlant?.isBlocked) {
+      throw new Error("Your account has been blocked by the superadmin.");
+    }
     const token = generateToken({
       userId: wastePlant._id.toString(),
       role: wastePlant.role,

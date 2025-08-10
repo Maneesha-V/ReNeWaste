@@ -44,3 +44,6 @@ export interface PaginationSearchFilterProps extends Pick<PaginationSearchProps,
   capacityFilterValue?: string;
   onCapacityFilterChange?: (val: string) => void;
 }
+export type MsgResponse = {
+  message: string;
+}

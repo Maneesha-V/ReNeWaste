@@ -2,20 +2,21 @@ import { LoginRequest } from "../../types/authTypes";
 import axiosWasteplant from "../../api/axiosWasteplant";
 
 export const loginWastePlant = async (wastePlantData: LoginRequest) => {
-  try {
+  // try {
     const response = await axiosWasteplant.post(`/`, wastePlantData);
     if (response.data) {
       localStorage.setItem("wasteplant_token", response.data.token);
       localStorage.setItem("wasteplant_role", response.data.role);
       localStorage.setItem("wasteplant_id", response.data.plantId);
+      localStorage.setItem("wasteplant_status", response.data.status);
     }
     console.log(response);
 
     return response.data;
-  } catch (error: any) {
-    console.error("err", error);
-    throw error.response?.data?.error || "Login failed. Please try again.";
-  }
+  // } catch (error: any) {
+  //   console.error("err", error);
+  //   throw error.response?.data?.error || "Login failed. Please try again.";
+  // }
 };
 
 export const logoutWastePlant = async () => {

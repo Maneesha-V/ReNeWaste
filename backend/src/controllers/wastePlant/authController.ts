@@ -1,4 +1,4 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import { IAuthController } from "./interface/IAuthController";
 import { generateRefreshToken } from "../../utils/authUtils";
 import { AuthRequest } from "../../types/common/middTypes";
@@ -28,7 +28,7 @@ export class AuthController implements IAuthController {
       res.status(401).json({ error: error.message });
     }
   }
-  async wastePlantLogin(req: AuthRequest, res: Response): Promise<void> {
+  async wastePlantLogin(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
     try {
       console.log("body", req.body);
       const { email, password } = req.body;
@@ -57,11 +57,12 @@ export class AuthController implements IAuthController {
         role: safeWastePlant.role,
         plantId: safeWastePlant._id,
         token,
+        status: safeWastePlant.status,
       });
      
-    } catch (error: any) {
+    } catch (error) {
       console.error("err", error);
-      res.status(400).json({ error: error.message });
+      next(error);
     }
   }
   async wastePlantLogout(req: Request, res: Response): Promise<void> {

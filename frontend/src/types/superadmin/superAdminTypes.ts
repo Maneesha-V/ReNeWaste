@@ -30,6 +30,10 @@ export interface WasteplantDTO {
   subscriptionPlan?: string; 
   password?: string;
   services?: string[];
+  isBlocked?: boolean;
+  blockedAt?: Date;
+  autoUnblockAt?: Date;
+  unblockNotificationSent?: Boolean;
 }
 export interface ReturnAdminWastePlant {
   plantData: WasteplantDTO;

@@ -9,7 +9,7 @@ import { SubscriptionPaymentMapper } from "../../mappers/SubscriptionPaymentMapp
 @injectable()
 export class PaymentService implements IPaymentService {
   constructor(
-       @inject(TYPES.SubscriptionPaymentRepository)
+    @inject(TYPES.SubscriptionPaymentRepository)
     private subscriptionPaymentRepository: ISubscriptionPaymentRepository 
   ) {}
    async fetchPayments(

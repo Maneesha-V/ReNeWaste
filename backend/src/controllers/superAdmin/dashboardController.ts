@@ -5,7 +5,6 @@ import { IDashboardService } from "../../services/superAdmin/interface/IDashboar
 import { IDashboardController } from "./interface/IDashboardController";
 import { AuthRequest } from "../../types/common/middTypes";
 import { MESSAGES, STATUS_CODES } from "../../utils/constantUtils";
-import { handleControllerError } from "../../utils/errorHandler";
 
 @injectable()
 export class DashboardController implements IDashboardController {
@@ -38,7 +37,6 @@ export class DashboardController implements IDashboardController {
     } catch (error) {
       console.error("err", error);
       next(error);
-      // handleControllerError(error, res, 500);
     }
   }
 }

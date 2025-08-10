@@ -71,7 +71,12 @@ axiosWasteplant.interceptors.response.use(
         return Promise.reject(refreshError);
       }
     }
-
+    // Handle blocked wasteplant (status 403)
+   if (error.response && error.response.status === 403) {
+      localStorage.removeItem("wasteplant_token");
+      window.location.href = "/waste-plant/blocked"; 
+      return Promise.reject(error);
+    }
     return Promise.reject(error);
   }
 );

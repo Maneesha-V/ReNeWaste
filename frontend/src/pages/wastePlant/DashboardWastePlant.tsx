@@ -1,12 +1,14 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { Truck, Users, Recycle, Activity } from "lucide-react";
 import { useAppDispatch } from "../../redux/hooks";
 import { RootState } from "../../redux/store";
 import { fetchDashboardData } from "../../redux/slices/wastePlant/wastePlantDashboardSlice";
+import SubscriptionModal from "../../components/wastePlant/SubscriptionModal";
 
 const DashboardWastePlant = () => {
   const dispatch = useAppDispatch();
+  const [showSubscriptionModal, setShowSubscriptionModal] = useState(false);
 
   const { summary, pickupStatus, loading } = useSelector(
     (state: RootState) => state.wastePlantDashboard
@@ -15,15 +17,13 @@ const DashboardWastePlant = () => {
   useEffect(() => {
     dispatch(fetchDashboardData());
   }, [dispatch]);
+  useEffect(() => {
+    const status = localStorage.getItem("wasteplant_status");
+    if (status === "Inactive") {
+      setShowSubscriptionModal(true);
+    }
+  }, []);
 
-  // const stats = [
-  //   { title: "Total Drivers", value: drivers, icon: <Users className="text-green-600 w-6 h-6" /> },
-  //   { title: "Total Trucks", value: trucks, icon: <Truck className="text-green-600 w-6 h-6" /> },
-  //   { title: "Active Pickups", value: pickups, icon: <Activity className="text-green-600 w-6 h-6" /> },
-  //   { title: "Total Revenue", value: `₹${revenue}`, icon: <DollarSign className="text-green-600 w-6 h-6" /> },
-  //   { title: "Waste Collected", value: `${waste} Tons`, icon: <Recycle className="text-green-600 w-6 h-6" /> },
-  // ];
-  
   const stats = [
     {
       title: "Active Drivers",
@@ -55,7 +55,6 @@ const DashboardWastePlant = () => {
       value: `${summary?.totalRevenue || 0} Rs`,
       icon: <Recycle className="text-green-600 w-6 h-6" />,
     },
-    
   ];
   return (
     <div className="p-6 bg-green-50 min-h-screen">
@@ -63,25 +62,25 @@ const DashboardWastePlant = () => {
         Waste Plant Dashboard
       </h1>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
-            {stats.map((stat, index) => (
-              <div
-                key={index}
-                className="bg-white shadow-md rounded-2xl p-5 flex items-center space-x-4 border border-green-200"
-              >
-                <div className="bg-green-100 rounded-full p-3">{stat.icon}</div>
-                <div>
-                  <p className="text-sm text-green-700">{stat.title}</p>
-                  <p className="text-xl font-semibold text-green-900">
-                    {stat.value}
-                  </p>
-                </div>
-              </div>
-            ))}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
+        {stats.map((stat, index) => (
+          <div
+            key={index}
+            className="bg-white shadow-md rounded-2xl p-5 flex items-center space-x-4 border border-green-200"
+          >
+            <div className="bg-green-100 rounded-full p-3">{stat.icon}</div>
+            <div>
+              <p className="text-sm text-green-700">{stat.title}</p>
+              <p className="text-xl font-semibold text-green-900">
+                {stat.value}
+              </p>
+            </div>
           </div>
+        ))}
+      </div>
 
-          {/* Pickup Status Section */}
-          {/* {pickupStatus && (
+      {/* Pickup Status Section */}
+      {/* {pickupStatus && (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
               <div className="bg-white p-6 rounded-lg shadow-md border border-green-200">
                 <h2 className="text-lg font-semibold text-green-800 mb-4">
@@ -150,7 +149,10 @@ const DashboardWastePlant = () => {
               </div>
             </div>
           )} */}
-
+      <SubscriptionModal
+        visible={showSubscriptionModal}
+        onClose={() => setShowSubscriptionModal(false)}
+      />
     </div>
   );
 };

@@ -12,6 +12,7 @@ import { checkNotBlocked } from "../middlewares/blockMiddleware";
 import container from "../config/inversify/container";
 import TYPES from "../config/inversify/types";
 import { NotificationController } from "../controllers/user/notificationController";
+import { checkWastePlantNotBlocked } from "../middlewares/checkWastePlantNotBlocked";
 
 const router: Router = Router();
 
@@ -41,19 +42,19 @@ router.get("/profile", authenticateUser as RequestHandler, checkNotBlocked, prof
 router.get("/edit-profile", authenticateUser as RequestHandler, checkNotBlocked, proflCtrl.getEditProfile.bind(proflCtrl))
 router.patch("/edit-profile", authenticateUser as RequestHandler, checkNotBlocked, proflCtrl.updateUserProfileHandler.bind(proflCtrl))
 router.get("/residential", authenticateUser as RequestHandler, checkNotBlocked, residCtrl.getResidential.bind(residCtrl))
-router.patch("/residential/pickup", authenticateUser as RequestHandler, checkNotBlocked, residCtrl.updateResidentialPickup.bind(residCtrl))
+router.patch("/residential/pickup", authenticateUser as RequestHandler, checkNotBlocked, checkWastePlantNotBlocked, residCtrl.updateResidentialPickup.bind(residCtrl))
 router.get("/commercial", authenticateUser as RequestHandler, checkNotBlocked, commCtrl.getCommercial.bind(commCtrl))
 router.post("/commercial/service-check", authenticateUser as RequestHandler, checkNotBlocked, commCtrl.checkServiceAvailable.bind(commCtrl))
-router.patch("/commercial/pickup", authenticateUser as RequestHandler, checkNotBlocked, commCtrl.updateCommercialPickup.bind(commCtrl))
+router.patch("/commercial/pickup", authenticateUser as RequestHandler, checkNotBlocked, checkWastePlantNotBlocked, commCtrl.updateCommercialPickup.bind(commCtrl))
 router.get("/pickup-plans", authenticateUser as RequestHandler, checkNotBlocked, pickupCtrl.getPickupPlans.bind(pickupCtrl))
-router.post("/payment/create-order", authenticateUser as RequestHandler, checkNotBlocked, paymentCtrl.createPaymentOrder.bind(paymentCtrl))
+router.post("/payment/create-order", authenticateUser as RequestHandler, checkNotBlocked, checkWastePlantNotBlocked, paymentCtrl.createPaymentOrder.bind(paymentCtrl))
 router.post("/payment/verify", authenticateUser as RequestHandler, checkNotBlocked, paymentCtrl.verifyPayment.bind(paymentCtrl))
 router.get("/payments", authenticateUser as RequestHandler, checkNotBlocked, paymentCtrl.getAllPayments.bind(paymentCtrl))
 router.post("/payment/repay", authenticateUser as RequestHandler, checkNotBlocked, paymentCtrl.rePayment.bind(paymentCtrl))
 router.get("/drop-spots", authenticateUser as RequestHandler, checkNotBlocked, dropSpotCtrl.fetchAllNearDropSpots.bind(dropSpotCtrl))
-router.patch("/pickup-plan/cancel/:pickupReqId", authenticateUser as RequestHandler, checkNotBlocked, pickupCtrl.cancelPickupPlan.bind(pickupCtrl));
+router.patch("/pickup-plan/cancel/:pickupReqId", authenticateUser as RequestHandler, checkNotBlocked, checkWastePlantNotBlocked, pickupCtrl.cancelPickupPlan.bind(pickupCtrl));
 router.get("/notifications", authenticateUser as RequestHandler, checkNotBlocked, notificationCtrl.fetchNotifications.bind(notificationCtrl))
 router.patch("/notifications/:notifId/read", authenticateUser as RequestHandler, notificationCtrl.markReadNotification.bind(notificationCtrl))
-router.patch("/cancel-pickupReq/:pickupReqId",authenticateUser as RequestHandler, pickupCtrl.cancelPickupReason.bind(pickupCtrl))
+router.patch("/cancel-pickupReq/:pickupReqId",authenticateUser as RequestHandler, checkNotBlocked, checkWastePlantNotBlocked, pickupCtrl.cancelPickupReason.bind(pickupCtrl))
 
 export default router;
