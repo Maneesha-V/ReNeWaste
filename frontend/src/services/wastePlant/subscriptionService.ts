@@ -5,3 +5,9 @@ export const fetchSubscriptionPlanService = async () => {
     console.log("res", response);
     return response.data;
 };
+
+export const fetchSubscriptionPlansService = async () => {
+    const response = await axiosWasteplant.get(`/subscription`);
+    console.log("resrtttt", response);
+    return response.data;
+};

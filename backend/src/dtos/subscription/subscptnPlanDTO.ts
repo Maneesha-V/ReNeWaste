@@ -1,4 +1,6 @@
-export type SubsptnPlans = {
+import { BaseDTO } from "../base/BaseDTO";
+
+export interface SubsptnPlansDTO extends BaseDTO {
   billingCycle?: string;
   description?: string;
   driverLimit?: number;
@@ -9,11 +11,4 @@ export type SubsptnPlans = {
   userLimit?: number;
   status?: string;
   isDeleted?: boolean;
-  _id?: string;
-};
-
-export type FetchSubsptnPlansResp = {
-  success: boolean;
-  message: string;
-  subscriptionPlans: SubsptnPlans[];
 };

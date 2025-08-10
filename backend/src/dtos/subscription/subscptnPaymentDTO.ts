@@ -2,7 +2,7 @@ import { ISubscriptionPaymentDocument } from "../../models/subsptnPayment/interf
 import { BaseDTO } from "../base/BaseDTO";
 
 export type SubcrptnRefundStatus = "Pending" | "Processing" | "Refunded" | "Rejected" | null;
-export type SubcrptnPaymentStatus = "Pending" | "Paid" | "Failed";
+export type SubcrptnPaymentStatus = "Pending" | "Paid" | "Failed" | "InProgress";
 export interface SubscriptionPaymentDTO extends BaseDTO {
   wasteplantId: string;
    planId: string;

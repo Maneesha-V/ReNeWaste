@@ -34,6 +34,9 @@ export class SubscriptionPlanRepository
     return this.model.find();
     // await this.model.find({isDeleted: false})
   }
+  async getActiveSubscriptionPlans(): Promise<ISubscriptionPlanDocument[]>{
+    return this.model.find({isDeleted: false, status: "Active"})
+  }
   async deleteSubscriptionPlanById(planId: string) {
     return await this.model.findByIdAndDelete(planId);
     // const updatedData = await this.model.findByIdAndUpdate(
