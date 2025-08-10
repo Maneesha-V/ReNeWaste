@@ -8,13 +8,19 @@ import {
   sendRechargeNotificationService,
   sendRenewNotificationService,
   sendSubscribeNotificationById,
+  togglePlantBlockStatusService,
   updateWastePlantById,
 } from "../../../services/superAdmin/wastePlantService";
 import { RenewNotificationPayload } from "../../../types/wastePlantTypes";
-import { PostOffice } from "../../../types/wasteplant/wastePlantTypes";
+import {
+  PostOffice,
+  TogglePlantBlockPayload,
+  TogglePlantBlockResp,
+} from "../../../types/wasteplant/wastePlantTypes";
 import { getAxiosErrorMessage } from "../../../utils/handleAxiosError";
 import { PaginationPayload } from "../../../types/common/commonTypes";
-import { PaginatedReturnAdminWastePlants } from "../../../types/superadmin/superAdminTypes";
+import { PaginatedReturnAdminWastePlants, WasteplantDTO } from "../../../types/superadmin/superAdminTypes";
+import { ActionCodeOperation } from "firebase/auth";
 
 interface WastePlantState {
   wastePlant: any;
@@ -39,25 +45,30 @@ export const addWastePlant = createAsyncThunk(
       const response = await createWastePlant(formData);
       return response;
     } catch (err) {
-      const msg = getAxiosErrorMessage(err); 
+      const msg = getAxiosErrorMessage(err);
       return rejectWithValue({ message: msg });
     }
   }
 );
 export const fetchWastePlants = createAsyncThunk<
-PaginatedReturnAdminWastePlants,
-PaginationPayload,
-{ rejectValue: { error: string } }
+  PaginatedReturnAdminWastePlants,
+  PaginationPayload,
+  { rejectValue: { error: string } }
 >(
   "superAdminWastePlant/fetchWastePlants",
-  async ({page, limit, search, capacityRange}, { rejectWithValue }) => {
+  async ({ page, limit, search, capacityRange }, { rejectWithValue }) => {
     try {
-      const response = await getWastePlants({page, limit, search, capacityRange});
+      const response = await getWastePlants({
+        page,
+        limit,
+        search,
+        capacityRange,
+      });
       console.log("res", response);
       return response;
     } catch (err) {
-        const msg = getAxiosErrorMessage(err);
-    return rejectWithValue({ error: msg });
+      const msg = getAxiosErrorMessage(err);
+      return rejectWithValue({ error: msg });
     }
   }
 );
@@ -113,9 +124,12 @@ export const sendSubscribeNotification = createAsyncThunk(
 );
 export const sendRenewNotification = createAsyncThunk(
   "superAdminWastePlant/sendRenewNotification",
-  async ({plantId,daysLeft}: RenewNotificationPayload, thunkAPI) => {
+  async ({ plantId, daysLeft }: RenewNotificationPayload, thunkAPI) => {
     try {
-      const response = await sendRenewNotificationService({plantId,daysLeft});
+      const response = await sendRenewNotificationService({
+        plantId,
+        daysLeft,
+      });
       return response;
     } catch (error: any) {
       return thunkAPI.rejectWithValue(
@@ -138,9 +152,9 @@ export const sendRechargeNotification = createAsyncThunk(
   }
 );
 export const fetchPostOffices = createAsyncThunk<
-  PostOffice[],               
-  string,     
-  { rejectValue: { message: string } } 
+  PostOffice[],
+  string,
+  { rejectValue: { message: string } }
 >(
   "superAdminWastePlant/fetchPostOffices",
   async (pincode, { rejectWithValue }) => {
@@ -148,7 +162,23 @@ export const fetchPostOffices = createAsyncThunk<
       const response = await getPostOffices(pincode);
       return response;
     } catch (err) {
-      const msg = getAxiosErrorMessage(err); 
+      const msg = getAxiosErrorMessage(err);
+      return rejectWithValue({ message: msg });
+    }
+  }
+);
+export const togglePlantBlockStatus = createAsyncThunk<
+  TogglePlantBlockResp,
+  TogglePlantBlockPayload,
+  { rejectValue: { message: string } }
+>(
+  "superAdminWastePlant/togglePlantBlockStatus",
+  async ({ plantId, isBlocked }, { rejectWithValue }) => {
+    try {
+      const response = await togglePlantBlockStatusService(plantId, isBlocked);
+      return response;
+    } catch (err) {
+      const msg = getAxiosErrorMessage(err);
       return rejectWithValue({ message: msg });
     }
   }
@@ -156,7 +186,21 @@ export const fetchPostOffices = createAsyncThunk<
 const superAdminWastePlantSlice = createSlice({
   name: "superAdminWastePlant",
   initialState,
-  reducers: {},
+  reducers: {
+    updateBlockStatus: (state, action) => {
+  const { plantId, isBlocked } = action.payload;
+  state.wastePlant = state.wastePlant.map((wp: any) => {
+    if (wp.plantData._id === plantId) {
+      return {
+        ...wp,
+        plantData: { ...wp.plantData, isBlocked }
+      };
+    }
+    return wp;
+  });
+}
+
+  },
   extraReducers: (builder) => {
     builder
       .addCase(addWastePlant.pending, (state) => {
@@ -164,8 +208,8 @@ const superAdminWastePlantSlice = createSlice({
         state.error = null;
       })
       .addCase(addWastePlant.fulfilled, (state, action) => {
-        console.log("action",action);
-        
+        console.log("action", action);
+
         state.loading = false;
         // state.wastePlant = action.payload || [];
       })
@@ -184,8 +228,7 @@ const superAdminWastePlantSlice = createSlice({
       })
       .addCase(fetchWastePlants.rejected, (state, action) => {
         state.loading = false;
-          state.error =
-          (action.payload as { error: string })?.error;
+        state.error = (action.payload as { error: string })?.error;
       })
       .addCase(fetchWastePlantById.pending, (state) => {
         state.loading = true;
@@ -213,7 +256,7 @@ const superAdminWastePlantSlice = createSlice({
       })
       .addCase(deleteWastePlant.fulfilled, (state, action) => {
         state.message = action.payload.message;
-        state.wastePlant = state.wastePlant.filter((plant: any) => {      
+        state.wastePlant = state.wastePlant.filter((plant: any) => {
           return plant.plantData._id !== action.payload.updatedPlant.plantId;
         });
       })
@@ -240,7 +283,26 @@ const superAdminWastePlantSlice = createSlice({
         state.loading = false;
         state.error = action.payload?.message || "Something went wrong";
       })
+      .addCase(togglePlantBlockStatus.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(togglePlantBlockStatus.fulfilled, (state, action) => {
+        console.log("action",action.payload);
+        state.loading = false;
+        state.error = null;     
+        state.wastePlant = state.wastePlant.map( (w:any) => 
+          w.plantData._id === action.payload.wasteplant._id ? 
+        { ...w, plantData: action.payload.wasteplant } : w
+        )
+      })
+      .addCase(togglePlantBlockStatus.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload?.message || "Something went wrong";
+      });
   },
 });
+
+export const { updateBlockStatus } = superAdminWastePlantSlice.actions;
 
 export default superAdminWastePlantSlice.reducer;

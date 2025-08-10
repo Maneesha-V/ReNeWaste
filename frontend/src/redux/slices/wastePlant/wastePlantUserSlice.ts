@@ -1,6 +1,6 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { fetchUsersService, toggleUserBlockStatusService } from "../../../services/wastePlant/userService";
-import { PaginationPayload } from "../../../types/commonTypes";
+import { PaginationPayload } from "../../../types/common/commonTypes";
 
 interface UserState {
   loading: boolean;

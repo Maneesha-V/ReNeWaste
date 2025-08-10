@@ -15,6 +15,7 @@ import Payments from "../pages/user/Payments";
 import ErrorBoundary from "../components/common/ErrorBoundary";
 import DropSpotMap from "../pages/user/DropSpotMap";
 import Blocked from "../pages/user/Blocked";
+import ServicesUnavailable from "../pages/user/ServicesUnavailable";
 
 const UserRoutes = () => {
   return (
@@ -38,6 +39,7 @@ const UserRoutes = () => {
         <Route path="/drop-spots" element={<DropSpotMap/>} />
       </Route>
 
+      <Route path="/services-unavailable" element={<ServicesUnavailable />} />
       <Route path="/unauthorized" element={<Unauthorized />} />
       <Route path="/blocked" element={<Blocked />} />
       <Route path="*" element={<NotFoundPage />} />

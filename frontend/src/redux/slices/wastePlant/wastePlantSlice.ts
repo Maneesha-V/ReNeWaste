@@ -8,6 +8,7 @@ import {
   sendOtpService,
   verifyOtpService,
 } from "../../../services/wastePlant/authService";
+import { getAxiosErrorMessage } from "../../../utils/handleAxiosError";
 
 interface WasteplantState {
   wasteplant: any;
@@ -25,7 +26,11 @@ const initialState: WasteplantState = {
   token: null,
 };
 
-export const wastePlantLogin = createAsyncThunk(
+export const wastePlantLogin = createAsyncThunk<
+any,
+LoginRequest,
+{ rejectValue: { message: string } }
+>(
   "wasteplant/login",
   async (wastePlantData: LoginRequest, { rejectWithValue }) => {
     try {
@@ -33,9 +38,9 @@ export const wastePlantLogin = createAsyncThunk(
       console.log("res",response);
       
       return response;
-    } catch (error: any) {
-      console.error("err", error);
-      return rejectWithValue(error);
+    } catch (err) {
+       const msg = getAxiosErrorMessage(err);
+       return rejectWithValue({ message: msg });
     }
   }
 );
@@ -123,7 +128,7 @@ const wastePlantSlice = createSlice({
       })
       .addCase(wastePlantLogin.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload as string;
+        state.error = action.payload?.message || "Something went wrong";
       })
       .addCase(wastePlantLogout.fulfilled, (state) => {
         state.wasteplant = null;

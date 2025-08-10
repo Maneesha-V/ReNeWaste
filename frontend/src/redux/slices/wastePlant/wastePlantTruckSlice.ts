@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { assignTruckForDriver, createTruck, deleteTruckById, getAvailableTrucks, getTruckById, getTruckRequests, getTrucks, getTrucksForDriver, updateTruckById } from "../../../services/wastePlant/truckService";
-import { PaginationPayload } from "../../../types/commonTypes";
+import { PaginationPayload } from "../../../types/common/commonTypes";
 
 
 interface TruckState {

@@ -1,22 +1,40 @@
 import { Response, NextFunction } from "express";
 import { UserModel } from "../models/user/userModel";
 import { AuthRequest } from "../types/common/middTypes";
+import { MESSAGES, STATUS_CODES } from "../utils/constantUtils";
+import { WastePlantModel } from "../models/wastePlant/wastePlantModel";
 
+export const checkNotBlocked = async (
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  const id = req.user?.id;
+  const role = req.user?.role;
+  if (!id || !role) {
+    res
+      .status(STATUS_CODES.UNAUTHORIZED)
+      .json({ message: MESSAGES.COMMON.ERROR.UNAUTHORIZED });
+    return;
+  }
+  let entity;
 
-export const checkNotBlocked = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
-  const userId = req.user?.id; 
-
-  if (!userId) {
-    res.status(401).json({ message: "Unauthorized" });
+  if (role === "user") {
+    entity = await UserModel.findById(id);
+  } else if (role === "wasteplant") {
+    entity = await WastePlantModel.findById(id);
+  } else {
+    res
+      .status(STATUS_CODES.FORBIDDEN)
+      .json({ message: MESSAGES.COMMON.ERROR.INVALID_ROLE });
     return;
   }
 
-  const user = await UserModel.findById(userId);
-
-  if (!user || user.isBlocked) {
-    res.status(403).json({ message: "Your account has been blocked by the waste plant" });
+  if (!entity || entity.isBlocked) {
+    res
+      .status(STATUS_CODES.FORBIDDEN)
+      .json({ message: MESSAGES.COMMON.ERROR.BLOCKED });
     return;
   }
-
   next();
 };

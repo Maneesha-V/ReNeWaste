@@ -18,7 +18,8 @@ export const MESSAGES = {
       RETRY_ORDER_PAY_SUCCESS: "Retry payment order suceess.",
       SIGNUP: "User signup successfully.",
       SIGNIN: "User signin successfully.",
-      SEND_NOTIFICATION: "Send notification successfully."
+      SEND_NOTIFICATION: "Send notification successfully.",
+      BLOCK_UPDATE: "Block status updated successfully."
     },
     ERROR: {
       FETCH_PAYMENT_FAIL: "Fetch payments failed.",
@@ -49,11 +50,13 @@ export const MESSAGES = {
       FAILED_OTP: "Failed to resend OTP",
       ALREADY_VERIFIED: "Account is already verified.",
       NO_OTP_FOUND: "No OTP found. Please request a new one.",
-      BLOCKED: "Your account is blocked",
+      BLOCKED: "Your account is blocked.",
+      INVALID_BLOCK: "Invalid block status.",
       JWT_SECRET_MISSING: "JWT token is not configured",
       NO_TOKEN: "Token not found",
       POST_OFFICE_ERROR: "No post offices found for this PIN code.",
       PINCODE_ALLOW_ERROR: "Only pincodes from Malappuram district are allowed.",
+      INVALID_ROLE: "Invalid user role."
     },
   },
   WASTEPLANT: {
@@ -64,6 +67,7 @@ export const MESSAGES = {
       DELETED: "Waste plant deleted successfully.",
     },
     ERROR: {
+      ID_REQUIRED: "Plant ID is required.",
       DOCUMENT_REQUIRED: "License document is required.",
       PDF_FILES_REQUIRED: "Only PDF files are allowed.",
       NOT_FOUND: "Waste Plant not found."
@@ -75,7 +79,10 @@ export const MESSAGES = {
   },
   USER: {
     SUCCESS: {},
-    ERROR: {},
+    ERROR: {
+      NOT_FOUND: "User not found.",
+      WASTEPLANT_BLOCK: "Services unavailable: Waste plant is blocked"
+    },
   },
 
   SUPERADMIN: {
@@ -85,7 +92,8 @@ export const MESSAGES = {
       SUBSCRIPTION_CREATED: "Subscription created successfully",
       SUBSCRIPTION_UPDATED: "Subscription updated successfully",
       SUBSCRIPTION_DELETED: "Subscription deleted successfully",
-      PAYMENT_HISTORY: "Fetch payment history successfully"
+      PAYMENT_HISTORY: "Fetch payment history successfully",
+      SUBSCRIPTION_PLANS: "Fetch subscription plan successfully."
     },
     ERROR: {
       FAILED_DOC_VERIFY: "Document verification failed",

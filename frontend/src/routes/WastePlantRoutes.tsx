@@ -24,6 +24,7 @@ import Subscription from "../pages/wastePlant/Subscription";
 import WasteReports from "../pages/wastePlant/WasteReports";
 import ProfileWasteplant from "../pages/wastePlant/ProfileWasteplant";
 import EditProfileWasteplant from "../pages/wastePlant/EditProfileWasteplant";
+import Blocked from "../pages/wastePlant/Blocked";
 
 const WastePlantRoutes = () => {
   return (
@@ -61,6 +62,7 @@ const WastePlantRoutes = () => {
       </Route>
       
       <Route path="/unauthorized" element={<Unauthorized />} />
+      <Route path="/blocked" element={<Blocked />} />
       <Route path="*" element={<NotFoundPage />} />
     </Routes>
   );

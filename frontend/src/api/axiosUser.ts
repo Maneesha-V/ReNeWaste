@@ -1,5 +1,5 @@
 import axios from "axios";
-import { jwtDecode } from 'jwt-decode';
+import { jwtDecode } from "jwt-decode";
 
 const axiosUser = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
@@ -11,7 +11,7 @@ const axiosUser = axios.create({
 
 axiosUser.interceptors.request.use(
   async (config) => {
-    console.log("config",config);
+    console.log("config", config);
     // const token = sessionStorage.getItem("user_token");
     const token = localStorage.getItem("token");
     // if (token) {
@@ -55,18 +55,24 @@ axiosUser.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
-    if (error.response && error.response.status === 401 && !originalRequest._retry) {
+    if (
+      error.response &&
+      error.response.status === 401 &&
+      !originalRequest._retry
+    ) {
       originalRequest._retry = true;
       try {
         const res = await axiosUser.get("/refresh-token");
-        console.log("res-refresh",res);
-        
+        console.log("res-refresh", res);
+
         // const newAccessToken = res.data.accessToken;
         const newAccessToken = res.data.token;
         localStorage.setItem("token", newAccessToken);
 
-        axiosUser.defaults.headers.common['Authorization'] = `Bearer ${newAccessToken}`;
-        originalRequest.headers['Authorization'] = `Bearer ${newAccessToken}`;
+        axiosUser.defaults.headers.common[
+          "Authorization"
+        ] = `Bearer ${newAccessToken}`;
+        originalRequest.headers["Authorization"] = `Bearer ${newAccessToken}`;
 
         return axiosUser(originalRequest);
       } catch (refreshError) {
@@ -74,10 +80,19 @@ axiosUser.interceptors.response.use(
         return Promise.reject(refreshError);
       }
     }
- // Handle blocked user (status 403)
+    // Handle blocked user (status 403)
     if (error.response && error.response.status === 403) {
+      console.log("error", error);
+
+      const reason = error.response.data?.reason;
+
+      if (reason === "WASTEPLANT_BLOCKED") {
+        window.location.href = "/services-unavailable";
+        return Promise.reject(error);
+      }
+
       localStorage.removeItem("token");
-      window.location.href = "/blocked"; 
+      window.location.href = "/blocked";
       return Promise.reject(error);
     }
     return Promise.reject(error);
