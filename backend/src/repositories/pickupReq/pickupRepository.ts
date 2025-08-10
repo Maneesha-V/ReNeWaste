@@ -30,6 +30,7 @@ import {
 import { populate } from "dotenv";
 import { FilterReport } from "../../types/wastePlant/reportTypes";
 import { PopulatedPIckupPlans } from "../../dtos/pickupReq/pickupReqDTO";
+import { PaginationInput } from "../../dtos/common/commonDTO";
 
 @injectable()
 export class PickupRepository
@@ -240,43 +241,44 @@ export class PickupRepository
     console.log("trackk", res);
   }
 
- async getPickupPlansByUserId(
-    userId: string, page: number, limit: number, search: string, filter: string
+  async getPickupPlansByUserId(
+    userId: string,
+    paginationData: PaginationInput
   ): Promise<{ pickupPlans: PopulatedPIckupPlans[]; total: number }> {
-
+    const { page, limit, search, filter } = paginationData;
     const searchRegex = new RegExp(search, "i");
 
-  const query: any = {
-    userId: new mongoose.Types.ObjectId(userId),
-  };
-if(filter && filter !== "All"){
-  query.status = filter
-}
-  if (search.trim()) {
-    query.$or = [
-      { status: { $regex: searchRegex } },
-      { pickupTime: { $regex: searchRegex } },
-      { pickupId: { $regex: searchRegex } },
-    ];
-  }
+    const query: any = {
+      userId: new mongoose.Types.ObjectId(userId),
+    };
+    if (filter && filter !== "All") {
+      query.status = filter;
+    }
+    if (search.trim()) {
+      query.$or = [
+        { status: { $regex: searchRegex } },
+        { pickupTime: { $regex: searchRegex } },
+        { pickupId: { $regex: searchRegex } },
+      ];
+    }
 
-  const skip = (page - 1) * limit;
- const [pickups, total] = await Promise.all([
-    this.model
-      .find(query)
-      .skip(skip)
-      .limit(limit)
-      .populate({
-        path: "driverId",
-        select: "name contact",
-      })
-      .populate({
-        path: "truckId",
-        select: "name vehicleNumber",
-      })
-      .lean(),
-    this.model.countDocuments(query),
-  ]);
+    const skip = (page - 1) * limit;
+    const [pickups, total] = await Promise.all([
+      this.model
+        .find(query)
+        .skip(skip)
+        .limit(limit)
+        .populate({
+          path: "driverId",
+          select: "name contact",
+        })
+        .populate({
+          path: "truckId",
+          select: "name vehicleNumber",
+        })
+        .lean(),
+      this.model.countDocuments(query),
+    ]);
 
     const user: IUserDocument = await this._userRepository.findById(
       userId,
@@ -322,34 +324,33 @@ if(filter && filter !== "All"){
       return aDateTime.getTime() - bDateTime.getTime();
     });
 
-  return {
-  pickupPlans: sortedPickups.map((p) => {
-    const matchedAddress = user?.addresses?.find(
-      (a) => a._id.toString() === p.addressId?.toString()
-    );
-
-    const address = matchedAddress
-      ? {
-          ...matchedAddress, 
-          _id: matchedAddress._id.toString(), 
-        }
-      : null;
-
     return {
-      ...p,
-      user: user
-        ? {
-            firstName: user.firstName,
-            lastName: user.lastName,
-            phone: user.phone,
-          }
-        : null,
-      address,
-    };
-  }) as PopulatedPIckupPlans[],
-  total,
-};
+      pickupPlans: sortedPickups.map((p) => {
+        const matchedAddress = user?.addresses?.find(
+          (a) => a._id.toString() === p.addressId?.toString()
+        );
 
+        const address = matchedAddress
+          ? {
+              ...matchedAddress,
+              _id: matchedAddress._id.toString(),
+            }
+          : null;
+
+        return {
+          ...p,
+          user: user
+            ? {
+                firstName: user.firstName,
+                lastName: user.lastName,
+                phone: user.phone,
+              }
+            : null,
+          address,
+        };
+      }) as PopulatedPIckupPlans[],
+      total,
+    };
   }
 
   async updateTrackingStatus(
@@ -423,23 +424,90 @@ if(filter && filter !== "All"){
   //   }
   // }
 
-  async getAllPaymentsByUser(userId: string) {
-    return await this.model
-      .find(
-        {
-          userId,
-          "payment.amount": { $exists: true },
-        },
-        {
+  async getAllPaymentsByUser(
+    userId: string,
+    paginationData: PaginationInput
+  ): Promise<{ pickups: Partial<IPickupRequestDocument>[]; total: number }> {
+    const { page, limit, search, filter } = paginationData;
+    const searchRegex = new RegExp(search, "i");
+
+    const query: any = {
+      userId: new mongoose.Types.ObjectId(userId),
+      "payment.amount": { $exists: true },
+    };
+    if (filter && filter !== "All") {
+      if (["Paid", "Pending"].includes(filter)) {
+        query["payment.status"] = filter;
+      } else {
+        query["payment.refundStatus"] = filter;
+      }
+    }
+
+    if (search.trim()) {
+      const dateRegex = /^\d{2}-\d{2}-\d{4}$/;
+      const searchLower = search.toLowerCase();
+      const isNumber = !isNaN(Number(search));
+
+      if (dateRegex.test(search.trim())) {
+        const [day, month, year] = search.trim().split("-");
+        const searchDate = new Date(
+          Number(year),
+          Number(month) - 1,
+          Number(day)
+        );
+        const nextDay = new Date(searchDate);
+        nextDay.setDate(nextDay.getDate() + 1);
+
+        query.$or = [
+          { pickupId: { $regex: searchRegex } },
+          { wasteType: { $regex: searchRegex } },
+          ...(isNumber ? [{ "payment.amount": Number(search) }] : []),
+          // { "payment.status": { $regex: searchRegex } },
+          // ...(searchLower !== "pending"
+          //   ? [{ "payment.refundStatus": { $regex: searchRegex } }]
+          //   : []),
+          { "payment.refundStatus": { $regex: searchRegex } },
+          { "payment.paidAt": { $gte: searchDate, $lt: nextDay } },
+          { "payment.refundAt": { $gte: searchDate, $lt: nextDay } },
+        ];
+      } else {
+        query.$or = [
+          { pickupId: { $regex: searchRegex } },
+          { wasteType: { $regex: searchRegex } },
+          ...(isNumber ? [{ "payment.amount": Number(search) }] : []),
+          // { "payment.status": { $regex: searchRegex } },
+          // ...(searchLower !== "pending"
+          //   ? [{ "payment.refundStatus": { $regex: searchRegex } }]
+          //   : []),
+          { "payment.refundStatus": { $regex: searchRegex } },
+        ];
+      }
+    }
+
+    const skip = (page - 1) * limit;
+
+    const [pickups, total] = await Promise.all([
+      this.model
+        .find(query, {
           pickupId: 1,
           payment: 1,
           wasteType: 1,
           originalPickupDate: 1,
           rescheduledPickupDate: 1,
           status: 1,
-        }
-      )
-      .sort({ createdAt: -1 });
+        })
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit)
+        .lean(),
+      this.model.countDocuments(query),
+    ]);
+
+    return {
+      pickups,
+      total,
+    };
+
   }
   async fetchAllPickupsByPlantId(
     plantId: string
@@ -824,8 +892,10 @@ if(filter && filter !== "All"){
     const count = result.length > 0 ? result[0].pickupCount : 0;
     return { count };
   }
-  async totalRevenueByMonth(): Promise<{ month: string; totalRevenue: number }[]> {
-    const result =  await this.model.aggregate([
+  async totalRevenueByMonth(): Promise<
+    { month: string; totalRevenue: number }[]
+  > {
+    const result = await this.model.aggregate([
       {
         $match: {
           "payment.status": "Paid",
@@ -862,15 +932,15 @@ if(filter && filter !== "All"){
         },
       },
       {
-        $sort:{ month: 1}
-      }
+        $sort: { month: 1 },
+      },
     ]);
     return result;
   }
   async getAllPickupsByStatus(plantId: string) {
     return await this.model.find({
       wasteplantId: plantId,
-      status: { $in: ["Pending", "Scheduled", "Rescheduled"] }
-    })   
+      status: { $in: ["Pending", "Scheduled", "Rescheduled"] },
+    });
   }
 }

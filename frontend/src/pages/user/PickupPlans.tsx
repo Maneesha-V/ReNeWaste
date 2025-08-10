@@ -18,7 +18,6 @@ import {
   Empty,
   Button,
   Popconfirm,
-  Tabs,
   Modal,
   Pagination,
 } from "antd";
@@ -28,7 +27,6 @@ import {
 } from "../../utils/formatDate";
 import TrackModal from "../../components/user/TrackModal";
 import { useLocation } from "react-router-dom";
-import TabPane from "antd/es/tabs/TabPane";
 import { setPaymentData } from "../../redux/slices/user/userPaymentSlice";
 import PayNow from "./PayNow";
 import InputMessage from "../../components/common/InputMessage";
@@ -49,10 +47,9 @@ const PickupPlans = () => {
   const [selectedEta, setSelectedEta] = useState<{
     text: string | null;
   } | null>(null);
-  // const [activeTab, setActiveTab] = useState<string>("1");
 
   const dispatch = useAppDispatch();
-  const { pickups, total, loading, error } = useSelector(
+  const { pickups, total, loading } = useSelector(
     (state: RootState) => state.userPickups
   );
   const location = useLocation();
@@ -324,7 +321,7 @@ useEffect(() => {
           total={total}
           onChange={setCurrentPage}
           showSizeChanger={false}
-           style={{ marginTop: 16, textAlign: "right" }}
+          style={{ marginTop: 16, textAlign: "right" }}
         />
         {isModalOpen && selectedPickupId && (
           <TrackModal

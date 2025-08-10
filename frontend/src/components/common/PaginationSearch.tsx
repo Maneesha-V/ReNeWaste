@@ -11,6 +11,14 @@ const statusOptions = [
   { value: "Cancelled", label: "Cancelled" },
 ];
 
+const paymentStatusOptions = [
+  { value: "All", label: "All" },
+  { value: "Paid", label: "Paid" },
+  { value: "Pending", label: "Pending" },
+  { value: "Refunded", label: "Refunded" },
+  // { value: "Cancelled", label: "Cancelled" },
+];
+
 const capacityOptions = [
   { label: "All", value: "" },
   { label: "0 - 5000 Kg", value: "0-5000" },
@@ -26,6 +34,8 @@ const PaginationSearch: React.FC<PaginationSearchFilterProps> = ({
   onFilterChange,
   capacityFilterValue,
   onCapacityFilterChange,
+  paymentStatusFilterValue,
+  onPaymentStatusFilterChange
 }) => {
   return (
     <div className="flex items-center justify-between gap-4 flex-wrap">
@@ -51,6 +61,15 @@ const PaginationSearch: React.FC<PaginationSearchFilterProps> = ({
           options={capacityOptions}
           style={{ width: 180, marginBottom: 16 }}
           placeholder="Filter by Capacity"
+        />
+      )}
+      {onPaymentStatusFilterChange && (
+        <Select
+          value={paymentStatusFilterValue}
+          onChange={onPaymentStatusFilterChange}
+          options={paymentStatusOptions}
+          style={{ width: 180, marginBottom: 16 }}
+          placeholder="Filter by status"
         />
       )}
     </div>

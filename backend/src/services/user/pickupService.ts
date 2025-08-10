@@ -6,6 +6,7 @@ import { cancelPickupReasonData } from "../../types/user/pickupTypes";
 import { INotificationRepository } from "../../repositories/notification/interface/INotifcationRepository";
 import { PickupRequestMapper } from "../../mappers/PIckupReqMapper";
 import { PickupPlansDTO } from "../../dtos/pickupReq/pickupReqDTO";
+import { PaginationInput } from "../../dtos/common/commonDTO";
 
 @injectable()
 export class PickupService implements IPickupService {
@@ -15,24 +16,25 @@ export class PickupService implements IPickupService {
     @inject(TYPES.NotificationRepository)
     private _notificationRepository: INotificationRepository
   ) {}
-  async getPickupPlanService(userId: string, page: number, limit: number, search: string, filter: string): Promise<{ pickups: PickupPlansDTO[]; total: number }> {
-    const { pickupPlans, total } = await this._pickupRepository.getPickupPlansByUserId(
-      userId,
-      page,
-      limit,
-      search,
-      filter
-    );
+  async getPickupPlanService(
+    userId: string,
+    paginationData: PaginationInput
+  ): Promise<{ pickups: PickupPlansDTO[]; total: number }> {
+    const { pickupPlans, total } =
+      await this._pickupRepository.getPickupPlansByUserId(
+        userId,
+        paginationData
+      );
 
-     if (!pickupPlans || pickupPlans.length === 0) {
-    throw new Error("No pickup plans found");
-  }
+    if (!pickupPlans || pickupPlans.length === 0) {
+      throw new Error("No pickup plans found");
+    }
 
-   return {
-    pickups: pickupPlans.map((p) => PickupRequestMapper.toPickupPlansDTO(p)),
-    total,
-  };
-  
+    return {
+      pickups: pickupPlans.map((p) => PickupRequestMapper.toPickupPlansDTO(p)),
+      total,
+    };
+
     // return pickups.map((p) => PickupRequestMapper.toPickupPlansDTO(p));
   }
   async cancelPickupPlanService(pickupReqId: string) {
@@ -53,10 +55,10 @@ export class PickupService implements IPickupService {
   async cancelPickupReasonRequest(data: cancelPickupReasonData) {
     const updatedPickupRequest =
       await this._pickupRepository.updatePaymentStatus(data.pickupReqId);
-      if (!updatedPickupRequest) throw new Error("Pickup not updated.");
-      if (!updatedPickupRequest.wasteplantId) {
-  throw new Error("Wasteplant ID not found in pickup request.");
-}
+    if (!updatedPickupRequest) throw new Error("Pickup not updated.");
+    if (!updatedPickupRequest.wasteplantId) {
+      throw new Error("Wasteplant ID not found in pickup request.");
+    }
     const io = global.io;
 
     const plantId = updatedPickupRequest?.wasteplantId.toString();

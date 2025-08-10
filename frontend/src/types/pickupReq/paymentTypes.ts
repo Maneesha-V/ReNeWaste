@@ -42,7 +42,11 @@ export type VerifyPaymentResponse = {
     payment: PickupReqPayment;
   }
 };
-export interface PaymentSummary {
+export type ReturnGetAllPayments = {
+  payments: PaymentSummary[]
+  total: number;
+}
+export type PaymentSummary = {
   _id: string;
   pickupId: string;
   originalPickupDate: string; 

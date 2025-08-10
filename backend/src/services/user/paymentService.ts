@@ -12,6 +12,7 @@ import {
 } from "../../dtos/pickupReq/paymentDTO";
 import { PickupPaymentSummaryDTO } from "../../dtos/pickupReq/pickupReqDTO";
 import { PickupRequestMapper } from "../../mappers/PIckupReqMapper";
+import { PaginationInput } from "../../dtos/common/commonDTO";
 
 @injectable()
 export class PaymentService implements IPaymentService {
@@ -150,11 +151,12 @@ export class PaymentService implements IPaymentService {
 
   }
 
-  async getAllPaymentsService(
-    userId: string
-  ): Promise<PickupPaymentSummaryDTO[]> {
-    const pickups = await this._pickupRepository.getAllPaymentsByUser(userId);
-    return pickups.map((p) => PickupRequestMapper.toSummaryDTO(p));
+  async getAllPayments(
+    userId: string, paginationData: PaginationInput
+  ): Promise<{payments: PickupPaymentSummaryDTO[], total: number}> {
+    const { pickups, total } = await this._pickupRepository.getAllPaymentsByUser(userId, paginationData);
+    const payments = pickups.map((p) => PickupRequestMapper.toSummaryDTO(p));
+    return { payments, total }
   }
 
   async rePaymentService(userId: string, pickupReqId: string, amount: number) {

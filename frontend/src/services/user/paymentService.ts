@@ -1,6 +1,7 @@
 import axiosUser from "../../api/axiosUser";
+import { PaginationPayload } from "../../types/common/commonTypes";
 import { VerifyPaymentPayload } from "../../types/paymentTypes";
-import { CreatePaymentPayload, PaymentSummary, RepaymentOrderResponse, VerifyPaymentResponse } from "../../types/pickupReq/paymentTypes";
+import { CreatePaymentPayload, RepaymentOrderResponse, ReturnGetAllPayments, VerifyPaymentResponse } from "../../types/pickupReq/paymentTypes";
 
 export const createPaymentOrderService = async (paymentData: CreatePaymentPayload) => {
   const response = await axiosUser.post(`/payment/create-order`,{ paymentData });
@@ -13,9 +14,11 @@ export const verifyPaymentService = async (paymentData: VerifyPaymentPayload)
   return response.data;
 };
 
-export const getAllPaymentsService = async (): Promise<PaymentSummary[]>  => {
-  const response = await axiosUser.get(`/payments`);
-  return response.data.payments;
+export const getAllPaymentsService = async ({page, limit, search, filter}: PaginationPayload): Promise<ReturnGetAllPayments>  => {
+  const response = await axiosUser.get(`/payments`,{
+    params: { page, limit, search, filter }
+  });
+  return response.data;
 };
 
 export const repayService = async (pickupReqId: string, amount: number): Promise<RepaymentOrderResponse> => {

@@ -9,23 +9,25 @@ import {
   CreatePaymentPayload,
   CreatePaymentResponse,
   PaymentSummary,
+  ReturnGetAllPayments,
   VerifyPaymentPayload,
   VerifyPaymentResponse,
 } from "../../../types/pickupReq/paymentTypes";
 import { RepaymentOrderResponse } from "../../../types/pickupReq/paymentTypes";
 import { getAxiosErrorMessage } from "../../../utils/handleAxiosError";
+import { PaginationPayload } from "../../../types/common/commonTypes";
 
 interface PickupState {
   loading: boolean;
   repayLoading: boolean;
   message: string | null;
   error: string | null;
-  // repayError: string | null;
   payments: PaymentSummary[];
   paymentOrder: CreatePaymentResponse | null;
   repaymentOrder: RepaymentOrderResponse | null;
   pickup: any | null;
   amount: number | null;
+  total: number;
 }
 
 const initialState: PickupState = {
@@ -33,12 +35,12 @@ const initialState: PickupState = {
   repayLoading: false,
   message: null,
   error: null,
-  // repayError: null,
   payments: [],
   paymentOrder: null,
   repaymentOrder: null,
   pickup: null,
   amount: null,
+  total: 0,
 };
 export const createPaymentOrder = createAsyncThunk<
   CreatePaymentResponse,
@@ -81,19 +83,17 @@ export const verifyPayment = createAsyncThunk<
 });
 
 export const getAllPayments = createAsyncThunk<
-  PaymentSummary[],
-  void,
+  ReturnGetAllPayments,
+  PaginationPayload,
   { rejectValue: { error: string } }
->("userPayment/getAllPayments", async (_, { rejectWithValue }) => {
+>("userPayment/getAllPayments", async ({ page, limit, search, filter }, { rejectWithValue }) => {
   try {
-    const response = await getAllPaymentsService();
+    const response = await getAllPaymentsService({page, limit, search, filter});
     console.log("response", response);
-
     return response;
   } catch (err) {
     const msg = getAxiosErrorMessage(err);
     return rejectWithValue({ error: msg });
-    // return rejectWithValue(err.response?.data || "Fetch payments failed");
   }
 });
 export const repay = createAsyncThunk<
@@ -163,8 +163,11 @@ const userPaymentSlice = createSlice({
         state.error = null;
       })
       .addCase(getAllPayments.fulfilled, (state, action) => {
+        console.log("actrttr",action.payload);
+        
         state.loading = false;
-        state.payments = action.payload;
+        state.payments = action.payload.payments;
+        state.total = action.payload.total;
       })
       .addCase(getAllPayments.rejected, (state, action) => {
         state.loading = false;

@@ -2,7 +2,7 @@ import Header from "../../components/user/Header";
 import Footer from "../../components/user/Footer";
 import { useSelector } from "react-redux";
 import { RootState } from "../../redux/store";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   clearPaymentError,
   getAllPayments,
@@ -15,18 +15,18 @@ import { toast } from "react-toastify";
 import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
 import { RazorpayResponse } from "../../types/pickupReq/paymentTypes";
-
+import usePagination from "../../hooks/usePagination";
+import { debounce } from "lodash";
+import PaginationSearch from "../../components/common/PaginationSearch";
+import { Pagination } from "antd";
 
 const Payments = () => {
-  const [activeTab, setActiveTab] = useState<"paid" | "refund" | "pending">(
-    "paid"
-  );
+
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
-  const { payments, error } = useSelector(
+  const { payments, total, error } = useSelector(
     (state: RootState) => state.userPayment
   );
- 
 
   useEffect(() => {
     if (error) {
@@ -39,9 +39,31 @@ const Payments = () => {
       dispatch(clearPaymentError());
     }
   }, [error, dispatch]);
+  const {
+    currentPage,
+    setCurrentPage,
+    pageSize,
+    search,
+    setSearch,
+    statusFilter,
+    setStatusFilter,
+  } = usePagination();
+
+  const debouncedFetchPayments = useCallback(
+    debounce((page: number, limit: number, query: string, filter?: string) => {
+      dispatch(getAllPayments({ page, limit, search: query, filter }));
+    }, 500),
+    [dispatch]
+  );
   useEffect(() => {
-    dispatch(getAllPayments());
-  }, [dispatch]);
+    debouncedFetchPayments(currentPage, pageSize, search, statusFilter);
+    return () => {
+      debouncedFetchPayments.cancel();
+    };
+  }, [currentPage, pageSize, search, statusFilter, debouncedFetchPayments]);
+  // useEffect(() => {
+  //   dispatch(getAllPayments());
+  // }, [dispatch]);
   console.log("payments", payments);
   const loadRazorpayScript = () => {
     return new Promise((resolve, reject) => {
@@ -85,17 +107,16 @@ const Payments = () => {
           )
             .unwrap()
             .then((res) => {
-              console.log("resss",res);
-              
+              console.log("resss", res);
+
               Swal.fire({
                 icon: "success",
                 title: "Payment Successful!",
                 text: res.message || "Your payment was verified successfully.",
                 confirmButtonColor: "#28a745",
               })
-
               .then(() => {
-                dispatch(getAllPayments());
+                // dispatch(getAllPayments());
                 navigate("/payment-history");
               });
             })
@@ -128,7 +149,7 @@ const Payments = () => {
         <h1 className="text-3xl font-bold text-green-700 mb-6">
           Your Payments
         </h1>
-        <div className="flex space-x-4 mb-6">
+        {/* <div className="flex space-x-4 mb-6">
           <button
             onClick={() => setActiveTab("paid")}
             className={`px-4 py-2 rounded-md text-sm font-medium ${
@@ -159,27 +180,32 @@ const Payments = () => {
           >
             Refunded/Cancelled Transactions
           </button>
-        </div>
-
+        </div> */}
+        <PaginationSearch
+          searchValue={search}
+          onSearchChange={setSearch}
+          paymentStatusFilterValue={statusFilter}
+          onPaymentStatusFilterChange={setStatusFilter}
+        />
         {payments && payments.length > 0 ? (
           <div className="grid md:grid-cols-1 gap-6">
             {payments
-              .filter((payment: any) => {
-                if (activeTab === "paid") {
-                  return (
-                    payment?.payment?.status === "Paid" &&
-                    payment?.payment?.refundStatus === null
-                  );
-                } else if (activeTab === "pending") {
-                  return (
-                    payment?.payment?.status === "Pending" ||
-                    payment?.payment?.status === "InProgress"
-                  );
-                  // return payment?.payment?.status === "Pending";
-                } else {
-                  return payment?.payment?.refundStatus !== null;
-                }
-              })
+              // .filter((payment: any) => {
+              //   if (activeTab === "paid") {
+              //     return (
+              //       payment?.payment?.status === "Paid" &&
+              //       payment?.payment?.refundStatus === null
+              //     );
+              //   } else if (activeTab === "pending") {
+              //     return (
+              //       payment?.payment?.status === "Pending" ||
+              //       payment?.payment?.status === "InProgress"
+              //     );
+              //     // return payment?.payment?.status === "Pending";
+              //   } else {
+              //     return payment?.payment?.refundStatus !== null;
+              //   }
+              // })
               .map((payment: any) => (
                 <div
                   key={payment._id}
@@ -303,6 +329,14 @@ const Payments = () => {
         ) : (
           <p className="text-center text-gray-600">No payments found.</p>
         )}
+        <Pagination
+          current={currentPage}
+          pageSize={pageSize}
+          total={total}
+          onChange={setCurrentPage}
+          showSizeChanger={false}
+          style={{ marginTop: 16, textAlign: "right" }}
+        />
       </div>
       <Footer />
     </div>

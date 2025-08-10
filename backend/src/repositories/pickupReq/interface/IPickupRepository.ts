@@ -1,3 +1,4 @@
+import { PaginationInput } from "../../../dtos/common/commonDTO";
 import { PopulatedPIckupPlans } from "../../../dtos/pickupReq/pickupReqDTO";
 import {
   IPickupRequest,
@@ -45,7 +46,7 @@ export interface IPickupRepository {
     pickupReqId: string,
     updateFields: { eta: { text: string; value: number } }
   ): Promise<void>;
-  getPickupPlansByUserId(userId: string, page: number, limit: number, search: string, filter: string): Promise<{ pickupPlans: PopulatedPIckupPlans[]; total: number }>;
+  getPickupPlansByUserId(userId: string, paginationData: PaginationInput): Promise<{ pickupPlans: PopulatedPIckupPlans[]; total: number }>;
   updateTrackingStatus(
     pickupReqId: string,
     trackingStatus: string
@@ -67,8 +68,8 @@ export interface IPickupRepository {
   //     userId,
   //   }: SavePaymentReq): Promise<void>;
   getAllPaymentsByUser(
-    userId: string
-  ): Promise<Partial<IPickupRequestDocument>[]>;
+    userId: string, paginationData: PaginationInput
+  ): Promise<{ pickups: Partial<IPickupRequestDocument>[]; total: number }>;
   fetchAllPickupsByPlantId(plantId: string): Promise<PickupStatusByWasteType>;
   totalRevenueByPlantId(plantId: string): Promise<RevenueByWasteType>;
   fetchAllPaymentsByPlantId(

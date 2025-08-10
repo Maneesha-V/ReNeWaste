@@ -7,6 +7,7 @@ import { IPaymentService } from "../../services/user/interface/IPaymentService";
 import { MESSAGES, STATUS_CODES } from "../../utils/constantUtils";
 import { handleControllerError } from "../../utils/errorHandler";
 import { ApiError } from "../../utils/ApiError";
+import { PaginationInput } from "../../dtos/common/commonDTO";
 
 @injectable()
 export class PaymentController implements IPaymentController {
@@ -110,7 +111,28 @@ export class PaymentController implements IPaymentController {
           MESSAGES.COMMON.ERROR.UNAUTHORIZED
         );
       }
-      const payments = await this._paymentService.getAllPaymentsService(userId);
+       const DEFAULT_LIMIT = 5;
+      const MAX_LIMIT = 50;
+      const page = parseInt(req.query.page as string) || 1;
+      let limit = Math.min(
+        parseInt(req.query.limit as string) || DEFAULT_LIMIT,
+        MAX_LIMIT
+      );
+      const search = (req.query.search as string) || "";
+      const filter = (req.query.filter as string) || "All";
+
+            const paginationData: PaginationInput = {
+              page,
+              limit,
+              search,
+              filter,
+            };
+
+      const { payments, total } = await this._paymentService.getAllPayments(
+        userId,
+paginationData
+      );
+      // const payments = await this._paymentService.getAllPaymentsService(userId);
       if (!payments) {
         throw new ApiError(
           STATUS_CODES.NOT_FOUND,
@@ -119,7 +141,7 @@ export class PaymentController implements IPaymentController {
       }
       console.log("payments", payments);
 
-      res.status(STATUS_CODES.SUCCESS).json({ success: true, payments });
+      res.status(STATUS_CODES.SUCCESS).json({ payments, total });
     } catch (error) {
       next(error);
     }

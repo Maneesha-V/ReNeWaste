@@ -43,6 +43,8 @@ export interface PaginationSearchFilterProps extends Pick<PaginationSearchProps,
   placeholder?: string;
   capacityFilterValue?: string;
   onCapacityFilterChange?: (val: string) => void;
+  paymentStatusFilterValue?: string;
+  onPaymentStatusFilterChange?: (value: string) => void;
 }
 export type MsgResponse = {
   message: string;

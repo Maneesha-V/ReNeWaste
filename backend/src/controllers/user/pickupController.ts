@@ -7,6 +7,7 @@ import { IPickupService } from "../../services/user/interface/IPIckupService";
 import { MESSAGES, STATUS_CODES } from "../../utils/constantUtils";
 import { handleControllerError } from "../../utils/errorHandler";
 import { ApiError } from "../../utils/ApiError";
+import { PaginationInput } from "../../dtos/common/commonDTO";
 
 @injectable()
 export class PickupController implements IPickupController {
@@ -39,14 +40,17 @@ export class PickupController implements IPickupController {
       const search = (req.query.search as string) || "";
       const filter = (req.query.filter as string) || "All";
 
-      const { pickups, total } = await this._pickupService.getPickupPlanService(
-        userId,
+      const paginationData: PaginationInput = {
         page,
         limit,
         search,
-        filter
+        filter,
+      };
+
+      const { pickups, total } = await this._pickupService.getPickupPlanService(
+        userId,
+        paginationData
       );
-      // console.log("pickups", pickups);
 
       res.status(STATUS_CODES.SUCCESS).json({ pickups, total });
     } catch (error) {
