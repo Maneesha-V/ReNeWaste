@@ -18,6 +18,7 @@ import mapsRoutes from "./routes/mapRoutes";
 import socketHandler from "./socket/socketHandler";
 import { errorHandler } from "./middlewares/errorHandler";
 import { ApiError } from "./utils/ApiError";
+import "./cron/unblockWastePlants";
 
 dotenv.config();
 
