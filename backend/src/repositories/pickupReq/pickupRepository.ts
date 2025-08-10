@@ -867,4 +867,10 @@ if(filter && filter !== "All"){
     ]);
     return result;
   }
+  async getAllPickupsByStatus(plantId: string) {
+    return await this.model.find({
+      wasteplantId: plantId,
+      status: { $in: ["Pending", "Scheduled", "Rescheduled"] }
+    })   
+  }
 }

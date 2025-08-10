@@ -15,8 +15,10 @@ import { PaginationInput } from "../../dtos/common/commonDTO";
 import {
   PaginatedReturnAdminWastePlants,
   ReturnAdminWastePlant,
+  WasteplantDTO,
 } from "../../dtos/wasteplant/WasteplantDTO";
 import { WastePlantMapper } from "../../mappers/WastePlantMapper";
+import { IPickupRepository } from "../../repositories/pickupReq/interface/IPickupRepository";
 
 @injectable()
 export class WastePlantService implements IWastePlantService {
@@ -26,7 +28,9 @@ export class WastePlantService implements IWastePlantService {
     @inject(TYPES.NotificationRepository)
     private _notificationRepository: INotificationRepository,
     @inject(TYPES.SubscriptionPaymentRepository)
-    private _subscriptionPaymentRepository: ISubscriptionPaymentRepository
+    private _subscriptionPaymentRepository: ISubscriptionPaymentRepository,
+    @inject(TYPES.PickupRepository)
+    private _pickupReqRepository: IPickupRepository
   ) {}
   async addWastePlant(data: IWastePlant) {
     await checkForDuplicateWastePlant(
@@ -203,5 +207,77 @@ export class WastePlantService implements IWastePlantService {
     if (io) {
       io.to(`${plant._id}`).emit("newNotification", plantNotification);
     }
+  }
+  async plantBlockStatus(plantId: string, isBlocked: boolean): Promise<WasteplantDTO> {
+    const wasteplant = await this._wastePlantRepository.getWastePlantById(
+      plantId
+    );
+    if (!wasteplant) {
+      throw new Error("Plant not found.");
+    }
+    wasteplant.isBlocked = isBlocked;
+    const pickupReqsts = await this._pickupReqRepository.getAllPickupsByStatus(
+      plantId
+    );
+    console.log("pickupReqsts", pickupReqsts);
+
+    const distinctUserIds = [
+      ...new Set(pickupReqsts.map((p) => p.userId?.toString()).filter(Boolean)),
+    ];
+    console.log("distinctUserIds", distinctUserIds);
+    const io = global.io;
+    if (isBlocked) {
+      wasteplant.blockedAt = new Date();
+      // wasteplant.autoUnblockAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
+      wasteplant.autoUnblockAt = new Date(Date.now() + 5 * 60 * 1000);
+      wasteplant.unblockNotificationSent = false;
+      for (const userId of distinctUserIds) {
+        const message = `Your scheduled pickup with ${wasteplant.plantName} is temporarily unavailable due to a short maintenance break.  
+Our team is working on it, and services will be back within 24 hours.  
+Thank you for your understanding.`;
+
+        const userNotification =
+          await this._notificationRepository.createNotification({
+            receiverId: userId,
+            receiverType: "user",
+            senderId: plantId,
+            senderType: "wasteplant",
+            message,
+            type: "general",
+          });
+
+        if (io) {
+          io.to(`${userId}`).emit("newNotification", userNotification);
+        }
+
+        console.log("Sent notification to user:", userId);
+      }
+    } else {
+      wasteplant.blockedAt = null;
+      wasteplant.autoUnblockAt = null;
+      wasteplant.unblockNotificationSent = true;
+      for (const userId of distinctUserIds) {
+        const message = `Your scheduled pickup with ${wasteplant.plantName} is now available again.  
+Thank you for your patience.`;
+
+        const userNotification =
+          await this._notificationRepository.createNotification({
+            receiverId: userId,
+            receiverType: "user",
+            senderId: plantId,
+            senderType: "wasteplant",
+            message,
+            type: "general",
+          });
+
+        if (io) {
+          io.to(`${userId}`).emit("newNotification", userNotification);
+        }
+
+        console.log("Sent notification to user:", userId);
+      }
+    }
+    await wasteplant.save({ validateModifiedOnly: true });
+    return WastePlantMapper.mapWastePlantDTO(wasteplant);
   }
 }

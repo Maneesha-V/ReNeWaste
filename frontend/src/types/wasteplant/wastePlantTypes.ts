@@ -1,3 +1,5 @@
+import { WasteplantDTO } from "../superadmin/superAdminTypes";
+
 export type WastePlant = {
   _id?: string;
   plantName: string;
@@ -20,6 +22,10 @@ export type WastePlant = {
   password: string;
   role: "wasteplant";
   isDeleted?: boolean;
+  isBlocked?: boolean;
+  blockedAt?: Date | null;
+  autoUnblockAt?: Date | null;
+  unblockNotificationSent?: boolean;
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -40,4 +46,12 @@ export type updateProfilePayload = {
 export type PostOffice = {
   name: string;
   taluk: string;
+}
+export type TogglePlantBlockPayload = {
+   plantId: string; 
+   isBlocked: boolean
+}
+export type TogglePlantBlockResp = {
+  message: string;
+  wasteplant: WasteplantDTO
 }

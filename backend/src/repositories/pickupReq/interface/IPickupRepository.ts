@@ -94,4 +94,5 @@ export interface IPickupRepository {
   }>;
   getMonthlyPickupPlansByUserId(userId: string): Promise<{ count: number }>;
   totalRevenueByMonth(): Promise<{ month: string; totalRevenue: number }[]>;
+  getAllPickupsByStatus(plantId: string): Promise<IPickupRequestDocument[]>;
 }

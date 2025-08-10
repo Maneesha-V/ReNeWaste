@@ -16,6 +16,8 @@ import {
   sendRechargeNotification,
   sendRenewNotification,
   sendSubscribeNotification,
+  togglePlantBlockStatus,
+  updateBlockStatus,
 } from "../../redux/slices/superAdmin/superAdminWastePlantSlice";
 import { useSelector } from "react-redux";
 import { RootState } from "../../redux/store";
@@ -64,6 +66,23 @@ const WastePlants: React.FC = () => {
     debouncedFetchWastePlants,
   ]);
 
+  useEffect(() => {
+  wastePlant.forEach((wp: any) => {
+    const plant = wp.plantData;
+    if (plant.isBlocked && plant.autoUnblockAt) {
+      const unblockTime = new Date(plant.autoUnblockAt).getTime();
+      const now = Date.now();
+      const delay = unblockTime - now;
+
+      if (delay > 0) {
+        setTimeout(() => {
+          dispatch(updateBlockStatus({ plantId: plant._id, isBlocked: false }));
+        }, delay);
+      }
+    }
+  });
+}, [wastePlant, dispatch]);
+
   const handleEdit = async (id: string) => {
     try {
       navigate(`/super-admin/edit-waste-plant/${id}`);
@@ -106,6 +125,19 @@ const WastePlants: React.FC = () => {
     } catch (error) {
       console.error("Failed to send renew notification:", error);
       toast.error("Failed to send renew notification");
+    }
+  };
+  const handleToggleBlock = async (plantId: string, isBlocked: boolean) => {
+    try {
+      await dispatch(
+        togglePlantBlockStatus({ plantId, isBlocked: !isBlocked })
+      ).unwrap();
+      toast.success(`Wasteplant ${isBlocked ? "unblocked" : "blocked"} successfully`);
+      // dispatch(
+      //   fetchWastePlants({ page: currentPage, limit: pageSize, search })
+      // );
+    } catch (err) {
+      toast.error("Failed to update wasteplant status");
     }
   };
 
@@ -283,6 +315,29 @@ const WastePlants: React.FC = () => {
                     >
                       <Button icon={<DeleteOutlined />} size="small" danger>
                         Delete
+                      </Button>
+                    </Popconfirm>
+                    <Popconfirm
+                      title={`Are you sure you want to ${
+                        record.plantData.isBlocked ? "unblock" : "block"
+                      } this wasteplant?`}
+                      onConfirm={() =>
+                        handleToggleBlock(
+                          record.plantData._id,
+                          record.plantData.isBlocked
+                        )
+                      }
+                      okText="Yes"
+                      cancelText="No"
+                    >
+                      <Button
+                        size="small"
+                        type={
+                          record.plantData.isBlocked ? "default" : "primary"
+                        }
+                        danger={record.plantData.isBlocked}
+                      >
+                        {record.plantData.isBlocked ? "Unblock" : "Block"}
                       </Button>
                     </Popconfirm>
                   </div>

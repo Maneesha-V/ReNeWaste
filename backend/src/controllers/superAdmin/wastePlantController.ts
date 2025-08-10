@@ -324,4 +324,24 @@ export class WastePlantController implements IWastePlantController {
       next(error);
     }
   }
+   async plantBlockStatus(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const plantId = req.params.plantId;
+      const { isBlocked } = req.body;
+
+      console.log({ plantId, isBlocked });
+
+      if (typeof isBlocked !== "boolean") {
+        throw new ApiError(STATUS_CODES.BAD_REQUEST, MESSAGES.COMMON.ERROR.INVALID_BLOCK)
+      }
+      const wasteplant = await this._wastePlantService.plantBlockStatus(
+        plantId,
+        isBlocked
+      );
+      res.json({ message: MESSAGES.COMMON.SUCCESS.BLOCK_UPDATE, wasteplant });
+    } catch (error) {
+      console.error("err", error);
+      next(error);
+    }
+  }
 }

@@ -5,6 +5,7 @@ import { ITruckDocument } from "../../models/truck/interfaces/truckInterface";
 import { IUserDocument } from "../../models/user/interfaces/userInterface";
 import { BaseDTO } from "../base/BaseDTO";
 
+// export type PIckupReqStatus = "Pending" | "Scheduled" | "Completed"| "Cancelled" | "Rescheduled"
 export interface PickupReqDTO extends BaseDTO {
   userId: string;
   driverId?: string;

@@ -70,3 +70,10 @@ export const getPostOffices = async (pincode: string) => {
   console.log("res", response);
   return response.data;
 };
+  export const togglePlantBlockStatusService = async (plantId: string, isBlocked: boolean) => {
+    const response = await axiosSuperadmin.patch(
+      `/${plantId}/block`,{
+        isBlocked
+      });
+    return response.data;
+};

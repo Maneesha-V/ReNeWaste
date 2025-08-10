@@ -44,6 +44,22 @@ export const wastePlantSchema: Schema<IWastePlantDocument> = new Schema({
       type: Boolean,
       default: false
     },
+    isBlocked: {
+      type: Boolean,
+      default: false,
+    },
+    blockedAt: {
+      type: Date,
+      default: null,
+    },
+    autoUnblockAt: {
+      type: Date,
+      default: null,
+    },
+    unblockNotificationSent: {
+    type: Boolean,
+    default: false
+    },
     createdAt: { type: Date, default: Date.now },
     updatedAt: { type: Date, default: Date.now }
   });

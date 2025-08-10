@@ -9,4 +9,5 @@ export interface IWastePlantController {
     updateWastePlant (req: Request,res: Response, next: NextFunction): Promise<void>;
     deleteWastePlantById (req: Request,res: Response, next: NextFunction): Promise<void>;
     sendSubscribeNotification(req: AuthRequest, res: Response, next: NextFunction): Promise<void>;
+    plantBlockStatus(req: AuthRequest, res: Response, next: NextFunction): Promise<void>
   }

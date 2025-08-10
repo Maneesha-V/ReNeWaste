@@ -21,6 +21,10 @@ export interface IWastePlant {
   password: string;
   role: "user" | "driver" | "superadmin" | "wasteplant";
   isDeleted?: boolean;
+  isBlocked?: boolean;
+  blockedAt?: Date | null;
+  autoUnblockAt?: Date | null;
+  unblockNotificationSent?: boolean;
   createdAt: Date;
   updatedAt: Date;
 }

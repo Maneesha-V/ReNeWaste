@@ -21,6 +21,10 @@ export class WastePlantMapper {
       subscriptionPlan: doc.subscriptionPlan ?? "",
       password: doc.password ?? "",
       services: Array.isArray(doc.services) ? doc.services : [],
+      isBlocked: doc.isBlocked,
+      blockedAt: doc.blockedAt ?? null,
+      autoUnblockAt: doc.autoUnblockAt ?? null,
+      unblockNotificationSent: doc.unblockNotificationSent,
     };
   }
 }

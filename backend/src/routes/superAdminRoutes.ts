@@ -48,6 +48,7 @@ router.post("/notification/recharge-remind", authenticateSuperAdmin as RequestHa
 router.post("/location/:pincode", authenticateSuperAdmin as RequestHandler, superAdminPlantCtrl.fetchPostOffices.bind(superAdminPlantCtrl));
 router.get("/payment-history", authenticateSuperAdmin as RequestHandler, superAdminPaymentCtrl.fetchPayments.bind(superAdminPaymentCtrl));
 router.get("/dashboard", authenticateSuperAdmin as RequestHandler, superAdminDashbdCtrl.fetchSuperAdminDashboard.bind(superAdminDashbdCtrl));
+router.patch("/:plantId/block", authenticateSuperAdmin as RequestHandler, superAdminPlantCtrl.plantBlockStatus.bind(superAdminPlantCtrl))
 
 export default router;
 

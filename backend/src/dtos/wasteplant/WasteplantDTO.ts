@@ -17,6 +17,10 @@ export interface WasteplantDTO extends BaseDTO {
   subscriptionPlan?: string; 
   password?: string;
   services?: string[];
+  isBlocked?: boolean;
+  blockedAt?: Date | null;
+  autoUnblockAt?: Date | null;
+  unblockNotificationSent?: boolean;
 }
 export interface IWastePlant {
   plantName?: string;
@@ -39,6 +43,10 @@ export interface IWastePlant {
   password?: string;
   role?: "wasteplant";
   isDeleted?: boolean;
+  isBlocked?: boolean;
+  blockedAt?: Date;
+  autoUnblockAt?: Date;
+  unblockNotificationSent?: Boolean;
 }
 export interface IndiaPostAPIResponse {
   Status: string;

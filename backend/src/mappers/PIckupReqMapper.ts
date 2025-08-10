@@ -26,7 +26,7 @@ export class PickupRequestMapper {
       businessName: doc.businessName ?? "",
       service: doc.service ?? "",
       frequency: doc.frequency ?? "",
-      status: doc.status,
+      status: doc.status ?? null,
       trackingStatus: doc.trackingStatus ?? null,
       eta: {
         text: doc.eta?.text ?? null,
