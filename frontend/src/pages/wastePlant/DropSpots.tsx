@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect } from "react";
-import { Table, Button, Space, Typography, Popconfirm } from "antd";
+import { Table, Button, Space, Typography, Popconfirm, Pagination } from "antd";
 import { useSelector } from "react-redux";
 import { RootState } from "../../redux/store";
 import { useAppDispatch } from "../../redux/hooks";
@@ -22,7 +22,8 @@ const DropSpots: React.FC = () => {
   const { dropSpots, total } = useSelector(
     (state: RootState) => state.wastePlantDropSpot
   );
-  const { currentPage, setCurrentPage, pageSize, search, setSearch } = usePagination();
+  const { currentPage, setCurrentPage, pageSize, search, setSearch } =
+    usePagination();
 
   const debouncedFetchDropSpots = useCallback(
     debounce((page: number, limit: number, query: string) => {
@@ -130,20 +131,22 @@ const DropSpots: React.FC = () => {
           Create Drop Spot
         </Button>
       </div>
-      <PaginationSearch
-        total={total}
-        currentPage={currentPage}
-        pageSize={pageSize}
-        onPageChange={setCurrentPage}
-        onSearchChange={setSearch}
-        searchValue={search}
-      />
+      <PaginationSearch onSearchChange={setSearch} searchValue={search} />
       <Table
         rowKey="_id"
         dataSource={dropSpots}
         columns={columns}
         pagination={false}
       />
+      <div className="flex justify-end pt-4">
+        <Pagination
+          current={currentPage}
+          pageSize={pageSize}
+          total={total}
+          onChange={setCurrentPage}
+          showSizeChanger={false}
+        />
+      </div>
     </div>
   );
 };

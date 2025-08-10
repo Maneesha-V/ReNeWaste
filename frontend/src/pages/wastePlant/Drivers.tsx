@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect } from "react";
-import { Table, Button, Popconfirm, Spin } from "antd";
+import { Table, Button, Popconfirm, Spin, Pagination } from "antd";
 import { EditOutlined, DeleteOutlined, PlusOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 import { useAppDispatch } from "../../redux/hooks";
@@ -78,79 +78,85 @@ const Drivers: React.FC = () => {
         <p className="text-red-500">{error}</p>
       ) : (
         <div className="overflow-x-auto space-y-2">
-          <PaginationSearch
-            total={total}
-            currentPage={currentPage}
-            pageSize={pageSize}
-            onPageChange={setCurrentPage}
-            onSearchChange={setSearch}
-            searchValue={search}
-          />
-          <Spin spinning={loading}>
-          <Table
-            dataSource={Array.isArray(driver) ? driver : []}
-            rowKey="_id"
-            bordered
-            className="shadow-sm"
-            pagination={false}
-          >
-            <Table.Column title="Name" dataIndex="name" key="name" />
-            <Table.Column
-              title="License No"
-              dataIndex="licenseNumber"
-              key="licenseNumber"
-            />
-            <Table.Column title="Contact" dataIndex="contact" key="contact" />
-            <Table.Column
-              title="Experience (years)"
-              dataIndex="experience"
-              key="experience"
-            />
-            <Table.Column
-              title="Status"
-              dataIndex="status"
-              key="status"
-              render={(status: string) => (
-                <span
-                  className={`px-2 py-1 rounded-full text-xs font-medium ${
-                    status === "Active"
-                      ? "bg-green-100 text-green-800"
-                      : status === "Inactive"
-                      ? "bg-red-100 text-red-800"
-                      : "bg-yellow-100 text-yellow-800"
-                  }`}
-                >
-                  {status}
-                </span>
-              )}
-            />
-            <Table.Column
-              title="Action"
-              key="action"
-              render={(_: any, record: any) => (
-                <div className="flex flex-wrap gap-2">
-                  <Button
-                    icon={<EditOutlined />}
-                    size="small"
-                    onClick={() => handleEdit(record._id)}
+          <PaginationSearch onSearchChange={setSearch} searchValue={search} />
+          {loading ? (
+            <div className="flex justify-center p-4">
+              <Spin />
+            </div>
+          ) : (
+            <Table
+              dataSource={Array.isArray(driver) ? driver : []}
+              rowKey="_id"
+              bordered
+              className="shadow-sm"
+              pagination={false}
+            >
+              <Table.Column title="Name" dataIndex="name" key="name" />
+              <Table.Column
+                title="License No"
+                dataIndex="licenseNumber"
+                key="licenseNumber"
+              />
+              <Table.Column title="Contact" dataIndex="contact" key="contact" />
+              <Table.Column
+                title="Experience (years)"
+                dataIndex="experience"
+                key="experience"
+              />
+              <Table.Column
+                title="Status"
+                dataIndex="status"
+                key="status"
+                render={(status: string) => (
+                  <span
+                    className={`px-2 py-1 rounded-full text-xs font-medium ${
+                      status === "Active"
+                        ? "bg-green-100 text-green-800"
+                        : status === "Inactive"
+                        ? "bg-red-100 text-red-800"
+                        : "bg-yellow-100 text-yellow-800"
+                    }`}
                   >
-                    Edit
-                  </Button>
-                  <Popconfirm
-                    title="Are you sure you want to delete?"
-                    onConfirm={() => handleDelete(record._id)}
-                    okText="Yes"
-                    cancelText="No"
-                  >
-                    <Button icon={<DeleteOutlined />} size="small" danger>
-                      Delete
+                    {status}
+                  </span>
+                )}
+              />
+              <Table.Column
+                title="Action"
+                key="action"
+                render={(_: any, record: any) => (
+                  <div className="flex flex-wrap gap-2">
+                    <Button
+                      icon={<EditOutlined />}
+                      size="small"
+                      onClick={() => handleEdit(record._id)}
+                    >
+                      Edit
                     </Button>
-                  </Popconfirm>
-                </div>
-              )}
+                    <Popconfirm
+                      title="Are you sure you want to delete?"
+                      onConfirm={() => handleDelete(record._id)}
+                      okText="Yes"
+                      cancelText="No"
+                    >
+                      <Button icon={<DeleteOutlined />} size="small" danger>
+                        Delete
+                      </Button>
+                    </Popconfirm>
+                  </div>
+                )}
+              />
+            </Table>
+          )}
+          <div className="flex justify-end pt-4">
+            <Pagination
+              current={currentPage}
+              pageSize={pageSize}
+              total={total}
+              onChange={setCurrentPage}
+              showSizeChanger={false}
             />
-          </Table>
-          </Spin>
+          </div>
         </div>
       )}
     </div>

@@ -1,4 +1,4 @@
-import { Table } from "antd";
+import { Pagination, Table } from "antd";
 import { useCallback, useEffect, useState } from "react";
 import { useAppDispatch } from "../../redux/hooks";
 import {
@@ -25,7 +25,7 @@ const Payments = () => {
   const [refundModalVisible, setRefundModalVisible] = useState(false);
 
   const dispatch = useAppDispatch();
- const { payments, total, error } = useSelector(
+  const { payments, total, error } = useSelector(
     (state: RootState) => state.wastePlantPayments
   );
   const { currentPage, setCurrentPage, pageSize, search, setSearch } =
@@ -58,7 +58,7 @@ const Payments = () => {
       debouncedFetchPayments.cancel();
     };
   }, [currentPage, pageSize, search, debouncedFetchPayments]);
- 
+
   console.log("payments", payments);
   console.log("total", total);
   const dataWithSerial = payments.map((item: PaymentRecord, index: number) => ({
@@ -67,11 +67,11 @@ const Payments = () => {
     serial: index + 1,
   }));
   const viewRefundDetails = (record: PaymentRecord) => {
- const status = record?.payment?.refundStatus;
-  const inProgressExpiresAt = record?.payment?.inProgressExpiresAt;
-console.log("status", status);
-  console.log("inProgressExpiresAt", inProgressExpiresAt);
-  
+    const status = record?.payment?.refundStatus;
+    const inProgressExpiresAt = record?.payment?.inProgressExpiresAt;
+    console.log("status", status);
+    console.log("inProgressExpiresAt", inProgressExpiresAt);
+
     setSelectedRecord(record);
     setRefundModalVisible(true);
   };
@@ -133,14 +133,7 @@ console.log("status", status);
       <h2 className="text-2xl font-bold mb-6 text-green-700">
         Payment Transactions
       </h2>
-      <PaginationSearch
-        total={total}
-        currentPage={currentPage}
-        pageSize={pageSize}
-        onPageChange={setCurrentPage}
-        onSearchChange={setSearch}
-        searchValue={search}
-      />
+      <PaginationSearch onSearchChange={setSearch} searchValue={search} />
       <Table bordered pagination={false} dataSource={dataWithSerial}>
         <Table.Column title="S.No" dataIndex="serial" key="serial" />
         <Table.Column title="Pickup ID" dataIndex="pickupId" key="pickupId" />
@@ -246,6 +239,15 @@ console.log("status", status);
           }}
         />
       </Table>
+      <div className="flex justify-end pt-4">
+        <Pagination
+          current={currentPage}
+          pageSize={pageSize}
+          total={total}
+          onChange={setCurrentPage}
+          showSizeChanger={false}
+        />
+      </div>
       {selectedRecord && (
         <RefundModal
           visible={refundModalVisible}

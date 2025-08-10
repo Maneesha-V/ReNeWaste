@@ -1,5 +1,13 @@
 import React, { useCallback, useEffect } from "react";
-import { Table, Button, Space, Typography, Popconfirm, Tag } from "antd";
+import {
+  Table,
+  Button,
+  Space,
+  Typography,
+  Popconfirm,
+  Tag,
+  Pagination,
+} from "antd";
 import { RootState } from "../../redux/store";
 import { toast } from "react-toastify";
 import { useAppDispatch } from "../../redux/hooks";
@@ -20,7 +28,8 @@ const Users: React.FC = () => {
     (state: RootState) => state.wastePlantUser
   );
 
-  const { currentPage, setCurrentPage, pageSize, search, setSearch } = usePagination();
+  const { currentPage, setCurrentPage, pageSize, search, setSearch } =
+    usePagination();
 
   const debouncedFetchUsers = useCallback(
     debounce((page: number, limit: number, query: string) => {
@@ -108,10 +117,6 @@ const Users: React.FC = () => {
       </Title>
 
       <PaginationSearch
-        total={total}
-        currentPage={currentPage}
-        pageSize={pageSize}
-        onPageChange={setCurrentPage}
         onSearchChange={setSearch}
         searchValue={search}
       />
@@ -122,6 +127,15 @@ const Users: React.FC = () => {
         columns={columns}
         pagination={false}
       />
+      <div className="flex justify-end pt-4">
+        <Pagination
+          current={currentPage}
+          pageSize={pageSize}
+          total={total}
+          onChange={setCurrentPage}
+          showSizeChanger={false}
+        />
+      </div>
     </div>
   );
 };
