@@ -2,21 +2,15 @@ import { Button, Form, Input, Modal } from "antd";
 import { useAppDispatch } from "../../redux/hooks";
 import { toast } from "react-toastify";
 import { useEffect } from "react";
-import { PickupCancelData } from "../../types/wastePlantTypes";
+import { getAxiosErrorMessage } from "../../utils/handleAxiosError";
+import { updateCancelPickupReason } from "../../redux/slices/user/userPickupSlice";
+import { CancelPickupModalProps } from "../../types/common/modalTypes";
 
-interface CancelPickupModalProps {
-  visible: boolean;
-  onClose: () => void;
-  pickupId: string | null;
-  cancelAction: (args: PickupCancelData) => any;
-  onSuccess: () => void;
-}
 const InputMessage = ({
   visible,
   onClose,
   pickupId,
   cancelAction,
-  onSuccess,
 }: CancelPickupModalProps) => {
   const dispatch = useAppDispatch();
   const [form] = Form.useForm();
@@ -28,19 +22,21 @@ const InputMessage = ({
   const handleSubmit = async () => {
     try {
       const values = await form.validateFields();
-      await dispatch(
+      const res = await dispatch(
         cancelAction({
           pickupReqId: pickupId,
           reason: values.reason,
         })
-      );
+      ).unwrap();
       console.log("Cancel Reason:", values.reason);
-      toast.success("Pickup cancelled successfully");
-      onSuccess();
+       console.log("Respon:", res);
+      toast.success(res.message);
+      await dispatch(updateCancelPickupReason({ pickupReqId: pickupId, payment: res.payment }))
+      // onSuccess();
       form.resetFields();
       onClose();
     } catch (err) {
-      console.log("Validation error", err);
+      toast.error(getAxiosErrorMessage(err));
     }
   };
   return (

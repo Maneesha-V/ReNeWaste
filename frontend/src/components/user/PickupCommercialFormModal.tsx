@@ -1,12 +1,14 @@
 import { Dialog } from "@headlessui/react";
 import { useEffect, useState } from "react";
 import { useWastePlantValidation } from "../../hooks/useWastePlantValidation";
-import { PartialCommPickupReq } from "../../types/pickupTypes";
 import { useAppDispatch } from "../../redux/hooks";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import { updateCommercialPickup } from "../../redux/slices/user/commercialSlice";
-import { PickupCommercialFormModalProps } from "../../types/userTypes";
+import { PickupCommercialFormModalProps } from "../../types/common/modalTypes";
+import { PartialCommPickupReq } from "../../types/pickupReq/pickupTypes";
+import { getAxiosErrorMessage } from "../../utils/handleAxiosError";
+
 
 const PickupCommercialFormModal: React.FC<PickupCommercialFormModalProps> = ({
   isOpen,
@@ -168,16 +170,14 @@ const PickupCommercialFormModal: React.FC<PickupCommercialFormModalProps> = ({
     try {
       const result = await dispatch(
         updateCommercialPickup({ data: finalData })
-      );
-      if (result.payload?.error) {
-        toast.error(result.payload.error);
-        return;
-      }
-      toast.success("Pickup form submitted successfully!");
+      ).unwrap();
+
+      toast.success(result.message);
       onClose();
       setTimeout(() => navigate("/commercial"), 2000);
-    } catch {
+    } catch(error) {
       toast.error("Submission failed. Please try again.");
+      getAxiosErrorMessage(error)
     }
   };
 

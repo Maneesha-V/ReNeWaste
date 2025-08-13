@@ -16,6 +16,7 @@ import {
 import { RepaymentOrderResponse } from "../../../types/pickupReq/paymentTypes";
 import { getAxiosErrorMessage } from "../../../utils/handleAxiosError";
 import { PaginationPayload } from "../../../types/common/commonTypes";
+import { PickupPlansResp } from "../../../types/pickupReq/pickupTypes";
 
 interface PickupState {
   loading: boolean;
@@ -25,7 +26,7 @@ interface PickupState {
   payments: PaymentSummary[];
   paymentOrder: CreatePaymentResponse | null;
   repaymentOrder: RepaymentOrderResponse | null;
-  pickup: any | null;
+  pickup: PickupPlansResp | null;
   amount: number | null;
   total: number;
 }
@@ -108,8 +109,6 @@ export const repay = createAsyncThunk<
     return response;
   } catch (err) {
     console.log("err", err);
-
-    // return rejectWithValue(err.response?.data || "Fetch payments failed");
     const msg = getAxiosErrorMessage(err);
     return rejectWithValue({ error: msg });
   }

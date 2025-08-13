@@ -1,25 +1,3 @@
-// import { AxiosError } from "axios";
-
-// export function getAxiosErrorMessage(error: unknown): string {
-//   if (
-//     error &&
-//     typeof error === "object" &&
-//     error !== null &&
-//     "isAxiosError" in error
-//   ) {
-//     const axiosError = error as AxiosError<{ message?: string; }>;
-//     return (
-//       axiosError.response?.data?.message ||
-//       // axiosError.response?.data?.error ||
-//       axiosError.message ||
-//       "Unexpected error occurred"
-//     );
-//   }
-//   if (typeof error === "object" && error !== null && "message" in error) {
-//     return (error as { message: string }).message;
-//   }
-//   return "Unknown error occurred";
-// }
 import { AxiosError } from "axios";
 
 export function getAxiosErrorMessage(error: unknown): string {

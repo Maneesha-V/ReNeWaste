@@ -255,11 +255,30 @@ export class PickupRepository
       query.status = filter;
     }
     if (search.trim()) {
-      query.$or = [
-        { status: { $regex: searchRegex } },
-        { pickupTime: { $regex: searchRegex } },
-        { pickupId: { $regex: searchRegex } },
-      ];
+      const dateRegex = /^\d{2}-\d{2}-\d{4}$/;
+      if (dateRegex.test(search.trim())) {
+        const [day, month, year] = search.trim().split("-");
+        const searchDate = new Date(
+          Number(year),
+          Number(month) - 1,
+          Number(day)
+        );
+        const nextDay = new Date(searchDate);
+        nextDay.setDate(nextDay.getDate() + 1);
+        query.$or = [
+          { status: { $regex: searchRegex } },
+          { pickupTime: { $regex: searchRegex } },
+          { pickupId: { $regex: searchRegex } },
+          { originalPickupDate: { $gte: searchDate, $lt: nextDay } },
+          { rescheduledPickupDate: { $gte: searchDate, $lt: nextDay } },
+        ];
+      } else {
+        query.$or = [
+          { status: { $regex: searchRegex } },
+          { pickupTime: { $regex: searchRegex } },
+          { pickupId: { $regex: searchRegex } },
+        ];
+      }
     }
 
     const skip = (page - 1) * limit;
@@ -507,7 +526,6 @@ export class PickupRepository
       pickups,
       total,
     };
-
   }
   async fetchAllPickupsByPlantId(
     plantId: string

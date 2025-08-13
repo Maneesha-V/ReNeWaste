@@ -1,7 +1,6 @@
 import axiosUser from "../../api/axiosUser";
 import { PaginationPayload } from "../../types/common/commonTypes";
-import { VerifyPaymentPayload } from "../../types/paymentTypes";
-import { CreatePaymentPayload, RepaymentOrderResponse, ReturnGetAllPayments, VerifyPaymentResponse } from "../../types/pickupReq/paymentTypes";
+import { CreatePaymentPayload, RepaymentOrderResponse, ReturnGetAllPayments, VerifyPaymentPayload, VerifyPaymentResponse } from "../../types/pickupReq/paymentTypes";
 
 export const createPaymentOrderService = async (paymentData: CreatePaymentPayload) => {
   const response = await axiosUser.post(`/payment/create-order`,{ paymentData });

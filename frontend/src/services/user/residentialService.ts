@@ -1,9 +1,9 @@
-import { PartialResidPickupReq } from "../../types/pickupTypes";
 import axiosUser from "../../api/axiosUser";
+import { PartialResidPickupReq } from "../../types/pickupReq/pickupTypes";
 
 export const getResidentialService = async () => {
   const response = await axiosUser.get(`/residential`);
-  return response;
+  return response.data;
 };
 export const updateResidentialPickupService = async (
   formData: PartialResidPickupReq

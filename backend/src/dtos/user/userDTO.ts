@@ -71,3 +71,17 @@ export type GoogleLoginResp = {
   token: string;
   userId: string;
 }
+
+export type UpdatedCommercialDataDTO = {
+  phone: string;
+  pickupDate: Date; 
+  pickupTime: string;
+  wasteType: WasteType;
+  businessName: string;
+  frequency: string;
+  service: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  selectedAddressId?: string;
+}

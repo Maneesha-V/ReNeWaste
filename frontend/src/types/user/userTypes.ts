@@ -18,7 +18,7 @@ export type GoogleLoginResp = {
   token: string;
   message: string;
   success: boolean;
-}
+};
 export type SignupRequest = {
   firstName: string;
   lastName: string;
@@ -40,3 +40,25 @@ export type Address = {
   latitude?: number;
   longitude?: number;
 };
+export type UserResp = {
+  _id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  agreeToTerms: boolean;
+  role: string;
+  phone?: string;
+  googleId: string | null;
+  addresses: Address[];
+  wasteplantId?: string;
+  isBlocked: boolean;
+};
+
+export type GetResidResp = {
+  user: UserResp;
+  message: string;
+}
+export type GetCommResp = {
+  user: UserResp;
+  message: string;
+}

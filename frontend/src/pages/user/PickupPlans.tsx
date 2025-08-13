@@ -9,6 +9,7 @@ import {
   cancelPickupPlan,
   cancelPickupReq,
   fetchtPickupPlans,
+  updateCancelPickupStatus,
 } from "../../redux/slices/user/userPickupSlice";
 import {
   Spin,
@@ -34,6 +35,7 @@ import { PickupPlansResp } from "../../types/pickupReq/pickupTypes";
 import usePagination from "../../hooks/usePagination";
 import { debounce } from "lodash";
 import PaginationSearch from "../../components/common/PaginationSearch";
+import { getAxiosErrorMessage } from "../../utils/handleAxiosError";
 
 const { Meta } = Card;
 
@@ -79,50 +81,43 @@ const PickupPlans = () => {
       debouncedFetchPickupPlans.cancel();
     };
   }, [currentPage, pageSize, search, statusFilter, debouncedFetchPickupPlans]);
-  
-const shouldRefresh = location.state?.refresh;
-useEffect(() => {
-  if (shouldRefresh) {
-    dispatch(
-      fetchtPickupPlans({
-        page: currentPage,
-        limit: pageSize,
-        search,
-        filter: statusFilter,
-      })
-    );
-  }
-}, [shouldRefresh]);
 
-  const handleTrackClick = (pickup: any) => {
+  const shouldRefresh = location.state?.refresh;
+  useEffect(() => {
+    if (shouldRefresh) {
+      dispatch(
+        fetchtPickupPlans({
+          page: currentPage,
+          limit: pageSize,
+          search,
+          filter: statusFilter,
+        })
+      );
+    }
+  }, [shouldRefresh]);
+
+  const handleTrackClick = (pickup: PickupPlansResp) => {
     if (!pickup || !pickup.pickupId) return null;
     setSelectedPickupId(pickup.pickupId);
     setSelectedTrackingStatus(pickup.trackingStatus);
     setSelectedEta(pickup.eta);
     setIsModalOpen(true);
   };
-  const handleCancel = async (pickup: any) => {
+  const handleCancel = async (pickup: PickupPlansResp) => {
     if (pickup?.payment?.status === "Paid") {
       setCancelPickup(pickup._id);
       setCancelModalVisible(true);
     } else {
       try {
-        await dispatch(cancelPickupPlan(pickup._id)).unwrap();
-        toast.success("Pickup plan cancelled");
+        const res = await dispatch(cancelPickupPlan(pickup._id)).unwrap();
+        toast.success(res.message);
         setSelectedPickupId("");
         setSelectedTrackingStatus(null);
         setSelectedEta(null);
         setIsModalOpen(false);
-        await dispatch(
-          fetchtPickupPlans({
-            page: currentPage,
-            limit: pageSize,
-            search,
-            filter: statusFilter,
-          })
-        );
-      } catch (err: any) {
-        toast.error(err?.message || "Failed to cancel pickup");
+        await dispatch(updateCancelPickupStatus({pickupReqId: pickup._id }))
+      } catch (err) {
+         toast.error(getAxiosErrorMessage(err)); 
       }
     }
   };
@@ -134,14 +129,14 @@ useEffect(() => {
     setIsPayNowModalOpen(true);
   };
 
-  const renderPickupCards = (filteredPickups: any[]) => {
-    if (filteredPickups.length === 0) {
+  const renderPickupCards = (pickups: PickupPlansResp[]) => {
+    if (pickups.length === 0) {
       return <Empty description="No pickup plans available." />;
     }
 
     return (
       <Row gutter={[16, 16]}>
-        {filteredPickups.map((pickup: any, index: number) => (
+        {pickups.map((pickup: PickupPlansResp, index: number) => (
           <Col key={index} xs={24}>
             <Card
               hoverable
@@ -149,19 +144,26 @@ useEffect(() => {
               className="rounded-lg shadow-lg"
               extra={(() => {
                 const status = pickup?.payment?.status;
-                const expiresAt = pickup?.payment?.inProgressExpiresAt;
+                const expiresAt = pickup?.payment?.inProgressExpiresAt
+                  ? new Date(pickup?.payment?.inProgressExpiresAt)
+                  : null;
+                const orderId = pickup?.payment?.razorpayOrderId;
                 const now = new Date();
-                const isExpired =
-                  status === "InProgress" &&
-                  expiresAt &&
-                  new Date(expiresAt) <= now;
+
+                const isCooldown = expiresAt && expiresAt > now;
+                const isCooldownExpired = !expiresAt || expiresAt <= now;
+
+                const isRetryCase = status === "Pending" && !!orderId;
 
                 return (
                   <>
-                    {/* PAY Button */}
+                    {/* PAY button only if not paid AND cooldown expired */}
                     {(pickup.status === "Scheduled" ||
                       pickup.status === "Rescheduled") &&
-                    (!status || status === "Pending" || isExpired) ? (
+                      pickup.payment?.status !== "Paid" &&
+                    // status === "Pending" &&
+                    isCooldownExpired &&
+                    !isRetryCase ? (
                       <Button
                         type="primary"
                         className="mr-2"
@@ -169,22 +171,28 @@ useEffect(() => {
                       >
                         Pay
                       </Button>
-                    ) : status === "InProgress" && !isExpired ? (
+                    ) : status === "Pending" && isCooldown && !isRetryCase ? (
                       <div className="bg-orange-50 border border-orange-300 p-2 rounded text-sm text-orange-700 font-medium mb-2">
-                        Payment already initiated. Please wait until{" "}
-                        <strong>
-                          {new Date(expiresAt).toLocaleTimeString([], {
-                            hour: "2-digit",
-                            minute: "2-digit",
-                          })}
-                        </strong>{" "}
+                        Payment already initiated. Please wait
+                        {!isNaN(expiresAt.getTime()) && (
+                          <>
+                            {" "}
+                            until{" "}
+                            <strong>
+                              {expiresAt.toLocaleTimeString([], {
+                                hour: "2-digit",
+                                minute: "2-digit",
+                              })}
+                            </strong>
+                          </>
+                        )}{" "}
                         to try again.
                       </div>
                     ) : null}
 
                     {/* TRACK or CANCEL button */}
-                    {pickup.status ===
-                    "Cancelled" ? null : pickup.trackingStatus ? (
+                    {pickup.status === "Cancelled" || pickup.payment?.refundRequested
+                    ? null : pickup.trackingStatus ? (
                       <Button
                         type="primary"
                         onClick={() => handleTrackClick(pickup)}
@@ -194,7 +202,7 @@ useEffect(() => {
                           : "Track"}
                       </Button>
                     ) : (
-                      !(status === "InProgress" && !isExpired) && (
+                      !(status === "Pending" && isCooldown && !isRetryCase) && (
                         <Popconfirm
                           title="Are you sure to cancel this pickup?"
                           okText="Yes"
@@ -277,18 +285,6 @@ useEffect(() => {
     );
   };
 
-
-  const filteredPickups = pickups.filter((pickup: any) => {
-    const matchesSearch =
-      search === "" ||
-      pickup.pickupId?.toLowerCase().includes(search.toLowerCase());
-
-    const matchesFilter =
-      statusFilter === "All" || pickup.status === statusFilter;
-
-    return matchesSearch && matchesFilter;
-  });
-
   return (
     <div className="min-h-screen bg-green-100">
       <Header />
@@ -305,8 +301,8 @@ useEffect(() => {
           <div className="text-center mt-4">
             <Spin />
           </div>
-        ) : filteredPickups.length > 0 ? (
-          renderPickupCards(filteredPickups)
+        ) : pickups.length > 0 ? (
+          renderPickupCards(pickups)
         ) : (
           <Empty
             image={Empty.PRESENTED_IMAGE_SIMPLE}
@@ -314,7 +310,7 @@ useEffect(() => {
             className="mt-4"
           />
         )}
-      
+
         <Pagination
           current={currentPage}
           pageSize={pageSize}
@@ -346,16 +342,16 @@ useEffect(() => {
           onClose={() => setCancelModalVisible(false)}
           pickupId={cancelPickup}
           cancelAction={cancelPickupReq}
-          onSuccess={() =>
-            dispatch(
-              fetchtPickupPlans({
-                page: currentPage,
-                limit: pageSize,
-                search,
-                filter: statusFilter,
-              })
-            )
-          }
+          // onSuccess={() =>
+          //   dispatch(
+          //     fetchtPickupPlans({
+          //       page: currentPage,
+          //       limit: pageSize,
+          //       search,
+          //       filter: statusFilter,
+          //     })
+          //   )
+          // }
         />
       </div>
       <Footer />

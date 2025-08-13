@@ -49,13 +49,12 @@ export class PaymentService implements IPaymentService {
       throw new Error("Pickup request not found for the user.");
     }
 
-    
     const now = new Date();
     const payment = pickupRequest.payment;
     if (
-      payment?.status === "InProgress" &&
-      payment.inProgressExpiresAt &&
-      payment.inProgressExpiresAt > now
+      // payment?.status === "InProgress" &&
+      payment?.inProgressExpiresAt &&
+      payment?.inProgressExpiresAt > now
     ) {
       throw new Error(
         "A payment is already in progress. Please wait a few minutes before retrying."
@@ -73,18 +72,29 @@ export class PaymentService implements IPaymentService {
       },
       payment_capture: true,
     });
+    // pickupRequest.payment = {
+    //   amount,
+    //   method: "Razorpay",
+    //   status: "InProgress",
+    //   razorpayOrderId: order.id,
+    //   razorpayPaymentId: null,
+    //   razorpaySignature: null,
+    //   paidAt: null,
+    //   refundRequested: false,
+    //   refundStatus: null,
+    //   refundAt: null,
+    //   razorpayRefundId: null,
+    //   inProgressExpiresAt: new Date(now.getTime() + 5 * 60 * 1000),
+    // };
     pickupRequest.payment = {
+      ...pickupRequest.payment,
       amount,
       method: "Razorpay",
-      status: "InProgress",
+      status: "Pending",
       razorpayOrderId: order.id,
       razorpayPaymentId: null,
       razorpaySignature: null,
       paidAt: null,
-      refundRequested: false,
-      refundStatus: null,
-      refundAt: null,
-      razorpayRefundId: null,
       inProgressExpiresAt: new Date(now.getTime() + 5 * 60 * 1000),
     };
     await pickupRequest.save();
@@ -101,8 +111,8 @@ export class PaymentService implements IPaymentService {
   async verifyPaymentService(
     data: VerifyPaymentReq
   ): Promise<VerifyPaymentResp> {
-    console.log("data",data);
-    
+    console.log("data", data);
+
     const {
       razorpay_order_id,
       razorpay_payment_id,
@@ -148,15 +158,16 @@ export class PaymentService implements IPaymentService {
     await pickupRequest.save();
     console.log("✅ Saved payment status:", pickupRequest.payment);
     return PickupRequestMapper.toPaymentDTO(pickupRequest);
-
   }
 
   async getAllPayments(
-    userId: string, paginationData: PaginationInput
-  ): Promise<{payments: PickupPaymentSummaryDTO[], total: number}> {
-    const { pickups, total } = await this._pickupRepository.getAllPaymentsByUser(userId, paginationData);
+    userId: string,
+    paginationData: PaginationInput
+  ): Promise<{ payments: PickupPaymentSummaryDTO[]; total: number }> {
+    const { pickups, total } =
+      await this._pickupRepository.getAllPaymentsByUser(userId, paginationData);
     const payments = pickups.map((p) => PickupRequestMapper.toSummaryDTO(p));
-    return { payments, total }
+    return { payments, total };
   }
 
   async rePaymentService(userId: string, pickupReqId: string, amount: number) {
@@ -213,6 +224,5 @@ export class PaymentService implements IPaymentService {
       pickupReqId,
       expiresAt: payment.inProgressExpiresAt?.toISOString(),
     };
-   
   }
 }

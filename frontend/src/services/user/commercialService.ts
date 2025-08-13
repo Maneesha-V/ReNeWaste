@@ -1,5 +1,5 @@
-import { PartialCommPickupReq } from "../../types/pickupTypes";
 import axiosUser from "../../api/axiosUser";
+import { PartialCommPickupReq } from "../../types/pickupReq/pickupTypes";
 
 export const getCommercialService = async () => {
     const response = await axiosUser.get(`/commercial`);
@@ -13,7 +13,7 @@ export const checkAvailabilityService = async(service: string, wasteplantId: str
         "Content-Type": "application/json",
       },
     });
-    return response;
+    return response.data;
 }
   export const updateCommercialPickupService = async (formData: PartialCommPickupReq) => {
     const response = await axiosUser.patch(`/commercial/pickup`, formData, {
@@ -21,6 +21,5 @@ export const checkAvailabilityService = async(service: string, wasteplantId: str
        "Content-Type": "application/json",
       },
     });
-    console.log("Response:", response);
     return response;
 };

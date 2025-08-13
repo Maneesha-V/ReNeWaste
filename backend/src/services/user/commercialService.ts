@@ -7,6 +7,8 @@ import TYPES from "../../config/inversify/types";
 import { IUserRepository } from "../../repositories/user/interface/IUserRepository";
 import { IWastePlantRepository } from "../../repositories/wastePlant/interface/IWastePlantRepository";
 import { IPickupRepository } from "../../repositories/pickupReq/interface/IPickupRepository";
+import { UpdatedCommercialDataDTO, UserDTO } from "../../dtos/user/userDTO";
+import { UserMapper } from "../../mappers/UserMapper";
 
 @injectable()
 export class CommercialService implements ICommercialService {
@@ -18,10 +20,10 @@ export class CommercialService implements ICommercialService {
     @inject(TYPES.PickupRepository)
     private pickupRepository: IPickupRepository
   ) {}
-  async getCommercialService(userId: string) {
+  async getCommercialService(userId: string): Promise<UserDTO> {
     const user = await this.userRepository.findUserById(userId);
     if (!user) throw new Error("User not found");
-    return user;
+    return UserMapper.mapUserDTO(user);;
   }
   async availableWasteService(
     service: string,
@@ -34,7 +36,8 @@ export class CommercialService implements ICommercialService {
 
     return wasteplant.services.includes(service);
   }
-  async updateCommercialPickupService(userId: string, updatedData: any) {
+  async updateCommercialPickupService(userId: string, updatedData: UpdatedCommercialDataDTO):
+  Promise<boolean> {
     const user = await this.userRepository.findUserById(userId);
     if (!user) throw new Error("User not found");
 
@@ -72,8 +75,8 @@ export class CommercialService implements ICommercialService {
       frequency: updatedData.frequency,
       status: "Pending",
     };
-    const newPickupReq: IPickupRequestDocument =
-      await this.pickupRepository.createPickup(newPickuData);
-    return { user: updatedUser, pickupRequest: newPickupReq };
+
+    const created = await this.pickupRepository.createPickup(newPickuData);
+    return !!created;
   }
 }

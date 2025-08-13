@@ -5,7 +5,6 @@ import { inject, injectable } from "inversify";
 import TYPES from "../../config/inversify/types";
 import { IPickupService } from "../../services/user/interface/IPIckupService";
 import { MESSAGES, STATUS_CODES } from "../../utils/constantUtils";
-import { handleControllerError } from "../../utils/errorHandler";
 import { ApiError } from "../../utils/ApiError";
 import { PaginationInput } from "../../dtos/common/commonDTO";
 
@@ -51,7 +50,8 @@ export class PickupController implements IPickupController {
         userId,
         paginationData
       );
-
+      console.log("pickups",pickups);
+      
       res.status(STATUS_CODES.SUCCESS).json({ pickups, total });
     } catch (error) {
       console.error("err", error);
@@ -73,12 +73,13 @@ export class PickupController implements IPickupController {
           MESSAGES.COMMON.ERROR.UNAUTHORIZED
         );
       }
-      console.log("pickupReqId", pickupReqId);
 
-      const re = await this._pickupService.cancelPickupPlanService(pickupReqId);
-      console.log("ree", re);
-
-      res.status(200).json({ message: "Pickup canceled successfully" });
+      const success = await this._pickupService.cancelPickupPlanService(pickupReqId);
+      if(success){
+        res.status(STATUS_CODES.SUCCESS).json({ message: MESSAGES.USER.SUCCESS.PICKUP_CANCEL });
+      } else {
+        res.status(STATUS_CODES.SERVER_ERROR).json({ message: MESSAGES.USER.ERROR.PICKUP_CANCEL });
+      }
     } catch (error) {
       console.error("error", error);
       next(error);
@@ -102,16 +103,16 @@ export class PickupController implements IPickupController {
       }
       console.log({ pickupReqId, userId, reason });
 
-      const result = await this._pickupService.cancelPickupReasonRequest({
+      const payment = await this._pickupService.cancelPickupReasonRequest({
         userId,
         pickupReqId,
         reason,
       });
-      console.log("result", result);
+      console.log("payment", payment);
 
-      res.status(200).json({
-        message: "Pickup request canceled successfully",
-        data: result,
+      res.status(STATUS_CODES.SUCCESS).json({
+        message: MESSAGES.USER.SUCCESS.PICKUP_CANCEL,
+        payment,
       });
     } catch (error) {
       console.error("error", error);

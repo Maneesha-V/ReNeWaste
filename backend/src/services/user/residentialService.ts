@@ -1,12 +1,12 @@
 import { IResidentialService } from "./interface/IResidentialService";
 import { Types } from "mongoose";
 import { IAddress } from "../../models/user/interfaces/addressInterface";
-import { IPickupRequestDocument } from "../../models/pickupRequests/interfaces/pickupInterface";
 import { inject, injectable } from "inversify";
 import TYPES from "../../config/inversify/types";
 import { IUserRepository } from "../../repositories/user/interface/IUserRepository";
 import { IPickupRepository } from "../../repositories/pickupReq/interface/IPickupRepository";
-import { UpdatedResidentialData } from "../../dtos/user/userDTO";
+import { UpdatedResidentialData, UserDTO } from "../../dtos/user/userDTO";
+import { UserMapper } from "../../mappers/UserMapper";
 
 @injectable()
 export class ResidentialService implements IResidentialService {
@@ -16,16 +16,16 @@ export class ResidentialService implements IResidentialService {
     @inject(TYPES.PickupRepository)
     private pickupRepository: IPickupRepository
   ) {}
-  async getResidentialService(userId: string) {
+  async getResidentialService(userId: string): Promise<UserDTO> {
     const user = await this.userRepository.findUserById(userId);
     if (!user) throw new Error("User not found");
-    return user;
+    return UserMapper.mapUserDTO(user);
   }
 
   async updateResidentialPickupService(
     userId: string,
     updatedData: UpdatedResidentialData
-  ): Promise<void> {
+  ): Promise<boolean> {
     const user = await this.userRepository.findUserById(userId);
     if (!user) throw new Error("User not found");
     const pickupCount =
@@ -67,7 +67,8 @@ export class ResidentialService implements IResidentialService {
       status: "Pending",
     };
 
-    await this.pickupRepository.createPickup(newPickuData);
+    const created = await this.pickupRepository.createPickup(newPickuData);
+    return !!created
   }
 
 }

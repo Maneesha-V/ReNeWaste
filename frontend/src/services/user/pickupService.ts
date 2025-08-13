@@ -1,7 +1,7 @@
 import axiosUser from "../../api/axiosUser";
 import { PaginationPayload } from "../../types/common/commonTypes";
-import { PickupPlansResponse } from "../../types/pickupReq/pickupTypes";
-import { PickupCancelData } from "../../types/wastePlantTypes";
+import { PickupCancelData, PickupPlansResponse } from "../../types/pickupReq/pickupTypes";
+
 
 export const getUserPickups = async ({ page, limit, search, filter }: PaginationPayload): Promise<PickupPlansResponse> => {
   const response = await axiosUser.get(`/pickup-plans`,{
@@ -14,7 +14,7 @@ export const cancelUserPickup = async (pickupReqId: string) => {
     `/pickup-plan/cancel/${pickupReqId}`,
     {}
   );
-  return response.data.pickups;
+  return response.data;
 };
 
 export const cancelPickupReqById = async ({

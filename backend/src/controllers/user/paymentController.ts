@@ -31,11 +31,13 @@ export class PaymentController implements IPaymentController {
           MESSAGES.COMMON.ERROR.UNAUTHORIZED
         );
       }
-      const paymentOrder = await this._paymentService.createPaymentOrderService({
-        amount,
-        pickupReqId,
-        userId,
-      });
+      const paymentOrder = await this._paymentService.createPaymentOrderService(
+        {
+          amount,
+          pickupReqId,
+          userId,
+        }
+      );
       console.log("paymentOrder", paymentOrder);
       if (!paymentOrder) {
         throw new ApiError(
@@ -111,7 +113,7 @@ export class PaymentController implements IPaymentController {
           MESSAGES.COMMON.ERROR.UNAUTHORIZED
         );
       }
-       const DEFAULT_LIMIT = 5;
+      const DEFAULT_LIMIT = 5;
       const MAX_LIMIT = 50;
       const page = parseInt(req.query.page as string) || 1;
       let limit = Math.min(
@@ -121,18 +123,17 @@ export class PaymentController implements IPaymentController {
       const search = (req.query.search as string) || "";
       const filter = (req.query.filter as string) || "All";
 
-            const paginationData: PaginationInput = {
-              page,
-              limit,
-              search,
-              filter,
-            };
+      const paginationData: PaginationInput = {
+        page,
+        limit,
+        search,
+        filter,
+      };
 
       const { payments, total } = await this._paymentService.getAllPayments(
         userId,
-paginationData
+        paginationData
       );
-      // const payments = await this._paymentService.getAllPaymentsService(userId);
       if (!payments) {
         throw new ApiError(
           STATUS_CODES.NOT_FOUND,

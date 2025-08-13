@@ -1,7 +1,7 @@
 import { Modal, Steps } from "antd";
 import { useEffect, useState } from "react";
 import { useSafeSocket } from "../../hooks/useSocket";
-import { TrackModalProps } from "../../types/userTypes";
+import { TrackModalProps } from "../../types/common/modalTypes";
 
 const { Step } = Steps;
 

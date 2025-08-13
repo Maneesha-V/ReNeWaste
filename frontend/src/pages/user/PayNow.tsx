@@ -14,25 +14,21 @@ import {
 } from "../../redux/slices/user/userPaymentSlice";
 import { toast } from "react-toastify";
 import Swal from "sweetalert2";
-import {
-  fetchtPickupPlans,
-  updatePickupPaymentStatus,
-} from "../../redux/slices/user/userPickupSlice";
-import { PayNowProps } from "../../types/userTypes";
+import { PayNowProps } from "../../types/common/modalTypes";
 
 const PayNow = ({ onClose }: PayNowProps) => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
 
-  const pickup = useSelector((state: RootState) => state.userPayment.pickup);
-  const amount = useSelector((state: RootState) => state.userPayment.amount);
- const { paymentOrder, error } = useSelector(
+  // const pickup = useSelector((state: RootState) => state.userPayment.pickup);
+  // const amount = useSelector((state: RootState) => state.userPayment.amount);
+ const { paymentOrder, error, pickup, amount } = useSelector(
     (state: RootState) => state.userPayment
   );
   console.log("paymentOrder", paymentOrder);
   console.log("pickup", pickup);
   console.log("amount", amount);
-  console.log("pickupId", pickup._id);
+
 useEffect(() => {
   if (error) {
     Swal.fire({
@@ -127,7 +123,6 @@ useEffect(() => {
                 confirmButtonColor: "#28a745",
               }).then(() => {
                 navigate("/pickup-plans", { state: { refresh: true } });
-
                 onClose();
               });
             })
@@ -144,7 +139,6 @@ useEffect(() => {
         },
         prefill: {
           name: pickup?.user?.firstName + " " + pickup?.user?.lastName,
-          email: pickup?.user?.email,
           contact: pickup?.user?.phone,
         },
         theme: {
@@ -185,7 +179,7 @@ useEffect(() => {
                 <span className="font-medium">Pickup Date:</span>{" "}
                 {pickup?.rescheduledPickupDate
                   ? formatDateToDDMMYYYY(pickup.rescheduledPickupDate)
-                  : formatDateToDDMMYYYY(pickup?.originalPickupDate)}
+                  : formatDateToDDMMYYYY(pickup!.originalPickupDate)}
               </p>
               <p>
                 <span className="font-medium">Pickup Time:</span>{" "}

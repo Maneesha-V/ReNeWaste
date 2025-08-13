@@ -1,6 +1,6 @@
-import { UpdatedResidentialData } from "../../../dtos/user/userDTO";
+import { UpdatedResidentialData, UserDTO } from "../../../dtos/user/userDTO";
 
 export interface IResidentialService {
-    getResidentialService(userId: string): Promise<any>;
-    updateResidentialPickupService(userId: string, updatedData: UpdatedResidentialData): Promise<void>;
+    getResidentialService(userId: string): Promise<UserDTO>;
+    updateResidentialPickupService(userId: string, updatedData: UpdatedResidentialData): Promise<boolean>;
 }

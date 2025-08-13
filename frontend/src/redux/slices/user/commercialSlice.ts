@@ -1,94 +1,108 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { getResidentialService, updateResidentialPickupService } from "../../../services/user/residentialService";
-import { CommPickupReqArgs, ResidPickupReqArgs } from "../../../types/pickupTypes";
-import { checkAvailabilityService, getCommercialService, updateCommercialPickupService } from "../../../services/user/commercialService";
+import {
+  checkAvailabilityService,
+  getCommercialService,
+  updateCommercialPickupService,
+} from "../../../services/user/commercialService";
+import { getAxiosErrorMessage } from "../../../utils/handleAxiosError";
+import { CommPickupReqArgs } from "../../../types/pickupReq/pickupTypes";
+import { GetCommResp, UserResp } from "../../../types/user/userTypes";
+import { MsgResponse } from "../../../types/common/commonTypes";
 
 interface UserState {
-    user: any;
-    loading: boolean;
-    error: string | null;
-    message: string | null;
-    token: string | null;
+  user: UserResp | null;
+  loading: boolean;
+  error: string | null;
+  message: string | null;
+  token: string | null;
+}
+
+const initialState: UserState = {
+  user: null,
+  loading: false,
+  error: null,
+  message: null,
+  token: null,
+};
+
+export const getCommercial = createAsyncThunk<
+  GetCommResp,
+  void,
+  { rejectValue: { message: string } }
+>("userCommercial/getCommercial", async (_, { rejectWithValue }) => {
+  try {
+    const response = await getCommercialService();
+    return response.data;
+  } catch (err) {
+    const msg = getAxiosErrorMessage(err);
+    return rejectWithValue({ message: msg });
   }
-  
-  const initialState: UserState = {
-    user: null,
-    loading: false,
-    error: null,
-    message: null,
-    token: null,
-  };
-  
-  export const getCommercial = createAsyncThunk(
-    "userCommercial/getCommercial",
-    async (_, { rejectWithValue }) => {
-      try {
-        const response = await getCommercialService();
-        return response.data;
-      } catch (error: any) {
-        return rejectWithValue(error.response?.data?.error || "Loading failed, Please try again.");
-      }
+});
+export const checkServiceAvailability = createAsyncThunk<
+  { available: boolean },
+  { service: string; wasteplantId: string },
+  { rejectValue: { message: string } }
+>(
+  "userCommercial/checkServiceAvailability",
+  async ({ service, wasteplantId }, { rejectWithValue }) => {
+    try {
+      const response = await checkAvailabilityService(service, wasteplantId);
+      return response;
+    } catch (err) {
+      const msg = getAxiosErrorMessage(err);
+      return rejectWithValue({ message: msg });
     }
-  );
-  export const checkServiceAvailability = createAsyncThunk(
-    'userCommercial/checkServiceAvailability',
-    async ({ service, wasteplantId }: { service: string; wasteplantId: string }, thunkAPI) => {
-      try {
-        const response = await checkAvailabilityService(service, wasteplantId)
-        
-        return response.data;
-      
-      } catch (error: any) {
-        return thunkAPI.rejectWithValue(error.response?.data?.error || "Unexpected error");
-      }
+  }
+);
+
+export const updateCommercialPickup = createAsyncThunk<
+  MsgResponse,
+  CommPickupReqArgs,
+  { rejectValue: { message: string } }
+>(
+  "userCommercial/updateCommercialPickup",
+  async ({ data }: CommPickupReqArgs, { rejectWithValue }) => {
+    try {
+      const response = await updateCommercialPickupService(data);
+      return response.data;
+    } catch (err) {
+      const msg = getAxiosErrorMessage(err);
+      return rejectWithValue({ message: msg });
     }
-  );
-  
-   export const updateCommercialPickup = createAsyncThunk(
-      "userCommercial/updateCommercialPickup",
-      async ({ data }: CommPickupReqArgs, thunkAPI) => {
-        try {
-          const response = await updateCommercialPickupService(data); 
-          return response.data;
-        } catch (error: any) {
-          return thunkAPI.rejectWithValue(
-            error.response?.data?.message || "Failed to submit"
-          );
-        }
-      }
-    );
+  }
+);
 
 const userCommercialSlice = createSlice({
-    name: "userCommercial",
-    initialState,
-    reducers: {},
-    extraReducers: (builder) => {
-      builder
-        .addCase(getCommercial.pending, (state) => {
-          state.loading = true;
-          state.error = null;
-        })
-        .addCase(getCommercial.fulfilled, (state, action) => {
-          state.loading = false;
-          state.user = action.payload.user;
-        })
-        .addCase(getCommercial.rejected, (state, action) => {
-          state.loading = false;
-          state.error = action.payload as string;
-        })
-        .addCase(updateCommercialPickup.pending, (state) => {
-          state.loading = true;
-          state.error = null;
-        })
-        .addCase(updateCommercialPickup.fulfilled, (state, action) => {
-          state.loading = false;
-          state.user = action.payload.user;
-        })
-        .addCase(updateCommercialPickup.rejected, (state, action) => {
-          state.loading = false;
-          state.error = action.payload as string;
-        })
-    },
-  });
-  
-  export default userCommercialSlice.reducer;
+  name: "userCommercial",
+  initialState,
+  reducers: {},
+  extraReducers: (builder) => {
+    builder
+      .addCase(getCommercial.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(getCommercial.fulfilled, (state, action) => {
+        state.loading = false;
+        state.user = action.payload.user;
+      })
+      .addCase(getCommercial.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload?.message || "Something went wrong";
+      })
+      .addCase(updateCommercialPickup.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(updateCommercialPickup.fulfilled, (state, action) => {
+        state.loading = false;
+        state.message = action.payload.message;
+      })
+      .addCase(updateCommercialPickup.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload?.message || "Something went wrong";
+      });
+  },
+});
+
+export default userCommercialSlice.reducer;

@@ -10,7 +10,7 @@ import {
   checkServiceAvailability,
   getCommercial,
 } from "../../redux/slices/user/commercialSlice";
-import { Spin } from "antd";
+import { RootState } from "../../redux/store";
 
 const Commercial = () => {
   const [currentMonth, setCurrentMonth] = useState(dayjs());
@@ -22,31 +22,21 @@ const Commercial = () => {
   );
 
   const dispatch = useAppDispatch();
-  const { user, loading, error } = useSelector(
-    (state: any) => state.userCommercial
+  const { user } = useSelector(
+    (state: RootState) => state.userCommercial
   );
-  const token = localStorage.getItem("token");
 
   const startOfMonth = currentMonth.startOf("month");
   // const endOfMonth = currentMonth.endOf("month");
   const startDay = startOfMonth.day();
   const daysInMonth = currentMonth.daysInMonth();
 
-  console.log("token", token);
   console.log("user", user);
   useEffect(() => {
-    if (!token) return;
-
     dispatch(getCommercial());
   }, [dispatch]);
 
-   if (loading) {
-      return (
-        <div className="flex justify-center items-center h-64">
-          <Spin size="large" />
-        </div>
-      );
-    }
+
     
   const handlePrevMonth = () => {
     setCurrentMonth(currentMonth.subtract(1, "month"));
@@ -68,10 +58,11 @@ const Commercial = () => {
       const response = await dispatch(
         checkServiceAvailability({
           service: serviceQuery,
-          wasteplantId: user?.wasteplantId,
+          wasteplantId: user!.wasteplantId!,
         })
       ).unwrap();
-
+      console.log("comm-check",response);
+      
       if (response?.available) {
         setServiceAvailable(true);
       } else {

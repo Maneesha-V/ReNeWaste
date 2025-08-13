@@ -78,10 +78,20 @@ export const MESSAGES = {
     ERROR: {},
   },
   USER: {
-    SUCCESS: {},
+    SUCCESS: {
+      RESIDENTIAL_PICKUP: "Fetch residential page successfully.",
+      COMMERCIAL_PICKUP: "Fetch commercial page successfully.",
+      PICKUP_CANCEL: "Pickup canceled successfully.",
+      PICKUP_UPDATED: "Pickup updated successfully.",
+      PICKUP_CREATED: "Pickup created successfully.",
+    },
     ERROR: {
       NOT_FOUND: "User not found.",
-      WASTEPLANT_BLOCK: "Services unavailable: Waste plant is blocked"
+      WASTEPLANT_BLOCK: "Services unavailable: Waste plant is blocked",
+      PICKUP_CANCEL: "Failed to cancel pickup.",
+      PICKUP_UPDATED: "Failed to update pickup.",
+      PICKUP_DATE: "Invalid pickup date format.",
+      PICKUP_CREATED: "Failed to create pickup.",
     },
   },
 

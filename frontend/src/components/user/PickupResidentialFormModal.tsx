@@ -1,14 +1,14 @@
 import { Dialog } from "@headlessui/react";
 import { useEffect, useState } from "react";
 import { useWastePlantValidation } from "../../hooks/useWastePlantValidation";
-import { PartialResidPickupReq } from "../../types/pickupTypes";
 import { useAppDispatch } from "../../redux/hooks";
 import { toast } from "react-toastify";
 import { updateResidentialPickup } from "../../redux/slices/user/residentialSlice";
 import { useNavigate } from "react-router-dom";
-import { PickupResidentialFormModalProps } from "../../types/userTypes";
-import { RootState } from "../../redux/store";
-import { useSelector } from "react-redux";
+import { PartialResidPickupReq } from "../../types/pickupReq/pickupTypes";
+import { PickupResidentialFormModalProps } from "../../types/common/modalTypes";
+import { getAxiosErrorMessage } from "../../utils/handleAxiosError";
+import { Address } from "../../types/user/userTypes";
 
 const PickupResidentialFormModal: React.FC<PickupResidentialFormModalProps> = ({
   isOpen,
@@ -168,17 +168,13 @@ const PickupResidentialFormModal: React.FC<PickupResidentialFormModalProps> = ({
     try {
       const result = await dispatch(
         updateResidentialPickup({ data: finalData })
-      );
-      if (updateResidentialPickup.rejected.match(result)) {
-        toast.error(result.payload?.message || "Submission failed.");
-        return;
-      }
+      ).unwrap();
 
-      toast.success("Pickup form submitted successfully!");
+      toast.success(result.message);
       onClose();
       setTimeout(() => navigate("/residential"), 2000);
-    } catch {
-      toast.error("Submission failed. Please try again.");
+    } catch(error) {
+      getAxiosErrorMessage(error)
     }
   };
 
@@ -250,7 +246,7 @@ const PickupResidentialFormModal: React.FC<PickupResidentialFormModalProps> = ({
                     )
                   }
                 >
-                  {user.addresses.map((addr: any, index: number) => (
+                  {user.addresses.map((addr: Address, index: number) => (
                     <option key={index} value={index.toString()}>
                       {addr.addressLine1},{addr.addressLine2},{addr.location},{" "}
                       {addr.pincode},{addr.district},{addr.state}

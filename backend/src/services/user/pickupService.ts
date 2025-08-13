@@ -5,7 +5,7 @@ import { IPickupRepository } from "../../repositories/pickupReq/interface/IPicku
 import { cancelPickupReasonData } from "../../types/user/pickupTypes";
 import { INotificationRepository } from "../../repositories/notification/interface/INotifcationRepository";
 import { PickupRequestMapper } from "../../mappers/PIckupReqMapper";
-import { PickupPlansDTO } from "../../dtos/pickupReq/pickupReqDTO";
+import { PaymentDTO, PickupPlansDTO } from "../../dtos/pickupReq/pickupReqDTO";
 import { PaginationInput } from "../../dtos/common/commonDTO";
 
 @injectable()
@@ -35,9 +35,8 @@ export class PickupService implements IPickupService {
       total,
     };
 
-    // return pickups.map((p) => PickupRequestMapper.toPickupPlansDTO(p));
   }
-  async cancelPickupPlanService(pickupReqId: string) {
+  async cancelPickupPlanService(pickupReqId: string): Promise<boolean> {
     const pickup = await this._pickupRepository.getPickupById(pickupReqId);
     if (!pickup) {
       throw new Error("Pickup not found");
@@ -47,12 +46,13 @@ export class PickupService implements IPickupService {
       throw new Error("Pickup already canceled");
     }
 
-    return await this._pickupRepository.updatePickupStatus(
+    const updated = await this._pickupRepository.updatePickupStatus(
       pickupReqId,
       "Cancelled"
     );
+    return !!updated;
   }
-  async cancelPickupReasonRequest(data: cancelPickupReasonData) {
+  async cancelPickupReasonRequest(data: cancelPickupReasonData): Promise<PaymentDTO> {
     const updatedPickupRequest =
       await this._pickupRepository.updatePaymentStatus(data.pickupReqId);
     if (!updatedPickupRequest) throw new Error("Pickup not updated.");
@@ -79,6 +79,7 @@ export class PickupService implements IPickupService {
       io.to(`${plantId}`).emit("newNotification", plantNotification);
     }
 
-    return updatedPickupRequest;
+    return PickupRequestMapper.mapPayment(updatedPickupRequest?.payment);
+    
   }
 }

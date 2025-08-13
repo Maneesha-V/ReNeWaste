@@ -61,7 +61,8 @@ export type PaymentSummary = {
     refundStatus: string | null; 
     razorpayOrderId: string | null;
     refundRequested: boolean;
-    refundAt: Date | null;
+    refundAt: string | null;
+    inProgressExpiresAt: string | null;
   };
 }
 export type UpdateStatusPayload= { 
