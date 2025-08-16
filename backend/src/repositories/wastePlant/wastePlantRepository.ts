@@ -45,8 +45,9 @@ export class WastePlantRepository
   ): Promise<IWastePlant | null> {
     return await this.model.findOne({ licenseNumber });
   }
-  async findWastePlantByTaluk(taluk: string): Promise<IWastePlant | null> {
-    return await this.model.findOne({ taluk });
+  async findWastePlantByTaluk(taluk: string): Promise<string  | null> {
+    const plant = await this.model.findOne({ taluk }, {_id: 1});
+    return plant ? plant._id.toString() : null;
   }
   async findWastePlantByName(plantName: string): Promise<IWastePlant | null> {
     return await this.model.findOne({ plantName });

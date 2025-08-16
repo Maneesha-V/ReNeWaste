@@ -10,12 +10,10 @@ import {
   fetchNotifications,
   markAsRead,
 } from "../../redux/slices/driver/driverNotificationSlice";
+import { DriverNotificationPanelProps } from "../../types/common/modalTypes";
+import { NotificationResp } from "../../types/notification/notificationTypes";
 
-interface NotificationPanelProps {
-  visible: boolean;
-  onClose: () => void;
-}
-const NotificationPanel: React.FC<NotificationPanelProps> = ({
+const NotificationPanel: React.FC<DriverNotificationPanelProps> = ({
   visible,
   onClose,
 }) => {
@@ -45,7 +43,7 @@ const NotificationPanel: React.FC<NotificationPanelProps> = ({
   useEffect(() => {
     if (!socket) return;
 
-    const handler = (data: Notification) => {
+    const handler = (data: NotificationResp) => {
       dispatch(addNotification(data));
     };
 

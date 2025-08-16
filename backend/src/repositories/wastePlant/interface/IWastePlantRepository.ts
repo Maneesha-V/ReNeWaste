@@ -10,7 +10,7 @@ export interface IWastePlantRepository {
   createWastePlant(data: IWastePlant): Promise<IWastePlantDocument>;
   findWastePlantByEmail(email: string): Promise<IWastePlantDocument | null>;
   findWastePlantByLicense(licenseNumber: string): Promise<IWastePlant | null>;
-  findWastePlantByTaluk(taluk: string): Promise<IWastePlant | null>;
+  findWastePlantByTaluk(taluk: string): Promise<string | null>;
   findWastePlantByName(plantName: string): Promise<IWastePlant | null>;
   getAllWastePlants(data: PaginationInput): Promise<PaginatedWastePlantResult | null>;
   getWastePlantById(id: string): Promise<IWastePlantDocument | null>;

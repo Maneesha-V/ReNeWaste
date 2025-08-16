@@ -1,4 +1,4 @@
-import { AddressDTO, UserDTO, UserLoginDTO } from "../dtos/user/userDTO";
+import { AddressDTO, UserDTO, UserLoginDTO, UserProfileRespDTO } from "../dtos/user/userDTO";
 import { IAddressDocument } from "../models/user/interfaces/addressInterface";
 import { IUserDocument } from "../models/user/interfaces/userInterface";
 
@@ -30,7 +30,7 @@ export class UserMapper {
       addresses: doc.addresses.map((addressDoc) =>
         UserMapper.mapAddressDTO(addressDoc)
       ),
-      wasteplantId: doc.wasteplantId?.toString(),
+      wasteplantId: doc.wasteplantId?.toString() ?? "",
       isBlocked: doc.isBlocked,
     };
   }
@@ -40,4 +40,11 @@ export class UserMapper {
       role: doc.role ?? "user",
     };
   }
+  static mapToUserProfile(user: UserDTO): UserProfileRespDTO {
+  return {
+    ...user,
+    phone: user.phone ?? "", 
+    addresses: user.addresses?.map(({ _id, ...rest }) => rest) ?? [],
+  };
+}
 }

@@ -1,9 +1,13 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { Notification } from "../../../types/notificationTypes";
-import { getNotifications, markAsReadService } from "../../../services/user/notificationService";
+import {
+  getNotifications,
+  markAsReadService,
+} from "../../../services/user/notificationService";
+import { getAxiosErrorMessage } from "../../../utils/handleAxiosError";
+import { NotificationResp } from "../../../types/notification/notificationTypes";
 
 interface NotificationState {
-  notifications: Notification[];
+  notifications: NotificationResp[];
   loading: boolean;
   error: string | null;
 }
@@ -14,31 +18,33 @@ const initialState: NotificationState = {
   error: null,
 };
 
-export const fetchNotifications = createAsyncThunk(
-  "userNotifications/fetchNotifications",
-  async (_, { rejectWithValue }) => {
-    try {
-      const response = await getNotifications();
-      return response;
-    } catch (error: any) {
-      return rejectWithValue(
-        error.response?.data || "Failed to fetch notifications."
-      );
-    }
+export const fetchNotifications = createAsyncThunk<
+  NotificationResp[],
+  void,
+  { rejectValue: { message: string } }
+>("userNotifications/fetchNotifications", async (_, { rejectWithValue }) => {
+  try {
+    const response = await getNotifications();
+    return response;
+  } catch (err) {
+    const msg = getAxiosErrorMessage(err);
+    return rejectWithValue({ message: msg });
   }
-);
+});
 
-export const markAsRead = createAsyncThunk(
-  "userNotifications/markAsRead",
-  async (id: string, { rejectWithValue }) => {
-    try {
-      const response = await markAsReadService(id);
-      return response;
-    } catch (error: any) {
-      return rejectWithValue(error.response?.data || "Failed to mark as read.");
-    }
+export const markAsRead = createAsyncThunk<
+  NotificationResp,
+  string,
+  { rejectValue: { message: string } }
+>("userNotifications/markAsRead", async (id, { rejectWithValue }) => {
+  try {
+    const response = await markAsReadService(id);
+    return response;
+  } catch (err) {
+    const msg = getAxiosErrorMessage(err);
+    return rejectWithValue({ message: msg });
   }
-);
+});
 
 const userNotificationSlice = createSlice({
   name: "userNotifications",
@@ -54,18 +60,16 @@ const userNotificationSlice = createSlice({
         state.loading = true;
       })
       .addCase(fetchNotifications.fulfilled, (state, action) => {
-        console.log("action",action);
-        
         state.loading = false;
         state.notifications = action.payload;
       })
       .addCase(fetchNotifications.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload as string;
+        state.error = action.payload?.message || "Something went wrong";
       })
       .addCase(markAsRead.fulfilled, (state, action) => {
-        console.log("action",action.payload);
-        
+        console.log("action", action.payload);
+
         const updatedId = action.payload._id;
         const notification = state.notifications.find(
           (n) => n._id === updatedId
@@ -75,9 +79,8 @@ const userNotificationSlice = createSlice({
         }
       })
       .addCase(markAsRead.rejected, (state, action) => {
-        state.error = action.payload as string;
-      })
-      
+        state.error = action.payload?.message || "Failed to read notification.";
+      });
   },
 });
 

@@ -1,5 +1,5 @@
 import dayjs from "dayjs";
-import { Notification } from "../types/notificationTypes";
+import { NotificationResp } from "../types/notification/notificationTypes";
 
 export function formatDateToDDMMYYYY(dateStr: string | null): string {
   if (!dateStr) return "-"; 
@@ -64,6 +64,6 @@ export function extractDateTimeParts(isoString: string) {
   };
 }
 
-export const sortByDateDesc = (a: Notification, b: Notification) => {
+export const sortByDateDesc = (a: NotificationResp, b: NotificationResp) => {
   return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
 };

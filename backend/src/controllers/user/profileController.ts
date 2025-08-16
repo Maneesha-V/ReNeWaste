@@ -1,72 +1,112 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import { IProfileController } from "./interface/IProfileController";
-import { AuthRequest } from "../../types/common/middTypes";
 import { inject, injectable } from "inversify";
 import TYPES from "../../config/inversify/types";
 import { IProfileService } from "../../services/user/interface/IProfileService";
+import { AuthRequest } from "../../dtos/base/BaseDTO";
+import { ApiError } from "../../utils/ApiError";
+import { MESSAGES, STATUS_CODES } from "../../utils/constantUtils";
 
 @injectable()
 export class ProfileController implements IProfileController {
   constructor(
     @inject(TYPES.UserProfileService)
     private profileService: IProfileService
-  ){}
-  async getProfile(req: AuthRequest, res: Response): Promise<void> {
+  ) {}
+  async getProfile(
+    req: AuthRequest,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
     try {
-      const userId = req.user?.id; 
-      console.log("userId",userId);
-      
+      const userId = req.user?.id;
+
       if (!userId) {
-        res.status(401).json({ error: "Unauthorized" });
-        return;
-      }    
+        throw new ApiError(
+          STATUS_CODES.UNAUTHORIZED,
+          MESSAGES.COMMON.ERROR.UNAUTHORIZED
+        );
+      }
       const user = await this.profileService.getUserProfile(userId);
-      console.log("user",user);
-      
-      res.status(200).json({ user });
-    } catch (error: any) {
-      res.status(400).json({ error: error.message });
+      console.log("user", user);
+      if (user) {
+        res.status(STATUS_CODES.SUCCESS).json({ user });
+      } else {
+        res
+          .status(STATUS_CODES.SUCCESS)
+          .json({ message: MESSAGES.USER.ERROR.FETCH_PROFILE });
+      }
+    } catch (error) {
+      // res.status(400).json({ error: error.message });
+      next(error);
     }
   }
 
-  async getEditProfile(req: AuthRequest, res: Response): Promise<void> {
+  async getEditProfile(
+    req: AuthRequest,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
     try {
-      const userId = req.user?.id; 
-      console.log("userId",userId);
-      
+      const userId = req.user?.id;
+
       if (!userId) {
-        res.status(401).json({ error: "Unauthorized" });
-        return;
-      }    
+        throw new ApiError(
+          STATUS_CODES.UNAUTHORIZED,
+          MESSAGES.COMMON.ERROR.UNAUTHORIZED
+        );
+      }
       const user = await this.profileService.getUserProfile(userId);
-      res.status(200).json({ user });
-    } catch (error: any) {
-      res.status(400).json({ error: error.message });
+      if (user) {
+        res.status(STATUS_CODES.SUCCESS).json({ user });
+      } else {
+        res
+          .status(STATUS_CODES.SUCCESS)
+          .json({ message: MESSAGES.USER.ERROR.FETCH_EDIT_PROFILE });
+      }
+    } catch (error) {
+      // res.status(400).json({ error: error.message });
+      next(error);
     }
   }
 
-  async updateUserProfileHandler(req: AuthRequest, res: Response): Promise<void> {
+  async updateUserProfileHandler(
+    req: AuthRequest,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
     try {
       const userId = req.user?.id;
       if (!userId) {
-        res.status(400).json({ message: "User ID is required" });
-        return;
+        throw new ApiError(
+          STATUS_CODES.UNAUTHORIZED,
+          MESSAGES.COMMON.ERROR.UNAUTHORIZED
+        );
       }
       const updatedData = req.body;
-      console.log("updatedData",updatedData);
-      
-      const updatedUser = await this.profileService.updateUserProfile(userId, updatedData);
+      console.log("updatedData", updatedData);
 
-      if (!updatedUser) {
-        res.status(404).json({ message: "User not found" });
-        return;
+      const updatedUser = await this.profileService.updateUserProfile(
+        userId,
+        updatedData
+      );
+
+      if (updatedUser) {
+        res
+          .status(STATUS_CODES.SUCCESS)
+          .json({ message: MESSAGES.USER.SUCCESS.PROFILE_UPDATE });
+      } else {
+        res
+          .status(STATUS_CODES.SERVER_ERROR)
+          .json({ message: MESSAGES.USER.ERROR.PROFILE_UPDATE });
       }
-
-      res.status(200).json({ message: "Profile updated successfully", user: updatedUser });
+      // res
+      //   .status(200)
+      //   .json({ message: "Profile updated successfully", user: updatedUser });
     } catch (error) {
       console.error("Error updating profile:", error);
-      res.status(500).json({ message: "Server error, please try again later" });
+      // res.status(500).json({ message: "Server error, please try again later" });
+      next(error);
     }
   }
 }
-

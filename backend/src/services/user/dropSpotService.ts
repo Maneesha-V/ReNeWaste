@@ -1,9 +1,10 @@
-import { IDropSpot } from "../../models/dropSpots/interfaces/dropSpotInterface";
 import { IDropSpotService } from "./interface/IDropSpotservice";
 import { inject, injectable } from "inversify";
 import TYPES from "../../config/inversify/types";
 import { IUserRepository } from "../../repositories/user/interface/IUserRepository";
 import { IDropSpotRepository } from "../../repositories/dropSpot/interface/IDropSpotRepository";
+import { DropSpotDTO } from "../../dtos/dropspots/dropSpotDTO";
+import { DropSpotMapper } from "../../mappers/DropSpotMapper";
 
 @injectable()
 export class DropSpotService implements IDropSpotService {
@@ -13,7 +14,7 @@ export class DropSpotService implements IDropSpotService {
     @inject(TYPES.DropSpotRepository)
     private dropSpotRepository: IDropSpotRepository
   ){}
-  async getAllNearDropSpots(userId: string): Promise<IDropSpot[]> {
+  async getAllNearDropSpots(userId: string): Promise<DropSpotDTO[]> {
     const user = await this.userRepository.findUserById(userId);
 
     if (!user) throw new Error("User not found");
@@ -27,12 +28,16 @@ export class DropSpotService implements IDropSpotService {
     if (!wasteplantId) {
       throw new Error("User's wasteplantId is missing");
     }
-    return await this.dropSpotRepository.getDropSpotsByLocationAndWasteplant({
+    const dropspots =  await this.dropSpotRepository.getDropSpotsByLocationAndWasteplant({
       location,
       district,
       state,
       wasteplantId,
     });
+    if(!dropspots){
+      throw new Error("Drop spots not found.");
+    }
+    return DropSpotMapper.mapDropSpotsDTO(dropspots);
   }
 }
 

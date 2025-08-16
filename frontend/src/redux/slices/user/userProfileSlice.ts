@@ -4,10 +4,12 @@ import {
   getProfile,
   updateUserProfile,
 } from "../../../services/user/profileService";
-import { UserProfile } from "../../../types/profileTypes";
+import { getAxiosErrorMessage } from "../../../utils/handleAxiosError";
+import { FetchUserResp, UserProfileReq, UserResp } from "../../../types/user/userTypes";
+import { MsgResponse } from "../../../types/common/commonTypes";
 
 interface UserState {
-  user: any;
+  user: UserResp | null;
   loading: boolean;
   error: string | null;
   message: string | null;
@@ -21,43 +23,54 @@ const initialState: UserState = {
   message: null,
   token: null,
 };
-export const fetchUserProfile = createAsyncThunk(
-  "userProfile/fetchUserProfile",
-  async (_, thunkAPI) => {
-    try {
-      const response = await getProfile();
-      return response;
-    } catch (error: any) {
-      return thunkAPI.rejectWithValue(
-        error.response?.data?.message || "Failed to fetch user profile"
-      );
-    }
+export const fetchUserProfile = createAsyncThunk<
+  FetchUserResp,
+  void,
+  { rejectValue: { message: string } }
+>("userProfile/fetchUserProfile", async (_, { rejectWithValue }) => {
+  try {
+    const response = await getProfile();
+    return response;
+  } catch (err) {
+    const msg = getAxiosErrorMessage(err);
+    return rejectWithValue({ message: msg });
   }
-);
-export const updateProfile = createAsyncThunk(
+});
+export const updateProfile = createAsyncThunk<
+MsgResponse,
+UserProfileReq,
+{ rejectValue: { message: string } }
+>(
   "userProfile/updateProfile",
-  async (data: UserProfile ,thunkAPI) => {
+  async (data, { rejectWithValue }) => {
     try {
       const response = await updateUserProfile(data);
       return response;
-    } catch (error: any) {
-      console.error("err",error)
-      return thunkAPI.rejectWithValue(
-        error.response?.data?.message || "Failed to update user profile"
-      );
+    } catch (err) {
+      const msg = getAxiosErrorMessage(err);
+    return rejectWithValue({ message: msg });
+      // return thunkAPI.rejectWithValue(
+      //   error.response?.data?.message || "Failed to update user profile"
+      // );
     }
   }
 );
-export const getUserEditProfile = createAsyncThunk(
+export const getUserEditProfile = createAsyncThunk<
+FetchUserResp,
+void,
+{ rejectValue: { message: string } }
+>(
   "userProfile/getUserEditProfile",
-  async (_, thunkAPI) => {
+  async (_, { rejectWithValue }) => {
     try {
       const response = await getEditProfile();
       return response;
-    } catch (error: any) {
-      return thunkAPI.rejectWithValue(
-        error.response?.data?.message || "Failed to fetch user edit profile"
-      );
+    } catch (err) {
+       const msg = getAxiosErrorMessage(err);
+    return rejectWithValue({ message: msg });
+      // return thunkAPI.rejectWithValue(
+      //   error.response?.data?.message || "Failed to fetch user edit profile"
+      // );
     }
   }
 );
@@ -77,7 +90,7 @@ const userProfileSlice = createSlice({
       })
       .addCase(fetchUserProfile.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload as string;
+        state.error = action.payload?.message as string;
       })
       .addCase(updateProfile.pending, (state) => {
         state.loading = true;
@@ -85,11 +98,11 @@ const userProfileSlice = createSlice({
       })
       .addCase(updateProfile.fulfilled, (state, action) => {
         state.loading = false;
-        state.user = action.payload.user;
+        state.message = action.payload.message;
       })
       .addCase(updateProfile.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload as string;
+        state.error = action.payload?.message as string;
       })
       .addCase(getUserEditProfile.pending, (state) => {
         state.loading = true;
@@ -101,7 +114,7 @@ const userProfileSlice = createSlice({
       })
       .addCase(getUserEditProfile.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload as string;
+        state.error = action.payload?.message as string;
       });
   },
 });

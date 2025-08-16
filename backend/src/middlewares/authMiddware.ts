@@ -5,8 +5,8 @@ import mongoose from "mongoose";
 import { SuperAdminModel } from "../models/superAdmin/superAdminModel";
 import { DriverModel } from "../models/driver/driverModel";
 import { WastePlantModel } from "../models/wastePlant/wastePlantModel";
-import { AuthRequest } from "../types/common/middTypes";
 import { ApiError } from "../utils/ApiError";
+import { AuthRequest } from "../dtos/base/BaseDTO";
 
 export const authenticateUser = async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {

@@ -9,7 +9,7 @@ import { useAppDispatch } from "../../redux/hooks";
 import { fetchNearDropSpots } from "../../redux/slices/user/dropSpotSlice";
 import { useSelector } from "react-redux";
 import { RootState } from "../../redux/store";
-import { UserDropSpot } from "../../types/userTypes";
+import { UserDropSpot } from "../../types/dropspots/dropSpotTypes";
 
 const containerStyle = {
   width: "100%",

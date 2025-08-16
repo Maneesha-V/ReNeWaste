@@ -7,6 +7,7 @@ import PickupResidentialFormModal from "../../components/user/PickupResidentialF
 import { getResidential } from "../../redux/slices/user/residentialSlice";
 import { useAppDispatch } from "../../redux/hooks";
 import { useSelector } from "react-redux";
+import { RootState } from "../../redux/store";
 
 const Residential = () => {
   const [currentMonth, setCurrentMonth] = useState(dayjs());
@@ -14,7 +15,7 @@ const Residential = () => {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const dispatch = useAppDispatch();
   const { user } = useSelector(
-    (state: any) => state.userResidential
+    (state: RootState) => state.userResidential
   );
   
   const startOfMonth = currentMonth.startOf("month");

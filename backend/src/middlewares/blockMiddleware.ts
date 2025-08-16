@@ -1,8 +1,8 @@
 import { Response, NextFunction } from "express";
 import { UserModel } from "../models/user/userModel";
-import { AuthRequest } from "../types/common/middTypes";
 import { MESSAGES, STATUS_CODES } from "../utils/constantUtils";
 import { WastePlantModel } from "../models/wastePlant/wastePlantModel";
+import { AuthRequest } from "../dtos/base/BaseDTO";
 
 export const checkNotBlocked = async (
   req: AuthRequest,

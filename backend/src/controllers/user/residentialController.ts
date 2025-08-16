@@ -1,13 +1,13 @@
 import { NextFunction, Request, Response } from "express";
 import { IResidentialController } from "./interface/IResidentialController";
 import moment from "moment";
-import { AuthRequest } from "../../types/common/middTypes";
 import { inject, injectable } from "inversify";
 import TYPES from "../../config/inversify/types";
 import { IResidentialService } from "../../services/user/interface/IResidentialService";
 import { handleControllerError } from "../../utils/errorHandler";
 import { ApiError } from "../../utils/ApiError";
 import { MESSAGES, STATUS_CODES } from "../../utils/constantUtils";
+import { AuthRequest } from "../../dtos/base/BaseDTO";
 
 @injectable()
 export class ResidentialController implements IResidentialController {

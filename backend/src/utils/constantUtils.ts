@@ -84,6 +84,8 @@ export const MESSAGES = {
       PICKUP_CANCEL: "Pickup canceled successfully.",
       PICKUP_UPDATED: "Pickup updated successfully.",
       PICKUP_CREATED: "Pickup created successfully.",
+      FETCH_DROPSPOTS: "Fetch dropspots successfully.",
+      PROFILE_UPDATE: "Profile updated successfully."
     },
     ERROR: {
       NOT_FOUND: "User not found.",
@@ -92,6 +94,9 @@ export const MESSAGES = {
       PICKUP_UPDATED: "Failed to update pickup.",
       PICKUP_DATE: "Invalid pickup date format.",
       PICKUP_CREATED: "Failed to create pickup.",
+      FETCH_PROFILE: "Failed to fetch Profile.",
+      FETCH_EDIT_PROFILE: "Failed to fetch edit profile.",
+      PROFILE_UPDATE: "Failed to update profile."
     },
   },
 

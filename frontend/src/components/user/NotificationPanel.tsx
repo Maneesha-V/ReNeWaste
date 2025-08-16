@@ -10,11 +10,10 @@ import {
   fetchNotifications,
   markAsRead,
 } from "../../redux/slices/user/userNotificationSlice";
+import { UserNotificationPanelProps } from "../../types/common/modalTypes";
+import { NotificationResp } from "../../types/notification/notificationTypes";
 
-interface NotificationPanelProps {
-  onClose: () => void;
-}
-const NotificationPanel: React.FC<NotificationPanelProps> = ({ onClose }) => {
+const NotificationPanel: React.FC<UserNotificationPanelProps> = ({ onClose }) => {
   const userId = localStorage.getItem("user_id") || "";
   console.log("Loaded userId:", userId);
   const dispatch = useAppDispatch();
@@ -41,7 +40,7 @@ const NotificationPanel: React.FC<NotificationPanelProps> = ({ onClose }) => {
   useEffect(() => {
     if (!socket) return;
 
-    const handler = (data: Notification) => {
+    const handler = (data: NotificationResp) => {
       dispatch(addNotification(data));
     };
 

@@ -1,40 +1,36 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { FaEdit } from "react-icons/fa";
-import { toast } from "react-toastify";
 import Header from "../../components/user/Header";
 import Footer from "../../components/user/Footer";
 import Breadcrumbs from "../../components/common/Breadcrumbs";
 import { useAppDispatch } from "../../redux/hooks";
 import { fetchUserProfile } from "../../redux/slices/user/userProfileSlice";
-import { Spin } from "antd";
+import { useSelector } from "react-redux";
+import { RootState } from "../../redux/store";
 
 const ProfilePage = () => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
-  const [user, setUser] = useState<any>(null);
-  const token = localStorage.getItem("token");
+  // const [user, setUser] = useState<any>(null);
+  const { user } = useSelector((state: RootState) => state.userProfile)
+  // const token = localStorage.getItem("token");
   useEffect(() => {
-    const fetchProfile = async () => {
-      if (!token) return;
-      try {
-        const userData = await dispatch(fetchUserProfile()).unwrap();
-        setUser(userData);
-      } catch (error: any) {
-        toast.error("Error fetching profile:", error);
-      }
-    };
-    fetchProfile();
-  }, [token]);
+      dispatch(fetchUserProfile());
+    }, [dispatch]);
+  // useEffect(() => {
+  //   const fetchProfile = async () => {
+  //     if (!token) return;
+  //     try {
+  //       const res = await dispatch(fetchUserProfile()).unwrap();
+  //       setUser(userData);
+  //     } catch (error: any) {
+  //       toast.error("Error fetching profile:", error);
+  //     }
+  //   };
+  //   fetchProfile();
+  // }, [token]);
   console.log("user", user);
-
-  if (!user) {
-    return (
-      <div className="flex justify-center items-center h-64">
-        <Spin size="large" />
-      </div>
-    );
-  }
 
   const handleEdit = () => {
     navigate("/edit-profile");
@@ -66,24 +62,24 @@ const ProfilePage = () => {
               <span className="w-32 font-medium text-gray-700">
                 First Name:
               </span>
-              <span className="text-gray-900">{user.firstName}</span>
+              <span className="text-gray-900">{user?.firstName}</span>
             </div>
             <div className="flex items-center">
               <span className="w-32 font-medium text-gray-700">Last Name:</span>
-              <span className="text-gray-900">{user.lastName}</span>
+              <span className="text-gray-900">{user?.lastName}</span>
             </div>
             <div className="flex items-center">
               <span className="w-32 font-medium text-gray-700">Email:</span>
-              <span className="text-gray-900">{user.email}</span>
+              <span className="text-gray-900">{user?.email}</span>
             </div>
             <div className="flex items-center">
               <span className="w-32 font-medium text-gray-700">Phone:</span>
-              <span className="text-gray-900">{user.phone}</span>
+              <span className="text-gray-900">{user?.phone}</span>
             </div>
             <div className="flex items-center">
               <span className="w-32 font-medium text-gray-700">Address:</span>
               <span className="text-gray-900">
-                {user.addresses?.[0]
+                {user?.addresses?.[0]
                   ? `${user.addresses[0].addressLine1}, ${user.addresses[0].addressLine2}, ${user.addresses[0].location}, ${user.addresses[0].district}, ${user.addresses[0].state}, ${user.addresses[0].pincode}`
                   : "No address available"}
               </span>

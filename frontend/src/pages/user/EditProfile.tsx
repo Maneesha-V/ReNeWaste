@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import { UserProfile } from "../../types/profileTypes";
 import { useProfileValidation } from "../../hooks/useProfileValidation";
 import Header from "../../components/user/Header";
 import Footer from "../../components/user/Footer";
@@ -11,16 +10,17 @@ import {
   updateProfile,
 } from "../../redux/slices/user/userProfileSlice";
 import { useAppDispatch } from "../../redux/hooks";
+import { UserProfileReq } from "../../types/user/userTypes";
+import { getAxiosErrorMessage } from "../../utils/handleAxiosError";
 import { RootState } from "../../redux/store";
 import { useSelector } from "react-redux";
-import { Spin } from "antd";
 
 const EditProfilePage = () => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
-  const { loading } = useSelector((state: RootState) => state.user);
+  // const { user } = useSelector((state: RootState) => state.userProfile);
   const { validate, getErrorMessages } = useProfileValidation();
-  const [user, setUser] = useState<UserProfile>({
+  const [user, setUser] = useState<UserProfileReq>({
     firstName: "",
     lastName: "",
     email: "",
@@ -37,31 +37,30 @@ const EditProfilePage = () => {
       },
     ],
   });
-
+  // useEffect(() => {
+  //     dispatch(getUserEditProfile());
+  //   }, [dispatch]);
   useEffect(() => {
     const fetchUserProfile = async () => {
       try {
-        const userData = await dispatch(getUserEditProfile()).unwrap();
-        setUser(userData);
-      } catch (error: any) {
-        toast.error("Error fetching profile:", error.response?.data || error);
+        const res = await dispatch(getUserEditProfile()).unwrap();
+        console.log("resss", res);
+
+        setUser(res.user);
+      } catch (error) {
+        const msg = getAxiosErrorMessage(error);
+        toast.error(msg);
       }
     };
 
     fetchUserProfile();
   }, [dispatch]);
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center h-64">
-        <Spin size="large" />
-      </div>
-    );
-  }
+
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     let hasErrors = false;
     const newErrors: Record<string, string[]> = {};
-    const necessaryFields: (keyof UserProfile)[] = [
+    const necessaryFields: (keyof UserProfileReq)[] = [
       "firstName",
       "lastName",
       "email",
@@ -119,13 +118,12 @@ const EditProfilePage = () => {
     try {
       console.log("updatedUser", updatedUser);
 
-      await dispatch(updateProfile(updatedUser)).unwrap();
-      toast.success("Profile updated successfully!");
+      const res = await dispatch(updateProfile(updatedUser)).unwrap();
+      toast.success(res.message);
       navigate("/profile");
-    } catch (error: any) {
-      toast.error(
-        "Error updating profile: " + (error.response?.data || error.message)
-      );
+    } catch (error) {
+      const msg = getAxiosErrorMessage(error);
+      toast.error(msg);
     }
   };
 
@@ -250,7 +248,7 @@ const EditProfilePage = () => {
                 <input
                   type="text"
                   name="addressLine1"
-                  value={user.addresses[0]?.addressLine1}
+                  value={user.addresses[0].addressLine1}
                   onChange={handleChange}
                   onBlur={handleBlur}
                   className="mt-1 p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"

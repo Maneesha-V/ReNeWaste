@@ -1,12 +1,12 @@
 import { NextFunction, Request, Response } from "express";
 import moment from "moment";
 import { ICommercialController } from "./interface/ICommercialController";
-import { AuthRequest } from "../../types/common/middTypes";
 import { inject, injectable } from "inversify";
 import TYPES from "../../config/inversify/types";
 import { ICommercialService } from "../../services/user/interface/ICommercialService";
 import { MESSAGES, STATUS_CODES } from "../../utils/constantUtils";
 import { ApiError } from "../../utils/ApiError";
+import { AuthRequest } from "../../dtos/base/BaseDTO";
 
 @injectable()
 export class CommercialController implements ICommercialController {

@@ -1,3 +1,4 @@
+import { UserDTO } from "../../../dtos/user/userDTO";
 import { IUser, IUserDocument } from "../../../models/user/interfaces/userInterface";
 import { OtpRecord } from "../../../types/user/authTypes";
 import { PaginatedUsersResult } from "../../../types/wastePlant/userTypes";
@@ -8,7 +9,7 @@ export interface IUserRepository extends IBaseRepository<IUserDocument> {
   findUserByEmail(email: string): Promise<IUserDocument | null>;
   findUserByEmailGoogleId(email: string, googleId: string): Promise<IUserDocument | null>;
   findUserById(userId: string): Promise<IUserDocument | null>;
-  updateUserProfileById(userId: string, updatedData: IUser): Promise<IUserDocument | null>;
+  updateUserProfileById(userId: string, updatedData: UserDTO): Promise<IUserDocument | null>;
   updatePartialProfileById(userId: string, updatedData: Partial<IUser>): Promise<IUserDocument | null>;
   saveOtp(email: string, otp: string): Promise<void>;
   reSaveOtp(email: string, otp: string): Promise<void>;

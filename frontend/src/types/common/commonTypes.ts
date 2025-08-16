@@ -49,3 +49,6 @@ export interface PaginationSearchFilterProps extends Pick<PaginationSearchProps,
 export type MsgResponse = {
   message: string;
 }
+export type NotificationBadgeProps = {
+  count: number;
+};

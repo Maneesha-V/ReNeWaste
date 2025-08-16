@@ -54,7 +54,7 @@ export class DropSpotRepository extends BaseRepository<IDropSpotDocument>  imple
     district: string;
     state: string;
     wasteplantId: mongoose.Types.ObjectId;
-  }): Promise<IDropSpot[]> {
+  }): Promise<IDropSpotDocument[]> {
     return await this.model.find({
       location,
       district,

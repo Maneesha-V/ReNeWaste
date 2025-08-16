@@ -4,9 +4,9 @@ import { generateRefreshToken } from "../../utils/authUtils";
 import { inject, injectable } from "inversify";
 import TYPES from "../../config/inversify/types";
 import { IAuthService } from "../../services/user/interface/IAuthService";
-import { AuthRequest } from "../../types/common/middTypes";
 import { MESSAGES, STATUS_CODES } from "../../utils/constantUtils";
 import { ApiError } from "../../utils/ApiError";
+import { AuthRequest } from "../../dtos/base/BaseDTO";
 
 @injectable()
 export class UserController implements IUserController {

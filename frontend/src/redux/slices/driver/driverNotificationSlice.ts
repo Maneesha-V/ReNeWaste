@@ -1,9 +1,9 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { Notification } from "../../../types/notificationTypes";
 import { getNotifications, markAsReadService } from "../../../services/driver/notificationService";
+import { NotificationResp } from "../../../types/notification/notificationTypes";
 
 interface NotificationState {
-  notifications: Notification[];
+  notifications: NotificationResp[];
   loading: boolean;
   error: string | null;
 }

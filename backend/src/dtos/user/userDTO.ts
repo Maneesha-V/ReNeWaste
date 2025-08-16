@@ -1,7 +1,7 @@
 import { IUser } from "../../models/user/interfaces/userInterface";
 import { BaseDTO } from "../base/BaseDTO";
 
-type Role = "user" | "driver" | "superadmin" | "wasteplant";
+export type Role = "user" | "driver" | "superadmin" | "wasteplant";
 export interface UserDTO extends BaseDTO {
       firstName: string;
       lastName: string;
@@ -11,7 +11,7 @@ export interface UserDTO extends BaseDTO {
       phone?: string;
       googleId: string | null;
       addresses: AddressDTO[];
-      wasteplantId?: string;
+      wasteplantId?: string | null;
       isBlocked: boolean;
 }
 
@@ -85,3 +85,25 @@ export type UpdatedCommercialDataDTO = {
   email: string;
   selectedAddressId?: string;
 }
+
+export type UserProfileRespDTO = {
+    firstName: string;
+    lastName: string;
+    email: string;
+    phone: string;
+    wasteplantId: string;
+    addresses: ProfileAddress[];
+}
+
+export type ProfileAddress = {
+    addressLine1: string;
+    addressLine2: string;
+    taluk: string;
+    location: string;
+    pincode: string;
+    district: string;
+    state: string;
+  }
+  
+
+  

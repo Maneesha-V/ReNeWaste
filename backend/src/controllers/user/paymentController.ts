@@ -1,13 +1,12 @@
 import { NextFunction, Request, Response } from "express";
-import { AuthRequest } from "../../types/common/middTypes";
 import { IPaymentController } from "./interface/IPaymentController";
 import { inject, injectable } from "inversify";
 import TYPES from "../../config/inversify/types";
 import { IPaymentService } from "../../services/user/interface/IPaymentService";
 import { MESSAGES, STATUS_CODES } from "../../utils/constantUtils";
-import { handleControllerError } from "../../utils/errorHandler";
 import { ApiError } from "../../utils/ApiError";
 import { PaginationInput } from "../../dtos/common/commonDTO";
+import { AuthRequest } from "../../dtos/base/BaseDTO";
 
 @injectable()
 export class PaymentController implements IPaymentController {

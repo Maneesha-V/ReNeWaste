@@ -1,5 +1,5 @@
-import { IDropSpot } from "../../../models/dropSpots/interfaces/dropSpotInterface";
+import { DropSpotDTO } from "../../../dtos/dropspots/dropSpotDTO";
 
 export interface IDropSpotService {
-    getAllNearDropSpots(userId: string): Promise<IDropSpot[]>
+    getAllNearDropSpots(userId: string): Promise<DropSpotDTO[]>
 }

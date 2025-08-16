@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { IDropSpot } from "../../../models/dropSpots/interfaces/dropSpotInterface";
+import { IDropSpot, IDropSpotDocument } from "../../../models/dropSpots/interfaces/dropSpotInterface";
 import { PaginatedDropSpotsResult } from "../../../types/wastePlant/dropspotTypes";
 
 export interface IDropSpotRepository {
@@ -10,7 +10,7 @@ export interface IDropSpotRepository {
     district: string;
     state: string;
     wasteplantId: mongoose.Types.ObjectId;
-  }): Promise<IDropSpot[]>;
+  }): Promise<IDropSpotDocument[]>;
   findDropSpotById(dropSpotId: string): Promise<IDropSpot | null>;
   deleteDropSpotById(
     dropSpotId: string,

@@ -2,7 +2,7 @@ import mongoose, { Types, Document } from "mongoose";
 
 type Role = 'wasteplant' | 'superadmin' | 'driver' | 'user';
 
-type NotificationType =
+export type NotificationType =
   | 'pickup_scheduled'
   | 'truck_returned'
   | 'general'

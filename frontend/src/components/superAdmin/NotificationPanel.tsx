@@ -5,18 +5,12 @@ import { extractDateTimeParts, sortByDateDesc } from "../../utils/formatDate";
 import { Check } from "lucide-react";
 import { useSelector } from "react-redux";
 import { RootState } from "../../redux/store";
-import {
-  Notification,
-} from "../../types/notificationTypes";
 import { addNotification, fetchNotifications, markAsRead } from "../../redux/slices/superAdmin/superAdminNotificationSlice";
+import { SuperAdminNotificationPanelProps } from "../../types/common/modalTypes";
+import { NotificationResp } from "../../types/notification/notificationTypes";
 
-interface NotificationPanelProps {
-  visible: boolean;
-  adminId: string;
-  onClose: () => void;
-}
 
-const NotificationPanel: React.FC<NotificationPanelProps> = ({
+const NotificationPanel: React.FC<SuperAdminNotificationPanelProps> = ({
   visible,
   adminId,
   onClose,
@@ -44,7 +38,7 @@ const NotificationPanel: React.FC<NotificationPanelProps> = ({
   useEffect(() => {
     if (!socket) return;
 
-    const handler = (data: Notification) => {
+    const handler = (data: NotificationResp) => {
       dispatch(addNotification(data));
     };
 

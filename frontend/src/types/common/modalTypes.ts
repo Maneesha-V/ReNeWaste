@@ -1,4 +1,5 @@
 import { PickupCancelData } from "../pickupReq/pickupTypes";
+import { MeasureDataPayload } from "../wasteCollections/wasteCollectionTypes";
 
 export type PickupCommercialFormModalProps = {
   isOpen: boolean;
@@ -28,4 +29,28 @@ export type CancelPickupModalProps = {
   onClose: () => void;
   pickupId: string | null;
   cancelAction: (args: PickupCancelData) => any;
+}
+export type NotificationPanelProps = {
+  onClose: () => void;
+}
+
+interface BaseNotificationPanelProps {
+  onClose: () => void;
+}
+
+export interface UserNotificationPanelProps extends BaseNotificationPanelProps {}
+
+
+export interface WastePlantNotificationPanelProps extends BaseNotificationPanelProps {
+  visible: boolean;
+  plantId: string;
+  onOpenMeasureWaste: (data: MeasureDataPayload) => void;
+}
+
+export interface DriverNotificationPanelProps extends BaseNotificationPanelProps {
+  visible: boolean;
+}
+export interface SuperAdminNotificationPanelProps extends BaseNotificationPanelProps {
+  visible: boolean;
+  adminId: string;
 }

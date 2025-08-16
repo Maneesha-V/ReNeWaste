@@ -29,7 +29,7 @@ export type SignupRequest = {
   agreeToTerms: boolean;
 };
 export type Address = {
-  _id: string;
+  _id?: string;
   addressLine1: string;
   addressLine2?: string;
   taluk: string;
@@ -62,3 +62,14 @@ export type GetCommResp = {
   user: UserResp;
   message: string;
 }
+export type FetchUserResp = {
+  user: UserResp;
+  message?: string;
+}
+ export type UserProfileReq = {
+    firstName: string;
+    lastName: string;
+    email: string;
+    phone?: string;
+    addresses: Address[];
+  }

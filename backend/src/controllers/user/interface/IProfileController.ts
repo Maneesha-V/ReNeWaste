@@ -1,8 +1,8 @@
-import { Request, Response } from "express";
-import { AuthRequest } from "../../../types/common/middTypes";
+import { NextFunction, Response } from "express";
+import { AuthRequest } from "../../../dtos/base/BaseDTO";
 
 export interface IProfileController {
-  getProfile(req: AuthRequest, res: Response): Promise<void>;
-  getEditProfile(req: AuthRequest, res: Response): Promise<void>;
-  updateUserProfileHandler(req: AuthRequest, res: Response): Promise<void>;
+  getProfile(req: AuthRequest, res: Response, next: NextFunction): Promise<void>;
+  getEditProfile(req: AuthRequest, res: Response, next: NextFunction): Promise<void>;
+  updateUserProfileHandler(req: AuthRequest, res: Response, next: NextFunction): Promise<void>;
 }

@@ -4,13 +4,11 @@ import {
   markAsReadService,
   saveWasteMeasurementService,
 } from "../../../services/wastePlant/notificationService";
-import {
-  Notification,
-  SaveWasteMeasurementPayload,
-} from "../../../types/notificationTypes";
+import { NotificationResp } from "../../../types/notification/notificationTypes";
+import { SaveWasteMeasurementPayload } from "../../../types/wasteCollections/wasteCollectionTypes";
 
 interface NotificationState {
-  notifications: Notification[];
+  notifications: NotificationResp[];
   loading: boolean;
   error: string | null;
   saveLoading: boolean;

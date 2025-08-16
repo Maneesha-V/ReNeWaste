@@ -11,6 +11,7 @@ import { inject, injectable } from "inversify";
 import TYPES from "../../config/inversify/types";
 import { IOtpRepository } from "../otp/interface/IOtpRepository";
 import { Types } from "mongoose";
+import { UserDTO } from "../../dtos/user/userDTO";
 
 @injectable()
 export class UserRepository
@@ -44,7 +45,7 @@ export class UserRepository
   }
   async updateUserProfileById(
     userId: string,
-    updatedData: IUser
+    updatedData: UserDTO
   ): Promise<IUserDocument | null> {
     return await this.model.findByIdAndUpdate(userId, updatedData, {
       new: true,

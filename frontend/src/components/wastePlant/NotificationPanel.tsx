@@ -10,20 +10,12 @@ import { extractDateTimeParts, sortByDateDesc } from "../../utils/formatDate";
 import { Check } from "lucide-react";
 import { useSelector } from "react-redux";
 import { RootState } from "../../redux/store";
-import {
-  MeasureDataPayload,
-  Notification,
-} from "../../types/notificationTypes";
 import { useNavigate } from "react-router-dom";
+import { NotificationResp } from "../../types/notification/notificationTypes";
+import { WastePlantNotificationPanelProps } from "../../types/common/modalTypes";
 
-interface NotificationPanelProps {
-  visible: boolean;
-  plantId: string;
-  onClose: () => void;
-  onOpenMeasureWaste: (data: MeasureDataPayload) => void;
-}
 
-const NotificationPanel: React.FC<NotificationPanelProps> = ({
+const NotificationPanel: React.FC<WastePlantNotificationPanelProps> = ({
   visible,
   plantId,
   onClose,
@@ -56,7 +48,7 @@ const NotificationPanel: React.FC<NotificationPanelProps> = ({
   useEffect(() => {
     if (!socket) return;
 
-    const handler = (data: Notification) => {
+    const handler = (data: NotificationResp) => {
       dispatch(addNotification(data));
     };
 
@@ -70,7 +62,7 @@ const NotificationPanel: React.FC<NotificationPanelProps> = ({
     dispatch(markAsRead(id));
   };
 
-  const handleOpenWasteWeight = (notification: Notification) => {
+  const handleOpenWasteWeight = (notification: NotificationResp) => {
     setDisabledMeasureIds(prev => [...prev, notification._id]);
     const messageParts = notification.message.split(" ");
     const vehicleNumber = messageParts[1];

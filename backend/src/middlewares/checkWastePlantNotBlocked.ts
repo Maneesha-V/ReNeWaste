@@ -1,8 +1,8 @@
 import { Response, NextFunction } from "express";
-import { AuthRequest } from "../types/common/middTypes";
 import { WastePlantModel } from "../models/wastePlant/wastePlantModel";
 import { UserModel } from "../models/user/userModel";
 import { MESSAGES, STATUS_CODES } from "../utils/constantUtils";
+import { AuthRequest } from "../dtos/base/BaseDTO";
 
 export const checkWastePlantNotBlocked = async (
   req: AuthRequest,
