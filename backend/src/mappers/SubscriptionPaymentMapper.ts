@@ -32,16 +32,18 @@ export class SubscriptionPaymentMapper {
           ? {
               _id: (doc.wasteplantId as any)._id.toString(),
               plantName: (doc.wasteplantId as any).plantName || "",
+              ownerName: (doc.wasteplantId as any).ownerName || "",
             }
-          : { _id: "", plantName: "" },
+          : { _id: "", plantName: "", ownerName: "" },
 
         planId:
         typeof doc.planId === "object" && "planName" in doc.planId
           ? {
               _id: (doc.planId as any)._id.toString(),
               planName: (doc.planId as any).planName || "",
+              billingCycle: (doc.planId as any).billingCycle || "",
             }
-          : { _id: "", planName: "" },
+          : { _id: "", planName: "", billingCycle: "" },
 
       status: doc.status ?? "Pending",
       method: doc.method ?? "",
@@ -51,6 +53,9 @@ export class SubscriptionPaymentMapper {
       amount: doc.amount ?? 0,
       paidAt: doc.paidAt ?? null,
       expiredAt: doc.expiredAt ?? null,
+      refundRequested: doc.refundRequested ?? false,
+      refundStatus: doc.refundStatus ?? null,
+      refundAt: doc.refundAt ?? null,
     };
   }
   static mapPopulatedList(

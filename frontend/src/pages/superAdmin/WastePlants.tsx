@@ -4,20 +4,15 @@ import {
   EditOutlined,
   DeleteOutlined,
   PlusOutlined,
-  PlusCircleOutlined,
-  RedoOutlined,
-  ReloadOutlined,
 } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 import { useAppDispatch } from "../../redux/hooks";
 import {
   deleteWastePlant,
   fetchWastePlants,
-  sendRechargeNotification,
-  sendRenewNotification,
-  sendSubscribeNotification,
   togglePlantBlockStatus,
   updateBlockStatus,
+  updateDeleteWastePlant,
 } from "../../redux/slices/superAdmin/superAdminWastePlantSlice";
 import { useSelector } from "react-redux";
 import { RootState } from "../../redux/store";
@@ -26,13 +21,16 @@ import { toast } from "react-toastify";
 import usePagination from "../../hooks/usePagination";
 import { debounce } from "lodash";
 import PaginationSearch from "../../components/common/PaginationSearch";
+import { ReturnAdminWastePlant } from "../../types/superadmin/superAdminTypes";
+import { getAxiosErrorMessage } from "../../utils/handleAxiosError";
 
 const WastePlants: React.FC = () => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
-  const { wastePlant, loading, error, total } = useSelector(
+  const { wastePlantWithSubPlan, error, total } = useSelector(
     (state: RootState) => state.superAdminWastePlant
   );
+
   const {
     currentPage,
     setCurrentPage,
@@ -67,7 +65,7 @@ const WastePlants: React.FC = () => {
   ]);
 
   useEffect(() => {
-  wastePlant.forEach((wp: any) => {
+  wastePlantWithSubPlan.forEach((wp: ReturnAdminWastePlant) => {
     const plant = wp.plantData;
     if (plant.isBlocked && plant.autoUnblockAt) {
       const unblockTime = new Date(plant.autoUnblockAt).getTime();
@@ -81,7 +79,7 @@ const WastePlants: React.FC = () => {
       }
     }
   });
-}, [wastePlant, dispatch]);
+}, [wastePlantWithSubPlan, dispatch]);
 
   const handleEdit = async (id: string) => {
     try {
@@ -93,49 +91,48 @@ const WastePlants: React.FC = () => {
   const handleDelete = async (id: string) => {
     try {
       const response = await dispatch(deleteWastePlant(id)).unwrap();
+      dispatch(updateDeleteWastePlant(response.updatedPlant.plantId));
       toast.success(response.message);
-    } catch (error: any) {
-      console.error("Delete failed:", error);
-    }
-  };
-  const remindSubscribe = async (id: string) => {
-    try {
-      await dispatch(sendSubscribeNotification(id)).unwrap();
-      toast.success("Renew notification sent successfully");
-    } catch (error: any) {
-      console.error("Failed to send renew notification:", error);
-      toast.error(error || "Failed to send renew notification");
-    }
-  };
-
-  const remindRenew = async (plantId: string, daysLeft: number) => {
-    try {
-      await dispatch(sendRenewNotification({ plantId, daysLeft })).unwrap();
-      toast.success("Renew notification sent successfully");
     } catch (error) {
-      console.error("Failed to send renew notification:", error);
-      toast.error("Failed to send renew notification");
+      const msg = getAxiosErrorMessage(error);
+      toast.error(msg);
     }
   };
+  // const remindSubscribe = async (id: string) => {
+  //   try {
+  //     await dispatch(sendSubscribeNotification(id)).unwrap();
+  //     toast.success("Renew notification sent successfully");
+  //   } catch (error: any) {
+  //     console.error("Failed to send renew notification:", error);
+  //     toast.error(error || "Failed to send renew notification");
+  //   }
+  // };
 
-  const remindRecharge = async (plantId: string) => {
-    try {
-      await dispatch(sendRechargeNotification(plantId)).unwrap();
-      toast.success("Renew notification sent successfully");
-    } catch (error) {
-      console.error("Failed to send renew notification:", error);
-      toast.error("Failed to send renew notification");
-    }
-  };
+  // const remindRenew = async (plantId: string, daysLeft: number) => {
+  //   try {
+  //     await dispatch(sendRenewNotification({ plantId, daysLeft })).unwrap();
+  //     toast.success("Renew notification sent successfully");
+  //   } catch (error) {
+  //     console.error("Failed to send renew notification:", error);
+  //     toast.error("Failed to send renew notification");
+  //   }
+  // };
+
+  // const remindRecharge = async (plantId: string) => {
+  //   try {
+  //     await dispatch(sendRechargeNotification(plantId)).unwrap();
+  //     toast.success("Renew notification sent successfully");
+  //   } catch (error) {
+  //     console.error("Failed to send renew notification:", error);
+  //     toast.error("Failed to send renew notification");
+  //   }
+  // };
   const handleToggleBlock = async (plantId: string, isBlocked: boolean) => {
     try {
       await dispatch(
         togglePlantBlockStatus({ plantId, isBlocked: !isBlocked })
       ).unwrap();
       toast.success(`Wasteplant ${isBlocked ? "unblocked" : "blocked"} successfully`);
-      // dispatch(
-      //   fetchWastePlants({ page: currentPage, limit: pageSize, search })
-      // );
     } catch (err) {
       toast.error("Failed to update wasteplant status");
     }
@@ -172,9 +169,8 @@ const WastePlants: React.FC = () => {
             capacityFilterValue={capacityFilter}
             onCapacityFilterChange={setCapacityFilter}
           />
-          <Spin spinning={loading}>
             <Table
-              dataSource={Array.isArray(wastePlant) ? wastePlant : []}
+              dataSource={Array.isArray(wastePlantWithSubPlan) ? wastePlantWithSubPlan : []}
               rowKey={(record) => record.plantData._id}
               bordered
               className="shadow-sm"
@@ -237,63 +233,6 @@ const WastePlants: React.FC = () => {
                   );
                 }}
               />
-              <Table.Column
-                title="Reminder"
-                key="reminder"
-                render={(_: any, record: any) => {
-                  const status = record.plantData.status;
-                  const daysLeft = record.latestSubscription?.daysLeft ?? null;
-                  return (
-                    <div className="flex flex-wrap gap-2">
-                      {status === "Pending" && (
-                        <Button
-                          type="primary"
-                          size="small"
-                          icon={<PlusCircleOutlined />}
-                          onClick={() => remindSubscribe(record.plantData._id)}
-                        >
-                          Subscribe
-                        </Button>
-                      )}
-                      {status === "Active" &&
-                        daysLeft !== null &&
-                        daysLeft <= 2 && (
-                          <Tooltip
-                            title={`Subscription expires in ${daysLeft} day(s)`}
-                          >
-                            <Button
-                              style={{
-                                backgroundColor: "#FAAD14",
-                                color: "#fff",
-                                border: "none",
-                              }}
-                              size="small"
-                              icon={<RedoOutlined />}
-                              onClick={() =>
-                                remindRenew(record.plantData._id, daysLeft)
-                              }
-                            >
-                              Renew
-                            </Button>
-                          </Tooltip>
-                        )}
-                      {status === "Inactive" && (
-                        <Tooltip title="Send recharge reminder">
-                          <Button
-                            type="default"
-                            size="small"
-                            icon={<ReloadOutlined />}
-                            danger
-                            onClick={() => remindRecharge(record.plantData._id)}
-                          >
-                            Recharge
-                          </Button>
-                        </Tooltip>
-                      )}
-                    </div>
-                  );
-                }}
-              />
 
               <Table.Column
                 title="Action"
@@ -351,7 +290,6 @@ const WastePlants: React.FC = () => {
               onChange={setCurrentPage}
               style={{ marginTop: 16, textAlign: "right" }}
             />
-          </Spin>
         </div>
       )}
     </div>

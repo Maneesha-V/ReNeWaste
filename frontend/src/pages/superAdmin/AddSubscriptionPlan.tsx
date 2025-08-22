@@ -1,11 +1,12 @@
 import { Form, Input, InputNumber, Select, Button, Card, Col, Row } from "antd";
 import { validatePlanName } from "../../utils/superadminValidation";
-import { SubsptnPlanData } from "../../types/subscriptionTypes";
 import { toast } from "react-toastify";
 import { useAppDispatch } from "../../redux/hooks";
 import { useNavigate } from "react-router-dom";
 import { createSubscriptionPlan } from "../../redux/slices/superAdmin/superAdminSubscriptionPlanSlice";
 import Breadcrumbs from "../../components/common/Breadcrumbs";
+import { getAxiosErrorMessage } from "../../utils/handleAxiosError";
+import { SubsptnPlans } from "../../types/subscription/subscriptionTypes";
 
 const { TextArea } = Input;
 
@@ -19,27 +20,30 @@ const AddSubscriptionPlan = () => {
   const dispatch = useAppDispatch();
   const [form] = Form.useForm();
 
-  const onFinish = async (values: SubsptnPlanData) => {
+  const onFinish = async (values: SubsptnPlans) => {
     console.log("Submitted values:", values);
     try {
-      const resultAction = await dispatch(createSubscriptionPlan(values));
-
-      if (createSubscriptionPlan.fulfilled.match(resultAction)) {
-        toast.success("Subscription Plan added successfully!");
-        form.resetFields();
-        navigate("/super-admin/subscription-plans");
-      } else {
-        const errorPayload = resultAction.payload as any;
-        console.log("err",errorPayload);
+      const result = await dispatch(createSubscriptionPlan(values)).unwrap();
+      toast.success(result?.message);
+      form.resetFields();
+      navigate("/super-admin/subscription-plans");
+      // if (createSubscriptionPlan.fulfilled.match(resultAction)) {
+      //   toast.success("Subscription Plan added successfully!");
+      //   form.resetFields();
+      //   navigate("/super-admin/subscription-plans");
+      // } else {
+      //   const errorPayload = resultAction.payload as any;
+      //   console.log("err",errorPayload);
         
-        if (errorPayload?.error === "Plan name already exists.") {
-          toast.error("Plan name already exists.");
-        } else {
-          toast.error("Failed to add Subscription Plan");
-        }
-      }
-    } catch (error: any) {
-      toast.error("Something went wrong");
+      //   if (errorPayload?.error === "Plan name already exists.") {
+      //     toast.error("Plan name already exists.");
+      //   } else {
+      //     toast.error("Failed to add Subscription Plan");
+      //   }
+      // }
+    } catch (error) {
+      const msg = getAxiosErrorMessage(error);
+      toast.error(msg);
     }
   };
   return (

@@ -1,4 +1,6 @@
 import { BaseDTO } from "../base/BaseDTO";
+import { SubscriptionPaymentHisDTO } from "../subscription/subscptnPaymentDTO";
+import { SubsptnPlansDTO } from "../subscription/subscptnPlanDTO";
 
 export interface WasteplantDTO extends BaseDTO {
   plantName?: string;
@@ -21,6 +23,11 @@ export interface WasteplantDTO extends BaseDTO {
   blockedAt?: Date | null;
   autoUnblockAt?: Date | null;
   unblockNotificationSent?: boolean;
+  autoSubscribeAt?: Date | null;
+  subscribeNotificationSent?: boolean;
+  autoRechargeAt?: Date | null;
+  rechargeNotificationSent?: boolean;
+  renewNotificationSent?: boolean;
 }
 export interface IWastePlant {
   plantName?: string;
@@ -47,6 +54,11 @@ export interface IWastePlant {
   blockedAt?: Date;
   autoUnblockAt?: Date;
   unblockNotificationSent?: Boolean;
+  autoSubscribeAt?: Date | null;
+  subscribeNotificationSent?: boolean;
+  autoRechargeAt?: Date | null;
+  rechargeNotificationSent?: boolean;
+  renewNotificationSent?: boolean;
 }
 export interface IndiaPostAPIResponse {
   Status: string;
@@ -61,9 +73,10 @@ export interface PostOfficeEntry {
   Division: string;
   District: string;
 }
-export interface AddWastePlantResult {
-  success: boolean;
-}
+// export interface AddWastePlantResult {
+//   autoSubscribeAt: Date;
+//   subscribeNotificationSent: boolean;
+// }
 export interface PaginatedWastePlantResult {
   wasteplants: WasteplantDTO[];
   total: number;
@@ -79,4 +92,35 @@ export interface ReturnAdminWastePlant {
 export interface PaginatedReturnAdminWastePlants {
   total: number;
   wasteplants: ReturnAdminWastePlant[];
+}
+export type ReturnDeleteWP = {
+  plantId: string;
+};
+export type PaymentData = {
+     razorpay_order_id: string;
+      razorpay_payment_id: string;
+      razorpay_signature: string;
+      planId: string;
+      amount: number;
+      billingCycle: string;
+}
+export type VerifyPaymtReq = {
+    paymentData: PaymentData;
+    plantId: string;
+}
+export type plantDataType = {
+  createdAt: Date;
+  status: string;
+  plantName: string;
+  ownerName: string;
+  license: string;
+  expiredAt: Date | null;
+};
+export type ReturnFetchSubptnPlan = {
+  plantData: plantDataType;
+  subscriptionData: SubsptnPlansDTO;
+};
+
+export type ReturnSubcptnPaymentResult = {
+  paymentData: SubscriptionPaymentHisDTO[]; 
 }

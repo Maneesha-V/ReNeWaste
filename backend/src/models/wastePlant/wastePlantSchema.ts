@@ -60,6 +60,26 @@ export const wastePlantSchema: Schema<IWastePlantDocument> = new Schema({
     type: Boolean,
     default: false
     },
+    autoSubscribeAt: {
+      type: Date,
+      default: null,
+    },
+    subscribeNotificationSent: {
+      type: Boolean,
+      default: false
+    },
+    autoRechargeAt: {
+      type: Date,
+      default: null,
+    },
+    rechargeNotificationSent: {
+      type: Boolean,
+      default: false
+    },
+    renewNotificationSent: {
+      type: Boolean,
+      default: false
+    },
     createdAt: { type: Date, default: Date.now },
     updatedAt: { type: Date, default: Date.now }
   });

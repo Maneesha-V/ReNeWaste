@@ -7,6 +7,6 @@ export interface INotificationService {
     adminId: string,
     notifId: string
   ): Promise<INotificationDocument | null>;
-  remindRenewNotification(data: RenewNotificationPayload): Promise<INotificationDocument>;
-  remindRechargeNotification(plantId: string, adminId: string): Promise<INotificationDocument>;
+  // remindRenewNotification(data: RenewNotificationPayload): Promise<INotificationDocument>;
+  // remindRechargeNotification(plantId: string, adminId: string): Promise<INotificationDocument>;
 }

@@ -1,4 +1,4 @@
-import { ISubscriptionPaymentDocument } from "../../models/subsptnPayment/interface/subsptnPaymentInterface";
+import { ISubscriptionPaymentDocument, RefundStatus } from "../../models/subsptnPayment/interface/subsptnPaymentInterface";
 import { BaseDTO } from "../base/BaseDTO";
 
 export type SubcrptnRefundStatus = "Pending" | "Processing" | "Refunded" | "Rejected" | null;
@@ -40,14 +40,19 @@ export interface SubscriptionPaymentHisDTO {
   amount: number;
   paidAt: Date | null;
   expiredAt: Date | null;
+  refundRequested: boolean;
+  refundStatus: RefundStatus;
+  refundAt: Date | null;
 }
 export interface PopulatedWasteplant {
   _id: string;
   plantName: string;
+  ownerName: string;
 }
 export interface PopulatedPlan {
   _id: string;
   planName: string;
+  billingCycle: string;
 }
 export interface RetrySubPaymntReq {
     plantId: string;

@@ -342,16 +342,6 @@ const PickupPlans = () => {
           onClose={() => setCancelModalVisible(false)}
           pickupId={cancelPickup}
           cancelAction={cancelPickupReq}
-          // onSuccess={() =>
-          //   dispatch(
-          //     fetchtPickupPlans({
-          //       page: currentPage,
-          //       limit: pageSize,
-          //       search,
-          //       filter: statusFilter,
-          //     })
-          //   )
-          // }
         />
       </div>
       <Footer />

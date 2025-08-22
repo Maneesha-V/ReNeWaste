@@ -10,7 +10,6 @@ import {
   FetchPaymentPayload,
   PaginatedPaymentsResult,
   RefundDataReq,
-  ReturnSubcptnPaymentResult,
   ReurnSubcptnCreatePaymt,
   SubCreatePaymtPayload,
   UpdateStatusPayload,
@@ -32,6 +31,9 @@ import {
   SubCreatePaymtReq,
   SubCreatePaymtResp,
 } from "../../dtos/subscription/subscptnPaymentDTO";
+import { ReturnSubcptnPaymentResult, VerifyPaymtReq } from "../../dtos/wasteplant/WasteplantDTO";
+import { sendNotification } from "../../utils/notificationUtils";
+import { SubscriptionPaymentMapper } from "../../mappers/SubscriptionPaymentMapper";
 
 @injectable()
 export class PaymentService implements IPaymentService {
@@ -73,19 +75,21 @@ export class PaymentService implements IPaymentService {
   async createPaymentOrder(
     data: SubCreatePaymtReq
   ): Promise<SubCreatePaymtResp> {
-    const { plantId, planId, amount, plantName } = data;
-    const plant = await this.wastePlantRepository.findWastePlantByName(
-      plantName
-    );
+    // const { plantId, planId, amount, plantName } = data;
+    const { plantId, planId } = data;
+    const plant = await this.wastePlantRepository.getWastePlantById(plantId)
+    // const plant = await this.wastePlantRepository.findWastePlantByName(
+    //   plantName
+    // );
 
     if (!plant) {
       throw new Error("Plant not found.");
     }
-    if (!plant.subscriptionPlan) {
-      throw new Error("Subscription plan not found.");
-    }
+    // if (!plant.subscriptionPlan) {
+    //   throw new Error("Subscription plan not found.");
+    // }
     const existingPlan = await this.subscriptionRepository.checkPlanNameExist(
-      plant.subscriptionPlan
+      plant.subscriptionPlan!
     );
     if (!existingPlan || existingPlan.status !== "Active") {
       throw new Error("This subscription plan is not active.");
@@ -96,6 +100,15 @@ export class PaymentService implements IPaymentService {
       );
 
     const now = new Date();
+    if (
+      existingInProgressPayment &&
+      existingInProgressPayment.status === "InProgress" &&
+      existingInProgressPayment.inProgressExpiresAt &&
+      existingInProgressPayment.inProgressExpiresAt <= now
+    ) {
+      existingInProgressPayment.status = "Pending";
+      existingInProgressPayment.inProgressExpiresAt = null;
+    }
     if (
       existingInProgressPayment &&
       existingInProgressPayment.status === "InProgress" &&
@@ -116,7 +129,7 @@ export class PaymentService implements IPaymentService {
     const newExpiry = new Date(Date.now() + 5 * 60 * 1000);
 
     const order = await this.razorpay.orders.create({
-      amount: amount * 100,
+      amount: existingPlan.price * 100,
       currency: "INR",
       receipt: `receipt_${plantId}_${Date.now().toString().slice(-4)}`,
       notes: {
@@ -129,7 +142,7 @@ export class PaymentService implements IPaymentService {
       await this.subscriptionPaymentRepository.createSubscriptionPayment({
         plantId,
         planId,
-        amount,
+        amount: existingPlan.price,
         paymentDetails: {
           method: "Razorpay",
           status: "InProgress",
@@ -152,8 +165,8 @@ export class PaymentService implements IPaymentService {
   }
 
   async verifyPaymentService(
-    data: VerifyPaymtPayload
-  ): Promise<ISubscriptionPaymentDocument> {
+    data: VerifyPaymtReq
+  ): Promise<string> {
     const { paymentData, plantId } = data;
     console.log("paymentData", paymentData);
 
@@ -172,6 +185,7 @@ export class PaymentService implements IPaymentService {
     if (paymentData.billingCycle === "Monthly") {
       expiredAt = new Date(paidAt);
       expiredAt.setDate(paidAt.getDate() + 30);
+      // expiredAt.setMinutes(paidAt.getMinutes() + 10);
     } else {
       expiredAt = new Date(paidAt);
       expiredAt.setDate(paidAt.getDate() + 360);
@@ -196,32 +210,32 @@ export class PaymentService implements IPaymentService {
     if (!plant) {
       throw new Error("Plant not found to update status to Active.");
     }
+    const plan = await this.subscriptionRepository.getSubscriptionPlanById(paymentData.planId);
+    if (!plan) {
+      throw new Error("Plan not exist.");
+    }
     plant.status = "Active";
+    plant.subscriptionPlan = plan.planName;
+    plant.autoRechargeAt = expiredAt;
+    plant.rechargeNotificationSent = false;
+    plant.renewNotificationSent = false;
     await plant.save();
     const admin = await this.superAdminRepository.findAdminByRole("superadmin");
     if (!admin) {
       throw new Error("Superadmin not found.");
     }
-    const io = global.io;
-
+    const plantMessage = `${plant.plantName} have successfully recharged with subscription plan (${plant.subscriptionPlan}, ${paymentData.billingCycle}).`;
     const adminId = admin._id.toString();
-    const adminMessage = `${plant.plantName} has successfully recharged their subscription plan (${plant.subscriptionPlan}, ${paymentData.billingCycle}).`;
-    const adminNotification =
-      await this.notificationRepository.createNotification({
-        receiverId: adminId,
-        receiverType: "superadmin",
-        senderId: plantId,
-        senderType: "wasteplant",
-        message: adminMessage,
-        type: "subscribe_recharged",
-      });
-    console.log("adminNotification", adminNotification);
+    await sendNotification({
+      receiverId: plant._id.toString(),
+      receiverType: plant.role,
+      senderId: adminId,
+      senderType: "superadmin",
+      message: plantMessage,
+      type: "subscribe_recharged",
+    });
 
-    if (io) {
-      io.to(`${adminId}`).emit("newNotification", adminNotification);
-    }
-
-    return updatedPayment;
+    return updatedPayment._id.toString();
   }
   async fetchSubscriptionPayments(
     plantId: string
@@ -241,8 +255,7 @@ export class PaymentService implements IPaymentService {
     }
     const paymentData =
       await this.subscriptionPaymentRepository.findSubscriptionPayments(
-        plantId,
-        subptnPlanData._id.toString()
+        plantId
       );
     if (!paymentData) {
       throw new Error("Subscription paymnets not found.");
@@ -269,12 +282,10 @@ export class PaymentService implements IPaymentService {
         break;
       }
     }
-    const planData = {
-      planName: subptnPlanData.planName,
-      plantName: plant.plantName,
-      ownerName: plant.ownerName,
+
+    return { 
+      paymentData: SubscriptionPaymentMapper.mapPopulatedList(paymentData ?? []), 
     };
-    return { paymentData, planData };
   }
   async retrySubscriptionPayment(
     data: RetrySubPaymntReq

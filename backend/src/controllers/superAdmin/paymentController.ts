@@ -3,7 +3,7 @@ import TYPES from "../../config/inversify/types";
 import { IPaymentController } from "./interface/IPaymentController";
 import { IPaymentService } from "../../services/superAdmin/interface/IPaymentService";
 import { AuthRequest } from "../../types/common/middTypes";
-import { Response } from "express"
+import { NextFunction, Response } from "express"
 import { MESSAGES, STATUS_CODES } from "../../utils/constantUtils";
 import { handleControllerError } from "../../utils/errorHandler";
 @injectable()
@@ -12,7 +12,7 @@ export class PaymentController implements IPaymentController {
     @inject(TYPES.SuperAdminPaymentService)
     private paymentService: IPaymentService
   ) {}
-   async fetchPayments(req: AuthRequest, res: Response): Promise<void> {
+   async fetchPayments(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
       try {
         console.log(req.query);
         const DEFAULT_LIMIT = 5;
@@ -25,7 +25,7 @@ export class PaymentController implements IPaymentController {
         const search = (req.query.search as string) || "";
         const { total, paymentHis } =
           await this.paymentService.fetchPayments({ page, limit, search });
-        // const total, wasteplants = await this.wastePlantService.getAllWastePlants();
+      
         console.log({total, paymentHis});
   
         res.status(STATUS_CODES.SUCCESS).json({
@@ -34,8 +34,7 @@ export class PaymentController implements IPaymentController {
           total
         });
       } catch (error) {
-        console.error("err", error);
-        handleControllerError(error, res, 500);
+        next(error);
       }
     }
 }

@@ -19,6 +19,8 @@ import socketHandler from "./socket/socketHandler";
 import { errorHandler } from "./middlewares/errorHandler";
 import { ApiError } from "./utils/ApiError";
 import "./cron/unblockWastePlants";
+import "./cron/subscribeWastePlant";
+import "./cron/rechargeWastePlant";
 
 dotenv.config();
 

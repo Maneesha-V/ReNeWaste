@@ -14,13 +14,31 @@ import {
 } from "../../dtos/wasteplant/WasteplantDTO";
 import { MESSAGES, STATUS_CODES } from "../../utils/constantUtils";
 import { ApiError } from "../../utils/ApiError";
+import { ISubscriptionService } from "../../services/superAdmin/interface/ISubscriptionService";
 
 @injectable()
 export class WastePlantController implements IWastePlantController {
   constructor(
     @inject(TYPES.SuperAdminPlantService)
-    private _wastePlantService: IWastePlantService
+    private _wastePlantService: IWastePlantService,
+    @inject(TYPES.SuperAdminSubscriptionService)
+    private subscriptionService: ISubscriptionService
   ) {}
+  async getAddWastePlant(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const subscriptionPlans =
+        await this.subscriptionService.fetchActiveSubscriptionPlans();
+      console.log("subscriptionPlans", subscriptionPlans);
+
+      res.status(STATUS_CODES.SUCCESS).json({
+        success: true,
+        message: MESSAGES.SUPERADMIN.SUCCESS.ADD_WASTEPLANT,
+        subscriptionPlans,
+      });
+    } catch(error){
+      next(error);
+    }
+  }
   async addWastePlant(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       if (!req.file) {
@@ -189,16 +207,21 @@ export class WastePlantController implements IWastePlantController {
   async getWastePlantById(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const { id } = req.params;
+       if (!id) {
+        throw new ApiError(
+          STATUS_CODES.BAD_REQUEST,
+          MESSAGES.COMMON.ERROR.ID_REQUIRED
+        );
+      }
       const wastePlant = await this._wastePlantService.getWastePlantByIdService(
         id
       );
       console.log("wastePlant", wastePlant);
 
-      if (!wastePlant) {
-       throw new ApiError(STATUS_CODES.NOT_FOUND,MESSAGES.WASTEPLANT.ERROR.NOT_FOUND)
-      }
-
-      res.status(STATUS_CODES.SUCCESS).json({ data: wastePlant });
+      res.status(STATUS_CODES.SUCCESS).json({ 
+        success: true,
+        wastePlant 
+      });
     } catch (error) {
       console.error("Error fetching waste plant:", error);
       next(error);
@@ -268,12 +291,14 @@ export class WastePlantController implements IWastePlantController {
         );
       console.log("wastePlant", updatedWastePlant);
       if (!updatedWastePlant) {
-        throw new ApiError(STATUS_CODES.NOT_FOUND,MESSAGES.WASTEPLANT.ERROR.NOT_FOUND)
-      }
-      res.status(STATUS_CODES.SUCCESS).json({
-        message: MESSAGES.WASTEPLANT.SUCCESS.UPDATED,
-        wastePlant: updatedWastePlant,
+         res.status(STATUS_CODES.SERVER_ERROR).json({
+        message: MESSAGES.WASTEPLANT.ERROR.FAILED
       });
+      } else{
+      res.status(STATUS_CODES.SUCCESS).json({
+        message: MESSAGES.WASTEPLANT.SUCCESS.UPDATED
+      });
+    }
     } catch (error) {
       console.error("Error updating waste plant:", error);
       next(error);
@@ -282,6 +307,12 @@ export class WastePlantController implements IWastePlantController {
   async deleteWastePlantById(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const { id } = req.params;
+        if (!id) {
+        throw new ApiError(
+          STATUS_CODES.BAD_REQUEST,
+          MESSAGES.COMMON.ERROR.ID_REQUIRED
+        );
+      }
       const updatedPlant =
         await this._wastePlantService.deleteWastePlantByIdService(id);
 
@@ -299,31 +330,31 @@ export class WastePlantController implements IWastePlantController {
       next(error);
     }
   }
-  async sendSubscribeNotification(
-    req: AuthRequest,
-    res: Response,
-    next: NextFunction
-  ): Promise<void> {
-    try {
-      const adminId = req.user?.id;
-      if (!adminId) {
-         throw new ApiError(
-          STATUS_CODES.UNAUTHORIZED,
-          MESSAGES.COMMON.ERROR.UNAUTHORIZED
-        );
-      }
-      const plantId = req.params.id;
-      await this._wastePlantService.sendSubscribeNotification({
-        adminId,
-        plantId,
-      });
+  // async sendSubscribeNotification(
+  //   req: AuthRequest,
+  //   res: Response,
+  //   next: NextFunction
+  // ): Promise<void> {
+  //   try {
+  //     const adminId = req.user?.id;
+  //     if (!adminId) {
+  //        throw new ApiError(
+  //         STATUS_CODES.UNAUTHORIZED,
+  //         MESSAGES.COMMON.ERROR.UNAUTHORIZED
+  //       );
+  //     }
+  //     const plantId = req.params.id;
+  //     await this._wastePlantService.sendSubscribeNotification({
+  //       adminId,
+  //       plantId,
+  //     });
 
-      res.status(200).json({ message: MESSAGES.COMMON.SUCCESS.SEND_NOTIFICATION });
-    } catch (error) {
-      console.error("Error in sending notification:", error);
-      next(error);
-    }
-  }
+  //     res.status(STATUS_CODES.SUCCESS).json({ message: MESSAGES.COMMON.SUCCESS.SEND_NOTIFICATION });
+  //   } catch (error) {
+  //     console.error("Error in sending notification:", error);
+  //     next(error);
+  //   }
+  // }
    async plantBlockStatus(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
     try {
       const plantId = req.params.plantId;
@@ -338,7 +369,7 @@ export class WastePlantController implements IWastePlantController {
         plantId,
         isBlocked
       );
-      res.json({ message: MESSAGES.COMMON.SUCCESS.BLOCK_UPDATE, wasteplant });
+      res.status(STATUS_CODES.SUCCESS).json({ message: MESSAGES.COMMON.SUCCESS.BLOCK_UPDATE, wasteplant });
     } catch (error) {
       console.error("err", error);
       next(error);

@@ -49,54 +49,54 @@ export class NotificationController implements INotificationController {
         res.status(500).json({ error: "Failed to mark notification as read." });
       }
     }
-    async remindRenewNotification (req: AuthRequest, res: Response): Promise<void> {
-      try {
-        const {plantId, daysLeft } = req.body;
-        if (!plantId || !daysLeft) {
-          res.status(404).json({ message: "daysLeft,plantId not found" });
-          return;
-        }
-        const adminId = req.user?.id;
-        if (!adminId) {
-          res.status(404).json({ message: "AdminId not found" });
-          return;
-        }
-        const remindNotification =
-          await this.notificationService.remindRenewNotification({plantId, daysLeft, adminId});
+    // async remindRenewNotification (req: AuthRequest, res: Response): Promise<void> {
+    //   try {
+    //     const {plantId, daysLeft } = req.body;
+    //     if (!plantId || !daysLeft) {
+    //       res.status(404).json({ message: "daysLeft,plantId not found" });
+    //       return;
+    //     }
+    //     const adminId = req.user?.id;
+    //     if (!adminId) {
+    //       res.status(404).json({ message: "AdminId not found" });
+    //       return;
+    //     }
+    //     const remindNotification =
+    //       await this.notificationService.remindRenewNotification({plantId, daysLeft, adminId});
   
-        if (!remindNotification) {
-          res.status(404).json({ message: "Notification not found" });
-          return;
-        }
+    //     if (!remindNotification) {
+    //       res.status(404).json({ message: "Notification not found" });
+    //       return;
+    //     }
   
-        res.status(200).json(remindNotification);
-      } catch (error) {
-        res.status(500).json({ error: "Failed to remind notification." });
-      }
-    }
-    async remindRechargeNotification (req: AuthRequest, res: Response): Promise<void> {
-      try {
-        const {plantId} = req.body;
-        if (!plantId ) {
-          res.status(404).json({ message: "plantId not found" });
-          return;
-        }
-        const adminId = req.user?.id;
-        if (!adminId) {
-          res.status(404).json({ message: "AdminId not found" });
-          return;
-        }
-        const rechargeNotification =
-          await this.notificationService.remindRechargeNotification(plantId,adminId);
+    //     res.status(200).json(remindNotification);
+    //   } catch (error) {
+    //     res.status(500).json({ error: "Failed to remind notification." });
+    //   }
+    // }
+    // async remindRechargeNotification (req: AuthRequest, res: Response): Promise<void> {
+    //   try {
+    //     const {plantId} = req.body;
+    //     if (!plantId ) {
+    //       res.status(404).json({ message: "plantId not found" });
+    //       return;
+    //     }
+    //     const adminId = req.user?.id;
+    //     if (!adminId) {
+    //       res.status(404).json({ message: "AdminId not found" });
+    //       return;
+    //     }
+    //     const rechargeNotification =
+    //       await this.notificationService.remindRechargeNotification(plantId,adminId);
   
-        if (!rechargeNotification) {
-          res.status(404).json({ message: "Notification not found" });
-          return;
-        }
+    //     if (!rechargeNotification) {
+    //       res.status(404).json({ message: "Notification not found" });
+    //       return;
+    //     }
   
-        res.status(200).json(rechargeNotification);
-      } catch (error) {
-        res.status(500).json({ error: "Failed to recharge notification." });
-      }
-    }
+    //     res.status(200).json(rechargeNotification);
+    //   } catch (error) {
+    //     res.status(500).json({ error: "Failed to recharge notification." });
+    //   }
+    // }
 }

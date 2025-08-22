@@ -1,3 +1,4 @@
+import { Types } from "mongoose";
 import { IDriverDocument } from "../../models/driver/interfaces/driverInterface";
 import { IPayment } from "../../models/pickupRequests/interfaces/paymentInterface";
 import { Address, IPickupRequestDocument } from "../../models/pickupRequests/interfaces/pickupInterface";
@@ -111,3 +112,4 @@ export interface PickupPlansDTO {
   address: Address;
   payment: IPayment;
 }
+

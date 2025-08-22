@@ -5,9 +5,11 @@ import GoogleSignUpButton from "../../components/user/GoogleSignUpButton";
 import { sendOtpSignup } from "../../redux/slices/user/userSlice";
 import { useAppDispatch } from "../../redux/hooks";
 import { validateForm } from "../../utils/formValidationUtils";
-import { SignupRequest } from "../../types/authTypes";
 import useFormValidation from "../../hooks/useFormValidation";
 import { useState } from "react";
+import { SignupRequest } from "../../types/user/userTypes";
+import { RootState } from "../../redux/store";
+import { getAxiosErrorMessage } from "../../utils/handleAxiosError";
 
 const Signup = ({
   onSignupSuccess,
@@ -17,8 +19,7 @@ const Signup = ({
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const dispatch = useAppDispatch();
-  const { loading, error } = useSelector((state: any) => state.user);
-  const navigate = useNavigate();
+  const { loading, error } = useSelector((state: RootState) => state.user);
 
   const { formData, errors, handleChange, handleBlur, setErrors } =
     useFormValidation<SignupRequest>(
@@ -28,7 +29,7 @@ const Signup = ({
         phone: "",
         email: "",
         password: "",
-        confirmPassword: "",   
+        confirmPassword: "",
         agreeToTerms: false,
       },
       validateForm
@@ -42,11 +43,12 @@ const Signup = ({
     if (!isValid) return;
 
     try {
-      await dispatch(sendOtpSignup(formData.email)).unwrap();
-      toast.success("Signup successful! OTP sent.");
+      const res = await dispatch(sendOtpSignup(formData.email)).unwrap();
+      toast.success(res?.message);
       onSignupSuccess(formData);
-    } catch (error: any) {
-      toast.error(error.payload || "Signup failed. Please try again.");
+    } catch (error) {
+      const msg = getAxiosErrorMessage(error);
+      toast.error(msg);
     }
   };
 

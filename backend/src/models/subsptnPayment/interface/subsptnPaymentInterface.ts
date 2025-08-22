@@ -1,9 +1,11 @@
 import mongoose, { Document, Types } from "mongoose";
 
+export type PaymentStatus = "Pending" | "InProgress" | "Paid" | "Failed";
+export type RefundStatus = "Pending" | "Processing" | "Refunded" | "Rejected" | null;
 export interface ISubscriptionPayment  {
   wasteplantId: mongoose.Types.ObjectId;
   planId: mongoose.Types.ObjectId;
-  status: "Pending" | "InProgress" | "Paid" | "Failed";
+  status: PaymentStatus;
   method: string;
   razorpayOrderId: string | null;
   razorpayPaymentId: string | null;
@@ -12,7 +14,7 @@ export interface ISubscriptionPayment  {
   paidAt: Date | null;
   expiredAt: Date | null;
   refundRequested: boolean;
-  refundStatus: "Pending" | "Processing" | "Refunded" | "Rejected" | null;
+  refundStatus: RefundStatus;
   refundAt: Date | null;
   inProgressExpiresAt: Date | null;
   createdAt: Date | null;

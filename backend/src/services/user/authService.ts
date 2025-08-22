@@ -4,9 +4,6 @@ import {
   IUserDocument,
 } from "../../models/user/interfaces/userInterface";
 import { generateToken } from "../../utils/authUtils";
-import {
-  SignupResponse,
-} from "../../types/user/authTypes";
 import { generateOtp } from "../../utils/otpUtils";
 import { sendEmail } from "../../utils/mailerUtils";
 import { IAuthService } from "./interface/IAuthService";
@@ -17,7 +14,7 @@ import { inject, injectable } from "inversify";
 import TYPES from "../../config/inversify/types";
 import { IUserRepository } from "../../repositories/user/interface/IUserRepository";
 import { UserMapper } from "../../mappers/UserMapper";
-import { GoogleLoginReq, GoogleLoginResp, GoogleSignUpReq, GoogleSignUpResp, LoginRequest, LoginResponse } from "../../dtos/user/userDTO";
+import { GoogleLoginReq, GoogleLoginResp, GoogleSignUpReq, GoogleSignUpResp, LoginRequest, LoginResponse, SignupResponse } from "../../dtos/user/userDTO";
 
 
 @injectable()
@@ -71,7 +68,8 @@ export class AuthService implements IAuthService {
       userId: newUser._id.toString(),
       role: newUser.role,
     });
-    return { user: newUser, token };
+    // return { user: newUser, token };
+    return { user: UserMapper.mapUserLoginDTO(newUser), token };
   }
 
   async loginUser({ email, password }: LoginRequest): Promise<LoginResponse> {
@@ -88,7 +86,7 @@ export class AuthService implements IAuthService {
     });
     return { user: UserMapper.mapUserLoginDTO(user), token };
   }
-  async sendOtpSignupService(email: string) {
+  async sendOtpSignupService(email: string): Promise<boolean> {
     const existingUser = await this._userRepository.findUserByEmail(email);
     if (existingUser) {
       throw new Error("User already exists.");
@@ -101,9 +99,9 @@ export class AuthService implements IAuthService {
       "Your OTP Code",
       `Your OTP code is: ${otp}. It will expire in 30s.`
     );
-    return { message: "OTP sent successfully", otp };
+    return true;
   }
-  async resendOtpSignupService(email: string) {
+  async resendOtpSignupService(email: string): Promise<boolean> {
     const existingUser = await this._userRepository.findUserByEmail(email);
     if (existingUser) {
       throw new Error("User already exists.");
@@ -116,7 +114,7 @@ export class AuthService implements IAuthService {
       "Your Resend OTP Code",
       `Your Resend OTP code is: ${otp}. It will expire in 30s.`
     );
-    return { message: "Resend OTP sent successfully", otp };
+    return true;
   }
   async verifyOtpSignupService(email: string, otp: string): Promise<boolean> {
     const storedOtp = await this._userRepository.findOtpByEmail(email);

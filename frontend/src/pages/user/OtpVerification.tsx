@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
-import { resendOtp, verifyOtp, signup, verifyOtpSignup, resendOtpSignup } from "../../redux/slices/user/userSlice";
+import { signup, verifyOtpSignup, resendOtpSignup } from "../../redux/slices/user/userSlice";
 import { useAppDispatch } from "../../redux/hooks";
 import { useNavigate } from "react-router-dom";
+import { getAxiosErrorMessage } from "../../utils/handleAxiosError";
 
 const OtpVerification = ({ formData }: { formData: any }) => {
   const [otp, setOtp] = useState("");
@@ -29,11 +30,12 @@ const OtpVerification = ({ formData }: { formData: any }) => {
   const handleVerify = async () => {
     try {
       await dispatch(verifyOtpSignup({ email: formData.email, otp })).unwrap();
-      await dispatch(signup(formData)).unwrap();
-      toast.success("Account created successfully!");
+      const res = await dispatch(signup(formData)).unwrap();
+      toast.success(res?.message);
       navigate("/");
-    } catch (error: any) {
-      toast.error(error || "Failed to verify OTP");
+    } catch (error) {
+      const msg = getAxiosErrorMessage(error);
+      toast.error(msg);
       setOtp("");       
       setTimer(0);
     }
@@ -44,12 +46,13 @@ const OtpVerification = ({ formData }: { formData: any }) => {
 
     try {
       setResendLoading(true);
-      await dispatch(resendOtpSignup(formData.email)).unwrap();
-      toast.info("OTP resent!");
-      setOtp("");       // Clear OTP field
-      setTimer(30);     // Restart timer
-    } catch (error: any) {
-      toast.error(error || "Resend failed");
+      const res = await dispatch(resendOtpSignup(formData.email)).unwrap();
+      toast.info(res?.message);
+      setOtp("");       
+      setTimer(30);     
+    } catch (error) {
+      const msg = getAxiosErrorMessage(error);
+      toast.error(msg);
     } finally {
       setResendLoading(false);
     }

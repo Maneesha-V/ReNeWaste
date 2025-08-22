@@ -13,13 +13,13 @@ import {
   retryPaymentData,
   SubptnVerifyPaymentPayload,
 } from "../../../types/paymentTypes";
-import { PaginationPayload } from "../../../types/common/commonTypes";
+import { MsgSuccessResp, PaginationPayload } from "../../../types/common/commonTypes";
 import { getAxiosErrorMessage } from "../../../utils/handleAxiosError";
 import {
   RefundStatusUpdateResp,
   UpdateStatusPayload,
 } from "../../../types/pickupReq/paymentTypes";
-import { RetrySubptnPaymntResp, SubCreatePaymtResp, subPaymnetPayload } from "../../../types/subscriptionPayment/paymentTypes";
+import { RetrySubptnPaymntResp, SubCreatePaymtResp, subPaymnetPayload, SubptnVerifyPaymenReq, SubptnVerifyPaymenResp } from "../../../types/subscriptionPayment/paymentTypes";
 
 interface PaymentState {
   message: string | null;
@@ -60,54 +60,59 @@ export const fetchPayments = createAsyncThunk(
     }
   }
 );
+
+
 export const createSubscriptionOrder = createAsyncThunk<
 SubCreatePaymtResp,
-subPaymnetPayload,
+string,
 { rejectValue: {error: string} }
 >(
   "wastePlantPayments/createSubscriptionOrder",
   async (
-    { amount, planId, plantName },
+     planId: string ,
     { rejectWithValue }
   ) => {
     try {
-      const response = await createPaymentOrderService({
-        amount,
-        planId,
-        plantName,
-      });
+      const response = await createPaymentOrderService(planId);
       return response;
     } catch (err) {
       console.error("err", err);
       const msg = getAxiosErrorMessage(err);
       return rejectWithValue({ error: msg });
-      // return rejectWithValue(
-      //   error.response?.data || "Failed to create payment"
-      // );
     }
   }
 );
-export const verifySubscriptionPayment = createAsyncThunk(
+export const verifySubscriptionPayment = createAsyncThunk<
+SubptnVerifyPaymenResp,
+SubptnVerifyPaymenReq,
+{ rejectValue: {error: string} }
+>(
   "wastePlantPayments/verifySubscriptionPayment",
-  async (paymentData: SubptnVerifyPaymentPayload, { rejectWithValue }) => {
+  async (paymentData, { rejectWithValue }) => {
     try {
       const response = await verifyPaymentService(paymentData);
-      return response.data;
-    } catch (err: any) {
-      return rejectWithValue(err.response?.data || "Verification failed");
+      return response;
+    } catch (err) {
+       const msg = getAxiosErrorMessage(err);
+      return rejectWithValue({ error: msg });
     }
   }
 );
-export const fetchSubscrptnPayments = createAsyncThunk(
+export const fetchSubscrptnPayments = createAsyncThunk<
+any,
+void,
+{ rejectValue: {error: string} }
+>(
   "wastePlantPayments/fetchSubscrptnPayments",
   async (_, { rejectWithValue }) => {
     try {
       const response = await getAllPayments();
-      console.log("response", response);
+      console.log("respons", response);
 
       return response;
-    } catch (err: any) {
-      return rejectWithValue(err.response?.data || "Fetch payments failed");
+    } catch (err) {
+            const msg = getAxiosErrorMessage(err);
+      return rejectWithValue({ error: msg });
     }
   }
 );
@@ -174,7 +179,7 @@ const wastePlantPaymentSlice = createSlice({
   reducers: {
     clearPaymentError: (state) => {
       state.error = null;
-    },
+    }
   },
   extraReducers: (builder) => {
     builder
@@ -209,13 +214,15 @@ const wastePlantPaymentSlice = createSlice({
         state.loading = true;
         state.error = null;
       })
-      .addCase(verifySubscriptionPayment.fulfilled, (state) => {
+      .addCase(verifySubscriptionPayment.fulfilled, (state, action) => {
+        console.log("action",action.payload);
         state.loading = false;
-        state.message = "Payment verified successfully";
+        state.message = action.payload.message;
+        localStorage.setItem("wasteplant_status","Active");
       })
       .addCase(verifySubscriptionPayment.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload as string;
+        state.error = action.payload?.error as string;
       })
       .addCase(fetchSubscrptnPayments.pending, (state) => {
         state.loading = true;
@@ -228,7 +235,7 @@ const wastePlantPaymentSlice = createSlice({
       })
       .addCase(fetchSubscrptnPayments.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload as string;
+        state.error = action.payload?.error as string;
       })
       .addCase(repay.pending, (state) => {
         state.loading = true;

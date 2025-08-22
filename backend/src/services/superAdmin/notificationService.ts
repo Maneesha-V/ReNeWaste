@@ -26,47 +26,47 @@ export class NotificationService implements INotificationService {
     }
     return notification;
   }
-  async remindRenewNotification(data: RenewNotificationPayload){
-    const {plantId, adminId, daysLeft} = data;
-    const message = `Reminder: Your plant subscription is expired within ${daysLeft} days. Please recharge to continue.`;
+  // async remindRenewNotification(data: RenewNotificationPayload){
+  //   const {plantId, adminId, daysLeft} = data;
+  //   const message = `Reminder: Your plant subscription is expired within ${daysLeft} days. Please recharge to continue.`;
 
-    const plantNotification =
-      await this.notificationRepository.createNotification({
-        receiverId: plantId,
-        receiverType: "wasteplant",
-        senderId: adminId,
-        senderType: "superadmin",
-        message,
-        type: "renew_reminder",
-      });
-    console.log("notification", plantNotification);
+  //   const plantNotification =
+  //     await this.notificationRepository.createNotification({
+  //       receiverId: plantId,
+  //       receiverType: "wasteplant",
+  //       senderId: adminId,
+  //       senderType: "superadmin",
+  //       message,
+  //       type: "renew_reminder",
+  //     });
+  //   console.log("notification", plantNotification);
 
-    const io = global.io;
+  //   const io = global.io;
 
-    if (io) {
-      io.to(`${plantId}`).emit("newNotification", plantNotification);
-    }
-    return plantNotification;
-  }
-  async remindRechargeNotification(plantId: string, adminId: string){
-     const message = `Reminder: Your plant subscription plan is expired. Please recharge to continue.`;
+  //   if (io) {
+  //     io.to(`${plantId}`).emit("newNotification", plantNotification);
+  //   }
+  //   return plantNotification;
+  // }
+  // async remindRechargeNotification(plantId: string, adminId: string){
+  //    const message = `Reminder: Your plant subscription plan is expired. Please recharge to continue.`;
 
-    const plantNotification =
-      await this.notificationRepository.createNotification({
-        receiverId: plantId,
-        receiverType: "wasteplant",
-        senderId: adminId,
-        senderType: "superadmin",
-        message,
-        type: "recharge_reminder",
-      });
-    console.log("notification", plantNotification);
+  //   const plantNotification =
+  //     await this.notificationRepository.createNotification({
+  //       receiverId: plantId,
+  //       receiverType: "wasteplant",
+  //       senderId: adminId,
+  //       senderType: "superadmin",
+  //       message,
+  //       type: "recharge_reminder",
+  //     });
+  //   console.log("notification", plantNotification);
 
-    const io = global.io;
+  //   const io = global.io;
 
-    if (io) {
-      io.to(`${plantId}`).emit("newNotification", plantNotification);
-    }
-    return plantNotification;
-  }
+  //   if (io) {
+  //     io.to(`${plantId}`).emit("newNotification", plantNotification);
+  //   }
+  //   return plantNotification;
+  // }
 }

@@ -19,6 +19,7 @@ import usePagination from "../../hooks/usePagination";
 import { debounce } from "lodash";
 import PaginationSearch from "../../components/common/PaginationSearch";
 import { Pagination } from "antd";
+import { loadRazorpayScript } from "../../utils/razorpayUtils";
 
 const Payments = () => {
   const navigate = useNavigate();
@@ -62,15 +63,7 @@ const Payments = () => {
   }, [currentPage, pageSize, search, statusFilter, debouncedFetchPayments]);
 
   console.log("payments", payments);
-  const loadRazorpayScript = () => {
-    return new Promise((resolve, reject) => {
-      const script = document.createElement("script");
-      script.src = "https://checkout.razorpay.com/v1/checkout.js";
-      script.onload = () => resolve(true);
-      script.onerror = () => reject("Razorpay SDK failed to load.");
-      document.body.appendChild(script);
-    });
-  };
+
   const handleRetry = async (pickupReqId: string, amount: number) => {
     const response = await dispatch(repay({ pickupReqId, amount })).unwrap();
 

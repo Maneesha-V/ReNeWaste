@@ -40,7 +40,10 @@ export interface LoginResponse {
   user: UserLoginDTO;
   token: string;
 }
-
+export type SignupResponse = {
+  user: UserLoginDTO;
+  token: string;
+}
 type WasteType = 'Residential' | 'Commercial';
 
 export interface UpdatedResidentialData {
@@ -92,7 +95,8 @@ export type UserProfileRespDTO = {
     email: string;
     phone: string;
     wasteplantId: string;
-    addresses: ProfileAddress[];
+    // addresses: ProfileAddress[];
+    addresses: AddressDTO[];
 }
 
 export type ProfileAddress = {

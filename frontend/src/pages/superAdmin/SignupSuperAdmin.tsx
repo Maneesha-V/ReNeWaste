@@ -6,6 +6,7 @@ import { toast } from "react-toastify";
 import { useAppDispatch } from "../../redux/hooks";
 import { superAdminSignup } from "../../redux/slices/superAdmin/superAdminSlice";
 import { showErrorToast } from "../../utils/toastHandler";
+import { getAxiosErrorMessage } from "../../utils/handleAxiosError";
 
 const SignupSuperAdmin: React.FC = () => {
   const [formData, setFormData] = useState({
@@ -45,18 +46,20 @@ const SignupSuperAdmin: React.FC = () => {
 
     try {
       console.log("Submitted Data:", formData);
-      const result = await dispatch(superAdminSignup(formData));
+      const result = await dispatch(superAdminSignup(formData)).unwrap();
       console.log("result",result);
       
-      if (typeof result.payload === "string") {
-        showErrorToast(result.payload);
-        return;
-      }
-      toast.success("Super Admin registered successfully!");
+      // if (typeof result.payload === "string") {
+      //   showErrorToast(result.payload);
+      //   return;
+      // }
+      toast.success(result?.message);
       setTimeout(() => navigate("/super-admin/"), 1500);
 
-    } catch (err: any) {
-      toast.error("Signup failed. Please try again.");
+    } catch (error) {
+      // toast.error("Signup failed. Please try again.");
+      const msg = getAxiosErrorMessage(error);
+      toast.error(msg);
     }
   };
 

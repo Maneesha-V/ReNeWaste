@@ -1,4 +1,5 @@
 import { PickupCancelData } from "../pickupReq/pickupTypes";
+import { SubcptnPaymtPayload } from "../subscription/subscriptionTypes";
 import { MeasureDataPayload } from "../wasteCollections/wasteCollectionTypes";
 
 export type PickupCommercialFormModalProps = {
@@ -53,4 +54,19 @@ export interface DriverNotificationPanelProps extends BaseNotificationPanelProps
 export interface SuperAdminNotificationPanelProps extends BaseNotificationPanelProps {
   visible: boolean;
   adminId: string;
+}
+export interface SubscriptionModalProps {
+  visible: boolean;
+  onClose: () => void;
+}
+export interface SubscriptionPayModalProps {
+  visible: boolean;
+  onClose: () => void;
+  plan?: SubcptnPaymtPayload | null;
+}
+export interface CancelSubptnModalProps {
+  visible: boolean;
+  onClose: () => void;
+  subPayId: string | null;
+  cancelAction: (args: any) => any;
 }

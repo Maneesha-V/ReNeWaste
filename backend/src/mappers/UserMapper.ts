@@ -40,11 +40,4 @@ export class UserMapper {
       role: doc.role ?? "user",
     };
   }
-  static mapToUserProfile(user: UserDTO): UserProfileRespDTO {
-  return {
-    ...user,
-    phone: user.phone ?? "", 
-    addresses: user.addresses?.map(({ _id, ...rest }) => rest) ?? [],
-  };
-}
 }

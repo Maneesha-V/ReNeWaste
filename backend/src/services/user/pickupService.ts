@@ -25,6 +25,7 @@ export class PickupService implements IPickupService {
         userId,
         paginationData
       );
+console.log("pickupPlans",pickupPlans);
 
     if (!pickupPlans || pickupPlans.length === 0) {
       throw new Error("No pickup plans found");

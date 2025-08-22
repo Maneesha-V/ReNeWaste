@@ -2,6 +2,11 @@ import axiosSuperadmin from "../../api/axiosSuperadmin";
 import { PaginationPayload } from "../../types/common/commonTypes";
 import { RenewNotificationPayload } from "../../types/wastePlantTypes";
 
+export const getAddWastePlant = async () => {
+    const response = await axiosSuperadmin.get(`/add-waste-plant`);
+    console.log("res", response);
+    return response.data;
+};
 export const createWastePlant = async (wastePlantData: FormData) => {
     const response = await axiosSuperadmin.post(
       `/add-waste-plant`,
@@ -18,7 +23,7 @@ export const getWastePlants = async ({ page, limit, search, capacityRange }: Pag
 };
 export const getWastePlantById = async (id: string) => {
     const response = await axiosSuperadmin.get(`/edit-waste-plant/${id}`);
-    return response.data.data;
+    return response.data;
 };
 export const updateWastePlantById = async (id: string, data: FormData) => {
     // const token = localStorage.getItem("token");
@@ -39,32 +44,32 @@ export const deleteWastePlantById = async (id: string) => {
   console.log("res", response);
   return response.data;
 };
-export const sendSubscribeNotificationById = async (id: string) => {
-  const response = await axiosSuperadmin.post(
-    `/notification/subscribe-remind/${id}`
-  );
-  console.log("res", response);
-  return response.data;
-};
+// export const sendSubscribeNotificationById = async (id: string) => {
+//   const response = await axiosSuperadmin.post(
+//     `/notification/subscribe-remind/${id}`
+//   );
+//   console.log("res", response);
+//   return response.data;
+// };
 
-export const sendRenewNotificationService = async (
-  data: RenewNotificationPayload
-) => {
-  const response = await axiosSuperadmin.post(
-    `/notification/renew-remind`,
-    data
-  );
-  console.log("res", response);
-  return response.data;
-};
+// export const sendRenewNotificationService = async (
+//   data: RenewNotificationPayload
+// ) => {
+//   const response = await axiosSuperadmin.post(
+//     `/notification/renew-remind`,
+//     data
+//   );
+//   console.log("res", response);
+//   return response.data;
+// };
 
-export const sendRechargeNotificationService = async (plantId: string) => {
-  const response = await axiosSuperadmin.post(`/notification/recharge-remind`, {
-    plantId,
-  });
-  console.log("res", response);
-  return response.data;
-};
+// export const sendRechargeNotificationService = async (plantId: string) => {
+//   const response = await axiosSuperadmin.post(`/notification/recharge-remind`, {
+//     plantId,
+//   });
+//   console.log("res", response);
+//   return response.data;
+// };
 export const getPostOffices = async (pincode: string) => {
   const response = await axiosSuperadmin.post(`/location/${pincode}`);
   console.log("res", response);

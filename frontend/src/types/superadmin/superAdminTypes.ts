@@ -1,3 +1,28 @@
+import { MsgSuccessResp } from "../common/commonTypes";
+import { SubsptnPlans } from "../subscription/subscriptionTypes";
+
+export type SuperAdmin = {
+     username: string; 
+      email: string;
+      role: string;
+}
+
+export type SignUpReq = {
+    username: string;
+    email: string;
+    password: string;
+}
+ export type LoginRequest = {
+    email: string;
+    password: string;
+  }
+  export type LoginResponse = {
+  message: string;
+  role: string;
+  success: boolean;
+  token: string;
+  adminId: string;
+};
 export interface MonthlyRevenueEntry {
   month: string;
   totalRevenue: number;
@@ -34,6 +59,8 @@ export interface WasteplantDTO {
   blockedAt?: Date;
   autoUnblockAt?: Date;
   unblockNotificationSent?: Boolean;
+  licenseDocumentPath?: string;
+  cloudinaryPublicId?: string;
 }
 export interface ReturnAdminWastePlant {
   plantData: WasteplantDTO;
@@ -48,4 +75,18 @@ export interface PaginatedReturnAdminWastePlants {
   success: boolean;
   total: number;
   wasteplants: ReturnAdminWastePlant[];
+}
+export type FetchPlantByIdResp = {
+  success: boolean;
+  wastePlant: WasteplantDTO;
+}
+export type DelPlantResp = {
+  updatedPlant: {
+    plantId: string;
+  };
+  success: boolean;
+  message: string;
+}
+export type FetchAddWPResp = MsgSuccessResp & {
+ subscriptionPlans: SubsptnPlans[];
 }

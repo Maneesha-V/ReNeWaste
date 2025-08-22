@@ -1,8 +1,19 @@
-
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { fetchSubscriptionPlanService, fetchSubscriptionPlansService } from "../../../services/wastePlant/subscriptionService";
+import {
+  cancelSubPayReqById,
+  fetchSubscriptionPlanService,
+  fetchSubscriptionPlansService,
+} from "../../../services/wastePlant/subscriptionService";
 import { getAxiosErrorMessage } from "../../../utils/handleAxiosError";
-import { FetchSubsptnPlansResp, SubsptnPlans } from "../../../types/subscription/subscriptionTypes";
+import {
+  FetchSubsptnPlanResp,
+  FetchSubsptnPlansResp,
+  SubsptnPlans,
+} from "../../../types/subscription/subscriptionTypes";
+import {
+  SubscptnCancelReq,
+  SubscriptionPaymentHisDTO,
+} from "../../../types/subscriptionPayment/paymentTypes";
 
 interface SubscriptionState {
   loading: boolean;
@@ -10,6 +21,7 @@ interface SubscriptionState {
   success: boolean;
   selectedPlan: any;
   subscriptionPlans: SubsptnPlans[];
+  subPaymentsHis: SubscriptionPaymentHisDTO[];
 }
 
 const initialState: SubscriptionState = {
@@ -18,25 +30,31 @@ const initialState: SubscriptionState = {
   success: false,
   selectedPlan: [],
   subscriptionPlans: [],
+  subPaymentsHis: [],
 };
 
-export const fetchSubscriptionPlan = createAsyncThunk(
+export const fetchSubscriptionPlan = createAsyncThunk<
+  FetchSubsptnPlanResp,
+  void,
+  { rejectValue: { error: string } }
+>(
   "wastePlantSubscription/fetchSubscriptionPlan",
   async (_, { rejectWithValue }) => {
     try {
       const response = await fetchSubscriptionPlanService();
+      console.log("responsettttt", response);
+
       return response;
-    } catch (error: any) {
-      return rejectWithValue(
-        error.response?.data || "Failed to fetch fetch Subscription Plan."
-      );
+    } catch (err) {
+      const msg = getAxiosErrorMessage(err);
+      return rejectWithValue({ error: msg });
     }
   }
 );
 export const fetchSubscriptionPlans = createAsyncThunk<
-FetchSubsptnPlansResp,
-void,
-{ rejectValue: { message: string } }
+  FetchSubsptnPlansResp,
+  void,
+  { rejectValue: { message: string } }
 >(
   "wastePlantSubscription/fetchSubscriptionPlans",
   async (_, { rejectWithValue }) => {
@@ -44,15 +62,54 @@ void,
       const response = await fetchSubscriptionPlansService();
       return response;
     } catch (err) {
-       const msg = getAxiosErrorMessage(err);
-            return rejectWithValue({ message: msg });
+      const msg = getAxiosErrorMessage(err);
+      return rejectWithValue({ message: msg });
+    }
+  }
+);
+
+export const cancelSubPayReq = createAsyncThunk<
+  any,
+  SubscptnCancelReq,
+  { rejectValue: { error: string } }
+>(
+  "wastePlantSubscription/cancelSubPayReq ",
+  async ({ subPayId, reason }, { rejectWithValue }) => {
+    try {
+      const response = await cancelSubPayReqById({ subPayId, reason });
+      return response;
+    } catch (err) {
+      const msg = getAxiosErrorMessage(err);
+      return rejectWithValue({ error: msg });
     }
   }
 );
 const wastePlantSubscriptionSlice = createSlice({
   name: "wastePlantSubscription",
   initialState,
-  reducers: {},
+  reducers: {
+    updateSubPaymentStatus: (state, action) => {
+      const paymentId = action.payload;
+      state.subPaymentsHis = state.subPaymentsHis.map((p) => {
+        if (p._id === paymentId) {
+          return { ...p, status: "Paid" };
+        }
+        return p;
+      });
+      if (state.selectedPlan?.plantData) {
+        state.selectedPlan.plantData.status = "Active";
+      }
+    },
+    updateCancelSubdptnButtton: (state,action) => {
+      const { subPayId, payment } = action.payload;
+      state.subPaymentsHis = state.subPaymentsHis.map((p) => {
+        if(p._id === subPayId){
+          return {...p, refundRequested: true}
+        }
+        return p;
+      })
+    }
+  },
   extraReducers: (builder) => {
     builder
       .addCase(fetchSubscriptionPlan.pending, (state) => {
@@ -60,20 +117,21 @@ const wastePlantSubscriptionSlice = createSlice({
         state.error = null;
       })
       .addCase(fetchSubscriptionPlan.fulfilled, (state, action) => {
-        console.log("act",action.payload);
+        console.log("act", action.payload);
         state.loading = false;
         state.selectedPlan = action.payload.selectedPlan;
+        state.subPaymentsHis = action.payload.subPaymentHistory.paymentData;
       })
       .addCase(fetchSubscriptionPlan.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload as string;
+        state.error = action.payload?.error as string;
       })
       .addCase(fetchSubscriptionPlans.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
       .addCase(fetchSubscriptionPlans.fulfilled, (state, action) => {
-        console.log("act-subsc",action.payload);
+        console.log("act-subsc", action.payload);
         state.loading = false;
         state.subscriptionPlans = action.payload.subscriptionPlans;
       })
@@ -81,7 +139,11 @@ const wastePlantSubscriptionSlice = createSlice({
         state.loading = false;
         state.error = action.payload?.message || "Something went wrong";
       })
+      .addCase(cancelSubPayReq.rejected, (state, action) => {
+        state.error = action.payload?.error as string;
+      });
   },
 });
 
+export const { updateSubPaymentStatus, updateCancelSubdptnButtton } = wastePlantSubscriptionSlice.actions;
 export default wastePlantSubscriptionSlice.reducer;

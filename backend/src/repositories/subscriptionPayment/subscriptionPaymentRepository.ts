@@ -60,13 +60,12 @@ export class SubscriptionPaymentRepository
     return updatedPayment;
   }
   async findSubscriptionPayments(
-    plantId: string,
-    planId: string
+    plantId: string
   ): Promise<ISubscriptionPaymentDocument[] | null> {
-    return await this.model.find({
-      wasteplantId: plantId,
-      planId,
-    });
+    return await this.model
+    .find({ wasteplantId: plantId})
+    .populate({ path: "wasteplantId", select: "plantName ownerName" }) 
+    .populate({ path: "planId", select: "planName billingCycle" }); 
   }
   async findSubscriptionPaymentById(id: string) {
     return await this.model.findById(id);
@@ -207,5 +206,29 @@ export class SubscriptionPaymentRepository
       return payment;
     }
     return null;
+  }
+  async findPlantSubscriptionPayment(plantId: string){
+    const now = new Date();
+    return await this.model.findOne({
+      wasteplantId: plantId,
+      // status: {$or: ["Paid","Pending"]},
+      // expiredAt : {$gt: now}
+    })
+  }
+  async updateSubptnPaymentStatus(subPayId: string): Promise<ISubscriptionPaymentDocument>{
+    const updatedSubptnRequest = await this.model.findByIdAndUpdate(
+      subPayId,
+      {
+        $set: {
+          refundRequested: true,
+        },
+      },
+      { new: true }
+    );
+
+    if (!updatedSubptnRequest) {
+      throw new Error("Subscription request not found.");
+    }
+    return updatedSubptnRequest;
   }
 }

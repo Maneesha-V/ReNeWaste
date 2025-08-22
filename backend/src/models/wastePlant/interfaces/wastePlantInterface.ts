@@ -25,6 +25,11 @@ export interface IWastePlant {
   blockedAt?: Date | null;
   autoUnblockAt?: Date | null;
   unblockNotificationSent?: boolean;
+  autoSubscribeAt?: Date | null;
+  subscribeNotificationSent?: boolean;
+  autoRechargeAt?: Date | null;
+  rechargeNotificationSent?: boolean;
+  renewNotificationSent?: boolean;
   createdAt: Date;
   updatedAt: Date;
 }

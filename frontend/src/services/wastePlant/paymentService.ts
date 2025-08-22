@@ -1,7 +1,7 @@
 import axiosWasteplant from "../../api/axiosWasteplant";
 import { PaginationPayload } from "../../types/common/commonTypes";
 import { RefundPaymntPayload, retryPaymentData, SubptnVerifyPaymentPayload, UpdateStatusPayload } from "../../types/paymentTypes";
-import { subPaymnetPayload } from "../../types/subscriptionPayment/paymentTypes";
+import { subPaymnetPayload, SubptnVerifyPaymenReq } from "../../types/subscriptionPayment/paymentTypes";
 
 
 export const fetchPaymentsService = async ({ page, limit, search }: PaginationPayload) => {
@@ -16,29 +16,38 @@ export const fetchPaymentsService = async ({ page, limit, search }: PaginationPa
     console.error("error", error);
   }
 };
-
-export const createPaymentOrderService = async ({
-  amount,
-  planId,
-  plantName
-}: subPaymnetPayload) => {
+export const createPaymentOrderService = async (planId: string) => {
   const response = await axiosWasteplant.post(`/payment/create-order`, {
-    amount,
-    planId,
-    plantName
+    planId
   });
   console.log("res", response);
   
   return response.data;
 };
+// export const createPaymentOrderService = async ({
+//   amount,
+//   planId,
+//   plantName
+// }: subPaymnetPayload) => {
+//   const response = await axiosWasteplant.post(`/payment/create-order`, {
+//     amount,
+//     planId,
+//     plantName
+//   });
+//   console.log("res", response);
+  
+//   return response.data;
+// };
 
 export const verifyPaymentService = async (
-  paymentData: SubptnVerifyPaymentPayload
+  paymentData: SubptnVerifyPaymenReq
 ) => {
   const response = await axiosWasteplant.post(`/payment/verify`, {
     paymentData,
   });
-  return response.data.paymentOrder;
+  console.log("response",response);
+  
+  return response.data;
 };
 export const getAllPayments = async () => {
   const response = await axiosWasteplant.get(`/subscptn-payments`);

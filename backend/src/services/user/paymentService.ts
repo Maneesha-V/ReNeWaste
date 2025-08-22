@@ -52,7 +52,6 @@ export class PaymentService implements IPaymentService {
     const now = new Date();
     const payment = pickupRequest.payment;
     if (
-      // payment?.status === "InProgress" &&
       payment?.inProgressExpiresAt &&
       payment?.inProgressExpiresAt > now
     ) {

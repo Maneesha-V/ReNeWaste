@@ -9,8 +9,9 @@ import {
 } from "../../redux/slices/superAdmin/superAdminSubscriptionPlanSlice";
 import { Input, Button, Card, Col, Form, InputNumber, Row, Select } from "antd";
 import { toast } from "react-toastify";
-import { SubsptnPlanData } from "../../types/subscriptionTypes";
 import Breadcrumbs from "../../components/common/Breadcrumbs";
+import { SubsptnPlans } from "../../types/subscription/subscriptionTypes";
+import { getAxiosErrorMessage } from "../../utils/handleAxiosError";
 const { TextArea } = Input;
 
 const billingCycleOptions = ["Monthly", "Yearly"];
@@ -19,7 +20,7 @@ const EditSubscriptionPlan = () => {
   const [form] = Form.useForm();
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { subscriptionPlans, loading } = useSelector(
+  const { subscriptionPlan, loading } = useSelector(
     (state: RootState) => state.superAdminSubscriptionPlan
   );
 
@@ -27,31 +28,34 @@ const EditSubscriptionPlan = () => {
   useEffect(() => {
     if (id) dispatch(fetchSubscriptionPlanById(id));
   }, [id, dispatch]);
-  console.log("subscriptionPlans", subscriptionPlans);
+  console.log("subscriptionPlans", subscriptionPlan);
   useEffect(() => {
-    if (subscriptionPlans) {
-      form.setFieldsValue(subscriptionPlans.subscriptionPlan);
+    if (subscriptionPlan) {
+      form.setFieldsValue(subscriptionPlan);
     }
-  }, [subscriptionPlans, form]);
-  const onFinish = async (values: SubsptnPlanData) => {
+  }, [subscriptionPlan, form]);
+  const onFinish = async (values: SubsptnPlans) => {
     try {
       const resultAction = await dispatch(
         updateSubscriptionPlan({ data: values, id })
-      );
+      ).unwrap();
+      toast.success(resultAction?.message);
+      navigate("/super-admin/subscription-plans");
 
-      if (updateSubscriptionPlan.fulfilled.match(resultAction)) {
-        toast.success("Plan updated successfully!");
-        navigate("/super-admin/subscription-plans");
-      } else {
-        const errorPayload = resultAction.payload as any;
-        if (errorPayload?.error === "Plan name already exists.") {
-          toast.error("Plan name already exists.");
-        } else {
-          toast.error("Failed to update Subscription Plan");
-        }
-      }
+      // if (updateSubscriptionPlan.fulfilled.match(resultAction)) {
+      //   toast.success("Plan updated successfully!");
+      //   navigate("/super-admin/subscription-plans");
+      // } else {
+      //   const errorPayload = resultAction.payload as any;
+      //   if (errorPayload?.error === "Plan name already exists.") {
+      //     toast.error("Plan name already exists.");
+      //   } else {
+      //     toast.error("Failed to update Subscription Plan");
+      //   }
+      // }
     } catch (err) {
-      toast.error("Something went wrong");
+      const msg = getAxiosErrorMessage(err);
+      toast.error(msg);
     }
   };
   return (

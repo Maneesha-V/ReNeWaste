@@ -3,9 +3,14 @@ import TYPES from "../../config/inversify/types";
 import { ISubscriptionService } from "./interface/ISubscriptionService";
 import { IWastePlantRepository } from "../../repositories/wastePlant/interface/IWastePlantRepository";
 import { ISubscriptionPlanRepository } from "../../repositories/subscriptionPlan/interface/ISubscriptionPlanRepository";
-import { ReturnFetchSubptnPlan } from "../../types/wastePlant/subscriptionTypes";
 import { SubscriptionPlanMapper } from "../../mappers/SubscriptionPlanMapper";
 import { SubsptnPlansDTO } from "../../dtos/subscription/subscptnPlanDTO";
+import { ISubscriptionPaymentRepository } from "../../repositories/subscriptionPayment/interface/ISubscriptionPaymentRepository";
+import { ReturnFetchSubptnPlan } from "../../dtos/wasteplant/WasteplantDTO";
+import { ISuperAdminRepository } from "../../repositories/superAdmin/interface/ISuperAdminRepository";
+import { sendNotification } from "../../utils/notificationUtils";
+import { SubscriptionPaymentMapper } from "../../mappers/SubscriptionPaymentMapper";
+import { SubscriptionPaymentDTO } from "../../dtos/subscription/subscptnPaymentDTO";
 
 @injectable()
 export class SubscriptionService implements ISubscriptionService {
@@ -13,33 +18,46 @@ export class SubscriptionService implements ISubscriptionService {
     @inject(TYPES.WastePlantRepository)
     private _wastePlantRepository: IWastePlantRepository,
     @inject(TYPES.SubscriptionPlanRepository)
-    private _subscriptionRepository: ISubscriptionPlanRepository
+    private _subscriptionRepository: ISubscriptionPlanRepository,
+    @inject(TYPES.SubscriptionPaymentRepository)
+    private _subscriptionPaymentRepository: ISubscriptionPaymentRepository,
+    @inject(TYPES.SuperAdminRepository)
+    private superAdminRepository: ISuperAdminRepository
   ) {}
   async fetchSubscriptionPlan(plantId: string): Promise<ReturnFetchSubptnPlan> {
     const plant = await this._wastePlantRepository.getWastePlantById(plantId);
     if (!plant) {
       throw new Error("Plant is not found.");
     }
-    if (!plant.subscriptionPlan) {
-      throw new Error("Subscription plan not found for this plant.");
+
+    console.log("plant", plant);
+    const subPlanPaymentData =
+      await this._subscriptionPaymentRepository.findPlantSubscriptionPayment(
+        plant._id.toString()
+      );
+    if (!subPlanPaymentData) {
+      throw new Error("No such subscription payment found.");
     }
     const registeredPlan =
-      await this._subscriptionRepository.checkPlanNameExist(
-        plant.subscriptionPlan
+      await this._subscriptionRepository.getSubscriptionPlanById(
+        subPlanPaymentData.planId.toString()
       );
     if (!registeredPlan) {
       throw new Error("No such subscription plan found.");
     }
-    console.log("plant", plant);
-
     const plantData = {
       createdAt: plant.createdAt,
       status: plant.status,
       plantName: plant.plantName,
       ownerName: plant.ownerName,
       license: plant.licenseNumber,
+      expiredAt: subPlanPaymentData.expiredAt,
     };
-    return { plantData, subscriptionData: registeredPlan };
+    return {
+      plantData,
+      subscriptionData:
+        SubscriptionPlanMapper.mapSubscptnPlanDTO(registeredPlan),
+    };
   }
   async fetchSubscriptionPlans(plantId: string): Promise<SubsptnPlansDTO[]> {
     const plant = await this._wastePlantRepository.getWastePlantById(plantId);
@@ -52,5 +70,32 @@ export class SubscriptionService implements ISubscriptionService {
       throw new Error("No active subscription plans found.");
     }
     return SubscriptionPlanMapper.mapSubscptnPlansDTO(subscriptionPlans);
+  }
+  async cancelSubcptReason(
+    plantId: string,
+    subPayId: string,
+    reason: string
+  ): Promise<SubscriptionPaymentDTO> {
+    const plant = await this._wastePlantRepository.getWastePlantById(plantId);
+    if(!plant){
+      throw new Error("Plant not found.")
+    }
+    const admin = await this.superAdminRepository.findAdminByRole("superadmin");
+    if (!admin) {
+      throw new Error("Superadmin not found.");
+    }
+    const updatedSubcptnRequest =
+      await this._subscriptionPaymentRepository.updateSubptnPaymentStatus(subPayId);
+        const adminMessage = `Plant ${plant.plantName} is requested with refund.${reason}`;
+          const adminId = admin._id.toString();
+          await sendNotification({
+            receiverId: adminId,
+            receiverType: admin.role,
+            senderId: plantId,
+            senderType: "wasteplant",
+            message: adminMessage,
+            type: "general",
+          });
+          return SubscriptionPaymentMapper.mapSubscptnPaymentDTO(updatedSubcptnRequest);
   }
 }

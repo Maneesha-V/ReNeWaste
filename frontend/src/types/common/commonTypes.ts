@@ -1,5 +1,15 @@
 import { Auth, GoogleAuthProvider } from "firebase/auth";
 
+export type TokenResp = {
+  token: string;
+}
+export type MsgResp = {
+  message: string;
+}
+export type MsgSuccessResp = {
+  message: string;
+  success: boolean;
+}
 export type SendOtpError = {
    message: string;
 }
@@ -52,3 +62,6 @@ export type MsgResponse = {
 export type NotificationBadgeProps = {
   count: number;
 };
+export interface ValidationErrors {
+  [field: string]: string;
+}

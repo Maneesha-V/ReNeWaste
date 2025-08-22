@@ -9,13 +9,16 @@ import {
 } from "../../redux/slices/wastePlant/wastePlantPaymentSlice";
 import Swal from "sweetalert2";
 import { useAppDispatch } from "../../redux/hooks";
-import { SubcptnPaymtPayload } from "../../types/subscriptionTypes";
+import { SubscriptionPayModalProps } from "../../types/common/modalTypes";
+import { loadRazorpayScript } from "../../utils/razorpayUtils";
+import { updateSubPaymentStatus } from "../../redux/slices/wastePlant/wastePlantSubscriptionSlice";
 
-interface SubscriptionPayModalProps {
-  visible: boolean;
-  onClose: () => void;
-  plan: SubcptnPaymtPayload;
-}
+
+// interface SubscriptionPayModalProps {
+//   visible: boolean;
+//   onClose: () => void;
+//   plan: SubcptnPaymtPayload;
+// }
 
 const SubscriptionPayModal = ({
   visible,
@@ -30,26 +33,13 @@ const SubscriptionPayModal = ({
   useEffect(() => {
     if (visible && plan) {
       dispatch(
-        createSubscriptionOrder({
-          planId: plan._id,
-          amount: plan.price,
-          plantName: plan.plantName,
-        })
+        createSubscriptionOrder(plan._id)
       );
     }
   }, [visible, plan, dispatch]);
   if (!plan) return null;
   console.log("plan", plan);
 
-  const loadRazorpayScript = () => {
-    return new Promise((resolve, reject) => {
-      const script = document.createElement("script");
-      script.src = "https://checkout.razorpay.com/v1/checkout.js";
-      script.onload = () => resolve(true);
-      script.onerror = () => reject("Razorpay SDK failed to load.");
-      document.body.appendChild(script);
-    });
-  };
 
   const handlePayment = async () => {
     console.log("handlePayment called");
@@ -84,8 +74,9 @@ const SubscriptionPayModal = ({
             })
           )
             .unwrap()
-            .then(() => {
-              dispatch(fetchSubscrptnPayments());
+            .then((res) => {
+              dispatch(updateSubPaymentStatus(res.subPaymtId))
+              // dispatch(fetchSubscrptnPayments());
 
               Swal.fire("Success", "Payment successful!", "success").then(
                 () => {

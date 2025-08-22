@@ -8,18 +8,13 @@ import {
   fetchWastePlantById,
   updateWastePlant,
 } from "../../redux/slices/superAdmin/superAdminWastePlantSlice";
-import { Spin } from "antd";
 import { useWastePlantValidation } from "../../hooks/useWastePlantValidation";
-import {
-  PartialWastePlantFormData,
-  ValidationErrors,
-} from "../../types/wastePlantTypes";
 import { toast } from "react-toastify";
-import { fetchSubscriptionPlans } from "../../redux/slices/superAdmin/superAdminSubscriptionPlanSlice";
 import LicenseDocumentViewer from "../../components/wastePlant/LicenseDocumentViewer";
 import { SubsptnPlans } from "../../types/subscription/subscriptionTypes";
-import { PostOffice } from "../../types/wasteplant/wastePlantTypes";
+import { PartialWastePlantFormData, PostOffice } from "../../types/wasteplant/wastePlantTypes";
 import { getAxiosErrorMessage } from "../../utils/handleAxiosError";
+import { ValidationErrors } from "../../types/common/commonTypes";
 
 const EditWastePlant = () => {
   const { id } = useParams<{ id: string }>();
@@ -40,9 +35,9 @@ const EditWastePlant = () => {
     (state: RootState) => state.superAdminSubscriptionPlan
   );
 
-  useEffect(() => {
-    dispatch(fetchSubscriptionPlans());
-  }, [dispatch]);
+  // useEffect(() => {
+  //   dispatch(fetchSubscriptionPlans());
+  // }, [dispatch]);
 
   useEffect(() => {
     if (id) dispatch(fetchWastePlantById(id));
@@ -74,7 +69,9 @@ const EditWastePlant = () => {
         const res = await dispatch(fetchPostOffices(value)).unwrap();
         setPostOffices(res);
       } catch (error) {
-        toast.error("Failed to fetch post offices for this PIN");
+        const msg= getAxiosErrorMessage(error);
+        // toast.error("Failed to fetch post offices for this PIN");
+        toast.error(msg);
         setPostOffices([]);
         setFormData((prev) => ({ ...prev, location: "", taluk: "" }));
       }
@@ -137,12 +134,12 @@ const EditWastePlant = () => {
       }
       const result = await dispatch(
         updateWastePlant({ id, data: formDataToSend })
-      );
-      if (result.payload?.error) {
-        toast.error(result.payload.error);
-        return;
-      }
-      toast.success("Waste Plant updated successfully!");
+      ).unwrap();
+      // if (result.payload?.error) {
+      //   toast.error(result.payload.error);
+      //   return;
+      // }
+      toast.success(result?.message);
       setTimeout(() => {
         navigate("/super-admin/waste-plants");
       }, 2000);
@@ -153,7 +150,6 @@ const EditWastePlant = () => {
     }
   };
 
-  if (loading) return <Spin size="large" />;
   if (!formData) return <p>No data found.</p>;
 
   return (

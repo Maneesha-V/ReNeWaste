@@ -4,6 +4,13 @@ import { ISubscriptionService } from "./interface/ISubscriptionService";
 import { ISubscriptionPlanRepository } from "../../repositories/subscriptionPlan/interface/ISubscriptionPlanRepository";
 import { ISubscriptionPlan } from "../../models/subscriptionPlans/interfaces/subsptnPlanInterface";
 import { updateSubscptnData } from "../../types/superAdmin/subscriptionTypes";
+import { SubscriptionPlanMapper } from "../../mappers/SubscriptionPlanMapper";
+import {
+  FetchSubscriptionPlansResp,
+  SubsptnPlansDTO,
+  updateSubscptnReq,
+} from "../../dtos/subscription/subscptnPlanDTO";
+import { PaginationInput } from "../../dtos/common/commonDTO";
 
 @injectable()
 export class SubscriptionService implements ISubscriptionService {
@@ -11,24 +18,47 @@ export class SubscriptionService implements ISubscriptionService {
     @inject(TYPES.SubscriptionPlanRepository)
     private subscriptionRepository: ISubscriptionPlanRepository
   ) {}
-  async createSubscriptionPlan(data: ISubscriptionPlan) {
+  async createSubscriptionPlan(data: SubsptnPlansDTO) {
     const existingPlanName =
-      await this.subscriptionRepository.checkPlanNameExist(data.planName);
+      await this.subscriptionRepository.checkPlanNameExist(data.planName!);
     if (existingPlanName) {
       throw new Error("Plan name already exists.");
     }
-    return await this.subscriptionRepository.createSubscriptionPlan(data);
+    const updated = await this.subscriptionRepository.createSubscriptionPlan(
+      data
+    );
+    return !!updated;
   }
-  async fetchSubscriptionPlans() {
-    return await this.subscriptionRepository.getAllSubscriptionPlans();
+  async fetchSubscriptionPlans(
+    data: PaginationInput
+  ): Promise<FetchSubscriptionPlansResp> {
+    const { subscriptionPlans, total } =
+      await this.subscriptionRepository.getAllSubscriptionPlans(data);
+    return {
+      subscriptionPlans:
+        SubscriptionPlanMapper.mapSubscptnPlansDTO(subscriptionPlans),
+      total,
+    };
+  }
+  async fetchActiveSubscriptionPlans(): Promise<SubsptnPlansDTO[]> {
+    const subscriptionPlans =
+      await this.subscriptionRepository.getActiveSubscriptionPlans();
+    return SubscriptionPlanMapper.mapSubscptnPlansDTO(subscriptionPlans);
   }
   async deleteSubscriptionPlan(id: string) {
-    return await this.subscriptionRepository.deleteSubscriptionPlanById(id);
+    const updated =
+      await this.subscriptionRepository.deleteSubscriptionPlanById(id);
+    return SubscriptionPlanMapper.mapSubscptnPlanDTO(updated);
   }
-  async getSubscriptionPlanById(id: string) {
-    return await this.subscriptionRepository.getSubscriptionPlanById(id);
+  async getSubscriptionPlanById(id: string): Promise<SubsptnPlansDTO> {
+    const subscriptionPlan =
+      await this.subscriptionRepository.getSubscriptionPlanById(id);
+    return SubscriptionPlanMapper.mapSubscptnPlanDTO(subscriptionPlan);
   }
-  async updateSubscriptionPlanById({ id, data }: updateSubscptnData) {
+  async updateSubscriptionPlanById({
+    id,
+    data,
+  }: updateSubscptnReq): Promise<SubsptnPlansDTO> {
     const existingPlan =
       await this.subscriptionRepository.getSubscriptionPlanById(id);
     if (!existingPlan) {
@@ -43,9 +73,10 @@ export class SubscriptionService implements ISubscriptionService {
       }
     }
 
-    return await this.subscriptionRepository.updateSubscriptionPlanById({
+    const plan = await this.subscriptionRepository.updateSubscriptionPlanById({
       id,
       data,
     });
+    return SubscriptionPlanMapper.mapSubscptnPlanDTO(plan);
   }
 }

@@ -21,7 +21,6 @@ export class ProfileService implements IProfileService {
   }
 
   async updateUserProfile(userId: string, updatedData: UserDTO): Promise<boolean> {
-    // try {
       const user = await this.userRepository.findUserById(userId);
       if (!user) throw new Error("User not found");
       const userTaluk = updatedData?.addresses?.[0]?.taluk;
@@ -31,20 +30,9 @@ export class ProfileService implements IProfileService {
         console.error(`No waste plant found for taluk: ${userTaluk}`);
         updatedData.wasteplantId = null;;
       }
-      // const mappedData = UserMapper.mapToUserProfile(updatedData);
-      // updatedData.addresses = updatedData.addresses.map(
-      //   (addr: { _id?: string; [key: string]: any }) => {
-      //     const { _id, ...rest } = addr;
-      //     return { ...rest };
-      //   }
-      // );
-      
+   
       const updated = await this.userRepository.updateUserProfileById(userId, updatedData);
       return !!updated;
-    // } catch (error) {
-    //   console.error("Service Error:", error);
-    //   throw error;
-    // }
   }
 }
 

@@ -14,23 +14,29 @@ export class UserController implements IUserController {
     @inject(TYPES.UserAuthService)
     private _authService: IAuthService
   ) {}
-  async refreshToken(req: Request, res: Response): Promise<void> {
+  async refreshToken(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
     try {
       const refreshToken = req.cookies?.refreshToken;
       console.log("refreshToken", refreshToken);
 
       if (!refreshToken) {
-        res.status(401).json({ error: "No refresh token provided." });
-        return;
+        // res.status(STATUS_CODES.UNAUTHORIZED).json({ error: MESSAGES.COMMON.ERROR.REFRESH_TOKEN });
+        // return;
+        throw new ApiError(STATUS_CODES.UNAUTHORIZED, MESSAGES.COMMON.ERROR.REFRESH_TOKEN)
       }
       const { token } = await this._authService.verifyToken(refreshToken);
-      res.status(200).json({ token });
-    } catch (error: any) {
+      res.status(STATUS_CODES.SUCCESS).json({ token });
+    } catch (error) {
       console.error("err", error);
-      res.status(401).json({ error: error.message });
+      // res.status(401).json({ error: error.message });
+      next(error);
     }
   }
-  async signup(req: Request, res: Response): Promise<void> {
+  async signup(req: Request, res: Response, next: NextFunction): Promise<void> {
     console.log("body", req.body);
     try {
       const userData = req.body;
@@ -45,10 +51,16 @@ export class UserController implements IUserController {
       );
       console.log("user", user);
 
-      res.status(201).json({ user, token });
-    } catch (error: any) {
-      res.status(400).json({ error: error.message });
+      res.status(STATUS_CODES.CREATED).json({
+        success: true,
+        message: MESSAGES.COMMON.SUCCESS.SIGNUP,
+        // role: user.role,
+        // userId: user._id,
+        // token,
+      });
+    } catch (error) {
       console.log("err", error);
+      next(error);
     }
   }
 
@@ -76,9 +88,9 @@ export class UserController implements IUserController {
         path: "/api",
         maxAge: 7 * 24 * 60 * 60 * 1000,
       };
-      res.cookie("refreshToken", refreshToken, cookieOptions).status(200).json({
+      res.cookie("refreshToken", refreshToken, cookieOptions).status(STATUS_CODES.SUCCESS).json({
         success: true,
-        message: "Login successful",
+        message: MESSAGES.COMMON.SUCCESS.LOGIN,
         role: user.role,
         userId: user._id,
         token,
@@ -114,44 +126,79 @@ export class UserController implements IUserController {
     }
   }
 
-  async sendOtpForSignup(req: Request, res: Response): Promise<void> {
+  async sendOtpForSignup(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
     try {
       console.log("otp-body", req.body);
       const { email } = req.body;
 
       const otpResponse = await this._authService.sendOtpSignupService(email);
+      if (!otpResponse) {
+        throw new ApiError(
+          STATUS_CODES.NOT_FOUND,
+          MESSAGES.COMMON.ERROR.OTP_SENT
+        );
+      }
 
-      res.status(200).json(otpResponse);
-    } catch (error: any) {
+      res
+        .status(STATUS_CODES.SUCCESS)
+        .json({ message: MESSAGES.COMMON.SUCCESS.OTP_SENT });
+    } catch (error) {
       console.error("Error sending OTP:", error);
-      res.status(500).json({ error: error.message || "Internal Server Error" });
+      // res.status(500).json({ error: error.message || "Internal Server Error" });
+      next(error);
     }
   }
-  async resendOtpForSignup(req: Request, res: Response): Promise<void> {
+  async resendOtpForSignup(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
     console.log("body", req.body);
     try {
       const { email } = req.body;
       if (!email) {
-        res.status(400).json({ error: "Email is required" });
+        throw new ApiError(
+          STATUS_CODES.NOT_FOUND,
+          MESSAGES.COMMON.ERROR.EMAIL_NOT_FOUND
+        );
       }
 
       const success = await this._authService.resendOtpSignupService(email);
       if (success) {
-        res.status(200).json({ message: "OTP resent successfully" });
+        res
+          .status(STATUS_CODES.SUCCESS)
+          .json({ message: MESSAGES.COMMON.SUCCESS.OTP_SENT });
       } else {
-        res.status(500).json({ error: "Failed to resend OTP" });
+        res
+          .status(STATUS_CODES.SERVER_ERROR)
+          .json({ message: MESSAGES.COMMON.ERROR.RESENT_OTP });
       }
     } catch (error) {
-      res.status(500).json({ error: "Server error, please try again later" });
+      // res.status(500).json({ error: "Server error, please try again later" });
+      next(error);
     }
   }
-  async verifyOtpForSignup(req: Request, res: Response): Promise<void> {
+  async verifyOtpForSignup(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
     try {
       const { email, otp } = req.body;
 
       if (!email || !otp) {
-        res.status(400).json({ error: "Email and OTP are required" });
-        return;
+        // res
+        //   .status(STATUS_CODES.NOT_FOUND)
+        //   .json({ error: MESSAGES.COMMON.ERROR.EMAIL_OTP_REQUIRED });
+        // return;
+        throw new ApiError(
+          STATUS_CODES.NOT_FOUND,
+          MESSAGES.COMMON.ERROR.EMAIL_OTP_REQUIRED
+        )
       }
 
       const isValid = await this._authService.verifyOtpSignupService(
@@ -159,15 +206,18 @@ export class UserController implements IUserController {
         otp
       );
 
-      if (!isValid) {
-        res.status(400).json({ error: "Invalid or expired OTP" });
-        return;
+      if (isValid) {
+        res
+          .status(STATUS_CODES.SUCCESS)
+          .json({ message: MESSAGES.COMMON.SUCCESS.OTP_VERIFIED });
+      } else {
+        res
+          .status(STATUS_CODES.NOT_FOUND)
+          .json({ message: MESSAGES.COMMON.ERROR.INVALID_EXPIRED_OTP });
       }
-
-      res.status(200).json({ message: "OTP verified successfully" });
     } catch (error) {
       console.error("Error verifying OTP:", error);
-      res.status(500).json({ error: "Something went wrong!" });
+      next(error);
     }
   }
   async sendOtp(
@@ -297,21 +347,25 @@ export class UserController implements IUserController {
         // res.status(400).json({ message: "Email and UID are required" });
         // return;
       }
-      const { role, token } = await this._authService.googleSignUpService(
-{        email,
+      const { role, token } = await this._authService.googleSignUpService({
+        email,
         displayName,
-        uid}
-      );
+        uid,
+      });
       res
         .status(STATUS_CODES.SUCCESS)
         .json({ message: MESSAGES.COMMON.SUCCESS.SIGNUP, role, token });
     } catch (error) {
       console.error("Google Sign-Up Error:", error);
-      next(error)
+      next(error);
     }
   }
 
-  async googleLogin(req: Request, res: Response, next: NextFunction): Promise<void> {
+  async googleLogin(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
     try {
       console.log("body", req.body);
       const { email, googleId } = req.body;
@@ -331,7 +385,7 @@ export class UserController implements IUserController {
         sameSite: "strict" as "strict",
         maxAge: 7 * 24 * 60 * 60 * 1000,
       };
-      res.cookie("refreshToken", refreshToken, cookieOptions).status(200).json({
+      res.cookie("refreshToken", refreshToken, cookieOptions).status(STATUS_CODES.SUCCESS).json({
         success: true,
         message: "Google signin successful",
         role,
@@ -339,7 +393,7 @@ export class UserController implements IUserController {
       });
     } catch (error) {
       console.error("Google login error:", error);
-      next(error)
+      next(error);
       // res.status(500).json({
       //   message: error.message || "Something went wrong during login",
       // });

@@ -25,6 +25,11 @@ export class WastePlantMapper {
       blockedAt: doc.blockedAt ?? null,
       autoUnblockAt: doc.autoUnblockAt ?? null,
       unblockNotificationSent: doc.unblockNotificationSent,
+      autoSubscribeAt: doc.autoSubscribeAt ?? null,
+      subscribeNotificationSent: doc.subscribeNotificationSent,
+      autoRechargeAt: doc.autoRechargeAt ?? null,
+      rechargeNotificationSent: doc.rechargeNotificationSent,
+      renewNotificationSent: doc.renewNotificationSent,
     };
   }
 }

@@ -2,9 +2,9 @@ import { ISubscriptionPaymentDocument } from "../../models/subsptnPayment/interf
 import { PaymentRecord } from "../../repositories/pickupReq/types/pickupTypes";
 
 export type SubCreatePaymtPayload = {
-      amount: number;
+      // amount: number;
       planId: string;
-      plantName: string;
+      // plantName: string;
       plantId: string;
 }
 export type ReurnSubcptnCreatePaymt = {

@@ -1,5 +1,5 @@
 import { AuthRequest } from "../../types/common/middTypes";
-import { Response } from "express";
+import { NextFunction, Response } from "express";
 import { inject, injectable } from "inversify";
 import TYPES from "../../config/inversify/types";
 import { IPaymentController } from "./interface/IPaymentController";
@@ -43,32 +43,64 @@ export class PaymentController implements IPaymentController {
       res.status(500).json({ message: "Error fetching payments.", error });
     }
   }
-  async createPaymentOrder(req: AuthRequest, res: Response): Promise<void> {
+  // async createPaymentOrder(req: AuthRequest, res: Response): Promise<void> {
+  //   try {
+  //     const plantId = req.user?.id;
+  //     const { amount, planId, plantName } = req.body;
+  //     console.log("plant", plantId);
+  //     console.log("amount", amount, planId, plantName);
+  //     if (!plantId || !amount || !planId || !plantName) {
+  //       res.status(STATUS_CODES.UNAUTHORIZED).json({ message: MESSAGES.COMMON.ERROR.MISSING_FIELDS });
+  //       return;
+  //     }
+  //     const paymentOrder = await this.paymentService.createPaymentOrder({
+  //       amount,
+  //       planId,
+  //       plantName,
+  //       plantId,
+  //     });
+  //     console.log("paymentOrder", paymentOrder);
+
+  //     res.status(STATUS_CODES.SUCCESS).json({ success: true, paymentOrder });
+  //   } catch (error) {
+  //    console.error("error", error);
+  //     handleControllerError(error, res, 500);
+  //   }
+  // }
+  async createPaymentOrder(
+    req: AuthRequest,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
     try {
       const plantId = req.user?.id;
-      const { amount, planId, plantName } = req.body;
+      const { planId } = req.body;
+
       console.log("plant", plantId);
-      console.log("amount", amount, planId, plantName);
-      if (!plantId || !amount || !planId || !plantName) {
-        res.status(STATUS_CODES.UNAUTHORIZED).json({ message: MESSAGES.COMMON.ERROR.MISSING_FIELDS });
+      console.log("amount", planId);
+      if (!plantId || !planId) {
+        res
+          .status(STATUS_CODES.UNAUTHORIZED)
+          .json({ message: MESSAGES.COMMON.ERROR.MISSING_FIELDS });
         return;
       }
       const paymentOrder = await this.paymentService.createPaymentOrder({
-        amount,
         planId,
-        plantName,
         plantId,
       });
       console.log("paymentOrder", paymentOrder);
 
       res.status(STATUS_CODES.SUCCESS).json({ success: true, paymentOrder });
     } catch (error) {
-     console.error("error", error);
-      handleControllerError(error, res, 500);
+      console.error("error", error);
+      next(error);
     }
   }
-
-  async verifyPayment(req: AuthRequest, res: Response): Promise<void> {
+  async verifyPayment(
+    req: AuthRequest,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
     try {
       const paymentDetails = req.body.paymentData;
       const plantId = req.user?.id;
@@ -80,19 +112,16 @@ export class PaymentController implements IPaymentController {
         paymentData: paymentDetails,
         plantId,
       });
-      console.log("result", result);
 
-      res.status(200).json({
-        success: true,
-        message: "Payment verified",
-        paymentOrder: result,
-      });
-    } catch (err: any) {
-      console.error("err", err);
-      res.status(400).json({
-        success: false,
-        message: err.message || "Verification failed",
-      });
+        res.status(STATUS_CODES.SUCCESS).json({
+          success: true,
+          message: MESSAGES.WASTEPLANT.SUCCESS.PAYMENT,
+          subPaymtId: result
+        });
+
+    } catch (error) {
+      console.error("err", error);
+      next(error);
     }
   }
   async fetchSubscriptionPayments(
@@ -104,7 +133,7 @@ export class PaymentController implements IPaymentController {
       console.log("plantId", plantId);
 
       if (!plantId) {
-         res
+        res
           .status(STATUS_CODES.UNAUTHORIZED)
           .json({ message: MESSAGES.COMMON.ERROR.UNAUTHORIZED });
         return;
@@ -116,7 +145,7 @@ export class PaymentController implements IPaymentController {
 
       res.status(STATUS_CODES.SUCCESS).json({ success: true, payments });
     } catch (error) {
-           console.error("error", error);
+      console.error("error", error);
       handleControllerError(error, res, 500);
       // res.status(400).json({
       //   success: false,

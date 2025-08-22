@@ -9,10 +9,12 @@ createSubscriptionPayment(
     data: CreateSubsptnPaymentPayload
   ): Promise<ISubscriptionPaymentDocument>;
   updateSubscriptionPayment(data: UpdateSubscptnPayload): Promise<ISubscriptionPaymentDocument>;
-  findSubscriptionPayments(plantId: string, planId: string): Promise<ISubscriptionPaymentDocument[] |null>;
+  findSubscriptionPayments(plantId: string): Promise<ISubscriptionPaymentDocument[] |null>;
   findSubscriptionPaymentById(id: string): Promise<ISubscriptionPaymentDocument | null>;
   updateSubscriptionPaymentById(id: string, paymentUpdate: PaymentUpdate): Promise<ISubscriptionPaymentDocument>;
   findPaidSubscriptionPayments(): Promise<ISubscriptionPaymentDocument[] |null>;
   getAllSubscptnPayments(data: PaginationInput): Promise<SubscriptionPaymentHisResult>;
   findLatestInProgressPayment(plantId: string): Promise<ISubscriptionPaymentDocument | null>;
+  findPlantSubscriptionPayment(plantId: string): Promise<ISubscriptionPaymentDocument | null>;
+  updateSubptnPaymentStatus(subPayId: string): Promise<ISubscriptionPaymentDocument>;
 }

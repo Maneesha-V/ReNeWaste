@@ -1,3 +1,4 @@
+import { ISubscriptionPlanDocument } from "../../models/subscriptionPlans/interfaces/subsptnPlanInterface";
 import { BaseDTO } from "../base/BaseDTO";
 
 export interface SubsptnPlansDTO extends BaseDTO {
@@ -12,3 +13,15 @@ export interface SubsptnPlansDTO extends BaseDTO {
   status?: string;
   isDeleted?: boolean;
 };
+export type updateSubscptnReq = {
+  id: string;
+  data: Partial<SubsptnPlansDTO>; 
+};
+export type PaginatedSubsptnPlansResult = {
+  subscriptionPlans: ISubscriptionPlanDocument[];
+  total: number;
+}
+export type FetchSubscriptionPlansResp = {
+  subscriptionPlans: SubsptnPlansDTO[];
+  total: number;
+}

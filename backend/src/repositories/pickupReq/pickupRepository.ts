@@ -298,7 +298,7 @@ export class PickupRepository
         .lean(),
       this.model.countDocuments(query),
     ]);
-
+    console.log("pickups",pickups);
     const user: IUserDocument = await this._userRepository.findById(
       userId,
       true

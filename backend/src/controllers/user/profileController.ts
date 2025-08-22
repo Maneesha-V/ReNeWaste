@@ -100,12 +100,9 @@ export class ProfileController implements IProfileController {
           .status(STATUS_CODES.SERVER_ERROR)
           .json({ message: MESSAGES.USER.ERROR.PROFILE_UPDATE });
       }
-      // res
-      //   .status(200)
-      //   .json({ message: "Profile updated successfully", user: updatedUser });
+
     } catch (error) {
       console.error("Error updating profile:", error);
-      // res.status(500).json({ message: "Server error, please try again later" });
       next(error);
     }
   }

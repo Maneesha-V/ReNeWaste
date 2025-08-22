@@ -3,7 +3,9 @@ import TYPES from "../../config/inversify/types";
 import { ISubscriptionController } from "./interface/ISubscriptionController";
 import { ISubscriptionService } from "../../services/superAdmin/interface/ISubscriptionService";
 import { AuthRequest } from "../../types/common/middTypes";
-import { Response } from "express";
+import { NextFunction, Response } from "express";
+import { MESSAGES, STATUS_CODES } from "../../utils/constantUtils";
+import { ApiError } from "../../utils/ApiError";
 
 @injectable()
 export class SubscriptionController implements ISubscriptionController {
@@ -11,16 +13,19 @@ export class SubscriptionController implements ISubscriptionController {
     @inject(TYPES.SuperAdminSubscriptionService)
     private subscriptionService: ISubscriptionService
   ) {}
-  async createSubscriptionPlan(req: AuthRequest, res: Response): Promise<void> {
+  async createSubscriptionPlan(
+    req: AuthRequest,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
     try {
       console.log(req.body);
-      const suprAdminId = req.user?.id;
-      if (!suprAdminId) {
-        res.status(403).json({
-          success: false,
-          error: "Unauthorized or invalid suprAdminId",
-        });
-        return;
+      const adminId = req.user?.id;
+      if (!adminId) {
+        throw new ApiError(
+          STATUS_CODES.UNAUTHORIZED,
+          MESSAGES.COMMON.ERROR.UNAUTHORIZED
+        );
       }
 
       const subptnPlanData = req.body;
@@ -28,82 +33,113 @@ export class SubscriptionController implements ISubscriptionController {
         await this.subscriptionService.createSubscriptionPlan(subptnPlanData);
       console.log("newSubptnPlan", newSubptnPlan);
 
-      res.status(201).json({ success: true, data: newSubptnPlan });
-    } catch (error: any) {
-      console.log("err",error);
-        res
-        .status(500)
-        .json({ error: error.message || "Failed to create subscription plan." });
+      res
+        .status(STATUS_CODES.CREATED)
+        .json({
+          success: true,
+          message: MESSAGES.SUPERADMIN.SUCCESS.SUBSCRIPTION_CREATED,
+        });
+    } catch (error) {
+      console.log("err", error);
+      next(error);
     }
   }
-  async fetchSubscriptionPlans(req: AuthRequest, res: Response): Promise<void> {
+  async fetchSubscriptionPlans(
+    req: AuthRequest,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
     try {
-      const subscriptionPlans =
-        await this.subscriptionService.fetchSubscriptionPlans();
+      console.log(req.query);
+      const DEFAULT_LIMIT = 5;
+      const MAX_LIMIT = 50;
+      const page = parseInt(req.query.page as string) || 1;
+      let limit = Math.min(
+        parseInt(req.query.limit as string) || DEFAULT_LIMIT,
+        MAX_LIMIT
+      );
+      const search = (req.query.search as string) || "";
+
+      const { subscriptionPlans, total } =
+        await this.subscriptionService.fetchSubscriptionPlans({
+          page,
+          limit,
+          search,
+        });
       console.log("subscriptionPlans", subscriptionPlans);
 
-      res.status(200).json({
+      res.status(STATUS_CODES.SUCCESS).json({
         success: true,
-        message: "Fetch subscription plans successfully",
+        message: MESSAGES.SUPERADMIN.SUCCESS.SUBSCRIPTION_PLANS,
         subscriptionPlans,
+        total,
       });
-    } catch (error: any) {
+    } catch (error) {
       console.error("err", error);
-      res
-        .status(500)
-        .json({ message: "Error fetching subscription plans.", error });
+      next(error);
     }
   }
-  async deleteSubscriptionPlan(req: AuthRequest, res: Response): Promise<void> {
+  async deleteSubscriptionPlan(
+    req: AuthRequest,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
     try {
       console.log("body", req.body);
       const { id } = req.params;
-      const result = await this.subscriptionService.deleteSubscriptionPlan(id);
-
-      if (!result) {
-        res.status(404).json({ message: "Plan not found" });
-        return;
+      if (!id) {
+        throw new ApiError(
+          STATUS_CODES.BAD_REQUEST,
+          MESSAGES.COMMON.ERROR.ID_REQUIRED
+        );
       }
+      const plan = await this.subscriptionService.deleteSubscriptionPlan(id);
 
-      res.status(200).json({ message: "Plan deleted successfully" });
-    } catch (error: any) {
+      res.status(STATUS_CODES.SUCCESS).json({
+        message: MESSAGES.SUPERADMIN.SUCCESS.SUBSCRIPTION_DELETED,
+        plan,
+      });
+    } catch (error) {
       console.error("Error in deleting plan:", error);
-      res.status(500).json({ message: "Server error" });
+      next(error);
     }
   }
   async getSubscriptionPlanById(
     req: AuthRequest,
-    res: Response
+    res: Response,
+    next: NextFunction
   ): Promise<void> {
     try {
       const { id } = req.params;
+      if (!id) {
+        throw new ApiError(
+          STATUS_CODES.BAD_REQUEST,
+          MESSAGES.COMMON.ERROR.ID_REQUIRED
+        );
+      }
       const subscriptionPlan =
         await this.subscriptionService.getSubscriptionPlanById(id);
       console.log("subscriptionPlan", subscriptionPlan);
 
-      if (!subscriptionPlan) {
-        res.status(404).json({ message: "Subscription Plan not found" });
-        return;
-      }
-
-      res.status(200).json({ subscriptionPlan });
-    } catch (error: any) {
+      res.status(STATUS_CODES.SUCCESS).json({ subscriptionPlan });
+    } catch (error) {
       console.error("Error fetching subscription plan:", error);
-      res.status(500).json({ message: "Server error" });
+      next(error);
     }
   }
   async updateSubscriptionPlanById(
     req: AuthRequest,
-    res: Response
+    res: Response,
+    next: NextFunction
   ): Promise<void> {
     try {
-      console.log("body", req.body);
-
       const { id } = req.params;
 
       if (!id) {
-        res.status(400).json({ message: "Plan ID is required" });
-        return;
+        throw new ApiError(
+          STATUS_CODES.BAD_REQUEST,
+          MESSAGES.COMMON.ERROR.ID_REQUIRED
+        );
       }
       const updatedData = req.body;
 
@@ -114,12 +150,13 @@ export class SubscriptionController implements ISubscriptionController {
         });
       console.log("updatedSubscriptionPlan", updatedSubscriptionPlan);
 
-      res.status(200).json({ updatedSubscriptionPlan });
-    } catch (error: any) {
+      res.status(STATUS_CODES.SUCCESS).json({
+        message: MESSAGES.SUPERADMIN.SUCCESS.SUBSCRIPTION_UPDATED,
+        updatedSubscriptionPlan,
+      });
+    } catch (error) {
       console.error("Error updating subscription plan:", error);
-      res
-        .status(500)
-        .json({ error: error.message || "Failed to update subscription plan." });
+      next(error);
     }
   }
 }

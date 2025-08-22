@@ -1,104 +1,139 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import {
-  SubsptnPlanData,
-  updateSubscptnData,
-} from "../../../types/subscriptionTypes";
-import {
   createSubscriptionPlanService,
   deleteSubscriptionPlanById,
   getSubscriptionPlans,
   getSubscrptionPlanById,
   updateSubscriptionPlanById,
 } from "../../../services/superAdmin/subscriptionService";
-import { SubsptnPlans } from "../../../types/subscription/subscriptionTypes";
+import {
+  DelSubsptnPlansResp,
+  FetchSubsptnPlanByIdResp,
+  FetchSubsptnPlansResp,
+  SubsptnPlans,
+  updateSubscptnReq,
+  updateSubscptnResp,
+} from "../../../types/subscription/subscriptionTypes";
+import { getAxiosErrorMessage } from "../../../utils/handleAxiosError";
+import { MsgSuccessResp, PaginationPayload } from "../../../types/common/commonTypes";
 
 interface SubsptnPlanState {
   loading: boolean;
   error: string | null;
+  message: string | null;
   success: boolean;
   subscriptionPlans: SubsptnPlans[];
+  subscriptionPlan: SubsptnPlans;
+  total: number;
 }
 
 const initialState: SubsptnPlanState = {
   loading: false,
   error: null,
+  message: null,
   success: false,
   subscriptionPlans: [],
+  subscriptionPlan: {},
+  total: 0,
 };
 
-export const createSubscriptionPlan = createAsyncThunk(
+export const createSubscriptionPlan = createAsyncThunk<
+  MsgSuccessResp,
+  SubsptnPlans,
+  { rejectValue: { message: string } }
+>(
   "superAdminSubscriptionPlan/createSubscriptionPlan",
-  async (subscptnPlanData: SubsptnPlans, { rejectWithValue }) => {
+  async (subscptnPlanData, { rejectWithValue }) => {
     try {
       const response = await createSubscriptionPlanService(subscptnPlanData);
       return response;
-    } catch (error: any) {
-      return rejectWithValue(
-        error.response?.data || "Failed to create SubscriptionPlan"
-      );
+    } catch (error) {
+      const msg = getAxiosErrorMessage(error);
+      return rejectWithValue({ message: msg });
     }
   }
 );
 
-export const fetchSubscriptionPlans = createAsyncThunk(
+export const fetchSubscriptionPlans = createAsyncThunk<
+  FetchSubsptnPlansResp,
+  PaginationPayload,
+  { rejectValue: { message: string } }
+>(
   "superAdminSubscriptionPlan/fetchSubscriptionPlans",
-  async (_, { rejectWithValue }) => {
+  async ({ page, limit, search }, { rejectWithValue }) => {
     try {
-      const response = await getSubscriptionPlans();
+      const response = await getSubscriptionPlans({ page, limit, search });
       return response;
-    } catch (error: any) {
-      return rejectWithValue(
-        error.response?.data || "Failed to fetch SubscriptionPlans."
-      );
+    } catch (error) {
+      const msg = getAxiosErrorMessage(error);
+      return rejectWithValue({ message: msg });
     }
   }
 );
 
-export const deleteSubscriptionPlan = createAsyncThunk(
+export const deleteSubscriptionPlan = createAsyncThunk<
+  DelSubsptnPlansResp,
+  string,
+  { rejectValue: { message: string } }
+>(
   "superAdminSubscriptionPlan/deleteSubscriptionPlan",
-  async (id: string, thunkAPI) => {
+  async (id, { rejectWithValue }) => {
     try {
       const response = await deleteSubscriptionPlanById(id);
       return response;
-    } catch (error: any) {
-      return thunkAPI.rejectWithValue(
-        error.response.data || "Failed to delete plan."
-      );
+    } catch (error) {
+      const msg = getAxiosErrorMessage(error);
+      return rejectWithValue({ message: msg });
     }
   }
 );
 
-export const fetchSubscriptionPlanById = createAsyncThunk(
+export const fetchSubscriptionPlanById = createAsyncThunk<
+  FetchSubsptnPlanByIdResp,
+  string,
+  { rejectValue: { message: string } }
+>(
   "superAdminSubscriptionPlan/fetchSubscriptionPlanById",
-  async (id: string, { rejectWithValue }) => {
+  async (id, { rejectWithValue }) => {
     try {
       const response = await getSubscrptionPlanById(id);
       console.log("response", response);
 
       return response;
-    } catch (error: any) {
-      return rejectWithValue(error.response?.data || "Failed to fetch data");
+    } catch (error) {
+      const msg = getAxiosErrorMessage(error);
+      return rejectWithValue({ message: msg });
     }
   }
 );
 
-export const updateSubscriptionPlan = createAsyncThunk(
+export const updateSubscriptionPlan = createAsyncThunk<
+  updateSubscptnResp,
+  updateSubscptnReq,
+  { rejectValue: { message: string } }
+>(
   "superAdminSubscriptionPlan/updateSubscriptionPlan",
-  async ({ id, data }: updateSubscptnData, thunkAPI) => {
+  async ({ id, data }, { rejectWithValue }) => {
     try {
       const response = await updateSubscriptionPlanById({ id, data });
       return response;
-    } catch (error: any) {
-      return thunkAPI.rejectWithValue(
-        error.response?.data || "Failed to update data."
-      );
+    } catch (error) {
+      const msg = getAxiosErrorMessage(error);
+      return rejectWithValue({ message: msg });
     }
   }
 );
 const superAdminSubscriptionPlanSlice = createSlice({
   name: "superAdminSubscriptionPlan",
   initialState,
-  reducers: {},
+  reducers: {
+    updateDeleteSubscription: (state, action) => {
+      const planId = action.payload;
+      state.subscriptionPlans = state.subscriptionPlans.filter(
+        (s: SubsptnPlans) => s._id !== planId
+      );
+    },
+  },
   extraReducers: (builder) => {
     builder
       .addCase(createSubscriptionPlan.pending, (state) => {
@@ -106,25 +141,29 @@ const superAdminSubscriptionPlanSlice = createSlice({
         state.error = null;
         state.success = false;
       })
-      .addCase(createSubscriptionPlan.fulfilled, (state) => {
+      .addCase(createSubscriptionPlan.fulfilled, (state, action) => {
         state.loading = false;
         state.success = true;
+        state.message = action.payload.message;
       })
       .addCase(createSubscriptionPlan.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload as string;
+        state.error = action.payload?.message as string;
       })
       .addCase(fetchSubscriptionPlans.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
       .addCase(fetchSubscriptionPlans.fulfilled, (state, action) => {
+        console.log("aaccc",action.payload);
+        
         state.loading = false;
         state.subscriptionPlans = action.payload.subscriptionPlans;
+        state.total = action.payload.total;
       })
       .addCase(fetchSubscriptionPlans.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload as string;
+        state.error = action.payload?.message as string;
       })
       .addCase(fetchSubscriptionPlanById.pending, (state) => {
         state.loading = true;
@@ -132,16 +171,15 @@ const superAdminSubscriptionPlanSlice = createSlice({
       })
       .addCase(fetchSubscriptionPlanById.fulfilled, (state, action) => {
         state.loading = false;
-        state.subscriptionPlans = action.payload;
+        state.subscriptionPlan = action.payload.subscriptionPlan;
       })
       .addCase(fetchSubscriptionPlanById.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload as string;
+        state.error = action.payload?.message as string;
       })
       .addCase(deleteSubscriptionPlan.fulfilled, (state, action) => {
-        state.subscriptionPlans = state.subscriptionPlans.filter(
-          (plan: SubsptnPlans) => plan._id !== action.payload
-        );
+        state.message = action.payload?.message;
+        state.error = null;
       })
       .addCase(updateSubscriptionPlan.pending, (state) => {
         state.loading = true;
@@ -149,13 +187,14 @@ const superAdminSubscriptionPlanSlice = createSlice({
       })
       .addCase(updateSubscriptionPlan.fulfilled, (state, action) => {
         state.loading = false;
-        state.subscriptionPlans = action.payload;
+        state.message = action.payload.message;
       })
       .addCase(updateSubscriptionPlan.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload as string;
+        state.error = action.payload?.message as string;
       });
   },
 });
 
+export const { updateDeleteSubscription } = superAdminSubscriptionPlanSlice.actions;
 export default superAdminSubscriptionPlanSlice.reducer;

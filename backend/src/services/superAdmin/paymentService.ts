@@ -10,12 +10,12 @@ import { SubscriptionPaymentMapper } from "../../mappers/SubscriptionPaymentMapp
 export class PaymentService implements IPaymentService {
   constructor(
     @inject(TYPES.SubscriptionPaymentRepository)
-    private subscriptionPaymentRepository: ISubscriptionPaymentRepository 
+    private _subscriptionPaymentRepository: ISubscriptionPaymentRepository 
   ) {}
    async fetchPayments(
       data: PaginationInput
     ): Promise<SubscriptionPaymentHisResult> {
-      const paymentHisData = await this.subscriptionPaymentRepository.getAllSubscptnPayments(data);
+      const paymentHisData = await this._subscriptionPaymentRepository.getAllSubscptnPayments(data);
       if (!paymentHisData) {
         throw new Error("Payment history not found.");
       }

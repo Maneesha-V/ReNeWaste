@@ -103,5 +103,6 @@ router.patch("/edit-profile", authenticateWastePlant as RequestHandler, checkNot
  upload.single("licenseDocument"),
  plantProfileCtrl.updatePlantProfile.bind(plantProfileCtrl));
 router.get("/view-license/:publicId(*)", plantProfileCtrl.viewLicenseDocument.bind(plantProfileCtrl))
-router.get("/subscription", authenticateWastePlant as RequestHandler, checkNotBlocked, plantSubscriptionCtrl.fetchSubscriptionPlans.bind(plantSubscriptionCtrl) )
+router.get("/subscription", authenticateWastePlant as RequestHandler, checkNotBlocked, plantSubscriptionCtrl.fetchSubscriptionPlans.bind(plantSubscriptionCtrl));
+router.patch("/cancel-subscription/:subPayId",  authenticateWastePlant as RequestHandler, checkNotBlocked, plantSubscriptionCtrl.cancelSubcptReason.bind(plantSubscriptionCtrl))
 export default router;

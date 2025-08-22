@@ -5,20 +5,18 @@ import { checkForDuplicateWastePlant } from "../../utils/wastePlantDuplicateVali
 import { injectable, inject } from "inversify";
 import TYPES from "../../config/inversify/types";
 import { IWastePlantRepository } from "../../repositories/wastePlant/interface/IWastePlantRepository";
-import {
-  notificationPayload,
-  ReturnDeleteWP,
-} from "../../types/superAdmin/wastePlantTypes";
 import { INotificationRepository } from "../../repositories/notification/interface/INotifcationRepository";
 import { ISubscriptionPaymentRepository } from "../../repositories/subscriptionPayment/interface/ISubscriptionPaymentRepository";
 import { PaginationInput } from "../../dtos/common/commonDTO";
 import {
   PaginatedReturnAdminWastePlants,
   ReturnAdminWastePlant,
+  ReturnDeleteWP,
   WasteplantDTO,
 } from "../../dtos/wasteplant/WasteplantDTO";
 import { WastePlantMapper } from "../../mappers/WastePlantMapper";
 import { IPickupRepository } from "../../repositories/pickupReq/interface/IPickupRepository";
+import { notificationPayload } from "../../dtos/notification/notificationDTO";
 
 @injectable()
 export class WastePlantService implements IWastePlantService {
@@ -43,19 +41,22 @@ export class WastePlantService implements IWastePlantService {
     );
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(data.password, salt);
+    const now = new Date();
+
     const newData: IWastePlant = {
       ...data,
       password: hashedPassword,
+      autoSubscribeAt: new Date(now.getTime() + 5 * 60 * 1000),
+      subscribeNotificationSent: false,
     };
-    const createdPlant = await this._wastePlantRepository.createWastePlant(
+    const plant = await this._wastePlantRepository.createWastePlant(
       newData
     );
-    if (!createdPlant) {
+    if (!plant) {
       throw new Error("Failed to create waste plant");
     }
-    return {
-      success: true,
-    };
+
+    return true;
   }
 
   async getAllWastePlants(
@@ -145,22 +146,19 @@ export class WastePlantService implements IWastePlantService {
       wasteplants: updatedPlants,
     };
   }
-  async getWastePlantByIdService(id: string): Promise<IWastePlant | null> {
-    try {
-      return await this._wastePlantRepository.getWastePlantById(id);
-    } catch (error) {
-      throw new Error("Error fetching waste plant from service");
-    }
+  async getWastePlantByIdService(id: string): Promise<WasteplantDTO> {
+      const plant =  await this._wastePlantRepository.getWastePlantById(id);
+      if(!plant){
+        throw new Error("Plant not found.")
+      }
+      return WastePlantMapper.mapWastePlantDTO(plant);
   }
   async updateWastePlantByIdService(
     id: string,
     data: IWastePlant
-  ): Promise<IWastePlant | null> {
-    try {
-      return await this._wastePlantRepository.updateWastePlantById(id, data);
-    } catch (error) {
-      throw new Error("Error updating waste plant in service");
-    }
+  ): Promise<boolean> {
+      const updated =  await this._wastePlantRepository.updateWastePlantById(id, data);
+      return !!updated;
   }
   async deleteWastePlantByIdService(id: string): Promise<ReturnDeleteWP> {
     const plant = await this._wastePlantRepository.deleteWastePlantById(id);
@@ -169,45 +167,45 @@ export class WastePlantService implements IWastePlantService {
     }
     return { plantId: plant._id.toString() };
   }
-  async sendSubscribeNotification(data: notificationPayload) {
-    const plant = await this._wastePlantRepository.getWastePlantById(
-      data.plantId
-    );
-    if (!plant) {
-      throw new Error("Plant not found.");
-    }
-    if (plant.createdAt) {
-      const createdAt = new Date(plant.createdAt);
-      const now = new Date();
-      const hoursPassed =
-        (now.getTime() - createdAt.getTime()) / (1000 * 60 * 60);
+  // async sendSubscribeNotification(data: notificationPayload) {
+  //   const plant = await this._wastePlantRepository.getWastePlantById(
+  //     data.plantId
+  //   );
+  //   if (!plant) {
+  //     throw new Error("Plant not found.");
+  //   }
+  //   if (plant.createdAt) {
+  //     const createdAt = new Date(plant.createdAt);
+  //     const now = new Date();
+  //     const hoursPassed =
+  //       (now.getTime() - createdAt.getTime()) / (1000 * 60 * 60);
 
-      if (hoursPassed < 24) {
-        throw new Error(
-          "Subscription reminder can only be sent after 24 hours of creation."
-        );
-      }
-    }
+  //     if (hoursPassed < 24) {
+  //       throw new Error(
+  //         "Subscription reminder can only be sent after 24 hours of creation."
+  //       );
+  //     }
+  //   }
 
-    const message = `Reminder: Your plant subscription is pending. Please subscribe to activate features.`;
+  //   const message = `Reminder: Your plant subscription is pending. Please subscribe to activate features.`;
 
-    const plantNotification =
-      await this._notificationRepository.createNotification({
-        receiverId: data.plantId,
-        receiverType: "wasteplant",
-        senderId: data.adminId,
-        senderType: "superadmin",
-        message,
-        type: "subscribe_reminder",
-      });
-    console.log("notification", plantNotification);
+  //   const plantNotification =
+  //     await this._notificationRepository.createNotification({
+  //       receiverId: data.plantId,
+  //       receiverType: "wasteplant",
+  //       senderId: data.adminId,
+  //       senderType: "superadmin",
+  //       message,
+  //       type: "subscribe_reminder",
+  //     });
+  //   console.log("notification", plantNotification);
 
-    const io = global.io;
+  //   const io = global.io;
 
-    if (io) {
-      io.to(`${plant._id}`).emit("newNotification", plantNotification);
-    }
-  }
+  //   if (io) {
+  //     io.to(`${plant._id}`).emit("newNotification", plantNotification);
+  //   }
+  // }
   async plantBlockStatus(plantId: string, isBlocked: boolean): Promise<WasteplantDTO> {
     const wasteplant = await this._wastePlantRepository.getWastePlantById(
       plantId

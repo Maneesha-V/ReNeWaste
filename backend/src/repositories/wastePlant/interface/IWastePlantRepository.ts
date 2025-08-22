@@ -14,7 +14,7 @@ export interface IWastePlantRepository {
   findWastePlantByName(plantName: string): Promise<IWastePlant | null>;
   getAllWastePlants(data: PaginationInput): Promise<PaginatedWastePlantResult | null>;
   getWastePlantById(id: string): Promise<IWastePlantDocument | null>;
-  updateWastePlantById(id: string,data: IWastePlant): Promise<IWastePlant | null>;
+  updateWastePlantById(id: string,data: Partial<IWastePlant>): Promise<IWastePlantDocument | null>;
   saveOtp(email: string, otp: string): Promise<void>;
   reSaveOtp(email: string, otp: string): Promise<void>;
   findOtpByEmail(email: string): Promise<OtpRecord | null>;

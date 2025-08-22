@@ -16,8 +16,8 @@ export const MESSAGES = {
       PASSWORD_CHANGED: "Password changed successfully",
       REFUND_UPDTAE_SUCCESS : "Update refund status successfully.",
       RETRY_ORDER_PAY_SUCCESS: "Retry payment order suceess.",
-      SIGNUP: "User signup successfully.",
-      SIGNIN: "User signin successfully.",
+      SIGNUP: "Signup successfully.",
+      SIGNIN: "Signin successfully.",
       SEND_NOTIFICATION: "Send notification successfully.",
       BLOCK_UPDATE: "Block status updated successfully."
     },
@@ -33,11 +33,12 @@ export const MESSAGES = {
       // INVALID_PHONE: "Invalid phone number.",
       // WEAK_PASSWORD: `Password must be at least ${PASSWORD_RULES.MIN_LENGTH} characters long.`,
       // PASSWORD_MISMATCH: "Password and Confirm Password must match.",
-      // INVALID_CREDENTIALS: "Invalid credentials.",
+      INVALID_CREDENTIALS: "Invalid credentials.",
       // EMAIL_IN_USE: "Email is already in use.",
       EMAIL_UID_REQUIRED: "Email and UID are required",
       EMAIL_PASSWORD_REQUIRED: "Email and password are required",
       EMAIL_OTP_REQUIRED: "Email and OTP are required",
+      ID_REQUIRED: "Id is required.",
       MISSING_FIELDS: "All fields are required.",
       UNAUTHORIZED: "Unauthorized access.",
       UNAUTHENTICATED: "You are not authenticated.",
@@ -47,7 +48,7 @@ export const MESSAGES = {
       INVALID_EXPIRED_OTP: "Invalid or expired OTP",
       OTP_EXPIRED: "OTP has expired. Request a new OTP.",
       INVALID_OTP: "Invalid OTP. Please check and try again.",
-      FAILED_OTP: "Failed to resend OTP",
+      FAILED_OTP: "Failed to send OTP",
       ALREADY_VERIFIED: "Account is already verified.",
       NO_OTP_FOUND: "No OTP found. Please request a new one.",
       BLOCKED: "Your account is blocked.",
@@ -56,7 +57,11 @@ export const MESSAGES = {
       NO_TOKEN: "Token not found",
       POST_OFFICE_ERROR: "No post offices found for this PIN code.",
       PINCODE_ALLOW_ERROR: "Only pincodes from Malappuram district are allowed.",
-      INVALID_ROLE: "Invalid user role."
+      INVALID_ROLE: "Invalid user role.",
+      OTP_SENT: "Failed to send OTP.",
+      RESENT_OTP: "Failed to resend OTP.",
+      REFRESH_TOKEN: "No refresh token provided.",
+      SIGNUP: "Signup failed."
     },
   },
   WASTEPLANT: {
@@ -65,12 +70,17 @@ export const MESSAGES = {
       CREATED: "Waste plant created successfully.",
       UPDATED: "Waste plant updated successfully.",
       DELETED: "Waste plant deleted successfully.",
+      PAYMENT: "Payment success.",
+      SUBSCRIPTION_PLAN: "Fetch subscription plan successfully.",
+      SUBSCRIPTION_CANCEL: "Send subscription cancel request."
     },
     ERROR: {
       ID_REQUIRED: "Plant ID is required.",
       DOCUMENT_REQUIRED: "License document is required.",
       PDF_FILES_REQUIRED: "Only PDF files are allowed.",
-      NOT_FOUND: "Waste Plant not found."
+      NOT_FOUND: "Waste Plant not found.",
+      FAILED: "Wasteplant updation failed.",
+      PAYMENT: "Payment failed."
     },
   },
   DRIVER: {
@@ -108,7 +118,8 @@ export const MESSAGES = {
       SUBSCRIPTION_UPDATED: "Subscription updated successfully",
       SUBSCRIPTION_DELETED: "Subscription deleted successfully",
       PAYMENT_HISTORY: "Fetch payment history successfully",
-      SUBSCRIPTION_PLANS: "Fetch subscription plan successfully."
+      SUBSCRIPTION_PLANS: "Fetch subscription plans successfully.",
+      ADD_WASTEPLANT: "Fetch add wasteplant succesfully."
     },
     ERROR: {
       FAILED_DOC_VERIFY: "Document verification failed",

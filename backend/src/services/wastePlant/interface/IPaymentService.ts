@@ -1,15 +1,14 @@
 import { RefundStatusUpdateResp, UpdateStatusReq } from "../../../dtos/pickupReq/paymentDTO";
 import { RetrySubPaymntReq, RetrySubPaymntRes } from "../../../dtos/subscription/subscptnPaymentDTO";
+import { ReturnSubcptnPaymentResult, VerifyPaymtReq } from "../../../dtos/wasteplant/WasteplantDTO";
 import { IPickupRequestDocument } from "../../../models/pickupRequests/interfaces/pickupInterface";
 import { ISubscriptionPaymentDocument } from "../../../models/subsptnPayment/interface/subsptnPaymentInterface";
 import {
   FetchPaymentPayload,
   PaginatedPaymentsResult,
   RefundDataReq,
-  ReturnSubcptnPaymentResult,
   ReurnSubcptnCreatePaymt,
-  SubCreatePaymtPayload,
-  VerifyPaymtPayload,
+  SubCreatePaymtPayload
 } from "../../../types/wastePlant/paymentTypes";
 
 export interface IPaymentService {
@@ -18,8 +17,8 @@ export interface IPaymentService {
     data: SubCreatePaymtPayload
   ): Promise<ReurnSubcptnCreatePaymt>;
   verifyPaymentService(
-    data: VerifyPaymtPayload
-  ): Promise<ISubscriptionPaymentDocument>;
+    data: VerifyPaymtReq
+  ): Promise<string>;
   fetchSubscriptionPayments(
     plantId: string
   ): Promise<ReturnSubcptnPaymentResult>;

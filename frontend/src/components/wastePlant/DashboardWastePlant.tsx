@@ -1,10 +1,10 @@
-import { useState } from "react";
-import Header from "./Header";
+import { useState } from "react";;
 import Footer from "./Footer";
-import SidebarWastePlant from "./SidebarWastePlant";
 import MainContent from "../common/MainContent";
 
 import DashboardContent from "../../pages/wastePlant/DashboardWastePlant";
+import SidebarWastePlant from "./SidebarWastePlant";
+import Header from "./Header";
 
 
 const DashboardWastePlant = () => {

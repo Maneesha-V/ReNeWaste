@@ -19,8 +19,10 @@ const DashboardWastePlant = () => {
   }, [dispatch]);
   useEffect(() => {
     const status = localStorage.getItem("wasteplant_status");
-    if (status === "Inactive") {
+    if (status === "Inactive" || status === "Pending") {
       setShowSubscriptionModal(true);
+    } else {
+      setShowSubscriptionModal(false);
     }
   }, []);
 

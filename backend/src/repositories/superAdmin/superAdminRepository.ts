@@ -29,12 +29,13 @@ export class SuperAdminRepository extends BaseRepository<ISuperAdminDocument> im
     return admin.save();
   }
 
-  async updateAdminPassword(email: string, hashedPassword: string): Promise<void> {
+  async updateAdminPassword(email: string, hashedPassword: string): Promise<boolean> {
     await this.model.findOneAndUpdate(
       { email },
       { $set: { password: hashedPassword } },
       { new: true, runValidators: false }
     );
+    return true;
   }
   async findAdminByRole(role: string): Promise<ISuperAdminDocument | null> {
     return await this.model.findOne({role})

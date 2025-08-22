@@ -28,6 +28,13 @@ export type SignupRequest = {
   confirmPassword: string;
   agreeToTerms: boolean;
 };
+export type SignUpResponse = {
+  message: string;
+  // role: string;
+  success: boolean;
+  // token: string;
+  // userId: string;
+};
 export type Address = {
   _id?: string;
   addressLine1: string;

@@ -8,12 +8,12 @@ export type SuperAdminLoginRequest = {
     admin: ISuperAdminDocument;
     token: string;
   }
-  export type SuperAdminSignupRequest = {
-    username : string;
-    email: string;
-    password: string;
-  }
-  export type SuperAdminSignupResponse = {
-    admin: ISuperAdminDocument;
-    token: string;
-  }
+  // export type SuperAdminSignupRequest = {
+  //   username : string;
+  //   email: string;
+  //   password: string;
+  // }
+  // export type SuperAdminSignupResponse = {
+  //   admin: SuperAdminDTO;
+  //   token: string;
+  // }

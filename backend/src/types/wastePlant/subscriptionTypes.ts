@@ -18,6 +18,7 @@ export type plantDataType = {
   plantName: string;
   ownerName: string;
   license: string;
+  expiredAt: Date;
 };
 export type ReturnFetchSubptnPlan = {
   plantData: plantDataType;

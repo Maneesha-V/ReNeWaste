@@ -1,6 +1,6 @@
 import { AuthRequest } from "../../../types/common/middTypes";
-import { Response } from "express";
+import { NextFunction, Response } from "express";
 
 export interface IPaymentController {
-    fetchPayments(req: AuthRequest, res: Response): Promise<void>
+    fetchPayments(req: AuthRequest, res: Response, next: NextFunction): Promise<void>;
 }

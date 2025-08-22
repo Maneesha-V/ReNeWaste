@@ -85,18 +85,20 @@ export class PickupRequestMapper {
       _id: doc._id.toString(),
       pickupId: doc.pickupId,
       wasteType: doc.wasteType,
-      originalPickupDate: doc.originalPickupDate.toISOString(),
-      rescheduledPickupDate: doc.rescheduledPickupDate?.toISOString(),
+      originalPickupDate: doc.originalPickupDate.toISOString() ?? "",
+      rescheduledPickupDate: doc.rescheduledPickupDate?.toISOString() ?? "",
       pickupTime: doc.pickupTime,
       status: doc.status,
       trackingStatus: doc.trackingStatus ?? null,
       eta: doc.eta ?? { text: null, value: null },
       userId: doc.userId.toString() ?? "",
-      user: {
+      user: doc.user
+      ? {
         firstName: doc.user.firstName,
         lastName: doc.user.lastName,
         phone: doc.user.phone ?? "",
-      },
+      }
+      : { firstName: "", lastName: "", phone: "" },
       driverId: doc.driverId
         ? {
             _id: doc.driverId._id.toString(),
@@ -123,7 +125,7 @@ export class PickupRequestMapper {
         latitude: doc.address.latitude ?? 0,
         longitude: doc.address.longitude ?? 0,
       },
-      addressId: doc.addressId.toString(),
+      addressId: doc.addressId.toString() ?? "",
       payment: doc.payment,
       wasteplantId: doc.wasteplantId?.toString() ?? "",
       // createdAt: doc.createdAt.toISOString(),

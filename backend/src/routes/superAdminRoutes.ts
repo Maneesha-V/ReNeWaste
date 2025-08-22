@@ -27,6 +27,7 @@ router.post("/resend-otp",superAdminCtrl.resendOtp.bind(superAdminCtrl))
 router.post("/verify-otp", superAdminCtrl.verifyOtp.bind(superAdminCtrl))
 router.post("/reset-password",superAdminCtrl.resetPassword.bind(superAdminCtrl))
 router.get("/waste-plants", authenticateSuperAdmin as RequestHandler, superAdminPlantCtrl.fetchWastePlants.bind(superAdminPlantCtrl))
+router.get("/add-waste-plant",authenticateSuperAdmin as RequestHandler, superAdminPlantCtrl.getAddWastePlant.bind(superAdminPlantCtrl));
 router.post("/add-waste-plant",authenticateSuperAdmin as RequestHandler, upload.single("licenseDocument"),superAdminPlantCtrl.addWastePlant.bind(superAdminPlantCtrl));
 router.get(
   "/view-license/:publicId(*)",
@@ -40,11 +41,11 @@ router.get("/subscription-plans", authenticateSuperAdmin as RequestHandler, supe
 router.delete("/delete-subscription-plan/:id",authenticateSuperAdmin as RequestHandler, superAdminSubscriptionCtrl.deleteSubscriptionPlan.bind(superAdminSubscriptionCtrl));
 router.get("/edit-subscription-plan/:id", authenticateSuperAdmin as RequestHandler, superAdminSubscriptionCtrl.getSubscriptionPlanById.bind(superAdminSubscriptionCtrl))
 router.patch("/edit-subscription-plan/:id", authenticateSuperAdmin as RequestHandler, superAdminSubscriptionCtrl.updateSubscriptionPlanById.bind(superAdminSubscriptionCtrl));
-router.post("/notification/subscribe-remind/:id", authenticateSuperAdmin as RequestHandler, superAdminPlantCtrl.sendSubscribeNotification.bind(superAdminPlantCtrl));
+// router.post("/notification/subscribe-remind/:id", authenticateSuperAdmin as RequestHandler, superAdminPlantCtrl.sendSubscribeNotification.bind(superAdminPlantCtrl));
 router.get("/notifications", authenticateSuperAdmin as RequestHandler, superAdminNotificationCtrl.fetchNotifications.bind(superAdminNotificationCtrl));
 router.patch("/notifications/:notifId/read", authenticateSuperAdmin as RequestHandler, superAdminNotificationCtrl.markReadNotification.bind(superAdminNotificationCtrl));
-router.post("/notification/renew-remind", authenticateSuperAdmin as RequestHandler, superAdminNotificationCtrl.remindRenewNotification.bind(superAdminNotificationCtrl));
-router.post("/notification/recharge-remind", authenticateSuperAdmin as RequestHandler, superAdminNotificationCtrl.remindRechargeNotification.bind(superAdminNotificationCtrl));
+// router.post("/notification/renew-remind", authenticateSuperAdmin as RequestHandler, superAdminNotificationCtrl.remindRenewNotification.bind(superAdminNotificationCtrl));
+// router.post("/notification/recharge-remind", authenticateSuperAdmin as RequestHandler, superAdminNotificationCtrl.remindRechargeNotification.bind(superAdminNotificationCtrl));
 router.post("/location/:pincode", authenticateSuperAdmin as RequestHandler, superAdminPlantCtrl.fetchPostOffices.bind(superAdminPlantCtrl));
 router.get("/payment-history", authenticateSuperAdmin as RequestHandler, superAdminPaymentCtrl.fetchPayments.bind(superAdminPaymentCtrl));
 router.get("/dashboard", authenticateSuperAdmin as RequestHandler, superAdminDashbdCtrl.fetchSuperAdminDashboard.bind(superAdminDashbdCtrl));

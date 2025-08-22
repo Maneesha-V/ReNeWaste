@@ -89,8 +89,8 @@ export class WastePlantRepository
   }
   async updateWastePlantById(
     id: string,
-    data: IWastePlant
-  ): Promise<IWastePlant | null> {
+    data: Partial<IWastePlant>
+  ): Promise<IWastePlantDocument | null> {
     return await this.model.findByIdAndUpdate(id, data, { new: true });
   }
   async saveOtp(email: string, otp: string): Promise<void> {

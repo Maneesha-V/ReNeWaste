@@ -1,4 +1,12 @@
-import { Table, Tag, Typography, Spin, Alert, Breakpoint } from "antd";
+import {
+  Table,
+  Tag,
+  Typography,
+  Spin,
+  Alert,
+  Breakpoint,
+  Pagination,
+} from "antd";
 import { useCallback, useEffect } from "react";
 import { useAppDispatch } from "../../redux/hooks";
 import { useSelector } from "react-redux";
@@ -13,7 +21,7 @@ const { Title } = Typography;
 
 const PaymentHistory = () => {
   const dispatch = useAppDispatch();
-  const { payments, total, loading, error } = useSelector(
+  const { payments, total, error } = useSelector(
     (state: RootState) => state.superAdminPayments
   );
   const { currentPage, setCurrentPage, pageSize, search, setSearch } =
@@ -58,7 +66,7 @@ const PaymentHistory = () => {
       render: (date: string | null) =>
         date ? new Date(date).toLocaleDateString() : "-",
     },
-        {
+    {
       title: "Expiry Date",
       dataIndex: "expiredAt",
       key: "expiredAt",
@@ -83,15 +91,7 @@ const PaymentHistory = () => {
         <Alert message="Error" description={error} type="error" showIcon />
       ) : (
         <>
-          <PaginationSearch
-            total={total}
-            currentPage={currentPage}
-            pageSize={pageSize}
-            onPageChange={setCurrentPage}
-            onSearchChange={setSearch}
-            searchValue={search}
-          />
-           <Spin spinning={loading}>
+          <PaginationSearch onSearchChange={setSearch} searchValue={search} />
           <Table
             columns={columns}
             dataSource={payments.map((item: SubscriptionPaymentHisDTO) => ({
@@ -102,7 +102,13 @@ const PaymentHistory = () => {
             scroll={{ x: "max-content" }}
             bordered
           />
-          </Spin>
+          <Pagination
+            current={currentPage}
+            pageSize={pageSize}
+            total={total}
+            onChange={setCurrentPage}
+            style={{ marginTop: 16, textAlign: "right" }}
+          />
         </>
       )}
     </div>

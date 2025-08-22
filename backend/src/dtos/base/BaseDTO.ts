@@ -2,7 +2,7 @@ import { Types } from "mongoose";
 import { Request } from "express";
 
 export interface BaseDTO {
-  _id?: string | Types.ObjectId;
+  _id: string | Types.ObjectId;
 }
 
 export interface AuthRequest extends Request {

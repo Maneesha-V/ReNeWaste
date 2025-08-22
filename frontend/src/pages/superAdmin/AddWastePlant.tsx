@@ -1,34 +1,30 @@
-import { useEffect, useState } from "react";
+import {  useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import {
   addWastePlant,
+  fetchAddWastePlant,
   fetchPostOffices,
 } from "../../redux/slices/superAdmin/superAdminWastePlantSlice";
 import { useAppDispatch } from "../../redux/hooks";
 import { useWastePlantValidation } from "../../hooks/useWastePlantValidation";
-import {
-  ValidationErrors,
-  WastePlantFormData,
-} from "../../types/wastePlantTypes";
-import Breadcrumbs from "../../components/common/Breadcrumbs";
-import { fetchSubscriptionPlans } from "../../redux/slices/superAdmin/superAdminSubscriptionPlanSlice";
 import { RootState } from "../../redux/store";
 import { useSelector } from "react-redux";
-import { PostOffice } from "../../types/wasteplant/wastePlantTypes";
+import { PostOffice, WastePlantFormData } from "../../types/wasteplant/wastePlantTypes";
 import { getAxiosErrorMessage } from "../../utils/handleAxiosError";
 import { SubsptnPlans } from "../../types/subscription/subscriptionTypes";
+import { ValidationErrors } from "../../types/common/commonTypes";
 
 const AddWastePlant = () => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const { errors, validateField, setErrors } = useWastePlantValidation();
   const { subscriptionPlans } = useSelector(
-    (state: RootState) => state.superAdminSubscriptionPlan
+    (state: RootState) => state.superAdminWastePlant
   );
   console.log("subscriptionPlans", subscriptionPlans);
   useEffect(() => {
-    dispatch(fetchSubscriptionPlans());
+    dispatch(fetchAddWastePlant());
   }, [dispatch]);
   const [formData, setFormData] = useState<WastePlantFormData>({
     plantName: "",
@@ -136,17 +132,14 @@ const AddWastePlant = () => {
     });
 
     try {
-      const result = await dispatch(addWastePlant(formDataToSend));
-      if (result.payload?.error) {
-        toast.error(result.payload.error);
-        return;
-      }
-      toast.success("Waste Plant added successfully!");
+      const result = await dispatch(addWastePlant(formDataToSend)).unwrap();
+      console.log("result",result);
+      
+      toast.success(result?.message);
       setTimeout(() => {
         navigate("/super-admin/waste-plants");
       }, 2000);
     } catch (error) {
-      // toast.error("Waste Plant creation failed. Please try again.");
       const msg = getAxiosErrorMessage(error);
       toast.error(msg);
     }

@@ -1,11 +1,13 @@
+import { MsgSuccessResp } from "../common/commonTypes";
+
 export type SubscriptionPaymentHisResult = {
   paymentHis: SubscriptionPaymentHisDTO[];
   total: number;
 };
 export type SubscriptionPaymentHisDTO = {
   _id: string;
-  wasteplantId: { _id: string; plantName: string };
-  planId: { _id: string; planName: string };
+  wasteplantId: { _id: string; plantName: string, ownerName: string };
+  planId: { _id: string; planName: string, billingCycle: string };
   status: string;
   method: string;
   razorpayOrderId: string;
@@ -14,6 +16,9 @@ export type SubscriptionPaymentHisDTO = {
   amount: number;
   paidAt: Date | null;
   expiredAt: Date | null;
+  refundRequested: boolean;
+  refundStatus: string;
+  refundAt: Date | null;
 };
 export type RetrySubptnPaymntResp = {
   orderId: string;
@@ -34,4 +39,24 @@ export type SubCreatePaymtResp = {
     subscriptionPaymentId: string;
     // inProgressExpiry: string;
   };
+  success: boolean;
 };
+export type SubptnVerifyPaymenReq = {
+  razorpay_order_id: string;
+  razorpay_payment_id: string;
+  razorpay_signature: string;
+  planId: string;
+  amount?: number;
+  // subPaymtId?: string;
+  billingCycle?: string;
+}
+export type SubptnVerifyPaymenResp = MsgSuccessResp & {
+subPaymtId: string;
+}
+export type ReturnPaymentHis = {
+  paymentData: SubscriptionPaymentHisDTO[]; 
+}
+export type SubscptnCancelReq = {
+  subPayId: string;
+  reason: string;
+}
