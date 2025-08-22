@@ -21,6 +21,7 @@ import { ApiError } from "./utils/ApiError";
 import "./cron/unblockWastePlants";
 import "./cron/subscribeWastePlant";
 import "./cron/rechargeWastePlant";
+import morganMiddleware from "./logger";
 
 dotenv.config();
 
@@ -62,7 +63,7 @@ io.on("connection", (socket) => {
 app.use(express.json());
 app.use(cookieParser());
 app.use(morgan("dev"));
-
+app.use(morganMiddleware);
 
 app.use("/api", userRoutes);
 app.use("/api/super-admin", superAdminRoutes);
@@ -70,10 +71,8 @@ app.use("/api/waste-plant", wastePlantRoutes);
 app.use("/api/driver", driverRoutes);
 app.use("/api/maps", mapsRoutes);
 
-// 404 handler
 app.use((req, res, next) => {
   next(new ApiError(404, "Route not found"));
-  // res.status(404).json({ message: "Route not found" });
 });
 
 app.use(errorHandler);
