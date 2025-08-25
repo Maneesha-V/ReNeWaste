@@ -108,7 +108,7 @@ export class PaymentController implements IPaymentController {
         res.status(401).json({ error: "PlantId is required." });
         return;
       }
-      const result = await this.paymentService.verifyPaymentService({
+      const updatePayment = await this.paymentService.verifyPaymentService({
         paymentData: paymentDetails,
         plantId,
       });
@@ -116,7 +116,7 @@ export class PaymentController implements IPaymentController {
         res.status(STATUS_CODES.SUCCESS).json({
           success: true,
           message: MESSAGES.WASTEPLANT.SUCCESS.PAYMENT,
-          subPaymtId: result
+          updatePayment
         });
 
     } catch (error) {

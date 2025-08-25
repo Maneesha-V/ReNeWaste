@@ -1,26 +1,24 @@
-import {
-  Table,
-  Tag,
-  Typography,
-  Spin,
-  Alert,
-  Breakpoint,
-  Pagination,
-} from "antd";
-import { useCallback, useEffect } from "react";
+import { Table, Tag, Typography, Alert, Breakpoint, Pagination } from "antd";
+import { useCallback, useEffect, useState } from "react";
 import { useAppDispatch } from "../../redux/hooks";
 import { useSelector } from "react-redux";
 import { RootState } from "../../redux/store";
-import { fetchPaymentHistory } from "../../redux/slices/superAdmin/superAdminPaymentSlice";
+import { fetchPaymentHistory, updateRefundStatus, updateSubRefundStatus } from "../../redux/slices/superAdmin/superAdminPaymentSlice";
 import PaginationSearch from "../../components/common/PaginationSearch";
 import usePagination from "../../hooks/usePagination";
 import { debounce } from "lodash";
 import { SubscriptionPaymentHisDTO } from "../../types/subscriptionPayment/paymentTypes";
+import { formatDateToDDMMYYYY } from "../../utils/formatDate";
+import { toast } from "react-toastify";
+import { getAxiosErrorMessage } from "../../utils/handleAxiosError";
+import RefundModal from "../../components/superAdmin/RefundModal";
 
 const { Title } = Typography;
 
 const PaymentHistory = () => {
   const dispatch = useAppDispatch();
+  const [refundModalVisible, setRefundModalVisible] = useState<boolean>(false);
+  const [selectedRecord, setSelectedRecord] = useState<SubscriptionPaymentHisDTO>()
   const { payments, total, error } = useSelector(
     (state: RootState) => state.superAdminPayments
   );
@@ -38,7 +36,44 @@ const PaymentHistory = () => {
       debouncedFetchPayments.cancel();
     };
   }, [currentPage, pageSize, search, debouncedFetchPayments]);
+ const handleRefundStart = async (_id: string, newStatus: string, record: SubscriptionPaymentHisDTO) => {
+    try {
+      const res = await dispatch(
+        updateRefundStatus({
+          subPayId: _id,
+          refundStatus: newStatus,
+        })
+      ).unwrap();   
+      if (res.statusUpdate) {
+  dispatch(updateSubRefundStatus(res.statusUpdate));
+}   
+      // toast.success(res.message);
+      
+      setSelectedRecord({ ...record, refundStatus: newStatus });
+      setRefundModalVisible(true);
+    } catch (error) {
+      toast.error(getAxiosErrorMessage(error));
+    }
+  };
+  const handleRefundProcess = async(record: SubscriptionPaymentHisDTO) => {
 
+ try {
+      setSelectedRecord(record);
+    setRefundModalVisible(true);
+      const res = await dispatch(
+        updateRefundStatus({
+          subPayId: record._id,
+          refundStatus: record.refundStatus,
+        })
+      ).unwrap();
+      // toast.success(res.message);
+      console.log("res",res);
+      
+      dispatch(updateSubRefundStatus(res.statusUpdate))
+    } catch (error) {
+      toast.error(getAxiosErrorMessage(error));
+    }
+  }
   const columns = [
     {
       title: "Waste Plant",
@@ -63,24 +98,64 @@ const PaymentHistory = () => {
       title: "Paid Date",
       dataIndex: "paidAt",
       key: "paidAt",
-      render: (date: string | null) =>
-        date ? new Date(date).toLocaleDateString() : "-",
+      render: (date: string | null) => formatDateToDDMMYYYY(date),
     },
     {
-      title: "Expiry Date",
+      title: "Expiry At",
       dataIndex: "expiredAt",
       key: "expiredAt",
-      render: (date: string | null) =>
-        date ? new Date(date).toLocaleDateString() : "-",
+      render: (date: string | null) => formatDateToDDMMYYYY(date),
     },
+    ...(payments.some((p) => p.refundAt)
+      ? [
+          {
+            title: "Refund At",
+            dataIndex: "refundAt",
+            key: "refundAt",
+            render: (date: string | null) => formatDateToDDMMYYYY(date),
+          },
+        ]
+      : []),
+
     {
-      title: "Status",
-      dataIndex: "status",
+      title: "Payment Status",
+      // dataIndex: "status",
       key: "status",
-      render: (status: string) => (
-        <Tag color={status === "Paid" ? "green" : "red"}>{status}</Tag>
-      ),
+      render: (record: SubscriptionPaymentHisDTO) => {
+        const statusToShow = record.refundStatus || record.status;
+        return statusToShow ? <Tag>{statusToShow}</Tag> : null;
+      },
     },
+    ...(payments.some((p) => p.refundRequested)
+      ? [
+          {
+            title: "Action",
+            key: "action",
+            render: (record: SubscriptionPaymentHisDTO) => {
+              console.log("record",record);
+              
+              const { refundRequested, refundStatus } = record;
+              if (refundRequested && !refundStatus) {
+                record.refundStatus = "Pending"
+                return (
+                  <button className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
+                  onClick={() => handleRefundStart(record._id, record.refundStatus, record)}>
+                    Start Refund
+                  </button>
+                );
+              } else if(refundStatus){
+                return(
+                  <button className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600"
+                onClick={() => handleRefundProcess(record)}>
+                    Process Refund
+                  </button>
+                );
+              }
+              return null;
+            },
+          },
+        ]
+      : []),
   ];
 
   return (
@@ -111,6 +186,15 @@ const PaymentHistory = () => {
           />
         </>
       )}
+              {selectedRecord && (
+  <RefundModal
+    visible={refundModalVisible}
+    onClose={() => setRefundModalVisible(false)}
+    record={selectedRecord}
+    onUpdateStatus={handleRefundStart}
+    onRefund={handleRefundProcess}
+  />
+)}
     </div>
   );
 };

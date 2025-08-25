@@ -201,7 +201,7 @@ const Payments = () => {
                   </p>
                   {payment.payment.status === "Paid" && (
                     <>
-                      {payment.payment.refundRequested ? (
+                      {payment.payment.refundRequested && payment.payment.refundStatus !== null ? (
                         <p>
                           <strong>Refund Date:</strong>{" "}
                           {formatDateToDDMMYYYY(payment?.payment?.refundAt)}

@@ -1,10 +1,15 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { getAxiosErrorMessage } from "../../../utils/handleAxiosError";
-import { getPaymentHistory } from "../../../services/superAdmin/paymentService";
+import {
+  getPaymentHistory,
+  updateRefundPayment,
+} from "../../../services/superAdmin/paymentService";
 import { PaginationPayload } from "../../../types/common/commonTypes";
 import {
   SubscriptionPaymentHisDTO,
   SubscriptionPaymentHisResult,
+  UpdateRefundStatusReq,
+  UpdateRefundStatusResp,
 } from "../../../types/subscriptionPayment/paymentTypes";
 
 interface PaymentsState {
@@ -38,10 +43,39 @@ export const fetchPaymentHistory = createAsyncThunk<
     }
   }
 );
+export const updateRefundStatus = createAsyncThunk<
+  UpdateRefundStatusResp,
+  UpdateRefundStatusReq,
+  { rejectValue: { message: string } }
+>(
+  "superAdminPayments/updateRefundStatus",
+  async ({ subPayId, refundStatus }, { rejectWithValue }) => {
+    try {
+      const response = await updateRefundPayment({ subPayId, refundStatus });
+      return response;
+    } catch (err) {
+      const msg = getAxiosErrorMessage(err);
+      return rejectWithValue({ message: msg });
+    }
+  }
+);
 const superAdminPaymentsSlice = createSlice({
   name: "superAdminPayments",
   initialState,
-  reducers: {},
+  reducers: {
+    updateSubRefundStatus: (state, action) => {
+      const { _id, refundStatus } = action.payload;
+      state.payments = state.payments.map((p: SubscriptionPaymentHisDTO) => {
+        if (p._id === _id) {
+          return {
+            ...p,
+            refundStatus: refundStatus,
+          };
+        }
+        return p;
+      });
+    },
+  },
   extraReducers: (builder) => {
     builder
       .addCase(fetchPaymentHistory.pending, (state) => {
@@ -61,5 +95,7 @@ const superAdminPaymentsSlice = createSlice({
       });
   },
 });
+
+export const { updateSubRefundStatus } = superAdminPaymentsSlice.actions;
 
 export default superAdminPaymentsSlice.reducer;

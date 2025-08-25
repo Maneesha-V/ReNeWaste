@@ -215,7 +215,7 @@ const Payments = () => {
         <Table.Column
           title="Action"
           key="action"
-          render={(_, record: PaymentRecord) => {
+          render={( record: PaymentRecord) => {
             if (
               record.payment.refundRequested &&
               record.payment.refundStatus === null

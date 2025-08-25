@@ -52,7 +52,7 @@ const Users: React.FC = () => {
         toggleUserBlockStatus({ userId, isBlocked: !isBlocked })
       ).unwrap();
       toast.success(`User ${isBlocked ? "unblocked" : "blocked"} successfully`);
-      dispatch(fetchUsers({ page: currentPage, limit: pageSize, search }));
+      // dispatch(fetchUsers({ page: currentPage, limit: pageSize, search }));
     } catch (err) {
       toast.error("Failed to update user status");
     }

@@ -19,6 +19,7 @@ export type SubscriptionPaymentHisDTO = {
   refundRequested: boolean;
   refundStatus: string;
   refundAt: Date | null;
+  inProgressExpiresAt: Date | null;
 };
 export type RetrySubptnPaymntResp = {
   orderId: string;
@@ -51,7 +52,10 @@ export type SubptnVerifyPaymenReq = {
   billingCycle?: string;
 }
 export type SubptnVerifyPaymenResp = MsgSuccessResp & {
-subPaymtId: string;
+  updatePayment: {
+    subPayId: string;
+    expiredAt: Date | null
+  }
 }
 export type ReturnPaymentHis = {
   paymentData: SubscriptionPaymentHisDTO[]; 
@@ -59,4 +63,15 @@ export type ReturnPaymentHis = {
 export type SubscptnCancelReq = {
   subPayId: string;
   reason: string;
+}
+export type UpdateRefundStatusReq = {
+  subPayId: string;
+  refundStatus:  string
+}
+export type UpdateRefundStatusResp = {
+  message: string;
+  statusUpdate: {
+    subPayId: string;
+    refundStatus: string;
+  }
 }

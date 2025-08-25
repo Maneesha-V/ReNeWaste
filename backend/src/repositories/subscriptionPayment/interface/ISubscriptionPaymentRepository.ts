@@ -1,5 +1,5 @@
 import { PaginationInput } from "../../../dtos/common/commonDTO";
-import { SubscriptionPaymentHisResult } from "../../../dtos/subscription/subscptnPaymentDTO";
+import { SubscriptionPaymentHisResult, UpdateRefundStatusReq } from "../../../dtos/subscription/subscptnPaymentDTO";
 import { ISubscriptionPaymentDocument } from "../../../models/subsptnPayment/interface/subsptnPaymentInterface";
 import { PaymentUpdate, UpdateSubscptnPayload } from "../../../types/wastePlant/paymentTypes";
 import { CreateSubsptnPaymentPayload } from "../types/subscriptnPaymentTypes";
@@ -17,4 +17,5 @@ createSubscriptionPayment(
   findLatestInProgressPayment(plantId: string): Promise<ISubscriptionPaymentDocument | null>;
   findPlantSubscriptionPayment(plantId: string): Promise<ISubscriptionPaymentDocument | null>;
   updateSubptnPaymentStatus(subPayId: string): Promise<ISubscriptionPaymentDocument>;
+  updateRefundStatusPayment(data: UpdateRefundStatusReq): Promise<ISubscriptionPaymentDocument>;
 }

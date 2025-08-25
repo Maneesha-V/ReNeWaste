@@ -13,6 +13,7 @@ import { PaginationInput } from "../../dtos/common/commonDTO";
 import {
   SubscriptionPaymentHisDTO,
   SubscriptionPaymentHisResult,
+  UpdateRefundStatusReq,
 } from "../../dtos/subscription/subscptnPaymentDTO";
 import { SubscriptionPaymentMapper } from "../../mappers/SubscriptionPaymentMapper";
 
@@ -163,6 +164,10 @@ export class SubscriptionPaymentRepository
           amount: 1,
           paidAt: 1,
           expiredAt: 1,
+          refundRequested: 1,
+          refundStatus: 1,
+          refundAt: 1,
+          inProgressExpiresAt: 1
         },
       },
     ];
@@ -230,5 +235,21 @@ export class SubscriptionPaymentRepository
       throw new Error("Subscription request not found.");
     }
     return updatedSubptnRequest;
+  }
+  async updateRefundStatusPayment(data: UpdateRefundStatusReq): Promise<ISubscriptionPaymentDocument>{
+    const { subPayId, refundStatus } = data;
+    const payment = await this.model.findByIdAndUpdate(
+      subPayId,
+      {
+        $set: {
+          refundStatus: refundStatus,
+        },
+      },
+      { new: true }
+    );
+    if(!payment){
+      throw new Error("Payment not found.")
+    };
+    return payment;
   }
 }

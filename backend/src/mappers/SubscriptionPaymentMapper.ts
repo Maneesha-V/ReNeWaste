@@ -56,6 +56,7 @@ export class SubscriptionPaymentMapper {
       refundRequested: doc.refundRequested ?? false,
       refundStatus: doc.refundStatus ?? null,
       refundAt: doc.refundAt ?? null,
+      inProgressExpiresAt: doc.inProgressExpiresAt ?? null,
     };
   }
   static mapPopulatedList(

@@ -31,7 +31,7 @@ import {
   SubCreatePaymtReq,
   SubCreatePaymtResp,
 } from "../../dtos/subscription/subscptnPaymentDTO";
-import { ReturnSubcptnPaymentResult, VerifyPaymtReq } from "../../dtos/wasteplant/WasteplantDTO";
+import { ReturnSubcptnPaymentResult, VerifyPaymtReq, VerifyPaymtResp } from "../../dtos/wasteplant/WasteplantDTO";
 import { sendNotification } from "../../utils/notificationUtils";
 import { SubscriptionPaymentMapper } from "../../mappers/SubscriptionPaymentMapper";
 
@@ -166,7 +166,7 @@ export class PaymentService implements IPaymentService {
 
   async verifyPaymentService(
     data: VerifyPaymtReq
-  ): Promise<string> {
+  ): Promise<VerifyPaymtResp> {
     const { paymentData, plantId } = data;
     console.log("paymentData", paymentData);
 
@@ -235,7 +235,10 @@ export class PaymentService implements IPaymentService {
       type: "subscribe_recharged",
     });
 
-    return updatedPayment._id.toString();
+    return {
+      subPayId: updatedPayment._id.toString(),
+      expiredAt: updatedPayment.expiredAt
+    };
   }
   async fetchSubscriptionPayments(
     plantId: string

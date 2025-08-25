@@ -114,7 +114,7 @@ export class PickupRequestMapper {
           }
         : undefined,
       address: {
-        _id: doc.address._id.toString(),
+        _id: doc.address._id.toString() ?? "",
         addressLine1: doc.address.addressLine1 ?? "",
         addressLine2: doc.address.addressLine2 ?? "",
         location: doc.address.location ?? "",

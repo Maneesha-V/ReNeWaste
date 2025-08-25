@@ -44,6 +44,7 @@ const Subscription = () => {
   const { subscriptionData, plantData } = useSelector(
     (state: RootState) => state.wastePlantSubscription.selectedPlan
   );
+  
   const payments = useSelector(
     (state: RootState) => state.wastePlantSubscription.subPaymentsHis
   );
@@ -124,7 +125,7 @@ const Subscription = () => {
               .then((res) => {
                 console.log("res", res);
 
-                dispatch(updateSubPaymentStatus(res.subPaymtId));
+                dispatch(updateSubPaymentStatus(res.updatePayment));
                 Swal.fire({
                   icon: "success",
                   title: "Payment Successful!",
@@ -198,26 +199,27 @@ const Subscription = () => {
           </span>
         );
       }
-      return (
-        <Space>
-          <Button
-            type="primary"
-            onClick={() =>
-              handlePay({
-                _id: subscriptionData?._id,
-                planName: subscriptionData?.planName,
-                billingCycle: subscriptionData?.billingCycle,
-                price: subscriptionData?.price,
-                plantName: plantData?.plantName,
-                ownerName: plantData?.ownerName,
-                license: plantData?.license,
-              })
-            }
-          >
-            Pay
-          </Button>
-        </Space>
-      );
+      return null;
+      // return (
+      //   <Space>
+      //     <Button
+      //       type="primary"
+      //       onClick={() =>
+      //         handlePay({
+      //           _id: subscriptionData?._id,
+      //           planName: subscriptionData?.planName,
+      //           billingCycle: subscriptionData?.billingCycle,
+      //           price: subscriptionData?.price,
+      //           plantName: plantData?.plantName,
+      //           ownerName: plantData?.ownerName,
+      //           license: plantData?.license,
+      //         })
+      //       }
+      //     >
+      //       Pay
+      //     </Button>
+      //   </Space>
+      // );
     },
   };
 
@@ -302,8 +304,8 @@ const Subscription = () => {
       title: "Action",
       key: "action",
       render: (record: SubscriptionPaymentHisDTO) => {
-        if (!record.refundRequested) {
-          return <span>Refund Requested</span>
+        if (record.refundRequested) {
+          return <span className="text-red-500">Refund Requested</span>
         } else if (record.status?.trim().toLowerCase() === "paid" && !record.refundRequested) {
           return (
             <Popconfirm
@@ -409,6 +411,7 @@ const Subscription = () => {
   return (
     <div style={{ padding: "24px" }}>
       <Title level={3}>Your Subscription Plan</Title>
+      {subscriptionData ?  (
       <Table
         columns={columns}
         dataSource={[
@@ -424,6 +427,10 @@ const Subscription = () => {
         bordered
         scroll={{ x: "max-content" }}
       />
+      ) : (
+        <p style={{color: "gray"}}>No active subscription found.</p>
+      )}
+
       <Title level={4} style={{ marginTop: "32px" }}>
         Payment History
       </Title>

@@ -108,6 +108,10 @@ export type VerifyPaymtReq = {
     paymentData: PaymentData;
     plantId: string;
 }
+export type VerifyPaymtResp = {
+  subPayId: string;
+  expiredAt: Date | null
+}
 export type plantDataType = {
   createdAt: Date;
   status: string;

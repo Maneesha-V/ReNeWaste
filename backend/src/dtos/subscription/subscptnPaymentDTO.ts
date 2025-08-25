@@ -1,21 +1,33 @@
-import { ISubscriptionPaymentDocument, RefundStatus } from "../../models/subsptnPayment/interface/subsptnPaymentInterface";
+import {
+  ISubscriptionPaymentDocument,
+  RefundStatus,
+} from "../../models/subsptnPayment/interface/subsptnPaymentInterface";
 import { BaseDTO } from "../base/BaseDTO";
 
-export type SubcrptnRefundStatus = "Pending" | "Processing" | "Refunded" | "Rejected" | null;
-export type SubcrptnPaymentStatus = "Pending" | "Paid" | "Failed" | "InProgress";
+export type SubcrptnRefundStatus =
+  | "Pending"
+  | "Processing"
+  | "Refunded"
+  | "Rejected"
+  | null;
+export type SubcrptnPaymentStatus =
+  | "Pending"
+  | "Paid"
+  | "Failed"
+  | "InProgress";
 export interface SubscriptionPaymentDTO extends BaseDTO {
   wasteplantId: string;
-   planId: string;
-   status: SubcrptnPaymentStatus;
-   method: string;
-   razorpayOrderId: string | null;
-   razorpayPaymentId: string | null;
-   razorpaySignature: string | null;
-   amount: number;
-   paidAt: Date | null;
-   expiredAt: Date | null;
-   refundRequested: boolean;
-   refundStatus: SubcrptnRefundStatus;
+  planId: string;
+  status: SubcrptnPaymentStatus;
+  method: string;
+  razorpayOrderId: string | null;
+  razorpayPaymentId: string | null;
+  razorpaySignature: string | null;
+  amount: number;
+  paidAt: Date | null;
+  expiredAt: Date | null;
+  refundRequested: boolean;
+  refundStatus: SubcrptnRefundStatus;
   refundAt: Date | null;
   createdAt: Date | null;
   updatedAt: Date | null;
@@ -27,7 +39,7 @@ export interface PaginatedReturnPaymentHis {
 export interface SubscriptionPaymentHisResult {
   paymentHis: SubscriptionPaymentHisDTO[];
   total: number;
-};
+}
 export interface SubscriptionPaymentHisDTO {
   _id: string;
   wasteplantId: PopulatedWasteplant;
@@ -43,6 +55,7 @@ export interface SubscriptionPaymentHisDTO {
   refundRequested: boolean;
   refundStatus: RefundStatus;
   refundAt: Date | null;
+  inProgressExpiresAt: Date | null;
 }
 export interface PopulatedWasteplant {
   _id: string;
@@ -55,28 +68,37 @@ export interface PopulatedPlan {
   billingCycle: string;
 }
 export interface RetrySubPaymntReq {
-    plantId: string;
-    planId: string;
-    amount: number;
-    subPaymtId: string;
+  plantId: string;
+  planId: string;
+  amount: number;
+  subPaymtId: string;
 }
 export interface RetrySubPaymntRes {
-    orderId: string;
-    amount: number;
-    currency: string;
-    planId: string;
-    inProgressExpiry: string;
+  orderId: string;
+  amount: number;
+  currency: string;
+  planId: string;
+  inProgressExpiry: string;
 }
 export interface SubCreatePaymtReq {
-      amount: number;
-      planId: string;
-      plantName: string;
-      plantId: string;
+  amount: number;
+  planId: string;
+  plantName: string;
+  plantId: string;
 }
 export interface SubCreatePaymtResp {
-    orderId: string;
-    amount: number;
-    currency: string;
-    subscriptionPaymentId: string;
-    // inProgressExpiry: string;
+  orderId: string;
+  amount: number;
+  currency: string;
+  subscriptionPaymentId: string;
+  // inProgressExpiry: string;
 }
+export type UpdateRefundStatusReq = {
+  adminId: string;
+  subPayId: string;
+  refundStatus: RefundStatus;
+};
+// export type UpdateRefundStatusResp = {
+//   subPayId: string;
+//   refundStatus: string | null;
+// };

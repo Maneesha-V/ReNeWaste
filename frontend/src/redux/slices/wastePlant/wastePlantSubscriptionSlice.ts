@@ -8,6 +8,7 @@ import { getAxiosErrorMessage } from "../../../utils/handleAxiosError";
 import {
   FetchSubsptnPlanResp,
   FetchSubsptnPlansResp,
+  PlantData,
   SubsptnPlans,
 } from "../../../types/subscription/subscriptionTypes";
 import {
@@ -28,7 +29,7 @@ const initialState: SubscriptionState = {
   loading: false,
   error: null,
   success: false,
-  selectedPlan: [],
+  selectedPlan: {},
   subscriptionPlans: [],
   subPaymentsHis: [],
 };
@@ -89,15 +90,16 @@ const wastePlantSubscriptionSlice = createSlice({
   initialState,
   reducers: {
     updateSubPaymentStatus: (state, action) => {
-      const paymentId = action.payload;
+      const { subPayId, expiredAt }  = action.payload;
       state.subPaymentsHis = state.subPaymentsHis.map((p) => {
-        if (p._id === paymentId) {
+        if (p._id === subPayId) {
           return { ...p, status: "Paid" };
         }
         return p;
       });
       if (state.selectedPlan?.plantData) {
         state.selectedPlan.plantData.status = "Active";
+        state.selectedPlan.plantData.expiredAt = expiredAt;
       }
     },
     updateCancelSubdptnButtton: (state,action) => {

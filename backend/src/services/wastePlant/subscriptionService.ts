@@ -86,7 +86,8 @@ export class SubscriptionService implements ISubscriptionService {
     }
     const updatedSubcptnRequest =
       await this._subscriptionPaymentRepository.updateSubptnPaymentStatus(subPayId);
-        const adminMessage = `Plant ${plant.plantName} is requested with refund.${reason}`;
+        const adminMessage = `Plant: ${plant.plantName} is requested with refund-${reason}-
+        SubPaymentId-${updatedSubcptnRequest._id.toString()}`;
           const adminId = admin._id.toString();
           await sendNotification({
             receiverId: adminId,
@@ -94,7 +95,7 @@ export class SubscriptionService implements ISubscriptionService {
             senderId: plantId,
             senderType: "wasteplant",
             message: adminMessage,
-            type: "general",
+            type: "subscriptn-refund-req",
           });
           return SubscriptionPaymentMapper.mapSubscptnPaymentDTO(updatedSubcptnRequest);
   }
