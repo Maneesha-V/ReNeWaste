@@ -28,6 +28,7 @@ export interface SubscriptionPaymentDTO extends BaseDTO {
   expiredAt: Date | null;
   refundRequested: boolean;
   refundStatus: SubcrptnRefundStatus;
+  razorpayRefundId: string | null,
   refundAt: Date | null;
   createdAt: Date | null;
   updatedAt: Date | null;
@@ -54,6 +55,7 @@ export interface SubscriptionPaymentHisDTO {
   expiredAt: Date | null;
   refundRequested: boolean;
   refundStatus: RefundStatus;
+  razorpayRefundId: string | null;
   refundAt: Date | null;
   inProgressExpiresAt: Date | null;
 }
@@ -98,7 +100,4 @@ export type UpdateRefundStatusReq = {
   subPayId: string;
   refundStatus: RefundStatus;
 };
-// export type UpdateRefundStatusResp = {
-//   subPayId: string;
-//   refundStatus: string | null;
-// };
+

@@ -51,5 +51,7 @@ router.get("/payment-history", authenticateSuperAdmin as RequestHandler, superAd
 router.get("/dashboard", authenticateSuperAdmin as RequestHandler, superAdminDashbdCtrl.fetchSuperAdminDashboard.bind(superAdminDashbdCtrl));
 router.patch("/:plantId/block", authenticateSuperAdmin as RequestHandler, superAdminPlantCtrl.plantBlockStatus.bind(superAdminPlantCtrl));
 router.patch("/payment/update-status", authenticateSuperAdmin as RequestHandler, superAdminPaymentCtrl.updateRefundStatusPayment.bind(superAdminPaymentCtrl));
+router.patch("/payment/refund", authenticateSuperAdmin as RequestHandler, superAdminPaymentCtrl.refundPayment.bind(superAdminPaymentCtrl))
+
 export default router;
 

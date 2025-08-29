@@ -198,6 +198,7 @@ export class PaymentService implements IPaymentService {
       amount: paymentData.amount,
       paidAt,
       expiredAt,
+      inProgressExpiresAt: null
     };
 
     const updatedPayment =

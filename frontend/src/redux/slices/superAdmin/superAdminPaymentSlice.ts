@@ -2,10 +2,13 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { getAxiosErrorMessage } from "../../../utils/handleAxiosError";
 import {
   getPaymentHistory,
+  updateRefund,
   updateRefundPayment,
 } from "../../../services/superAdmin/paymentService";
 import { PaginationPayload } from "../../../types/common/commonTypes";
 import {
+  refundPayReq,
+  refundPayResp,
   SubscriptionPaymentHisDTO,
   SubscriptionPaymentHisResult,
   UpdateRefundStatusReq,
@@ -52,6 +55,22 @@ export const updateRefundStatus = createAsyncThunk<
   async ({ subPayId, refundStatus }, { rejectWithValue }) => {
     try {
       const response = await updateRefundPayment({ subPayId, refundStatus });
+      return response;
+    } catch (err) {
+      const msg = getAxiosErrorMessage(err);
+      return rejectWithValue({ message: msg });
+    }
+  }
+);
+export const refundPayment = createAsyncThunk<
+  refundPayResp,
+  refundPayReq,
+   { rejectValue: { message: string } }
+>(
+   "superAdminPayments/refundPayment",
+  async ({ subPayId, refundStatus }, { rejectWithValue }) => {
+    try {
+      const response = await updateRefund({ subPayId, refundStatus });
       return response;
     } catch (err) {
       const msg = getAxiosErrorMessage(err);

@@ -3,7 +3,12 @@ import { useCallback, useEffect, useState } from "react";
 import { useAppDispatch } from "../../redux/hooks";
 import { useSelector } from "react-redux";
 import { RootState } from "../../redux/store";
-import { fetchPaymentHistory, updateRefundStatus, updateSubRefundStatus } from "../../redux/slices/superAdmin/superAdminPaymentSlice";
+import {
+  fetchPaymentHistory,
+  refundPayment,
+  updateRefundStatus,
+  updateSubRefundStatus,
+} from "../../redux/slices/superAdmin/superAdminPaymentSlice";
 import PaginationSearch from "../../components/common/PaginationSearch";
 import usePagination from "../../hooks/usePagination";
 import { debounce } from "lodash";
@@ -12,13 +17,15 @@ import { formatDateToDDMMYYYY } from "../../utils/formatDate";
 import { toast } from "react-toastify";
 import { getAxiosErrorMessage } from "../../utils/handleAxiosError";
 import RefundModal from "../../components/superAdmin/RefundModal";
+import Swal from "sweetalert2";
 
 const { Title } = Typography;
 
 const PaymentHistory = () => {
   const dispatch = useAppDispatch();
   const [refundModalVisible, setRefundModalVisible] = useState<boolean>(false);
-  const [selectedRecord, setSelectedRecord] = useState<SubscriptionPaymentHisDTO>()
+  const [selectedRecord, setSelectedRecord] =
+    useState<SubscriptionPaymentHisDTO>();
   const { payments, total, error } = useSelector(
     (state: RootState) => state.superAdminPayments
   );
@@ -36,44 +43,65 @@ const PaymentHistory = () => {
       debouncedFetchPayments.cancel();
     };
   }, [currentPage, pageSize, search, debouncedFetchPayments]);
- const handleRefundStart = async (_id: string, newStatus: string, record: SubscriptionPaymentHisDTO) => {
+  const handleView = (record: SubscriptionPaymentHisDTO) => {
+    setSelectedRecord(record);
+    setRefundModalVisible(true);
+  };
+  const handleRefundStart = async (
+    _id: string,
+    newStatus: string,
+    record: SubscriptionPaymentHisDTO
+  ) => {
     try {
       const res = await dispatch(
         updateRefundStatus({
           subPayId: _id,
           refundStatus: newStatus,
         })
-      ).unwrap();   
+      ).unwrap();
       if (res.statusUpdate) {
-  dispatch(updateSubRefundStatus(res.statusUpdate));
-}   
+        dispatch(updateSubRefundStatus(res.statusUpdate));
+      }
       // toast.success(res.message);
-      
+
       setSelectedRecord({ ...record, refundStatus: newStatus });
       setRefundModalVisible(true);
     } catch (error) {
       toast.error(getAxiosErrorMessage(error));
     }
   };
-  const handleRefundProcess = async(record: SubscriptionPaymentHisDTO) => {
+  const handleRefundProcess = async (record: SubscriptionPaymentHisDTO) => {
+    console.log("Trigger actual refund for:", record);
+    const result = await Swal.fire({
+      title: "Are you sure?",
+      text: `You are about to refund ₹${record.amount} for the ${record.planId.planName} Plan of ${record.wasteplantId.plantName}.`,
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#22c55e",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, refund it!",
+    });
 
- try {
-      setSelectedRecord(record);
-    setRefundModalVisible(true);
-      const res = await dispatch(
-        updateRefundStatus({
-          subPayId: record._id,
-          refundStatus: record.refundStatus,
-        })
-      ).unwrap();
-      // toast.success(res.message);
-      console.log("res",res);
-      
-      dispatch(updateSubRefundStatus(res.statusUpdate))
-    } catch (error) {
-      toast.error(getAxiosErrorMessage(error));
+    if (result.isConfirmed) {
+      try {
+        setSelectedRecord(record);
+        setRefundModalVisible(true);
+        const res = await dispatch(
+          refundPayment({
+            subPayId: record._id,
+            refundStatus: "Refunded",
+          })
+        ).unwrap();
+        console.log("res", res);
+
+        dispatch(updateSubRefundStatus(res.statusUpdate));
+        toast.success(res.message);
+        setRefundModalVisible(false);
+      } catch (error) {
+        toast.error(getAxiosErrorMessage(error));
+      }
     }
-  }
+  };
   const columns = [
     {
       title: "Waste Plant",
@@ -132,24 +160,50 @@ const PaymentHistory = () => {
             title: "Action",
             key: "action",
             render: (record: SubscriptionPaymentHisDTO) => {
-              console.log("record",record);
-              
+              console.log("record", record);
+
               const { refundRequested, refundStatus } = record;
               if (refundRequested && !refundStatus) {
-                record.refundStatus = "Pending"
+                record.refundStatus = "Pending";
                 return (
-                  <button className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
-                  onClick={() => handleRefundStart(record._id, record.refundStatus, record)}>
+                  <button
+                    className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
+                    onClick={() =>
+                      handleRefundStart(record._id, record.refundStatus, record)
+                    }
+                  >
                     Start Refund
                   </button>
                 );
-              } else if(refundStatus){
-                return(
-                  <button className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600"
-                onClick={() => handleRefundProcess(record)}>
-                    Process Refund
-                  </button>
-                );
+              } else if (refundStatus) {
+                if (
+                  refundStatus === "Refunded" ||
+                  refundStatus === "Rejected"
+                ) {
+                  return (
+                    <button
+                      className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600"
+                      onClick={() => handleView(record)}
+                    >
+                      View
+                    </button>
+                  );
+                } else {
+                  return (
+                    <button
+                      className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600"
+                      onClick={() =>
+                        handleRefundStart(
+                          record._id,
+                          record.refundStatus,
+                          record
+                        )
+                      }
+                    >
+                      Process Refund
+                    </button>
+                  );
+                }
               }
               return null;
             },
@@ -186,15 +240,15 @@ const PaymentHistory = () => {
           />
         </>
       )}
-              {selectedRecord && (
-  <RefundModal
-    visible={refundModalVisible}
-    onClose={() => setRefundModalVisible(false)}
-    record={selectedRecord}
-    onUpdateStatus={handleRefundStart}
-    onRefund={handleRefundProcess}
-  />
-)}
+      {selectedRecord && (
+        <RefundModal
+          visible={refundModalVisible}
+          onClose={() => setRefundModalVisible(false)}
+          record={selectedRecord}
+          onUpdateStatus={handleRefundStart}
+          onRefund={handleRefundProcess}
+        />
+      )}
     </div>
   );
 };

@@ -151,6 +151,7 @@ const RefundModal: React.FC<RefundModalProps> = ({
               >
                 <Select.Option value="Pending">Pending</Select.Option>
                 <Select.Option value="Processing">Processing</Select.Option>
+                {/* <Select.Option value="Refunded">Refunded</Select.Option> */}
                 <Select.Option value="Rejected">Rejected</Select.Option>
               </Select>
             </div>

@@ -4,6 +4,23 @@ export type SubscriptionPaymentHisResult = {
   paymentHis: SubscriptionPaymentHisDTO[];
   total: number;
 };
+export type SubscriptionPaymentDTO = {
+  _id: string;
+  wasteplantId: string;
+  planId: string;
+  status: string;
+  method: string;
+  razorpayOrderId: string;
+  razorpayPaymentId: string;
+  razorpaySignature: string;
+  amount: number;
+  paidAt: Date | null;
+  expiredAt: Date | null;
+  refundRequested: boolean;
+  refundStatus: string;
+  refundAt: Date | null;
+  inProgressExpiresAt: Date | null;
+};
 export type SubscriptionPaymentHisDTO = {
   _id: string;
   wasteplantId: { _id: string; plantName: string, ownerName: string };
@@ -70,8 +87,13 @@ export type UpdateRefundStatusReq = {
 }
 export type UpdateRefundStatusResp = {
   message: string;
-  statusUpdate: {
-    subPayId: string;
-    refundStatus: string;
-  }
+  statusUpdate: SubscriptionPaymentDTO;
+}
+export type refundPayReq = {
+  subPayId: string;
+  refundStatus:  string
+}
+export type refundPayResp = {
+  message: string;
+  statusUpdate: SubscriptionPaymentDTO;
 }

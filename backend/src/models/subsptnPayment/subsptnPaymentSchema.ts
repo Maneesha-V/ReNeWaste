@@ -59,6 +59,10 @@ export const SubscriptionPaymentSchema: Schema<ISubscriptionPaymentDocument> = n
       type: Date,
       default: null,
     },
+    razorpayRefundId: {
+      type: String,
+      default: null,
+    },
     inProgressExpiresAt: {
       type: Date,
       default: null,

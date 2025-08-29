@@ -15,6 +15,7 @@ export interface ISubscriptionPayment  {
   expiredAt: Date | null;
   refundRequested: boolean;
   refundStatus: RefundStatus;
+  razorpayRefundId: string | null;
   refundAt: Date | null;
   inProgressExpiresAt: Date | null;
   createdAt: Date | null;

@@ -78,4 +78,44 @@ export class PaymentController implements IPaymentController {
         next(error);
       }
     }
+    async refundPayment(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
+      try {
+        console.log("params",req.body);
+        const adminId = req.user?.id;
+      if (!adminId) {
+        throw new ApiError(
+          STATUS_CODES.UNAUTHORIZED,
+          MESSAGES.COMMON.ERROR.UNAUTHORIZED
+        );
+      }
+        const { subPayId, refundStatus } = req.body;
+         if (!subPayId || !refundStatus ) {
+                throw new ApiError(
+                  STATUS_CODES.BAD_REQUEST,
+                  MESSAGES.COMMON.ERROR.MISSING_FIELDS
+                );
+              }
+  
+        const allowedStatuses = ["Pending", "Processing", "Refunded", "Rejected"];
+        if (!allowedStatuses.includes(refundStatus)) {
+          res.status(400).json({ error: "Invalid refund status." });
+          return;
+        }
+
+        const statusUpdate = await this.paymentService.refundPayment({
+          adminId,
+          subPayId,
+          refundStatus,
+        });
+        console.log("statusUpdate", statusUpdate);
+        res.status(STATUS_CODES.SUCCESS).json({
+          message: MESSAGES.COMMON.SUCCESS.REFUND_UPDTAE_SUCCESS,
+          statusUpdate,
+        });
+    
+      } catch (error) {
+        console.error("err", error);
+        next(error);
+      }
+    }
 }

@@ -19,6 +19,7 @@ export class SubscriptionPaymentMapper {
       expiredAt: doc.expiredAt ?? null,
       refundRequested: doc.refundRequested ?? false,
       refundStatus: doc.refundStatus ?? null,
+      razorpayRefundId: doc.razorpayRefundId ?? null,
       refundAt: doc.refundAt ?? null,
       createdAt: doc.createdAt ?? null,
       updatedAt: doc.updatedAt ?? null,
@@ -55,6 +56,7 @@ export class SubscriptionPaymentMapper {
       expiredAt: doc.expiredAt ?? null,
       refundRequested: doc.refundRequested ?? false,
       refundStatus: doc.refundStatus ?? null,
+      razorpayRefundId: doc.razorpayRefundId ?? null,
       refundAt: doc.refundAt ?? null,
       inProgressExpiresAt: doc.inProgressExpiresAt ?? null,
     };

@@ -4,4 +4,5 @@ import { SubscriptionPaymentDTO, SubscriptionPaymentHisResult, UpdateRefundStatu
 export interface IPaymentService {
     fetchPayments(data: PaginationInput): Promise<SubscriptionPaymentHisResult>;
     updateRefundStatusPayment(data: UpdateRefundStatusReq): Promise<SubscriptionPaymentDTO>;
+    refundPayment(data: UpdateRefundStatusReq): Promise<SubscriptionPaymentDTO>;
 }
