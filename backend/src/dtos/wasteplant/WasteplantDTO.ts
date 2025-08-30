@@ -1,6 +1,7 @@
 import { BaseDTO } from "../base/BaseDTO";
 import { SubscriptionPaymentHisDTO } from "../subscription/subscptnPaymentDTO";
 import { SubsptnPlansDTO } from "../subscription/subscptnPlanDTO";
+import { Role } from "../user/userDTO";
 
 export interface WasteplantDTO extends BaseDTO {
   plantName?: string;
@@ -17,7 +18,8 @@ export interface WasteplantDTO extends BaseDTO {
   capacity?: number;
   status?: string;
   subscriptionPlan?: string; 
-  password?: string;
+  // password?: string;
+  role: Role;
   services?: string[];
   isBlocked?: boolean;
   blockedAt?: Date | null;
@@ -59,6 +61,10 @@ export interface IWastePlant {
   autoRechargeAt?: Date | null;
   rechargeNotificationSent?: boolean;
   renewNotificationSent?: boolean;
+}
+export type LoginWPResponse = {
+  wastePlant: WasteplantDTO;
+  token: string;
 }
 export interface IndiaPostAPIResponse {
   Status: string;

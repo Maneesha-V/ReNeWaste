@@ -5,30 +5,42 @@ import { AuthRequest } from "../../types/common/middTypes";
 import { inject, injectable } from "inversify";
 import TYPES from "../../config/inversify/types";
 import { IAuthService } from "../../services/wastePlant/interface/IAuthService";
+import { ApiError } from "../../utils/ApiError";
+import { MESSAGES, STATUS_CODES } from "../../utils/constantUtils";
 
 @injectable()
 export class AuthController implements IAuthController {
   constructor(
-  @inject(TYPES.PlantAuthService)
-  private authService: IAuthService
-  ){}
-  async refreshToken(req: Request, res: Response): Promise<void> {
+    @inject(TYPES.PlantAuthService)
+    private authService: IAuthService
+  ) {}
+  async refreshToken(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
     try {
       const refreshToken = req.cookies?.refreshToken;
       console.log("refreshToken", refreshToken);
-
       if (!refreshToken) {
-        res.status(401).json({ error: "No refresh token provided." });
-        return;
+        throw new ApiError(
+          STATUS_CODES.UNAUTHORIZED,
+          MESSAGES.COMMON.ERROR.REFRESH_TOKEN
+        );
       }
+
       const { token } = await this.authService.verifyToken(refreshToken);
-      res.status(200).json({ token });
-    } catch (error: any) {
+      res.status(STATUS_CODES.SUCCESS).json({ token });
+    } catch (error) {
       console.error("err", error);
-      res.status(401).json({ error: error.message });
+      next(error);
     }
   }
-  async wastePlantLogin(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
+  async wastePlantLogin(
+    req: AuthRequest,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
     try {
       console.log("body", req.body);
       const { email, password } = req.body;
@@ -36,7 +48,9 @@ export class AuthController implements IAuthController {
         email,
         password,
       });
-      const { password: _, ...safeWastePlant } = wastePlant.toObject();
+      // const { password: _, ...safeWastePlant } = wastePlant.toObject();
+      console.log("wastePlant", wastePlant);
+
       const refreshToken = await generateRefreshToken({
         userId: wastePlant._id.toString(),
         role: wastePlant.role,
@@ -47,111 +61,158 @@ export class AuthController implements IAuthController {
       const cookieOptions = {
         httpOnly: true,
         secure: isProduction,
-        sameSite: isProduction ? 'none' as const : 'lax' as const,
-        path: "/api/waste-plant", 
+        sameSite: isProduction ? ("none" as const) : ("lax" as const),
+        path: "/api/waste-plant",
         maxAge: 7 * 24 * 60 * 60 * 1000,
       };
-      res.cookie("refreshToken", refreshToken, cookieOptions).status(200).json({
-        success: true,
-        message: "Login successful",
-        role: safeWastePlant.role,
-        plantId: safeWastePlant._id,
-        token,
-        status: safeWastePlant.status,
-      });
-     
+      res
+        .cookie("refreshToken", refreshToken, cookieOptions)
+        .status(STATUS_CODES.SUCCESS)
+        .json({
+          success: true,
+          message: MESSAGES.COMMON.SUCCESS.LOGIN,
+          role: wastePlant.role,
+          plantId: wastePlant._id,
+          token,
+          status: wastePlant.status,
+        });
     } catch (error) {
       console.error("err", error);
       next(error);
     }
   }
-  async wastePlantLogout(req: Request, res: Response): Promise<void> {
+  async wastePlantLogout(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
     try {
       const isProduction = process.env.NODE_ENV === "production";
       const cookieOptions = {
         httpOnly: true,
         secure: isProduction,
         // sameSite: "strict" as const,
-        sameSite: isProduction ? 'none' as const : 'lax' as const,
-        path: "/api/waste-plant"
+        sameSite: isProduction ? ("none" as const) : ("lax" as const),
+        path: "/api/waste-plant",
       };
 
       res.clearCookie("refreshToken", cookieOptions);
-    
-      res.status(200).json({ success: true, message: "Logout successful" });
-    } catch (error: any) {
-      res
-        .status(500)
-        .json({ success: false, message: "Logout failed. Please try again." });
+
+      res.status(STATUS_CODES.SUCCESS).json({
+        success: true,
+        message: MESSAGES.COMMON.SUCCESS.LOGOUT,
+      });
+    } catch (error) {
+      next(error);
     }
   }
-  async sendOtp(req: Request, res: Response): Promise<void> {
+  async sendOtp(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
     try {
       console.log("otp-body", req.body);
       const { email } = req.body;
 
       const otpResponse = await this.authService.sendOtpService(email);
-
-      res.status(200).json(otpResponse);
-    } catch (error: any) {
+      if (otpResponse) {
+        res
+          .status(STATUS_CODES.SUCCESS)
+          .json({ message: MESSAGES.COMMON.SUCCESS.OTP_SENT });
+      } else {
+        res
+          .status(STATUS_CODES.SERVER_ERROR)
+          .json({ message: MESSAGES.COMMON.ERROR.OTP_SENT });
+      }
+    } catch (error) {
       console.error("Error sending OTP:", error);
-      res.status(500).json({ error: error.message || "Internal Server Error" });
+      next(error);
     }
   }
-  async resendOtp(req: Request, res: Response): Promise<void> {
+  async resendOtp(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
     console.log("body", req.body);
     try {
       const { email } = req.body;
       if (!email) {
-        res.status(400).json({ error: "Email is required" });
+        throw new ApiError(
+          STATUS_CODES.NOT_FOUND,
+          MESSAGES.COMMON.ERROR.EMAIL_NOT_FOUND
+        );
       }
 
       const success = await this.authService.resendOtpService(email);
       if (success) {
-        res.status(200).json({ message: "OTP resent successfully" });
+        res
+          .status(STATUS_CODES.SUCCESS)
+          .json({ message: MESSAGES.COMMON.SUCCESS.OTP_SENT });
       } else {
-        res.status(500).json({ error: "Failed to resend OTP" });
+        throw new ApiError(
+          STATUS_CODES.SERVER_ERROR,
+          MESSAGES.COMMON.ERROR.FAILED_OTP
+        );
       }
     } catch (error) {
-      res.status(500).json({ error: "Server error, please try again later" });
+      next(error);
     }
   }
-  async verifyOtp(req: Request, res: Response): Promise<void> {
+  async verifyOtp(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
     try {
       const { email, otp } = req.body;
 
       if (!email || !otp) {
-        res.status(400).json({ error: "Email and OTP are required" });
+        res
+          .status(STATUS_CODES.NOT_FOUND)
+          .json({ error: MESSAGES.COMMON.ERROR.EMAIL_OTP_REQUIRED });
         return;
       }
 
       const isValid = await this.authService.verifyOtpService(email, otp);
 
       if (!isValid) {
-        res.status(400).json({ error: "Invalid or expired OTP" });
-        return;
+        throw new ApiError(
+          STATUS_CODES.NOT_FOUND,
+          MESSAGES.COMMON.ERROR.INVALID_EXPIRED_OTP
+        );
       }
 
-      res.status(200).json({ message: "OTP verified successfully" });
+      res
+        .status(STATUS_CODES.SUCCESS)
+        .json({ message: MESSAGES.COMMON.SUCCESS.OTP_VERIFIED });
     } catch (error) {
       console.error("Error verifying OTP:", error);
-      res.status(500).json({ error: "Something went wrong!" });
+      next(error);
     }
   }
-  async resetPassword(req: Request, res: Response): Promise<void> {
+  async resetPassword(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
     try {
       console.log("body", req.body);
       const { email, password } = req.body;
       if (!email || !password) {
-        res.status(400).json({ message: "Email and password are required" });
-        return;
+        throw new ApiError(
+          STATUS_CODES.NOT_FOUND,
+          MESSAGES.COMMON.ERROR.EMAIL_PASSWORD_REQUIRED
+        );
       }
       await this.authService.resetPasswordService(email, password);
-      res.status(200).json({ message: "Password reset successfully" });
-    } catch (error: any) {
+      res
+        .status(STATUS_CODES.SUCCESS)
+        .json({ message: MESSAGES.COMMON.SUCCESS.PASSWORD_RESET });
+    } catch (error) {
       console.error(error);
-      res.status(500).json({ message: "Server error" });
+      next(error);
     }
   }
 }
-

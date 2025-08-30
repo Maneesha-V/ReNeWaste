@@ -317,8 +317,6 @@ export class UserController implements IUserController {
           STATUS_CODES.NOT_FOUND,
           MESSAGES.COMMON.ERROR.EMAIL_PASSWORD_REQUIRED
         );
-        // res.status(STATUS_CODES.NOT_FOUND).json({ message: MESSAGES.COMMON.ERROR.EMAIL_PASSWORD_REQUIRED });
-        // return;
       }
       await this._authService.resetPasswordService(email, password);
       res

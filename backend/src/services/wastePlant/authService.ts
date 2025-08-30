@@ -1,5 +1,4 @@
 import { inject, injectable } from "inversify";
-import { LoginRequest, LoginResponse } from "../../types/wastePlant/authTypes";
 import { generateToken } from "../../utils/authUtils";
 import { sendEmail } from "../../utils/mailerUtils";
 import { generateOtp } from "../../utils/otpUtils";
@@ -8,6 +7,8 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import TYPES from "../../config/inversify/types";
 import { IWastePlantRepository } from "../../repositories/wastePlant/interface/IWastePlantRepository";
+import { WastePlantMapper } from "../../mappers/WastePlantMapper";
+import { LoginRequest } from "../../dtos/user/userDTO";
 
 @injectable()
 export class AuthService implements IAuthService {
@@ -45,7 +46,7 @@ export class AuthService implements IAuthService {
   async loginWastePlant({
     email,
     password,
-  }: LoginRequest): Promise<LoginResponse> {
+  }: LoginRequest) {
     const wastePlant = await this.wastePlantRepository.findWastePlantByEmail(
       email
     );
@@ -56,11 +57,7 @@ export class AuthService implements IAuthService {
     ) {
       throw new Error("Invalid email or password.");
     }
-    // if (wastePlant?.status === "Inactive") {
-    //   throw new Error(
-    //     "Your plant is inactive. Please subscribe to continue."
-    //   );
-    // }
+   
     if (wastePlant?.isBlocked) {
       throw new Error("Your account has been blocked by the superadmin.");
     }
@@ -68,7 +65,7 @@ export class AuthService implements IAuthService {
       userId: wastePlant._id.toString(),
       role: wastePlant.role,
     });
-    return { wastePlant, token };
+    return { wastePlant: WastePlantMapper.mapWastePlantDTO(wastePlant), token };
   }
   async sendOtpService(email: string) {
     const wastePlant = await this.wastePlantRepository.findWastePlantByEmail(
@@ -85,7 +82,7 @@ export class AuthService implements IAuthService {
       "Your OTP Code",
       `Your OTP code is: ${otp}. It will expire in 30s.`
     );
-    return { message: "OTP sent successfully", otp };
+    return otp;
   }
   async resendOtpService(email: string) {
     const wastePlant = await this.wastePlantRepository.findWastePlantByEmail(
@@ -102,7 +99,7 @@ export class AuthService implements IAuthService {
       "Your Resend OTP Code",
       `Your Resend OTP code is: ${otp}. It will expire in 30s.`
     );
-    return { message: "Resend OTP sent successfully", otp };
+    return otp;
   }
   async verifyOtpService(email: string, otp: string): Promise<boolean> {
     const storedOtp = await this.wastePlantRepository.findOtpByEmail(email);
