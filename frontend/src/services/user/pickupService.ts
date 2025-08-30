@@ -1,4 +1,4 @@
-import axiosUser from "../../api/axiosUser";
+import { axiosUser } from "../../config/axiosClients";
 import { PaginationPayload } from "../../types/common/commonTypes";
 import { PickupCancelData, PickupPlansResponse } from "../../types/pickupReq/pickupTypes";
 

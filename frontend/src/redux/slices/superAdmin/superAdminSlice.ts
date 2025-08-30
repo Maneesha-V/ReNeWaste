@@ -188,18 +188,18 @@ const superAdminSlice = createSlice({
   extraReducers: (builder) => {
     builder
       .addCase(refreshAccessToken.fulfilled, (state, action) => {
-        state.token = action.payload;
-        // localStorage.setItem("token", action.payload);
+        // state.token = action.payload;
+        localStorage.setItem("token", action.payload);
       })
       .addCase(superAdminLogin.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
-      .addCase(superAdminLogin.fulfilled, (state, action) => {
+      .addCase(superAdminLogin.fulfilled, (state) => {
         state.loading = false;
-        state.token = action.payload.token;
-        state.message = action.payload.message;
-        state.role = action.payload.role;
+        // state.token = action.payload.token;
+        // state.message = action.payload.message;
+        // state.role = action.payload.role;
       })
       .addCase(superAdminLogin.rejected, (state, action) => {
         state.loading = false;
@@ -221,8 +221,8 @@ const superAdminSlice = createSlice({
         state.superadmin = null;
         state.loading = false;
         state.error = null;
-        state.token = null;
-        state.role = null;
+        // state.token = null;
+        // state.role = null;
       })
       .addCase(superAdminLogout.rejected, (state, action) => {
         state.loading = false;

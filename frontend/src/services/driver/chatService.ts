@@ -1,4 +1,4 @@
-import axiosDriver from "../../api/axiosDriver";
+import { axiosDriver } from "../../config/axiosClients";
 import { ConversationIdPayload, MessagesPayload } from "../../types/chatTypes";
 
 export const getConversationId = async (payload: ConversationIdPayload) => {

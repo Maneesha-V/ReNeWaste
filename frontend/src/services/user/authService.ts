@@ -1,6 +1,6 @@
-import axiosUser from "../../api/axiosUser";
 import { Auth, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 import { GoogleLoginReq, LoginRequest, SignupRequest } from "../../types/user/userTypes";
+import { axiosUser } from "../../config/axiosClients";
 
 export const signupUser = async (userData: SignupRequest) => {
     const response = await axiosUser.post(`/signup`, userData);
@@ -13,7 +13,7 @@ export const loginUser = async (userData: LoginRequest) => {
   if (response.data) {
     localStorage.setItem("token", response.data.token);
     localStorage.setItem("role", response.data.role);
-    localStorage.setItem("user_id", response.data.userId);
+    localStorage.setItem("id", response.data.userId);
   }
   return response.data;
 };
@@ -22,7 +22,7 @@ export const logoutUser = async () => {
   console.log("Logout API response:", response.data);
   localStorage.removeItem("token");
   localStorage.removeItem("role");
-  localStorage.removeItem("user_id");
+  localStorage.removeItem("id");
   return response.data;
 };
 export const sendOtpSignupService = async (email: string) => {
@@ -31,34 +31,15 @@ export const sendOtpSignupService = async (email: string) => {
     return response.data;
 };
 export const resendOtpSignupService = async (email: string) => {
-  // try {
+
     const response = await axiosUser.post(`/resend-otp-signup`, { email });
     console.log("respp", response);
 
     return response.data;
-  // } catch (error: any) {
-  //   console.error("Error resending OTP:", error);
-  //   throw (
-  //     error.response?.data?.error || "Something went wrong while resending OTP"
-  //   );
-  // }
 };
 export const verifyOtpSignupService = async (email: string, otp: string) => {
-  // try {
     const { data } = await axiosUser.post(`/verify-otp-signup`, { email, otp });
     return data;
-  // } catch (error: any) {
-  //   console.error(
-  //     "Error verifying OTP:",
-  //     error.response?.data || error.message
-  //   );
-  //   throw {
-  //     message:
-  //       error.response?.data?.error ||
-  //       error.response?.data?.message ||
-  //       "Failed to verify OTP",
-  //   };
-  // }
 };
 export const sendOtpService = async (email: string) => {
     const response = await axiosUser.post(`/send-otp`, { email });

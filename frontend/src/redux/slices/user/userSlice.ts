@@ -243,28 +243,19 @@ const userSlice = createSlice({
         state.loading = true;
         state.error = null;
       })
-      .addCase(signup.fulfilled, (state, action) => {
+      .addCase(signup.fulfilled, (state) => {
         state.loading = false;
-        // state.role = action.payload.role;
-        // state.token = action.payload.token;
-        // state.userId = action.payload.userId;
       })
       .addCase(signup.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload?.message as string;
-        // state.userId = null;
-        // state.token = null;
-        // state.role = null;
       })
       .addCase(login.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
-      .addCase(login.fulfilled, (state, action) => {
+      .addCase(login.fulfilled, (state) => {
         state.loading = false;
-        state.role = action.payload.role;
-        state.token = action.payload.token;
-        state.userId = action.payload.userId;
       })
       .addCase(login.rejected, (state, action) => {
         state.loading = false;
@@ -272,9 +263,6 @@ const userSlice = createSlice({
           action.payload?.message || "Login failed. Please try again.";
       })
       .addCase(logout.fulfilled, (state) => {
-        state.userId = null;
-        state.token = null;
-        state.role = null;
         state.loading = false;
         state.error = null;
       })
@@ -393,14 +381,11 @@ const userSlice = createSlice({
         state.loading = true;
         state.error = null;
       })
-      .addCase(googleLogin.fulfilled, (state, action) => {
+      .addCase(googleLogin.fulfilled, (state) => {
         state.loading = false;
-        state.role = action.payload.role;
-        state.token = action.payload.token;
       })
       .addCase(googleLogin.rejected, (state, action) => {
         state.loading = false;
-        state.token = null;
         state.error = action.payload?.message || "Failed google signin.";
       });
   },

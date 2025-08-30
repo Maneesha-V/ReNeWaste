@@ -1,4 +1,4 @@
-import axiosUser from "../../api/axiosUser";
+import { axiosUser } from "../../config/axiosClients";
 import { UserProfileReq } from "../../types/user/userTypes";
 
 export const getProfile = async () => {

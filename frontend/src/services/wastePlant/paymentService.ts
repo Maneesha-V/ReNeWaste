@@ -1,7 +1,7 @@
-import axiosWasteplant from "../../api/axiosWasteplant";
+import { axiosWasteplant } from "../../config/axiosClients";
 import { PaginationPayload } from "../../types/common/commonTypes";
-import { RefundPaymntPayload, retryPaymentData, SubptnVerifyPaymentPayload, UpdateStatusPayload } from "../../types/paymentTypes";
-import { subPaymnetPayload, SubptnVerifyPaymenReq } from "../../types/subscriptionPayment/paymentTypes";
+import { RefundPaymntPayload, retryPaymentData, UpdateStatusPayload } from "../../types/paymentTypes";
+import { SubptnVerifyPaymenReq } from "../../types/subscriptionPayment/paymentTypes";
 
 
 export const fetchPaymentsService = async ({ page, limit, search }: PaginationPayload) => {

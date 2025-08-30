@@ -1,6 +1,5 @@
-import axiosSuperadmin from "../../api/axiosSuperadmin";
+import { axiosSuperadmin } from "../../config/axiosClients";
 import { PaginationPayload } from "../../types/common/commonTypes";
-import { RenewNotificationPayload } from "../../types/wastePlantTypes";
 
 export const getAddWastePlant = async () => {
     const response = await axiosSuperadmin.get(`/add-waste-plant`);

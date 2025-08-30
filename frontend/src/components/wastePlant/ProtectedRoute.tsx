@@ -3,8 +3,8 @@ import { ProtectedRouteProps } from "../../types/commonTypes";
 
   export const ProtectedRoute = ({ allowedRoles }: ProtectedRouteProps) => {
 
-    const token = localStorage.getItem("wasteplant_token");
-    const storedRole = localStorage.getItem("wasteplant_role");
+    const token = localStorage.getItem("token");
+    const storedRole = localStorage.getItem("role");
 
     console.log({token, storedRole});
     
@@ -23,7 +23,7 @@ import { ProtectedRouteProps } from "../../types/commonTypes";
   };
   
   export const ProtectedAuthRoute = () => {
-    const token = localStorage.getItem("wasteplant_token");
+    const token = localStorage.getItem("token");
     const isLoggedIn = !!token;
     return isLoggedIn ? <Navigate to="/waste-plant/dashboard" replace /> : <Outlet />;
   };

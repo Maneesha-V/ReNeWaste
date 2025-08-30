@@ -1,4 +1,4 @@
-import axiosWasteplant from "../../api/axiosWasteplant";
+import { axiosWasteplant } from "../../config/axiosClients";
 import { PaginationPayload } from "../../types/common/commonTypes"
 
 export const getCreateDriverService = async () => {

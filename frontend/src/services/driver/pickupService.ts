@@ -1,4 +1,4 @@
-import axiosDriver from "../../api/axiosDriver";
+import { axiosDriver } from "../../config/axiosClients";
 
 export const getDriverPickups = async (
   wasteType: "Residential" | "Commercial"

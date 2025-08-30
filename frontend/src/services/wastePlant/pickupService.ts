@@ -1,4 +1,4 @@
-import axiosWasteplant from "../../api/axiosWasteplant";
+import { axiosWasteplant } from "../../config/axiosClients";
 import { PickupCancelData } from "../../types/wastePlantTypes";
 
 export const getPickups = async (

@@ -1,6 +1,5 @@
+import { axiosDriver } from "../../config/axiosClients";
 import { LoginRequest } from "../../types/authTypes";
-import axiosDriver from "../../api/axiosDriver";
-
 
 export const loginDriver = async (driverData: LoginRequest) => {
   try {
@@ -8,9 +7,9 @@ export const loginDriver = async (driverData: LoginRequest) => {
     console.log("res",response);
     
     if (response.data) {
-      localStorage.setItem("driver_token", response.data.token);
-      localStorage.setItem("driver_role", response.data.role);
-      localStorage.setItem("driver_id", response.data.driverId);
+      localStorage.setItem("token", response.data.token);
+      localStorage.setItem("role", response.data.role);
+      localStorage.setItem("id", response.data.driverId);
       localStorage.setItem("driver_category", response.data.category);
     }
     console.log("res",response);
@@ -27,9 +26,9 @@ export const logoutDriver = async () => {
       `/logout`,
       {}
     );
-    localStorage.removeItem("driver_token");
-    localStorage.removeItem("driver_role");
-    localStorage.removeItem("driver_id");
+    localStorage.removeItem("token");
+    localStorage.removeItem("role");
+    localStorage.removeItem("id");
     localStorage.removeItem("driver_category");
     return response.data;
   } catch (error: any) {

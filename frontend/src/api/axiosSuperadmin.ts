@@ -11,7 +11,7 @@ axiosSuperadmin.interceptors.request.use(
   async (config) => {
     console.log("config",config);
     
-    const token = localStorage.getItem("admin_token");
+    const token = localStorage.getItem("token");
     const allowedRoutes = [
       "/",
       "/signup",
@@ -58,7 +58,7 @@ axiosSuperadmin.interceptors.response.use(
         if (refreshResult.meta.requestStatus === "fulfilled") {
           // If token refresh is successful, update the authorization header
           const newToken = refreshResult.payload; 
-          localStorage.setItem("admin_token", newToken);
+          localStorage.setItem("token", newToken);
           originalRequest.headers["Authorization"] = `Bearer ${newToken}`;
 
           // Retry the original request with the new token

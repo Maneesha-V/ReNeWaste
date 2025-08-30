@@ -3,8 +3,8 @@ import { ProtectedRouteProps } from "../../types/commonTypes";
 
   export const ProtectedRoute = ({ allowedRoles }: ProtectedRouteProps) => {
 
-    const token = localStorage.getItem("driver_token");
-    const storedRole = localStorage.getItem("driver_role");
+    const token = localStorage.getItem("token");
+    const storedRole = localStorage.getItem("role");
     console.log({token, storedRole});
     
     const isLoggedIn = !!token;
@@ -22,7 +22,7 @@ import { ProtectedRouteProps } from "../../types/commonTypes";
   };
   
   export const ProtectedAuthRoute = () => {
-    const token = localStorage.getItem("driver_token");
+    const token = localStorage.getItem("token");
     const isLoggedIn = !!token;
     return isLoggedIn ? <Navigate to="/driver/dashboard" replace /> : <Outlet />;
   };

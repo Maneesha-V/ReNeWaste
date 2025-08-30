@@ -35,7 +35,7 @@ const AssignDriverModal = ({
   const { truck } = useSelector((state: RootState) => state.wastePlantTruck);
   const [form] = Form.useForm();
 
-  const token = localStorage.getItem("wasteplant_token");
+  const token = localStorage.getItem("token");
   console.log(token);
 
   console.log("trucks", truck);

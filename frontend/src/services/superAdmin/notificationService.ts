@@ -1,4 +1,4 @@
-import axiosSuperadmin from "../../api/axiosSuperadmin";
+import { axiosSuperadmin } from "../../config/axiosClients";
 
 export const getNotifications = async () => {
   const response = await axiosSuperadmin.get(`/notifications`);

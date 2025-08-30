@@ -1,4 +1,4 @@
-import axiosWasteplant from "../../api/axiosWasteplant";
+import { axiosWasteplant } from "../../config/axiosClients";
 
 export const filterReportsService = async (from: string, to: string) => {
   try {

@@ -45,7 +45,7 @@ const Pickups = () => {
     ? [rawPickups]
     : [];
 
-  const token = localStorage.getItem("wasteplant_token");
+  const token = localStorage.getItem("token");
   useEffect(() => {
     if (!token) {
       navigate("/waste-plant/");
@@ -394,11 +394,11 @@ const Pickups = () => {
         onClose = {() => setCancelModalVisible(false)}
         pickupId={cancelPickup}
         cancelAction={cancelPickupReq}
-        onSuccess={() =>
-          dispatch(
-            fetchPickupReqsts({ wasteType: activeTab, status: statusTab })
-          )
-        }
+        // onSuccess={() =>
+        //   dispatch(
+        //     fetchPickupReqsts({ wasteType: activeTab, status: statusTab })
+        //   )
+        // }
       />
     </div>
   );

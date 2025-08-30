@@ -20,17 +20,19 @@ export class MapService implements IMapService {
     addressId: string
   ): Promise<any> {
     const apiKey = process.env.GOOGLE_MAPS_API_KEY;
+    const distBaseUrl = process.env.GOOGLE_MAPS_DISTANCE_URL;
+    const geoBaseUrl = process.env.GOOGLE_MAPS_GEOCODE_URL;
     const encodedDestination = encodeURIComponent(destination);
      try {
     // 1. Get ETA
-    const distUrl = `https://maps.googleapis.com/maps/api/distancematrix/json?origins=${origin}&destinations=${encodedDestination}&key=${apiKey}`;
+    const distUrl = `${distBaseUrl}?origins=${origin}&destinations=${encodedDestination}&key=${apiKey}`;
     const distRes = await axios.get(distUrl);
     const duration = distRes.data?.rows?.[0]?.elements?.[0]?.duration;
     if (!duration) throw new Error("Could not retrieve ETA");
     console.log("dur",duration);
       
     // 2. Get Lat/Lng
-    const geoUrl = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodedDestination}&key=${apiKey}`;
+    const geoUrl = `${geoBaseUrl}?address=${encodedDestination}&key=${apiKey}`;
     const geoRes = await axios.get(geoUrl);
     const location = geoRes.data.results[0]?.geometry?.location;
     if (!location) throw new Error("Could not retrieve lat/lng");

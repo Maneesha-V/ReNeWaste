@@ -50,6 +50,7 @@ export const updateResidentialPickup = createAsyncThunk<
       const response = await updateResidentialPickupService(data);
       return response.data;
     } catch (err) {
+      console.log("err",err)
       const msg = getAxiosErrorMessage(err);
       return rejectWithValue({ message: msg });
     }

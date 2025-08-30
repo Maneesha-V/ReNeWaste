@@ -21,7 +21,7 @@ const AllotedPickups = () => {
   const { loading, error, pickups } = useSelector(
     (state: RootState) => state.driverPickups
   );
-  const token = localStorage.getItem("driver_token");
+  const token = localStorage.getItem("token");
   
   console.log("category", driverCategory);
 

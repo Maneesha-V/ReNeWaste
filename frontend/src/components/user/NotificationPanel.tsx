@@ -14,7 +14,7 @@ import { UserNotificationPanelProps } from "../../types/common/modalTypes";
 import { NotificationResp } from "../../types/notification/notificationTypes";
 
 const NotificationPanel: React.FC<UserNotificationPanelProps> = ({ onClose }) => {
-  const userId = localStorage.getItem("user_id") || "";
+  const userId = localStorage.getItem("id") || "";
   console.log("Loaded userId:", userId);
   const dispatch = useAppDispatch();
   const socket = useSafeSocket();

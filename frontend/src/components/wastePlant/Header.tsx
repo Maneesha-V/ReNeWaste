@@ -40,7 +40,7 @@ const Header = ({ collapsed, toggleCollapse, isNotifOpen, setIsNotifOpen, onOpen
     await dispatch(wastePlantLogout());
     navigate("/waste-plant");
   };
-  const plantId = localStorage.getItem("wasteplant_id") || "";
+  const plantId = localStorage.getItem("id") || "";
   console.log("Loaded plantId:", plantId);
 
   const menu = (

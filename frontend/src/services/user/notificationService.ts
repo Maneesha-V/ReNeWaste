@@ -1,4 +1,4 @@
-import axiosUser from "../../api/axiosUser";
+import { axiosUser } from "../../config/axiosClients";
 
 export const getNotifications = async () => {
   const response = await axiosUser.get(`/notifications`);

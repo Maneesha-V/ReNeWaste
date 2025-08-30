@@ -1,4 +1,4 @@
-import axiosWasteplant from "../../api/axiosWasteplant";
+import { axiosWasteplant } from "../../config/axiosClients";
 import { ConversationIdPayload, MessagesPayload } from "../../types/chatTypes";
 
 export const getConversationId = async (payload: ConversationIdPayload) => {

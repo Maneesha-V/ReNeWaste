@@ -1,4 +1,4 @@
-import axiosWasteplant from "../../api/axiosWasteplant";
+import { axiosWasteplant } from "../../config/axiosClients";
 
   export const getDashboard = async () => {
   const response = await axiosWasteplant.get(`/dashboard`);

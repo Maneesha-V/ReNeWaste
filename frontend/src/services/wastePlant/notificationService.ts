@@ -1,4 +1,4 @@
-import axiosWasteplant from "../../api/axiosWasteplant";
+import { axiosWasteplant } from "../../config/axiosClients";
 import { SaveWasteMeasurementPayload } from "../../types/notificationTypes";
 
 export const getNotifications = async () => {

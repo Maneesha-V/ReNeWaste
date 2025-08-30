@@ -14,7 +14,7 @@ axiosWasteplant.interceptors.request.use(
   async (config) => {
     console.log("config",config);
     
-    const token = localStorage.getItem("wasteplant_token");
+    const token = localStorage.getItem("token");
 
     // if (token) {
     //   const decoded = jwtDecode(token);
@@ -59,7 +59,7 @@ axiosWasteplant.interceptors.response.use(
         console.log("res-refresh",res);
         
         const newAccessToken = res.data.token;
-        localStorage.setItem("wasteplant_token", newAccessToken);
+        localStorage.setItem("token", newAccessToken);
 
         axiosWasteplant.defaults.headers.common['Authorization'] = `Bearer ${newAccessToken}`;
         originalRequest.headers['Authorization'] = `Bearer ${newAccessToken}`;
@@ -73,7 +73,7 @@ axiosWasteplant.interceptors.response.use(
     }
     // Handle blocked wasteplant (status 403)
    if (error.response && error.response.status === 403) {
-      localStorage.removeItem("wasteplant_token");
+      localStorage.removeItem("token");
       window.location.href = "/waste-plant/blocked"; 
       return Promise.reject(error);
     }

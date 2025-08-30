@@ -1,5 +1,5 @@
-import axiosWasteplant from "../../api/axiosWasteplant";
-import { PaginationPayload } from "../../types/commonTypes";
+import { axiosWasteplant } from "../../config/axiosClients";
+import { PaginationPayload } from "../../types/common/commonTypes";
 import { DropSpotFormValues } from "../../types/dropSpotTypes";
 
   export const createDropSpotService = async (dropSpotData: any) => {

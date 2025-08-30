@@ -1,4 +1,4 @@
-import axiosUser from "../../api/axiosUser";
+import { axiosUser } from "../../config/axiosClients";
 import { PaginationPayload } from "../../types/common/commonTypes";
 import { CreatePaymentPayload, RepaymentOrderResponse, ReturnGetAllPayments, VerifyPaymentPayload, VerifyPaymentResponse } from "../../types/pickupReq/paymentTypes";
 

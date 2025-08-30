@@ -1,4 +1,4 @@
-import axiosDriver from "../../api/axiosDriver";
+import { axiosDriver } from "../../config/axiosClients";
 import { markReturnedProps } from "../../types/driverTypes";
 
 export const getAvaialbleTrucks = async (wasteplantId: string) => {

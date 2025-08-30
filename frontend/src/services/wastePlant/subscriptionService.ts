@@ -1,4 +1,4 @@
-import axiosWasteplant from "../../api/axiosWasteplant";
+import { axiosWasteplant } from "../../config/axiosClients";
 import { SubscptnCancelReq } from "../../types/subscriptionPayment/paymentTypes";
 
 export const fetchSubscriptionPlanService = async () => {

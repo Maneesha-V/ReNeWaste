@@ -174,7 +174,7 @@ const PickupResidentialFormModal: React.FC<PickupResidentialFormModalProps> = ({
       onClose();
       setTimeout(() => navigate("/residential"), 2000);
     } catch(error) {
-      getAxiosErrorMessage(error)
+      toast.error(getAxiosErrorMessage(error))  
     }
   };
 

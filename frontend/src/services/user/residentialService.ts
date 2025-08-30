@@ -1,4 +1,4 @@
-import axiosUser from "../../api/axiosUser";
+import { axiosUser } from "../../config/axiosClients";
 import { PartialResidPickupReq } from "../../types/pickupReq/pickupTypes";
 
 export const getResidentialService = async () => {

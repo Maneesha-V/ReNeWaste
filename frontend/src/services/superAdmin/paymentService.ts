@@ -1,4 +1,4 @@
-import axiosSuperadmin from "../../api/axiosSuperadmin";
+import { axiosSuperadmin } from "../../config/axiosClients";
 import { PaginationPayload } from "../../types/common/commonTypes";
 import { refundPayReq, UpdateRefundStatusReq } from "../../types/subscriptionPayment/paymentTypes";
 

@@ -1,5 +1,5 @@
-import axiosWasteplant from "../../api/axiosWasteplant";
-import { PaginationPayload } from "../../types/commonTypes";
+import { axiosWasteplant } from "../../config/axiosClients";
+import { PaginationPayload } from "../../types/common/commonTypes";
 
   export const fetchUsersService = async ({ page, limit, search }: PaginationPayload) => {
     try {
