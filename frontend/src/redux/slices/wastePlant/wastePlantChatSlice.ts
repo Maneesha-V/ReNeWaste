@@ -1,6 +1,7 @@
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { ConversationIdPayload, Message, MessagesPayload } from "../../../types/chatTypes";
 import { getChatMessages, getConversationId } from "../../../services/wastePlant/chatService";
+import { getAxiosErrorMessage } from "../../../utils/handleAxiosError";
+import { ConversationIdPayload, fetchChatMessagesResp, fetchConversationIdResp, Message, MessagesPayload, MessagesResp } from "../../../types/chat/chatMessageType";
 
 interface ChatState {
     conversationId: string | null,
@@ -15,7 +16,11 @@ interface ChatState {
     loading: false,
     error: null,
   };
-  export const fetchConversationId = createAsyncThunk(
+  export const fetchConversationId = createAsyncThunk<
+  fetchConversationIdResp,
+  ConversationIdPayload,
+  { rejectValue: {message: string}}
+  >(
     "wastePlantChats/fetchConversationId",
     async ( payload: ConversationIdPayload , { rejectWithValue }
     ) => {
@@ -24,12 +29,17 @@ interface ChatState {
         console.log("resp",response);
         
         return response;
-      } catch (error: any) {
-        return rejectWithValue(error.response?.data || "Failed to fetch conversation Id.");
+      } catch (error) {
+        const msg = getAxiosErrorMessage(error);
+        return rejectWithValue({ message: msg });
       }
     }
   );
-  export const fetchChatMessages = createAsyncThunk(
+  export const fetchChatMessages = createAsyncThunk<
+  fetchChatMessagesResp,
+  MessagesPayload,
+  { rejectValue: {message: string}}
+  >(
     "wastePlantChats/fetchMessages",
     async ( payload: MessagesPayload , { rejectWithValue }
     ) => {
@@ -38,8 +48,9 @@ interface ChatState {
         console.log("resp",response);
         
         return response;
-      } catch (error: any) {
-        return rejectWithValue(error.response?.data || "Failed to fetch messages.");
+      } catch (error) {
+        const msg = getAxiosErrorMessage(error);
+        return rejectWithValue({ message: msg });
       }
     }
   );
@@ -59,7 +70,7 @@ interface ChatState {
       })
       .addCase(fetchConversationId.fulfilled, (state, action) => {
         state.loading = false;
-        state.conversationId = action.payload;
+        state.conversationId = action.payload.conversationId;
       })
       .addCase(fetchConversationId.rejected, (state, action) => {
         state.loading = false;
@@ -70,8 +81,7 @@ interface ChatState {
       })
       .addCase(fetchChatMessages.fulfilled, (state, action) => {
         state.loading = false;
-        // state.messages = action.payload;
-        state.messages = action.payload.map((msg: Message) => ({
+        state.messages = action.payload.messages.map((msg: MessagesResp): Message => ({
           ...msg,
           sender: msg.senderRole, 
         }));
@@ -80,17 +90,6 @@ interface ChatState {
         state.loading = false;
         state.error = action.error.message || "Error";
       })
-      // .addCase(addMessage.pending, (state) => {
-      //   state.loading = true;
-      // })
-      // .addCase(addMessage.fulfilled, (state, action) => {
-      //   state.loading = false;
-      //   state.messages = action.payload;
-      // })
-      // .addCase(addMessage.rejected, (state, action) => {
-      //   state.loading = false;
-      //   state.error = action.error.message || "Error";
-      // })
     },
 });
 

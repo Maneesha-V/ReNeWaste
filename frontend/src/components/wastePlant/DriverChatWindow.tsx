@@ -5,7 +5,7 @@ import { addMessage, fetchChatMessages, fetchConversationId } from "../../redux/
 import { useSelector } from "react-redux";
 import { RootState } from "../../redux/store";
 import { useSocket } from "../../hooks/useSocket";
-import { DriverChatWindowProps } from "../../types/wastePlantTypes";
+import { DriverChatWindowProps } from "../../types/common/modalTypes";
 
 
 const DriverChatWindow: React.FC<DriverChatWindowProps> = ({ driver, wasteplantId }) => {
@@ -24,10 +24,10 @@ const DriverChatWindow: React.FC<DriverChatWindowProps> = ({ driver, wasteplantI
         receiverRole: "driver",
       }))
         .unwrap()
-        .then((id) => {
-          setConversationId(id);
-          socket?.emit("joinChatRoom", id);
-          dispatch(fetchChatMessages({ conversationId: id }));
+        .then((res) => {
+          setConversationId(res.conversationId);
+          socket?.emit("joinChatRoom", res.conversationId);
+          dispatch(fetchChatMessages({ conversationId: res.conversationId }));
         })
         .catch(console.error);
     }

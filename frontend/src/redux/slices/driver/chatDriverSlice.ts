@@ -4,10 +4,10 @@ import {
   getConversationId,
 } from "../../../services/driver/chatService";
 import {
-  ConversationIdPayload,
   Message,
   MessagesPayload,
 } from "../../../types/chatTypes";
+import { ConversationIdPayload } from "../../../types/chat/chatMessageType";
 
 interface ChatState {
   conversationId: string | null;

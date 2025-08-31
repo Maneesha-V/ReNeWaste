@@ -70,3 +70,7 @@ export interface CancelSubptnModalProps {
   subPayId: string | null;
   cancelAction: (args: any) => any;
 }
+export interface DriverChatWindowProps {
+  driver: any;
+  wasteplantId: string;
+}

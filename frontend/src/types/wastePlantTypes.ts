@@ -24,10 +24,10 @@ export type PartialWastePlantFormData = Partial<WastePlantFormData>;
 export interface ValidationErrors {
   [field: string]: string;
 }
-export interface DriverChatWindowProps {
-  driver: any;
-  wasteplantId: string;
-}
+// export interface DriverChatWindowProps {
+//   driver: any;
+//   wasteplantId: string;
+// }
 export interface ReschedulePickupModalProps {
   visible: boolean;
   onClose: () => void;
