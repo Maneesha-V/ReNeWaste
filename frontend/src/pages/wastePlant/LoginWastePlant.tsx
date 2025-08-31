@@ -30,19 +30,12 @@ const LoginWastePlant = () => {
       return;
     }
     try {
-      await dispatch(wastePlantLogin(formData)).unwrap();
-
+      const res = await dispatch(wastePlantLogin(formData)).unwrap();
+      toast.success(res.message);   
       navigate("/waste-plant/dashboard");
-    } catch (error: unknown) {
+    } catch (error) {
       console.log("error", error);
-
-      const errorMessage = getAxiosErrorMessage(error);
-
-      if (errorMessage.toLowerCase().includes("blocked")) {
-        toast.error("Your account has been blocked.");
-      } else {
-        toast.error(errorMessage || "Invalid email or password.");
-      }
+      toast.error(getAxiosErrorMessage(error))
     }
   };
 

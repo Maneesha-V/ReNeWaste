@@ -1,5 +1,4 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { LoginRequest } from "../../../types/authTypes";
 import {
   loginWastePlant,
   logoutWastePlant,
@@ -9,9 +8,11 @@ import {
   verifyOtpService,
 } from "../../../services/wastePlant/authService";
 import { getAxiosErrorMessage } from "../../../utils/handleAxiosError";
+import { LoginRequest } from "../../../types/user/userTypes";
+import { LoginWPResp } from "../../../types/wasteplant/wastePlantTypes";
+import { ResetPasswordReq, SendOtpError, VerifyOtpReq } from "../../../types/common/commonTypes";
 
 interface WasteplantState {
-  wasteplant: any;
   loading: boolean;
   error: string | null;
   message: string | null;
@@ -19,7 +20,6 @@ interface WasteplantState {
 }
 
 const initialState: WasteplantState = {
-  wasteplant: null,
   loading: false,
   error: null,
   message: null,
@@ -27,7 +27,7 @@ const initialState: WasteplantState = {
 };
 
 export const wastePlantLogin = createAsyncThunk<
-any,
+LoginWPResp,
 LoginRequest,
 { rejectValue: { message: string } }
 >(
@@ -44,71 +44,90 @@ LoginRequest,
     }
   }
 );
-export const wastePlantLogout = createAsyncThunk(
+export const wastePlantLogout = createAsyncThunk<
+null,
+void,
+{ rejectValue: { message: string } }
+>(
   "wasteplant/logout",
   async (_, { rejectWithValue }) => {
     try {
       await logoutWastePlant();
       return null;
-    } catch (error: any) {
-      return rejectWithValue("Logout failed. Please try again.");
+    } catch (err) {
+      const msg = getAxiosErrorMessage(err);
+       return rejectWithValue({ message: msg });
     }
   }
 );
-export const sendOtp = createAsyncThunk(
+export const sendOtp = createAsyncThunk<
+SendOtpError,
+string,
+{ rejectValue: SendOtpError }
+>(
   "wasteplant/sendOtp",
   async (email: string, { rejectWithValue }) => {
     try {
       const response = await sendOtpService(email);
       return response;
-    } catch (error: any) {
-      return rejectWithValue(error || "Failed to send OTP.");
+    } catch (err) {
+       const msg = getAxiosErrorMessage(err);
+       return rejectWithValue({ message: msg });
     }
   }
 );
-export const resendOtp = createAsyncThunk(
+export const resendOtp = createAsyncThunk<
+SendOtpError,
+string,
+{ rejectValue: SendOtpError }
+>(
   "wasteplant/resendOtp",
   async (email: string, { rejectWithValue }) => {
     try {
       const response = await resendOtpService(email);
       console.log("res", response);
       return response;
-    } catch (error: any) {
-      return rejectWithValue(
-        error.response?.data?.error || "Failed to resend OTP"
-      );
+    } catch (err) {
+       const msg = getAxiosErrorMessage(err);
+       return rejectWithValue({ message: msg });
     }
   }
 );
-export const verifyOtp = createAsyncThunk(
+export const verifyOtp = createAsyncThunk<
+SendOtpError,
+VerifyOtpReq,
+{ rejectValue: SendOtpError }
+>(
   "wasteplant/verifyOtp",
   async (
-    { email, otp }: { email: string; otp: string },
+    { email, otp }: VerifyOtpReq,
     { rejectWithValue }
   ) => {
     try {
       const response = await verifyOtpService(email, otp);
       return response;
-    } catch (error: any) {
-      console.log("OTP verification error:", error);
-      return rejectWithValue(error.message || "OTP verification failed");
+    } catch (err) {
+       const msg = getAxiosErrorMessage(err);
+       return rejectWithValue({ message: msg });
     }
   }
 );
-export const resetPassword = createAsyncThunk(
+export const resetPassword = createAsyncThunk<
+SendOtpError,
+ResetPasswordReq,
+{ rejectValue: SendOtpError }
+>(
   "wasteplant/resetPassword",
   async (
-    { email, password }: { email: string; password: string },
+    { email, password }: ResetPasswordReq,
     { rejectWithValue }
   ) => {
     try {
       const response = await resetPasswordService(email, password);
       return response;
-    } catch (error: any) {
-      console.log("Reset password error:", error);
-      return rejectWithValue(
-        error.response?.data?.message || "Failed to reset password"
-      );
+    } catch (err) {
+      const msg = getAxiosErrorMessage(err);
+       return rejectWithValue({ message: msg });
     }
   }
 );
@@ -124,20 +143,18 @@ const wastePlantSlice = createSlice({
       })
       .addCase(wastePlantLogin.fulfilled, (state, action) => {
         state.loading = false;
-        state.wasteplant = action.payload;
       })
       .addCase(wastePlantLogin.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload?.message || "Something went wrong";
       })
       .addCase(wastePlantLogout.fulfilled, (state) => {
-        state.wasteplant = null;
         state.loading = false;
         state.error = null;
       })
       .addCase(wastePlantLogout.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload as string;
+        state.error = action.payload?.message as string;
       })
       .addCase(sendOtp.pending, (state) => {
         state.loading = true;
@@ -150,7 +167,7 @@ const wastePlantSlice = createSlice({
       })
       .addCase(sendOtp.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload as string;
+        state.error = action.payload?.message as string;
       })
       .addCase(resendOtp.pending, (state) => {
         state.error = null;
@@ -160,7 +177,7 @@ const wastePlantSlice = createSlice({
         state.message = action.payload?.message;
       })
       .addCase(resendOtp.rejected, (state, action) => {
-        state.error = action.payload as string;
+        state.error = action.payload?.message as string;
       })
       .addCase(verifyOtp.pending, (state) => {
         state.loading = true;
@@ -173,7 +190,7 @@ const wastePlantSlice = createSlice({
       })
       .addCase(verifyOtp.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload as string;
+        state.error = action.payload?.message as string;
       })
       .addCase(resetPassword.pending, (state) => {
         state.loading = true;
@@ -186,7 +203,7 @@ const wastePlantSlice = createSlice({
       })
       .addCase(resetPassword.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload as string;
+        state.error = action.payload?.message as string;
       });
   },
 });

@@ -1,5 +1,5 @@
 import { axiosWasteplant } from "../../config/axiosClients";
-import { LoginRequest } from "../../types/authTypes";
+import { LoginRequest } from "../../types/user/userTypes";
 
 export const loginWastePlant = async (wastePlantData: LoginRequest) => {
     const response = await axiosWasteplant.post(`/`, wastePlantData);
@@ -15,7 +15,6 @@ export const loginWastePlant = async (wastePlantData: LoginRequest) => {
 };
 
 export const logoutWastePlant = async () => {
-  try {
     const response = await axiosWasteplant.post(
       `/logout`,
       {}
@@ -23,73 +22,28 @@ export const logoutWastePlant = async () => {
     localStorage.removeItem("token"); 
     localStorage.removeItem("role"); 
     localStorage.removeItem("id");
+    localStorage.removeItem("wasteplant_status");
     return response.data;
-  } catch (error: any) {
-    console.error("err", error);
-    throw error.response?.data?.error || "Login failed. Please try again.";
-  }
 };
 export const sendOtpService = async (email: string) => {
-  try {
     const response = await axiosWasteplant.post(`/send-otp`, { email });
     console.log("response", response);
     return response.data;
-  } catch (error: any) {
-    console.log("err", error);
-
-    console.error(
-      "Error sending OTP:",
-      error.response?.data?.error || error.message
-    );
-    throw (
-      error.response?.data?.error || "Something went wrong while sending OTP"
-    );
-  }
 };
 export const resendOtpService = async (email: string) => {
-  try {
     const response = await axiosWasteplant.post(`/resend-otp`, { email });
     console.log("respp", response);
 
     return response.data;
-  } catch (error: any) {
-    console.error("Error resending OTP:", error);
-    throw (
-      error.response?.data?.error || "Something went wrong while resending OTP"
-    );
-  }
 };
 export const verifyOtpService = async (email: string, otp: string) => {
-  try {
     const { data } = await axiosWasteplant.post(`/verify-otp`, { email, otp });
     return data;
-  } catch (error: any) {
-    console.error(
-      "Error verifying OTP:",
-      error.response?.data || error.message
-    );
-    throw {
-      message:
-        error.response?.data?.error ||
-        error.response?.data?.message ||
-        "Failed to verify OTP",
-    };
-  }
 };
 export const resetPasswordService = async (email: string, password: string) => {
-  try {
     const response = await axiosWasteplant.post(`/reset-password`, {
       email,
       password,
     });
     return response.data;
-  } catch (error: any) {
-    console.error(
-      "Error in reset password:",
-      error.response?.data?.error || error.message
-    );
-    throw {
-      message: error.response?.data?.error || "Failed to reset password",
-    };
-  }
 };

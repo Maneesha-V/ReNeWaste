@@ -107,7 +107,7 @@ export class AuthController implements IAuthController {
     }
   }
   async sendOtp(
-    req: Request,
+    req: Request, 
     res: Response,
     next: NextFunction
   ): Promise<void> {

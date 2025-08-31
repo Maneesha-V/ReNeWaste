@@ -1,3 +1,4 @@
+import { ChatMessageDTO } from "../../../dtos/chatMessage/chatMessageDTO";
 import { ParticipantRole } from "../../../models/chat/interfaces/conversationInterface";
 
 export interface IChatService {
@@ -7,5 +8,5 @@ export interface IChatService {
         receiverId: string,
         receiverRole: ParticipantRole
     ): Promise<string>;
-    getChatMessageService(conversationId: string): Promise<any>;
+    getChatMessageService(conversationId: string): Promise<ChatMessageDTO[]>;
 }

@@ -1,7 +1,14 @@
-import { MsgSuccessResp } from "../common/commonTypes";
 import { WasteplantDTO } from "../superadmin/superAdminTypes";
 
 type PlantStatus = "Pending" | "Active" | "Inactive" | "Rejected";
+export type LoginWPResp = {
+  success: boolean;
+  message: string;
+  role: string;
+  plantId: string;
+  token: string;
+  status: string;
+}
 export type WastePlant = {
   _id?: string;
   plantName: string;
