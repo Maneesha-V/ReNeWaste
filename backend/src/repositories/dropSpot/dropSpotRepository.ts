@@ -2,9 +2,9 @@ import mongoose from "mongoose";
 import { DropSpotModel } from "../../models/dropSpots/dropSpotModel";
 import { IDropSpot, IDropSpotDocument } from "../../models/dropSpots/interfaces/dropSpotInterface";
 import { IDropSpotRepository } from "./interface/IDropSpotRepository";
-import { PaginatedDropSpotsResult } from "../../types/wastePlant/dropspotTypes";
 import BaseRepository from "../baseRepository/baseRepository";
 import { injectable } from "inversify";
+import { PaginatedDropSpotsRepoRes, UpdateDataDropSpot } from "../../dtos/dropspots/dropSpotDTO";
 
 @injectable()
 export class DropSpotRepository extends BaseRepository<IDropSpotDocument>  implements IDropSpotRepository {
@@ -20,7 +20,7 @@ export class DropSpotRepository extends BaseRepository<IDropSpotDocument>  imple
     page: number,
     limit: number,
     search: string
-  ): Promise<PaginatedDropSpotsResult> {
+  ): Promise<PaginatedDropSpotsRepoRes> {
     const query = {
       wasteplantId,
       $or: [
@@ -63,11 +63,10 @@ export class DropSpotRepository extends BaseRepository<IDropSpotDocument>  imple
     });
   }
 
-  async findDropSpotById(dropSpotId: string) {
-    console.log(dropSpotId);
-
+  async findDropSpotById(dropSpotId: string, wasteplantId: string) {
     return await this.model.findOne({
       _id: new mongoose.Types.ObjectId(dropSpotId),
+      wasteplantId
     });
   }
   async deleteDropSpotById(dropSpotId: string, wasteplantId: string) {
@@ -77,7 +76,7 @@ export class DropSpotRepository extends BaseRepository<IDropSpotDocument>  imple
     });
   }
 
-  async updateDropSpot(dropSpotId: string, updateData: any) {
+  async updateDropSpot(dropSpotId: string, updateData: UpdateDataDropSpot) {
     return await this.model.findByIdAndUpdate(dropSpotId, updateData, {
       new: true,
     });

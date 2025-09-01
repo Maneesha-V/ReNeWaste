@@ -1,20 +1,20 @@
+import { DropSpotDTO, PaginatedDropSpotsResult, UpdateDataDropSpot } from "../../../dtos/dropspots/dropSpotDTO";
 import { IDropSpot } from "../../../models/dropSpots/interfaces/dropSpotInterface";
-import { PaginatedDropSpotsResult } from "../../../types/wastePlant/dropspotTypes";
 
 export interface IDropSpotService {
-  createDropSpotService(payload: IDropSpot): Promise<IDropSpot>;
+  createDropSpotService(payload: IDropSpot): Promise<boolean>;
   getAllDropSpots(wasteplantId: string, page: number, limit: number, search: string): Promise<PaginatedDropSpotsResult>
   getDropSpotByIdService(
     dropSpotId: string,
     wasteplantId: string
-  ): Promise<IDropSpot | null>;
+  ): Promise<DropSpotDTO>;
   deleteDropSpotByIdService(
     dropSpotId: string,
     wasteplantId: string
-  ): Promise<IDropSpot | null>;
+  ): Promise<DropSpotDTO>;
   updateDropSpotService(
     wasteplantId: string,
     dropSpotId: string,
-    updateData: any
-  ): Promise<IDropSpot | null>;
+    updateData: UpdateDataDropSpot
+  ): Promise<DropSpotDTO>;
 }

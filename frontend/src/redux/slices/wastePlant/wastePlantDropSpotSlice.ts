@@ -7,7 +7,8 @@ import {
   updateDropSpotServive,
 } from "../../../services/wastePlant/dropSpotService";
 import { DropSpotFormValues } from "../../../types/dropSpotTypes";
-import { PaginationPayload } from "../../../types/commonTypes";
+import { PaginationPayload } from "../../../types/common/commonTypes";
+
 
 interface DropSpotState {
   loading: boolean;

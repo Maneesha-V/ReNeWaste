@@ -72,7 +72,11 @@ export const MESSAGES = {
       DELETED: "Waste plant deleted successfully.",
       PAYMENT: "Payment success.",
       SUBSCRIPTION_PLAN: "Fetch subscription plan successfully.",
-      SUBSCRIPTION_CANCEL: "Send subscription cancel request."
+      SUBSCRIPTION_CANCEL: "Send subscription cancel request.",
+      DROP_SPOT_CREATE: "Dropspot created successfully.",
+      DROP_SPOT_UPDATE: "Dropspot updated successfully.",
+      DROP_SPOT_DELETE: "Dropspot deleted successfully.",
+      FETCH_DROP_SPOT: "Fetch dropspots successfully."
     },
     ERROR: {
       ID_REQUIRED: "Plant ID is required.",
@@ -80,7 +84,8 @@ export const MESSAGES = {
       PDF_FILES_REQUIRED: "Only PDF files are allowed.",
       NOT_FOUND: "Waste Plant not found.",
       FAILED: "Wasteplant updation failed.",
-      PAYMENT: "Payment failed."
+      PAYMENT: "Payment failed.",
+      DROP_SPOT_CREATE: "Dropspot failed to create.",
     },
   },
   DRIVER: {
