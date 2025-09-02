@@ -8,6 +8,10 @@ export class DropSpotMapper {
       dropSpotName: doc.dropSpotName ?? "",
       addressLine: doc.addressLine ?? "",
       location: doc.location ?? "",
+      pincode: doc.pincode ?? "",
+      state: doc.state ?? "",
+      district: doc.district ?? "",
+      wasteplantId: doc.wasteplantId.toString(),
       coordinates: {
         lat: doc.coordinates.lat ?? 0,
         lng: doc.coordinates.lng ?? 0,

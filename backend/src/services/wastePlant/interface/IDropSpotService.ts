@@ -1,4 +1,4 @@
-import { DropSpotDTO, PaginatedDropSpotsResult, UpdateDataDropSpot } from "../../../dtos/dropspots/dropSpotDTO";
+import { DropSpotDataReq, DropSpotDTO, PaginatedDropSpotsResult, UpdateDataDropSpot } from "../../../dtos/dropspots/dropSpotDTO";
 import { IDropSpot } from "../../../models/dropSpots/interfaces/dropSpotInterface";
 
 export interface IDropSpotService {

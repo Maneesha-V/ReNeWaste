@@ -1,7 +1,7 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { fetchDropSpotsService } from "../../../services/user/dropSpotService";
 import {
-  FetchDropSpotResp,
+  FetchUserDropSpotResp,
   UserDropSpot,
 } from "../../../types/dropspots/dropSpotTypes";
 import { getAxiosErrorMessage } from "../../../utils/handleAxiosError";
@@ -23,7 +23,7 @@ const initialState: DropSpotState = {
 };
 
 export const fetchNearDropSpots = createAsyncThunk<
-  FetchDropSpotResp,
+  FetchUserDropSpotResp,
   void,
   { rejectValue: { message: string } }
 >("userDropSpot/fetchNearDropSpots", async (_, { rejectWithValue }) => {

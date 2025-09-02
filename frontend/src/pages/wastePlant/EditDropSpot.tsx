@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { Input, Button, Row, Col, Typography, Layout, Spin, Form } from "antd";
+import { Input, Button, Row, Col, Typography, Layout, Form } from "antd";
 import { useParams, useNavigate } from "react-router-dom";
 import {
   fetchDropSpotById,
@@ -10,7 +10,8 @@ import { useSelector } from "react-redux";
 import { RootState } from "../../redux/store";
 import Breadcrumbs from "../../components/common/Breadcrumbs";
 import { toast } from "react-toastify";
-import { DropSpotFormValues } from "../../types/dropSpotTypes";
+import { DropSpotFormValues } from "../../types/dropspots/dropSpotTypes";
+import { getAxiosErrorMessage } from "../../utils/handleAxiosError";
 
 const { Title } = Typography;
 const { Content } = Layout;
@@ -50,20 +51,20 @@ const EditDropSpot: React.FC = () => {
   const handleSubmit = async () => {
     try {
       const values = await form.validateFields();
-      await dispatch(
+      const res = await dispatch(
         updateDropSpot({
           dropSpotId: dropSpotId!,
           data: values,
         })
       ).unwrap();
-      toast.success("Drop spot updated successfully");
+      toast.success(res?.message);
       navigate("/waste-plant/drop-spots");
     } catch (error) {
-      toast.error("Failed to update drop spot");
+      toast.error(getAxiosErrorMessage(error));
     }
   };
 
-  if (loading) return <Spin size="large" />;
+
   if (!loading && !dropSpot) return <div>No drop spot data found.</div>;
 
   return (

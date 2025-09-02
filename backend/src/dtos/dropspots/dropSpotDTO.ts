@@ -5,6 +5,10 @@ export interface DropSpotDTO extends BaseDTO {
   dropSpotName: string;
   addressLine: string;
   location: string;
+  pincode: string;
+  state: string;
+  district: string;
+  wasteplantId: string;
   coordinates: {
     lat: number;
     lng: number;
@@ -25,4 +29,17 @@ export type UpdateDataDropSpot = {
   pincode: string;
   district: string;
   state: string;
+}
+export type DropSpotDataReq = {
+  dropSpotName: string;
+  addressLine: string;
+  location: string;
+  pincode: string;
+  district: string;
+  state: string;
+  wasteplantId: string;
+  coordinates: {
+    lat: number;
+    lng: number;
+  };
 }

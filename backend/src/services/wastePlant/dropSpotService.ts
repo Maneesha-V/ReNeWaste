@@ -14,6 +14,8 @@ export class DropSpotService implements IDropSpotService {
     private dropSpotRepository: IDropSpotRepository
   ) {}
   async createDropSpotService(payload: IDropSpot) {
+    console.log("payload",payload);
+    
     const fullAddress = `${payload.addressLine}, ${payload.location}, ${payload.district}, ${payload.state}, ${payload.pincode}`;
     const apiKey = process.env.GOOGLE_MAPS_API_KEY;
     const geoBaseUrl = process.env.GOOGLE_MAPS_GEOCODE_URL;

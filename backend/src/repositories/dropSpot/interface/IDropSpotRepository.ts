@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 import { IDropSpot, IDropSpotDocument } from "../../../models/dropSpots/interfaces/dropSpotInterface";
-import { PaginatedDropSpotsRepoRes, UpdateDataDropSpot } from "../../../dtos/dropspots/dropSpotDTO";
+import { DropSpotDataReq, PaginatedDropSpotsRepoRes, UpdateDataDropSpot } from "../../../dtos/dropspots/dropSpotDTO";
 
 export interface IDropSpotRepository {
   createDropSpot(payload: IDropSpot): Promise<IDropSpot>;

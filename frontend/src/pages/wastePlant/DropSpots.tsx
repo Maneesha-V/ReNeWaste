@@ -7,12 +7,15 @@ import {
   deleteDropSpot,
   fetchDropSpotById,
   fetchDropSpots,
+  updateDelDropSpot,
 } from "../../redux/slices/wastePlant/wastePlantDropSpotSlice";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import PaginationSearch from "../../components/common/PaginationSearch";
 import usePagination from "../../hooks/usePagination";
 import { debounce } from "lodash";
+import { getAxiosErrorMessage } from "../../utils/handleAxiosError";
+import { DropSpotDTO } from "../../types/dropspots/dropSpotTypes";
 
 const { Title } = Typography;
 
@@ -40,18 +43,15 @@ const DropSpots: React.FC = () => {
     };
   }, [currentPage, pageSize, search, debouncedFetchDropSpots]);
 
-  // useEffect(() => {
-  //   dispatch(fetchDropSpots());
-  // }, [dispatch]);
-  // console.log("dropSpots", dropSpots);
 
   const handleDelete = async (id: string) => {
     try {
-      await dispatch(deleteDropSpot(id)).unwrap();
-      toast.success("Drop spot deleted");
-      dispatch(fetchDropSpots({ page: currentPage, limit: pageSize, search }));
+      const res = await dispatch(deleteDropSpot(id)).unwrap();
+      toast.success(res?.message);
+      dispatch(updateDelDropSpot(res.dropspot._id))
+      // dispatch(fetchDropSpots({ page: currentPage, limit: pageSize, search }));
     } catch (err) {
-      toast.error("Failed to delete");
+      toast.error(getAxiosErrorMessage(err));
     }
   };
 
@@ -64,7 +64,7 @@ const DropSpots: React.FC = () => {
     {
       title: "Address",
       key: "address",
-      render: (_: any, record: any) =>
+      render: (record: DropSpotDTO) =>
         `${record.addressLine}, ${record.location}`,
     },
     {
@@ -80,7 +80,7 @@ const DropSpots: React.FC = () => {
     {
       title: "Actions",
       key: "actions",
-      render: (_: any, record: any) => (
+      render: (record: DropSpotDTO) => (
         <Space>
           <Button type="link" onClick={() => handleEdit(record)}>
             Edit
@@ -101,13 +101,13 @@ const DropSpots: React.FC = () => {
     },
   ];
 
-  const handleEdit = async (record: any) => {
+  const handleEdit = async (record: DropSpotDTO) => {
     console.log("Edit record:", record);
     try {
       await dispatch(fetchDropSpotById(record._id)).unwrap();
       navigate(`/waste-plant/edit-drop-spot/${record._id}`);
     } catch (error) {
-      console.error("Failed to fetch drop spot for edit", error);
+      toast.error(getAxiosErrorMessage(error));
     }
   };
   const handleCreate = () => {

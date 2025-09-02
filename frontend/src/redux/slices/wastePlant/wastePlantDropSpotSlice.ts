@@ -6,16 +6,16 @@ import {
   fetchDropSpotsService,
   updateDropSpotServive,
 } from "../../../services/wastePlant/dropSpotService";
-import { DropSpotFormValues } from "../../../types/dropSpotTypes";
-import { PaginationPayload } from "../../../types/common/commonTypes";
-
+import { MsgSuccessResp, PaginationPayload } from "../../../types/common/commonTypes";
+import { getAxiosErrorMessage } from "../../../utils/handleAxiosError";
+import { DelDropSpotResp, DropSpotDTO, DropSpotFormValues, FetchDropSpotResp, updatedDropSpotResp, updateDropSpotReq } from "../../../types/dropspots/dropSpotTypes";
 
 interface DropSpotState {
   loading: boolean;
   error: string | null;
   success: boolean;
-  dropSpots: any;
-  selectedDropSpot: any;
+  dropSpots: DropSpotDTO[];
+  selectedDropSpot: DropSpotDTO | null;
   total: number;
 }
 
@@ -28,66 +28,86 @@ const initialState: DropSpotState = {
   total: 0,
 };
 
-export const createDropSpot = createAsyncThunk(
+export const createDropSpot = createAsyncThunk<
+  MsgSuccessResp,
+  DropSpotFormValues,
+  { rejectValue: { message: string } }
+>(
   "wastePlantDropSpot/createDropSpot",
-  async (dropSpotData: any, { rejectWithValue }) => {
+  async (dropSpotData, { rejectWithValue }) => {
     try {
       const response = await createDropSpotService(dropSpotData);
       return response;
-    } catch (error: any) {
-      return rejectWithValue(
-        error.response?.data || "Failed to create drop spot"
-      );
+    } catch (error) {
+      const msg = getAxiosErrorMessage(error);
+      return rejectWithValue({ message: msg });
     }
   }
 );
-export const fetchDropSpots = createAsyncThunk(
+export const fetchDropSpots = createAsyncThunk<
+FetchDropSpotResp,
+PaginationPayload,
+ { rejectValue: { message: string } }
+>(
   "wastePlantDropSpot/fetchDropSpots",
   async ({ page, limit, search }: PaginationPayload, { rejectWithValue }) => {
     try {
       const response = await fetchDropSpotsService({ page, limit, search });
       return response;
-    } catch (error: any) {
-      return rejectWithValue(
-        error.response?.data || "Failed to fetch drop spots."
-      );
+    } catch (error) {
+      const msg = getAxiosErrorMessage(error);
+      return rejectWithValue({ message: msg });
     }
   }
 );
-export const fetchDropSpotById = createAsyncThunk(
+export const fetchDropSpotById = createAsyncThunk<
+DropSpotDTO,
+string,
+{ rejectValue: { message: string } }
+>(
   "wastePlantDropSpot/fetchDropSpotById",
   async (dropSpotId: string, { rejectWithValue }) => {
     try {
       const response = await fetchDropSpotByIdService(dropSpotId);
       return response;
-    } catch (error: any) {
-      return rejectWithValue(
-        error.response?.data || "Failed to fetch drop spot by id."
-      );
+    } catch (error) {
+       const msg = getAxiosErrorMessage(error);
+      return rejectWithValue({ message: msg });
     }
   }
 );
-export const deleteDropSpot = createAsyncThunk(
+export const deleteDropSpot = createAsyncThunk<
+DelDropSpotResp,
+string,
+{ rejectValue: { message: string } }
+>(
   "wastePlantDropSpot/deleteDropSpot ",
-  async (dropSpotId: string, thunkAPI) => {
+  async (dropSpotId: string, { rejectWithValue }) => {
     try {
       const response = await deleteDropSpotServive(dropSpotId);
       return response;
-    } catch (error: any) {
-      return thunkAPI.rejectWithValue(
-        error.response.data || "Failed to delete drop spot."
-      );
+    } catch (error) {
+      const msg = getAxiosErrorMessage(error);
+      return rejectWithValue({ message: msg });
     }
   }
 );
-export const updateDropSpot = createAsyncThunk(
+export const updateDropSpot = createAsyncThunk<
+updatedDropSpotResp,
+updateDropSpotReq,
+{ rejectValue: { message: string } }
+>(
   "wastePlantDropSpot/updateDropSpot",
-  async ({ dropSpotId, data }: { dropSpotId: string; data: DropSpotFormValues }, thunkAPI) => {
+  async (
+    updateData,
+    { rejectWithValue }
+  ) => {
     try {
-       const response = await updateDropSpotServive(dropSpotId, data);
+      const response = await updateDropSpotServive(updateData);
       return response;
-    } catch (error: any) {
-      return thunkAPI.rejectWithValue(error.response.data);
+    } catch (error) {
+      const msg = getAxiosErrorMessage(error);
+      return rejectWithValue({ message: msg });
     }
   }
 );
@@ -95,7 +115,13 @@ export const updateDropSpot = createAsyncThunk(
 const wastePlantDropSpotSlice = createSlice({
   name: "wastePlantDropSpot",
   initialState,
-  reducers: {},
+  reducers: {
+    updateDelDropSpot: (state, action) => {
+      console.log("deln",action);
+      const dropSpotId = action.payload._id;
+      state.dropSpots.filter(d => d._id !== dropSpotId)
+    }
+  },
   extraReducers: (builder) => {
     builder
       .addCase(createDropSpot.pending, (state) => {
@@ -109,7 +135,7 @@ const wastePlantDropSpotSlice = createSlice({
       })
       .addCase(createDropSpot.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload as string;
+        state.error = action.payload?.message as string;
       })
       .addCase(fetchDropSpots.pending, (state) => {
         state.loading = true;
@@ -122,7 +148,7 @@ const wastePlantDropSpotSlice = createSlice({
       })
       .addCase(fetchDropSpots.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload as string;
+        state.error = action.payload?.message as string;
       })
       .addCase(fetchDropSpotById.pending, (state) => {
         state.loading = true;
@@ -130,17 +156,16 @@ const wastePlantDropSpotSlice = createSlice({
       })
       .addCase(fetchDropSpotById.fulfilled, (state, action) => {
         state.loading = false;
-        console.log("act",action);
-        
+        console.log("act", action);
         state.selectedDropSpot = action.payload;
       })
       .addCase(fetchDropSpotById.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload as string;
+        state.error = action.payload?.message as string;
       })
       .addCase(deleteDropSpot.fulfilled, (state, action) => {
         state.dropSpots = state.dropSpots.filter(
-          (dropSpot: any) => dropSpot._id !== action.payload
+          (dropSpot: DropSpotDTO) => dropSpot._id !== action.payload.dropspot._id
         );
       })
       .addCase(updateDropSpot.pending, (state) => {
@@ -149,13 +174,16 @@ const wastePlantDropSpotSlice = createSlice({
       })
       .addCase(updateDropSpot.fulfilled, (state, action) => {
         state.loading = false;
-        state.selectedDropSpot = action.payload;
+        state.selectedDropSpot = action.payload.updatedDropSpot;
       })
       .addCase(updateDropSpot.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload as string;
+        state.error = action.payload?.message as string;
       });
   },
 });
+
+export const { updateDelDropSpot } =
+  wastePlantDropSpotSlice.actions;
 
 export default wastePlantDropSpotSlice.reducer;

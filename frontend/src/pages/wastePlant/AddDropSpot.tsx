@@ -4,7 +4,8 @@ import { createDropSpot } from "../../redux/slices/wastePlant/wastePlantDropSpot
 import { useAppDispatch } from "../../redux/hooks";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
-import { DropSpotFormValues } from "../../types/dropSpotTypes";
+import { getAxiosErrorMessage } from "../../utils/handleAxiosError";
+import { DropSpotFormValues } from "../../types/dropspots/dropSpotTypes";
 
 const AddDropSpot: React.FC = () => {
   const [form] = Form.useForm();
@@ -13,17 +14,12 @@ const AddDropSpot: React.FC = () => {
 
   const onFinish = async (values: DropSpotFormValues) => {
     try {
-      const resultAction = await dispatch(createDropSpot(values));
-
-      if (createDropSpot.fulfilled.match(resultAction)) {
-        toast.success("Drop Spot added successfully!");
+      const resultAction = await dispatch(createDropSpot(values)).unwrap();
+        toast.success(resultAction.message);
         form.resetFields();
         navigate("/waste-plant/drop-spots");
-      } else {
-        toast.error("Failed to add Drop Spot");
-      }
     } catch (err) {
-      toast.error("Something went wrong");
+      toast.error(getAxiosErrorMessage(err));
     }
   };
 

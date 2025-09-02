@@ -13,15 +13,19 @@ export class DropSpotController implements IDropSpotController {
     @inject(TYPES.PlantDropSpotService)
     private dropspotService: IDropSpotService
   ) {}
-  async createDropSpot(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
+  async createDropSpot(
+    req: AuthRequest,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
     try {
       console.log(req.body);
       const wasteplantId = req.user?.id;
       if (!wasteplantId) {
-       throw new ApiError(
-                 STATUS_CODES.UNAUTHORIZED,
-                 MESSAGES.COMMON.ERROR.UNAUTHORIZED
-               );
+        throw new ApiError(
+          STATUS_CODES.UNAUTHORIZED,
+          MESSAGES.COMMON.ERROR.UNAUTHORIZED
+        );
       }
 
       const payloadWithPlant = {
@@ -32,23 +36,28 @@ export class DropSpotController implements IDropSpotController {
       const success = await this.dropspotService.createDropSpotService(
         payloadWithPlant
       );
-      
-   if(success){
-        res.status(STATUS_CODES.SUCCESS).json({ 
-          success: true, 
-          message: MESSAGES.WASTEPLANT.SUCCESS.DROP_SPOT_CREATE 
+
+      if (success) {
+        res.status(STATUS_CODES.SUCCESS).json({
+          success: true,
+          message: MESSAGES.WASTEPLANT.SUCCESS.DROP_SPOT_CREATE,
         });
       } else {
-        res.status(STATUS_CODES.SERVER_ERROR).json({ 
-          success: false, 
-          message: MESSAGES.WASTEPLANT.ERROR.DROP_SPOT_CREATE });
+        res.status(STATUS_CODES.SERVER_ERROR).json({
+          success: false,
+          message: MESSAGES.WASTEPLANT.ERROR.DROP_SPOT_CREATE,
+        });
       }
     } catch (error) {
       next(error);
     }
   }
 
-  async fetchDropSpots(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
+  async fetchDropSpots(
+    req: AuthRequest,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
     try {
       console.log(req.query);
 
@@ -81,12 +90,16 @@ export class DropSpotController implements IDropSpotController {
     }
   }
 
-  async fetchDropSpotById(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
+  async fetchDropSpotById(
+    req: AuthRequest,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
     try {
       const { dropSpotId } = req.params;
       const wasteplantId = req.user?.id;
       if (!wasteplantId) {
-       throw new ApiError(
+        throw new ApiError(
           STATUS_CODES.UNAUTHORIZED,
           MESSAGES.COMMON.ERROR.UNAUTHORIZED
         );
@@ -106,36 +119,49 @@ export class DropSpotController implements IDropSpotController {
     }
   }
 
-  async deleteDropSpotById(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
+  async deleteDropSpotById(
+    req: AuthRequest,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
     try {
       const { dropSpotId } = req.params;
       const wasteplantId = req.user?.id;
       if (!wasteplantId) {
-         throw new ApiError(
+        throw new ApiError(
           STATUS_CODES.UNAUTHORIZED,
           MESSAGES.COMMON.ERROR.UNAUTHORIZED
         );
       }
-      const result = await this.dropspotService.deleteDropSpotByIdService(
+      const dropspot = await this.dropspotService.deleteDropSpotByIdService(
         dropSpotId,
         wasteplantId
       );
-      console.log("result-delete", result);
+      console.log("result-delete", dropspot);
 
-      res.status(STATUS_CODES.SUCCESS).json({ message: MESSAGES.WASTEPLANT.SUCCESS.DROP_SPOT_DELETE });
+      res
+        .status(STATUS_CODES.SUCCESS)
+        .json({ 
+          message: MESSAGES.WASTEPLANT.SUCCESS.DROP_SPOT_DELETE,
+          dropspot
+       });
     } catch (error) {
       console.error("Error in deleting dropspot:", error);
       next(error);
     }
   }
 
-  async updateDropSpot(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
+  async updateDropSpot(
+    req: AuthRequest,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
     try {
       const { dropSpotId } = req.params;
       const wasteplantId = req.user?.id;
 
       if (!wasteplantId) {
-          throw new ApiError(
+        throw new ApiError(
           STATUS_CODES.UNAUTHORIZED,
           MESSAGES.COMMON.ERROR.UNAUTHORIZED
         );
@@ -149,10 +175,9 @@ export class DropSpotController implements IDropSpotController {
         updateData
       );
 
-
-      res.status(STATUS_CODES.SUCCESS).json({ 
-        updatedDropSpot, 
-        message: MESSAGES.WASTEPLANT.SUCCESS.DROP_SPOT_UPDATE
+      res.status(STATUS_CODES.SUCCESS).json({
+        updatedDropSpot,
+        message: MESSAGES.WASTEPLANT.SUCCESS.DROP_SPOT_UPDATE,
       });
     } catch (error) {
       console.error("Error updating dropspot:", error);
