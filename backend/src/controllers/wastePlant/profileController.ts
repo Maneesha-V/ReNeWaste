@@ -1,4 +1,4 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import { IProfileController } from "./interface/IProfileController";
 import { AuthRequest } from "../../types/common/middTypes";
 import { inject, injectable } from "inversify";
@@ -7,9 +7,7 @@ import { IProfileService } from "../../services/wastePlant/interface/IProfileSer
 import cloudinary from "../../config/cloudinary";
 import streamifier from "streamifier";
 import axios from "axios";
-import { log } from "console";
 import { MESSAGES, STATUS_CODES } from "../../utils/constantUtils";
-import { handleControllerError } from "../../utils/errorHandler";
 
 @injectable()
 export class ProfileController implements IProfileController {
@@ -17,7 +15,7 @@ export class ProfileController implements IProfileController {
     @inject(TYPES.PlantProfileService)
     private profileService: IProfileService
   ) {}
-  async getPlantProfile(req: AuthRequest, res: Response): Promise<void> {
+  async getPlantProfile(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
     try {
       const plantId = req.user?.id;
       if (!plantId) {
@@ -26,12 +24,12 @@ export class ProfileController implements IProfileController {
       }
       const wasteplant = await this.profileService.getPlantProfile(plantId);
       res.status(200).json({ wasteplant });
-    } catch (error: any) {
+    } catch (error) {
       console.log("error", error);
-      res.status(400).json({ error: error.message });
+      next(error);
     }
   }
-  async viewLicenseDocument(req: Request, res: Response): Promise<void> {
+  async viewLicenseDocument(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const publicId = req.params.publicId;
 
@@ -46,10 +44,10 @@ export class ProfileController implements IProfileController {
       res.setHeader("Content-Disposition", "inline");
       response.data.pipe(res);
     } catch (error) {
-      handleControllerError(error, res, 500);
+      next(error);
     }
   }
-  async updatePlantProfile(req: AuthRequest, res: Response): Promise<void> {
+  async updatePlantProfile(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
     try {
       console.log("file", req.file);
 
@@ -94,7 +92,7 @@ export class ProfileController implements IProfileController {
       res.status(200).json({ wasteplant: updatedPlant });
     } catch (error) {
       console.error("Error updating plant profile:", error);
-      handleControllerError(error, res, 500);
+      next(error);
     }
   }
   //   async getDriversByWastePlant (req: Request, res: Response): Promise<void> {

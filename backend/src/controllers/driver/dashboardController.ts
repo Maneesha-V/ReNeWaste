@@ -1,11 +1,10 @@
-import { Response } from "express";
+import { NextFunction, Response } from "express";
 import { inject, injectable } from "inversify";
 import TYPES from "../../config/inversify/types";
 import { AuthRequest } from "../../types/common/middTypes";
 import { IDashboardController } from "./interface/IDashboardController";
 import { IDashboardService } from "../../services/driver/interface/IDashboardService";
 import { MESSAGES, STATUS_CODES } from "../../utils/constantUtils";
-import { handleControllerError } from "../../utils/errorHandler";
 
 @injectable()
 export class DashboardController implements IDashboardController {
@@ -13,7 +12,7 @@ export class DashboardController implements IDashboardController {
     @inject(TYPES.DriverDashboardService)
     private dashboardService: IDashboardService
   ) {}
-  async fetchDriverDashboard(req: AuthRequest, res: Response): Promise<void> {
+  async fetchDriverDashboard(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
     try {
       const driverId = req.user?.id;
       if (!driverId) {
@@ -34,10 +33,10 @@ export class DashboardController implements IDashboardController {
       });
     } catch (error) {
       console.error("err", error);
-      handleControllerError(error, res, 500);
+      next(error);
     }
   }
-  async fetchWastePlantSupport( req: AuthRequest,  res: Response): Promise<void> {
+  async fetchWastePlantSupport( req: AuthRequest,  res: Response, next: NextFunction): Promise<void> {
      try {
       const driverId = req.user?.id;
       if (!driverId) {
@@ -58,7 +57,7 @@ export class DashboardController implements IDashboardController {
       });
     } catch (error) {
       console.error("err", error);
-      handleControllerError(error, res, 500);
+      next(error);
     }
   }
 }

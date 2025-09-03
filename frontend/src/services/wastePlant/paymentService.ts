@@ -1,7 +1,7 @@
 import { axiosWasteplant } from "../../config/axiosClients";
 import { PaginationPayload } from "../../types/common/commonTypes";
-import { RefundPaymntPayload, retryPaymentData, UpdateStatusPayload } from "../../types/paymentTypes";
-import { SubptnVerifyPaymenReq } from "../../types/subscriptionPayment/paymentTypes";
+import { RefundPaymntPayload, UpdateStatusPayload } from "../../types/pickupReq/paymentTypes";
+import { RetryPaymentData, SubptnVerifyPaymenReq } from "../../types/subscriptionPayment/paymentTypes";
 
 
 export const fetchPaymentsService = async ({ page, limit, search }: PaginationPayload) => {
@@ -24,20 +24,7 @@ export const createPaymentOrderService = async (planId: string) => {
   
   return response.data;
 };
-// export const createPaymentOrderService = async ({
-//   amount,
-//   planId,
-//   plantName
-// }: subPaymnetPayload) => {
-//   const response = await axiosWasteplant.post(`/payment/create-order`, {
-//     amount,
-//     planId,
-//     plantName
-//   });
-//   console.log("res", response);
-  
-//   return response.data;
-// };
+
 
 export const verifyPaymentService = async (
   paymentData: SubptnVerifyPaymenReq
@@ -53,7 +40,7 @@ export const getAllPayments = async () => {
   const response = await axiosWasteplant.get(`/subscptn-payments`);
   return response.data;
 };
-export const repayService = async ({ planId, amount, subPaymtId }: retryPaymentData) => {
+export const repayService = async ({ planId, amount, subPaymtId }: RetryPaymentData) => {
   const response = await axiosWasteplant.post(`/payment/repay`, { planId, amount, subPaymtId});
   console.log("res",response);
   

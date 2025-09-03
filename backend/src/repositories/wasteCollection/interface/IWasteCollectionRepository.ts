@@ -1,5 +1,5 @@
+import { FilterReport } from "../../../dtos/wasteplant/WasteplantDTO";
 import { IWasteCollectionDocument } from "../../../models/wasteCollection/interfaces/wasteCollectionInterface";
-import { FilterReport } from "../../../types/wastePlant/reportTypes";
 import { InputWasteMeasurement, ReturnTotalWasteAmount, ReturnWasteMeasurement } from "../types/wasteCollectionTypes";
 
 export interface IWasteCollectionRepository {

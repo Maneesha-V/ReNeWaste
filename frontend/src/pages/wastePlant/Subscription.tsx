@@ -129,7 +129,7 @@ const Subscription = () => {
                 Swal.fire({
                   icon: "success",
                   title: "Payment Successful!",
-                  text: "Your payment was verified successfully.",
+                  text: res?.message,
                   confirmButtonColor: "#28a745",
                 });
               })

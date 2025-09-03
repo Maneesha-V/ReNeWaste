@@ -91,3 +91,26 @@ export type WastePlantFormData = {
   //   subscribeNotificationSent: boolean;
   // }
   // }
+  export type PaymentRecord = {
+  _id: string;
+  pickupId: string;
+  wasteType: string;
+  payment: {
+    status: string;
+    razorpayPaymentId: string;
+    amount: number;
+    paidAt: Date;
+    refundRequested?: boolean;
+    refundStatus?: string;
+    refundAt?: Date;
+    inProgressExpiresAt: Date;
+  };
+  driverName?: string;
+  userName?: string;
+  dueDate: Date;
+};
+  export type FetchPaymentsResp = {
+    success: boolean;
+    payments: PaymentRecord[]
+    total: number;
+  }

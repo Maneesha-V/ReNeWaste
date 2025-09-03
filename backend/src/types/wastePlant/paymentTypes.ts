@@ -1,18 +1,16 @@
 import { ISubscriptionPaymentDocument } from "../../models/subsptnPayment/interface/subsptnPaymentInterface";
 import { PaymentRecord } from "../../repositories/pickupReq/types/pickupTypes";
 
-export type SubCreatePaymtPayload = {
-      // amount: number;
-      planId: string;
-      // plantName: string;
-      plantId: string;
-}
-export type ReurnSubcptnCreatePaymt = {
-    orderId: string;
-    amount: number;
-    currency: string;
-    subscriptionPaymentId: string;
-}
+// export type SubCreatePaymtPayload = {
+//       planId: string;
+//       plantId: string;
+// }
+// export type ReurnSubcptnCreatePaymt = {
+//     orderId: string;
+//     amount: number;
+//     currency: string;
+//     subscriptionPaymentId: string;
+// }
 export type PaymentData = {
      razorpay_order_id: string;
       razorpay_payment_id: string;
@@ -42,39 +40,39 @@ export type UpdateSubscptnPayload = {
     paymentUpdate: PaymentUpdate;
     plantId: string;
 }
-export type PlanData = {
-  planName: string;
-  plantName: string;
-  ownerName: string;
-}
+// export type PlanData = {
+//   planName: string;
+//   plantName: string;
+//   ownerName: string;
+// }
 
-export type ReturnSubcptnPaymentResult = {
-  paymentData: any; 
-  planData: PlanData;
-}
-export type RetryPaymntPayload = {
-    plantId: string;
-    planId: string;
-    amount: number;
-    subPaymtId: string;
-}
-export type ReturnRetryPaymntPayload = {
-    orderId: string;
-    amount: number;
-    currency: string;
-    planId: string;
-    expires: string;
-}
-export type FetchPaymentPayload = {
-  plantId: string
-  page: number;
-  limit: number;
-  search: string;
-}
-export type PaginatedPaymentsResult = {
-  payments: PaymentRecord[];
-  total: number;
-}
+// export type ReturnSubcptnPaymentResult = {
+//   paymentData: any; 
+//   planData: PlanData;
+// }
+// export type RetryPaymntPayload = {
+//     plantId: string;
+//     planId: string;
+//     amount: number;
+//     subPaymtId: string;
+// }
+// export type ReturnRetryPaymntPayload = {
+//     orderId: string;
+//     amount: number;
+//     currency: string;
+//     planId: string;
+//     expires: string;
+// }
+// export type FetchPaymentPayload = {
+//   plantId: string
+//   page: number;
+//   limit: number;
+//   search: string;
+// }
+// export type PaginatedPaymentsResult = {
+//   payments: PaymentRecord[];
+//   total: number;
+// }
 export type RefundStatus = "Pending" | "Processing" | "Refunded" | "Rejected" | null;
 
 export type StatusUpdateReq = {
@@ -85,8 +83,8 @@ export type UpdateStatusPayload = {
   plantId: string;
   statusUpdateData :StatusUpdateReq
 }
-export type RefundDataReq = {
-  pickupReqId: string;  
-  amount: number;
-  razorpayPaymentId: string;
-}
+// export type RefundDataReq = {
+//   pickupReqId: string;  
+//   amount: number;
+//   razorpayPaymentId: string;
+// }

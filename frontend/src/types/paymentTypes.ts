@@ -39,17 +39,17 @@ export type PaymentRecord = {
   dueDate: Date;
 };
 
-export type retryPaymentData = {
-  planId: string;
-  amount: number;
-  subPaymtId: string;
-}
+// export type retryPaymentData = {
+//   planId: string;
+//   amount: number;
+//   subPaymtId: string;
+// }
 export type UpdateStatusPayload= { 
   pickupReqId: string; 
   status: string; 
 }
-export type RefundPaymntPayload = {
-  pickupReqId: string; 
-  amount: number;
-  razorpayPaymentId: string;
-};
+// export type RefundPaymntPayload = {
+//   pickupReqId: string; 
+//   amount: number;
+//   razorpayPaymentId: string;
+// };

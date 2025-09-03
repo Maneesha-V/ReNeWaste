@@ -1,3 +1,4 @@
+import { PaymentRecord } from "../../repositories/pickupReq/types/pickupTypes";
 import { BaseDTO } from "../base/BaseDTO";
 import { SubscriptionPaymentHisDTO } from "../subscription/subscptnPaymentDTO";
 import { SubsptnPlansDTO } from "../subscription/subscptnPlanDTO";
@@ -79,10 +80,7 @@ export interface PostOfficeEntry {
   Division: string;
   District: string;
 }
-// export interface AddWastePlantResult {
-//   autoSubscribeAt: Date;
-//   subscribeNotificationSent: boolean;
-// }
+
 export interface PaginatedWastePlantResult {
   wasteplants: WasteplantDTO[];
   total: number;
@@ -133,4 +131,53 @@ export type ReturnFetchSubptnPlan = {
 
 export type ReturnSubcptnPaymentResult = {
   paymentData: SubscriptionPaymentHisDTO[]; 
+}
+export type RefundDataReq = {
+  pickupReqId: string;  
+  amount: number;
+  razorpayPaymentId: string;
+}
+export type FetchPaymentPayload = {
+  plantId: string
+  page: number;
+  limit: number;
+  search: string;
+}
+export type PaginatedPaymentsResult = {
+  payments: PaymentRecord[];
+  total: number;
+}
+export type PlanData = {
+  planName: string;
+  plantName: string;
+  ownerName: string;
+}
+
+export type RetryPaymntPayload = {
+    plantId: string;
+    planId: string;
+    amount: number;
+    subPaymtId: string;
+}
+export type ReturnRetryPaymntPayload = {
+    orderId: string;
+    amount: number;
+    currency: string;
+    planId: string;
+    expires: string;
+}
+export type SubCreatePaymtPayload = {
+      planId: string;
+      plantId: string;
+}
+export type ReurnSubcptnCreatePaymt = {
+    orderId: string;
+    amount: number;
+    currency: string;
+    subscriptionPaymentId: string;
+}
+export type FilterReport = {
+    from: string;
+    to: string;
+    plantId: string;
 }

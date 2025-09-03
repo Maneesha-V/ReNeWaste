@@ -1,3 +1,6 @@
+import { MsgSuccessResp } from "../common/commonTypes";
+import { PickupReqDTO } from "./pickupTypes";
+
 export type RefundStatus = "Pending" | "Processing" | "Refunded" | "Rejected" | null;
 export type PaymentStatus = "Pending" | "InProgress" | "Paid" | "Failed";
 export type RazorpayResponse = {
@@ -70,7 +73,18 @@ export type UpdateStatusPayload= {
   status: string; 
 }
 export interface RefundStatusUpdateResp {
+  message: string;
+  statusUpdate: {
   _id: string; 
   refundStatus: RefundStatus;
   inProgressExpiresAt: Date | null;
+  }
+}
+export type RefundPaymntPayload = {
+  pickupReqId: string; 
+  amount: number;
+  razorpayPaymentId: string;
+};
+export type RefundPaymntResp = MsgSuccessResp & {
+  updatedData : PickupReqDTO
 }

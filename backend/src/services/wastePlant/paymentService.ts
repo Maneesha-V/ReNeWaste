@@ -2,22 +2,19 @@ import { inject, injectable } from "inversify";
 import TYPES from "../../config/inversify/types";
 import { IPaymentService } from "./interface/IPaymentService";
 import { IPickupRepository } from "../../repositories/pickupReq/interface/IPickupRepository";
-import { IDriverRepository } from "../../repositories/driver/interface/IDriverRepository";
-import { PaymentRecord } from "../../repositories/pickupReq/types/pickupTypes";
 import Razorpay from "razorpay";
 import crypto from "crypto";
-import {
-  FetchPaymentPayload,
-  PaginatedPaymentsResult,
-  RefundDataReq,
-  ReurnSubcptnCreatePaymt,
-  SubCreatePaymtPayload,
-  UpdateStatusPayload,
-  VerifyPaymtPayload,
-} from "../../types/wastePlant/paymentTypes";
+// import {
+//   FetchPaymentPayload,
+//   PaginatedPaymentsResult,
+//   RefundDataReq,
+//   ReurnSubcptnCreatePaymt,
+//   SubCreatePaymtPayload,
+//   UpdateStatusPayload,
+//   VerifyPaymtPayload,
+// } from "../../types/wastePlant/paymentTypes";
 import { IWastePlantRepository } from "../../repositories/wastePlant/interface/IWastePlantRepository";
 import { ISubscriptionPaymentRepository } from "../../repositories/subscriptionPayment/interface/ISubscriptionPaymentRepository";
-import { ISubscriptionPaymentDocument } from "../../models/subsptnPayment/interface/subsptnPaymentInterface";
 import { ISubscriptionPlanRepository } from "../../repositories/subscriptionPlan/interface/ISubscriptionPlanRepository";
 import { INotificationRepository } from "../../repositories/notification/interface/INotifcationRepository";
 import { ISuperAdminRepository } from "../../repositories/superAdmin/interface/ISuperAdminRepository";
@@ -31,9 +28,10 @@ import {
   SubCreatePaymtReq,
   SubCreatePaymtResp,
 } from "../../dtos/subscription/subscptnPaymentDTO";
-import { ReturnSubcptnPaymentResult, VerifyPaymtReq, VerifyPaymtResp } from "../../dtos/wasteplant/WasteplantDTO";
+import { FetchPaymentPayload, PaginatedPaymentsResult, RefundDataReq, ReturnSubcptnPaymentResult, VerifyPaymtReq, VerifyPaymtResp } from "../../dtos/wasteplant/WasteplantDTO";
 import { sendNotification } from "../../utils/notificationUtils";
 import { SubscriptionPaymentMapper } from "../../mappers/SubscriptionPaymentMapper";
+import { PickupRequestMapper } from "../../mappers/PIckupReqMapper";
 
 @injectable()
 export class PaymentService implements IPaymentService {
@@ -75,12 +73,10 @@ export class PaymentService implements IPaymentService {
   async createPaymentOrder(
     data: SubCreatePaymtReq
   ): Promise<SubCreatePaymtResp> {
-    // const { plantId, planId, amount, plantName } = data;
+  
     const { plantId, planId } = data;
     const plant = await this.wastePlantRepository.getWastePlantById(plantId)
-    // const plant = await this.wastePlantRepository.findWastePlantByName(
-    //   plantName
-    // );
+ 
 
     if (!plant) {
       throw new Error("Plant not found.");
@@ -491,7 +487,7 @@ export class PaymentService implements IPaymentService {
         io.to(`${userId}`).emit("newNotification", userNotification);
       }
 
-      return pickupReq;
+      return PickupRequestMapper.mapPickupReqDTO(pickupReq);
     } catch (error: any) {
       console.error("Refund failed:", JSON.stringify(error, null, 2));
       throw new Error(error?.error?.description || "Refund failed");

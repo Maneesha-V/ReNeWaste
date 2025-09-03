@@ -8,18 +8,16 @@ import {
   updateRefundStatusService,
   verifyPaymentService,
 } from "../../../services/wastePlant/paymentService";
-import {
-  RefundPaymntPayload,
-  retryPaymentData,
-  SubptnVerifyPaymentPayload,
-} from "../../../types/paymentTypes";
-import { MsgSuccessResp, PaginationPayload } from "../../../types/common/commonTypes";
+import { PaginationPayload } from "../../../types/common/commonTypes";
 import { getAxiosErrorMessage } from "../../../utils/handleAxiosError";
 import {
+  RefundPaymntPayload,
+  RefundPaymntResp,
   RefundStatusUpdateResp,
   UpdateStatusPayload,
 } from "../../../types/pickupReq/paymentTypes";
-import { RetrySubptnPaymntResp, SubCreatePaymtResp, subPaymnetPayload, SubptnVerifyPaymenReq, SubptnVerifyPaymenResp } from "../../../types/subscriptionPayment/paymentTypes";
+import { FetchSubscrptnPayments, PaymentOrder, RetryPaymentData, RetrySubptnPaymntResp, SubCreatePaymtResp, subPaymnetPayload, SubptnVerifyPaymenReq, SubptnVerifyPaymenResp } from "../../../types/subscriptionPayment/paymentTypes";
+import { FetchPaymentsResp, PaymentRecord } from "../../../types/wasteplant/wastePlantTypes";
 
 interface PaymentState {
   message: string | null;
@@ -27,11 +25,10 @@ interface PaymentState {
   error: string | null;
   success: boolean;
   payments: any;
-  paymentOrder: any | null;
-  repaymentOrder: any | null;
+  paymentOrder: PaymentOrder | null;
+  repaymentOrder: {} | null;
   total: number;
   updatedStatus: {};
-  refundOrder: any | null;
 }
 
 const initialState: PaymentState = {
@@ -44,19 +41,21 @@ const initialState: PaymentState = {
   repaymentOrder: null,
   total: 0,
   updatedStatus: {},
-  refundOrder: null,
 };
 
-export const fetchPayments = createAsyncThunk(
+export const fetchPayments = createAsyncThunk<
+FetchPaymentsResp,
+PaginationPayload,
+{ rejectValue: {message: string}}
+>(
   "wastePlantPayments/fetchPayments",
   async ({ page, limit, search }: PaginationPayload, { rejectWithValue }) => {
     try {
       const response = await fetchPaymentsService({ page, limit, search });
       return response;
-    } catch (error: any) {
-      return rejectWithValue(
-        error.response?.data || "Failed to fetch payments."
-      );
+    } catch (error) {
+      const msg = getAxiosErrorMessage(error);
+           return rejectWithValue({ message: msg });
     }
   }
 );
@@ -99,7 +98,7 @@ SubptnVerifyPaymenReq,
   }
 );
 export const fetchSubscrptnPayments = createAsyncThunk<
-any,
+FetchSubscrptnPayments,
 void,
 { rejectValue: {error: string} }
 >(
@@ -118,7 +117,7 @@ void,
 );
 export const repay = createAsyncThunk<
 RetrySubptnPaymntResp,
-retryPaymentData,
+RetryPaymentData,
 { rejectValue: {error : string}}
 >(
   "wastePlantPayments/repay",
@@ -127,7 +126,6 @@ retryPaymentData,
       const response = await repayService({ planId, amount, subPaymtId });
       return response;
     } catch (err) {
-      // return rejectWithValue(err.response?.data || "Fetch payments failed");
       const msg = getAxiosErrorMessage(err);
       return rejectWithValue({ error: msg });
     }
@@ -154,7 +152,11 @@ export const updateRefundStatus = createAsyncThunk<
   }
 );
 
-export const triggerPickupRefund = createAsyncThunk(
+export const triggerPickupRefund = createAsyncThunk<
+RefundPaymntResp,
+RefundPaymntPayload,
+{ rejectValue: { error: string } }
+>(
   "wastePlantPayments/triggerPickupRefund",
   async (
     { pickupReqId, amount, razorpayPaymentId }: RefundPaymntPayload,
@@ -167,9 +169,10 @@ export const triggerPickupRefund = createAsyncThunk(
         razorpayPaymentId,
       });
       return response;
-    } catch (error: any) {
-      console.error("err", error);
-      return rejectWithValue(error.response?.data || "Failed to create refund");
+    } catch (err) {
+      console.error("err", err);
+      const msg = getAxiosErrorMessage(err);
+      return rejectWithValue({ error: msg });
     }
   }
 );
@@ -194,7 +197,7 @@ const wastePlantPaymentSlice = createSlice({
       })
       .addCase(fetchPayments.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload as string;
+        state.error = action.payload?.message as string;
       })
       .addCase(createSubscriptionOrder.pending, (state) => {
         state.loading = true;
@@ -231,7 +234,7 @@ const wastePlantPaymentSlice = createSlice({
       })
       .addCase(fetchSubscrptnPayments.fulfilled, (state, action) => {
         state.loading = false;
-        state.payments = action.payload.payments;
+        state.payments = action.payload.payments.paymentData;
       })
       .addCase(fetchSubscrptnPayments.rejected, (state, action) => {
         state.loading = false;
@@ -259,9 +262,10 @@ const wastePlantPaymentSlice = createSlice({
       .addCase(updateRefundStatus.fulfilled, (state, action) => {
         state.loading = false;
         state.payments = state.payments.filter((p: any) => {
-          if (p._id === action.payload._id) {
-            p.refundStatus = action.payload.refundStatus;
-            p.inProgressExpiresAt = action.payload.inProgressExpiresAt;
+          const {_id, refundStatus, inProgressExpiresAt } = action.payload.statusUpdate;
+          if (p._id === _id) {
+            p.refundStatus = refundStatus;
+            p.inProgressExpiresAt = inProgressExpiresAt;
           }
         });
         // state.updatedStatus = action.payload.payment;
@@ -274,16 +278,16 @@ const wastePlantPaymentSlice = createSlice({
       .addCase(triggerPickupRefund.pending, (state) => {
         state.loading = true;
         state.error = null;
-        state.refundOrder = null;
+        // state.refundOrder = null;
       })
       .addCase(triggerPickupRefund.fulfilled, (state, action) => {
         console.log("action", action);
         state.loading = false;
-        state.refundOrder = action.payload.refundOrder;
+        // state.refundOrder = action.payload.refundOrder;
       })
       .addCase(triggerPickupRefund.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload as string;
+        state.error = action.payload?.error as string;
       });
   },
 });

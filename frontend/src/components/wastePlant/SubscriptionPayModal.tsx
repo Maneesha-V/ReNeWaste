@@ -1,4 +1,3 @@
-import { useEffect } from "react";
 import { Modal } from "antd";
 import { useSelector } from "react-redux";
 import { RootState } from "../../redux/store";
@@ -14,12 +13,6 @@ import { loadRazorpayScript } from "../../utils/razorpayUtils";
 import { updateSubPaymentStatus } from "../../redux/slices/wastePlant/wastePlantSubscriptionSlice";
 import { getAxiosErrorMessage } from "../../utils/handleAxiosError";
 
-
-// interface SubscriptionPayModalProps {
-//   visible: boolean;
-//   onClose: () => void;
-//   plan: SubcptnPaymtPayload;
-// }
 
 const SubscriptionPayModal = ({
   visible,
@@ -81,7 +74,7 @@ const SubscriptionPayModal = ({
           )
             .unwrap()
             .then((res) => {
-              dispatch(updateSubPaymentStatus(res.subPaymtId))
+              dispatch(updateSubPaymentStatus(res?.updatePayment))
               // dispatch(fetchSubscrptnPayments());
 
               Swal.fire("Success", "Payment successful!", "success").then(

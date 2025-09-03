@@ -15,6 +15,7 @@ export const MESSAGES = {
       PROFILE_UPDATED: "Your profile is updated successfully",
       PASSWORD_CHANGED: "Password changed successfully",
       REFUND_UPDTAE_SUCCESS : "Update refund status successfully.",
+      REFUND_SUCCESS: "Refund process success.",
       RETRY_ORDER_PAY_SUCCESS: "Retry payment order suceess.",
       SIGNUP: "Signup successfully.",
       SIGNIN: "Signin successfully.",
@@ -61,7 +62,8 @@ export const MESSAGES = {
       OTP_SENT: "Failed to send OTP.",
       RESENT_OTP: "Failed to resend OTP.",
       REFRESH_TOKEN: "No refresh token provided.",
-      SIGNUP: "Signup failed."
+      SIGNUP: "Signup failed.",
+      INVALID_REFUND_STATUS: "Invalid refund status."
     },
   },
   WASTEPLANT: {

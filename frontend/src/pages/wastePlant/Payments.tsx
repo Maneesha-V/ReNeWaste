@@ -17,6 +17,7 @@ import { debounce } from "lodash";
 import RefundModal from "../../components/wastePlant/RefundModal";
 import { toast } from "react-toastify";
 import Swal from "sweetalert2";
+import { getAxiosErrorMessage } from "../../utils/handleAxiosError";
 
 const Payments = () => {
   const [selectedRecord, setSelectedRecord] = useState<PaymentRecord | null>(
@@ -81,18 +82,18 @@ const Payments = () => {
       return;
     }
     try {
-      await dispatch(
+      const res = await dispatch(
         updateRefundStatus({
           pickupReqId: selectedRecord._id,
           status: newStatus,
         })
       ).unwrap();
-      toast.success("Refund status updated successfully.");
+      toast.success(res?.message);
       setRefundModalVisible(false);
       refetchPayments();
     } catch (error) {
       console.error("Failed to update refund status:", error);
-      toast.error("Something went wrong.");
+      toast.error(getAxiosErrorMessage(error));
     }
   };
 
@@ -111,7 +112,7 @@ const Payments = () => {
 
     if (result.isConfirmed) {
       try {
-        await dispatch(
+        const res = await dispatch(
           triggerPickupRefund({
             pickupReqId: selectedRecord._id,
             amount: selectedRecord.payment.amount,
@@ -119,12 +120,12 @@ const Payments = () => {
           })
         ).unwrap();
 
-        toast.success("Refund processed successfully.");
+        toast.success(res?.message);
         setRefundModalVisible(false);
         refetchPayments();
       } catch (error) {
         console.error("Refund failed", error);
-        toast.error("Refund failed.");
+        toast.error(getAxiosErrorMessage(error));
       }
     }
   };

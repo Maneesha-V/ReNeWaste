@@ -13,7 +13,8 @@ import {
   ReturnTotalWasteAmount,
   ReturnWasteMeasurement,
 } from "./types/wasteCollectionTypes";
-import { FilterReport } from "../../types/wastePlant/reportTypes";
+import { FilterReport } from "../../dtos/wasteplant/WasteplantDTO";
+
 
 @injectable()
 export class WasteCollectionRepository

@@ -1,9 +1,9 @@
 import { inject, injectable } from "inversify";
 import TYPES from "../../config/inversify/types";
 import { IReportService } from "./interface/IReportService";
-import { FilterReport } from "../../types/wastePlant/reportTypes";
 import { IPickupRepository } from "../../repositories/pickupReq/interface/IPickupRepository";
 import { IWasteCollectionRepository } from "../../repositories/wasteCollection/interface/IWasteCollectionRepository";
+import { FilterReport } from "../../dtos/wasteplant/WasteplantDTO";
 
 @injectable()
 export class ReportService implements IReportService {

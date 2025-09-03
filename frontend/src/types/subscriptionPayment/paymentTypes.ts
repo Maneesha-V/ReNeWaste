@@ -38,6 +38,11 @@ export type SubscriptionPaymentHisDTO = {
   refundAt: Date | null;
   inProgressExpiresAt: Date | null;
 };
+export type RetryPaymentData = {
+  planId: string;
+  amount: number;
+  subPaymtId: string;
+}
 export type RetrySubptnPaymntResp = {
   orderId: string;
   amount: number;
@@ -49,14 +54,14 @@ export type subPaymnetPayload = {
   planId: string;
   plantName: string;
 };
-export type SubCreatePaymtResp = {
-  paymentOrder: {
+export type PaymentOrder = {
     orderId: string;
     amount: number;
     currency: string;
     subscriptionPaymentId: string;
-    // inProgressExpiry: string;
-  };
+}
+export type SubCreatePaymtResp = {
+  paymentOrder: PaymentOrder;
   success: boolean;
 };
 export type SubptnVerifyPaymenReq = {
@@ -96,4 +101,11 @@ export type refundPayReq = {
 export type refundPayResp = {
   message: string;
   statusUpdate: SubscriptionPaymentDTO;
+}
+
+export type FetchSubscrptnPayments = {
+  success: boolean;
+  payments: {
+    paymentData: SubscriptionPaymentHisDTO[];
+  }
 }

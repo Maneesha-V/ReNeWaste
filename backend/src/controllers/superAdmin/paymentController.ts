@@ -5,7 +5,6 @@ import { IPaymentService } from "../../services/superAdmin/interface/IPaymentSer
 import { AuthRequest } from "../../types/common/middTypes";
 import { NextFunction, Response } from "express"
 import { MESSAGES, STATUS_CODES } from "../../utils/constantUtils";
-import { handleControllerError } from "../../utils/errorHandler";
 import { ApiError } from "../../utils/ApiError";
 @injectable()
 export class PaymentController implements IPaymentController {

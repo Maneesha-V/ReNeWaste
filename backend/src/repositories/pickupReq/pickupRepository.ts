@@ -23,14 +23,10 @@ import {
   RevenueByWasteType,
   PaymentRecord,
 } from "./types/pickupTypes";
-import {
-  FetchPaymentPayload,
-  PaginatedPaymentsResult,
-} from "../../types/wastePlant/paymentTypes";
 import { populate } from "dotenv";
-import { FilterReport } from "../../types/wastePlant/reportTypes";
 import { PopulatedPIckupPlans } from "../../dtos/pickupReq/pickupReqDTO";
 import { PaginationInput } from "../../dtos/common/commonDTO";
+import { FetchPaymentPayload, FilterReport, PaginatedPaymentsResult } from "../../dtos/wasteplant/WasteplantDTO";
 
 @injectable()
 export class PickupRepository
