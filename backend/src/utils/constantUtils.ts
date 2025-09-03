@@ -20,7 +20,10 @@ export const MESSAGES = {
       SIGNUP: "Signup successfully.",
       SIGNIN: "Signin successfully.",
       SEND_NOTIFICATION: "Send notification successfully.",
-      BLOCK_UPDATE: "Block status updated successfully."
+      BLOCK_UPDATE: "Block status updated successfully.",
+      PICKUP_APPROVE: "Pickup approved successfully.",
+      PICKUP_CANCEL:"Pickup request canceled successfully.",
+      PICKUP_RESCHEDULE:"Pickup rescheduled successfully.",
     },
     ERROR: {
       FETCH_PAYMENT_FAIL: "Fetch payments failed.",
@@ -63,7 +66,8 @@ export const MESSAGES = {
       RESENT_OTP: "Failed to resend OTP.",
       REFRESH_TOKEN: "No refresh token provided.",
       SIGNUP: "Signup failed.",
-      INVALID_REFUND_STATUS: "Invalid refund status."
+      INVALID_REFUND_STATUS: "Invalid refund status.",
+      LOCATION_REQUIRED: "Location is required."
     },
   },
   WASTEPLANT: {

@@ -6,12 +6,15 @@ import {
   getPickups,
   reschedulePickupService,
 } from "../../../services/wastePlant/pickupService";
-import { ApprovePickupPayload } from "../../../types/pickupTypes";
-import { PickupCancelData } from "../../../types/wastePlantTypes";
+import { getAxiosErrorMessage } from "../../../utils/handleAxiosError";
+import { PickupCancelData, PickupReqDTO } from "../../../types/pickupReq/pickupTypes";
+import { ApprovePickupPayload, ApprovePickupResp, FetchDriversByPlaceResp, FetchPickupReqParams, FetchPickupResp, PickupCancelResp, ReschedulePickupResp } from "../../../types/wasteplant/wastePlantTypes";
+import { DriverDTO } from "../../../types/driver/driverTypes";
 
 interface PickupState {
-  pickups: any;
-  driver: any;
+  pickups: PickupReqDTO[] | [];
+  pickup: PickupReqDTO | {};
+  driver: DriverDTO[] | [];
   loading: boolean;
   message: string | null;
   error: string | null;
@@ -20,35 +23,38 @@ interface PickupState {
 
 const initialState: PickupState = {
   pickups: [],
+  pickup: {},
   driver: [],
   loading: false,
   message: null,
   error: null,
   approveError: null,
 };
-export const fetchPickupReqsts = createAsyncThunk(
+export const fetchPickupReqsts = createAsyncThunk<
+FetchPickupResp,
+FetchPickupReqParams,
+{rejectValue: {error: string}}
+
+>(
   "wastePlantPickup/fetchPickupReqsts",
   async (
-    params: {
-      wasteType: "Residential" | "Commercial";
-      status:
-        | "Pending"
-        | "Scheduled"
-        | "Completed"
-        | "Cancelled"
-        | "Rescheduled";
-    },
+    params,
     { rejectWithValue }
   ) => {
     try {
-      const response = await getPickups(params.wasteType, params.status);
+      const response = await getPickups(params);
       return response;
-    } catch (error: any) {
-      return rejectWithValue(error.response?.data || "Failed to fetch pickups");
+    } catch (error) {
+      const msg = getAxiosErrorMessage(error);
+      return rejectWithValue({ error: msg });
     }
   }
 );
-export const approvePickup = createAsyncThunk(
+export const approvePickup = createAsyncThunk<
+ApprovePickupResp,
+ApprovePickupPayload,
+{rejectValue: {error: string}}
+>(
   "wastePlantPickup/approvePickup",
   async (
     {
@@ -58,7 +64,7 @@ export const approvePickup = createAsyncThunk(
       driverId,
       assignedTruckId,
     }: ApprovePickupPayload,
-    thunkAPI
+    { rejectWithValue }
   ) => {
     try {
       const response = await approvePickupService(
@@ -68,47 +74,59 @@ export const approvePickup = createAsyncThunk(
         driverId,
         assignedTruckId
       );
-      return response.data;
-    } catch (error: any) {
+      return response;
+    } catch (error) {
       console.error("err", error);
-      return thunkAPI.rejectWithValue(
-        error.response?.data?.message || "Failed to approve pickup"
-      );
+        const msg = getAxiosErrorMessage(error);
+      return rejectWithValue({ error: msg });
     }
   }
 );
-export const reschedulePickup = createAsyncThunk(
+export const reschedulePickup = createAsyncThunk<
+ReschedulePickupResp,
+any,
+{rejectValue: {error: string}}
+>(
   "wastePlantPickup/reschedulePickup ",
   async (formData: any, { rejectWithValue }) => {
     try {
       const response = await reschedulePickupService(formData);
       return response;
-    } catch (error: any) {
-      return rejectWithValue(error.response?.data || "Something wrong.");
+    } catch (error) {
+        const msg = getAxiosErrorMessage(error);
+      return rejectWithValue({ error: msg });
     }
   }
 );
-export const cancelPickupReq = createAsyncThunk(
+export const cancelPickupReq = createAsyncThunk<
+PickupCancelResp,
+PickupCancelData,
+{rejectValue: {error: string}}
+>(
   "wastePlantPickup/cancelPickupReq ",
-  async ({ pickupReqId, reason }: PickupCancelData, thunkAPI) => {
+  async ({ pickupReqId, reason }: PickupCancelData, { rejectWithValue }) => {
     try {
       const response = await cancelPickupReqById({ pickupReqId, reason });
       return response;
-    } catch (error: any) {
-      return thunkAPI.rejectWithValue(
-        error.response.data || "Failed to cancel pickupreq."
-      );
+    } catch (error) {
+      const msg = getAxiosErrorMessage(error);
+      return rejectWithValue({ error: msg });
     }
   }
 );
-export const fetchDriversByPlace = createAsyncThunk(
+export const fetchDriversByPlace = createAsyncThunk<
+FetchDriversByPlaceResp,
+string,
+{rejectValue: {error: string}}
+>(
   "wastePlantPickup/fetchDriversByPlace ",
   async (location: string, { rejectWithValue }) => {
     try {
       const response = await getAvailableDriversByPlace(location);
       return response;
-    } catch (error: any) {
-      return rejectWithValue(error.response?.data || "Failed to fetch trucks");
+    } catch (error) {
+      const msg = getAxiosErrorMessage(error);
+      return rejectWithValue({ error: msg });
     }
   }
 );
@@ -124,11 +142,11 @@ const wastePlantPickupSlice = createSlice({
       })
       .addCase(fetchPickupReqsts.fulfilled, (state, action) => {
         state.loading = false;
-        state.pickups = action.payload;
+        state.pickups = action.payload.pickups;
       })
       .addCase(fetchPickupReqsts.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload as string;
+        state.error = action.payload?.error as string;
       })
       .addCase(approvePickup.pending, (state) => {
         state.loading = true;
@@ -136,11 +154,11 @@ const wastePlantPickupSlice = createSlice({
       })
       .addCase(approvePickup.fulfilled, (state, action) => {
         state.loading = false;
-        state.driver = action.payload;
+        // state.driver = action.payload.;
       })
       .addCase(approvePickup.rejected, (state, action) => {
         state.loading = false;
-        state.approveError = action.payload as string;
+        state.approveError = action.payload?.error as string;
       })
       .addCase(reschedulePickup.pending, (state) => {
         state.loading = true;
@@ -148,15 +166,15 @@ const wastePlantPickupSlice = createSlice({
       })
       .addCase(reschedulePickup.fulfilled, (state, action) => {
         state.loading = false;
-        state.pickups = action.payload;
+        state.pickup = action.payload.updatedPickup;
       })
       .addCase(reschedulePickup.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload as string;
+        state.error = action.payload?.error as string;
       })
       .addCase(cancelPickupReq.fulfilled, (state, action) => {
         state.pickups = state.pickups.filter(
-          (pickups: any) => pickups._id !== action.payload
+          (pickups: PickupReqDTO) => pickups._id !== action.payload.result._id
         );
       })
       .addCase(fetchDriversByPlace.pending, (state) => {
@@ -165,11 +183,11 @@ const wastePlantPickupSlice = createSlice({
       })
       .addCase(fetchDriversByPlace.fulfilled, (state, action) => {
         state.loading = false;
-        state.driver = action.payload;
+        state.driver = action.payload.drivers;
       })
       .addCase(fetchDriversByPlace.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload as string;
+        state.error = action.payload?.error as string;
       });
   },
 });

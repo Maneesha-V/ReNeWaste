@@ -49,10 +49,10 @@ export type PartialCommPickupReq = Partial<CommPickupReq>;
 export interface CommPickupReqArgs {
   data: PartialCommPickupReq;
 }
-export type ApprovePickupPayload = {
-  pickupReqId: string;
-  pickupId: string;
-  status: string;
-  driverId: string;
-  assignedTruckId: string;
-}
+// export type ApprovePickupPayload = {
+//   pickupReqId: string;
+//   pickupId: string;
+//   status: string;
+//   driverId: string;
+//   assignedTruckId: string;
+// }

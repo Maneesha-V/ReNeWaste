@@ -28,12 +28,12 @@ export interface ValidationErrors {
 //   driver: any;
 //   wasteplantId: string;
 // }
-export interface ReschedulePickupModalProps {
-  visible: boolean;
-  onClose: () => void;
-  pickup: any;
-  onSubmit: (formData: any) => void;
-}
+// export interface ReschedulePickupModalProps {
+//   visible: boolean;
+//   onClose: () => void;
+//   pickup: any;
+//   onSubmit: (formData: any) => void;
+// }
 export type SidebarWastePlantProps = {
   collapsed: boolean;
   children?: ReactNode;
@@ -51,10 +51,10 @@ export type PickupRequest = {
   status: "Pending" | "Scheduled" | "Cancelled" | "Completed" | "Rescheduled";
 }
 
-export type PickupCancelData = {
-  pickupReqId: string;
-  reason: string;
-}
+// export type PickupCancelData = {
+//   pickupReqId: string;
+//   reason: string;
+// }
 
 export type RenewNotificationPayload = {
   plantId: string;

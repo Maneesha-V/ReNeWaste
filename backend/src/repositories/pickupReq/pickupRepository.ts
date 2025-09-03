@@ -5,7 +5,6 @@ import {
   PopulatedPickup,
 } from "../../models/pickupRequests/interfaces/pickupInterface";
 import { PickupModel } from "../../models/pickupRequests/pickupModel";
-import { PickupFilterParams } from "../../types/wastePlant/authTypes";
 import {
   EnhancedPickup,
   IPickupRepository,
@@ -16,17 +15,17 @@ import { inject, injectable } from "inversify";
 import TYPES from "../../config/inversify/types";
 import { IUserRepository } from "../user/interface/IUserRepository";
 import { IUserDocument } from "../../models/user/interfaces/userInterface";
-import {
-  PickupStatus,
-  PickupStatusByWasteType,
-  WasteType,
-  RevenueByWasteType,
-  PaymentRecord,
-} from "./types/pickupTypes";
+// import {
+//   PickupStatus,
+//   PickupStatusByWasteType,
+//   WasteType,
+//   RevenueByWasteType,
+//   PaymentRecord,
+// } from "./types/pickupTypes";
 import { populate } from "dotenv";
-import { PopulatedPIckupPlans } from "../../dtos/pickupReq/pickupReqDTO";
+import { PickupStatus, PickupStatusByWasteType, PopulatedPIckupPlans, RevenueByWasteType, WasteType } from "../../dtos/pickupReq/pickupReqDTO";
 import { PaginationInput } from "../../dtos/common/commonDTO";
-import { FetchPaymentPayload, FilterReport, PaginatedPaymentsResult } from "../../dtos/wasteplant/WasteplantDTO";
+import { FetchPaymentPayload, FilterReport, PaginatedPaymentsResult, PickupFilterParams } from "../../dtos/wasteplant/WasteplantDTO";
 
 @injectable()
 export class PickupRepository
@@ -56,7 +55,7 @@ export class PickupRepository
   }
   async getPickupsByPlantId(
     filters: PickupFilterParams
-  ): Promise<IPickupRequest[]> {
+  ): Promise<IPickupRequestDocument[]> {
     const { plantId, status, wasteType } = filters;
 
     const query: any = {

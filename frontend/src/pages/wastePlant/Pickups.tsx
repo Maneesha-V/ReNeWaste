@@ -12,8 +12,8 @@ import {
 } from "../../utils/formatDate";
 import AssignDriverModal from "../../components/wastePlant/AssignDriverModal";
 import ReschedulePickupModal from "../../components/wastePlant/ReschedulePickupModal";
-import { PickupRequest } from "../../types/wastePlantTypes";
 import InputMessage from "../../components/common/InputMessage";
+import { PickupReqDTO } from "../../types/pickupReq/pickupTypes";
 
 const Pickups = () => {
   const [activeTab, setActiveTab] = useState<"Residential" | "Commercial">(
@@ -60,12 +60,12 @@ const Pickups = () => {
       setCancelPickup(pickup);
       setCancelModalVisible(true);
   }
-  const handleReschedule = async (pickup: PickupRequest) => {
+  const handleReschedule = async (pickup: PickupReqDTO) => {
     setPickupToReschedule(pickup);
     setRescheduleModalVisible(true);
   };
   const filteredData = pickups.filter(
-    (item: PickupRequest) => 
+    (item: PickupReqDTO) => 
       item.wasteType === activeTab && item.status === statusTab
   );
 
@@ -302,7 +302,7 @@ const Pickups = () => {
               <Table.Column
                 title="Action"
                 key="action"
-                render={(_: any, record: PickupRequest) => {
+                render={(_: any, record: PickupReqDTO) => {
                   const actions: React.ReactNode[] = [];
 
                   if (record.status === "Pending") {

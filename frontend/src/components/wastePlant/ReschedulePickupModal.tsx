@@ -10,7 +10,9 @@ import {
   fetchDriversByPlace,
   reschedulePickup,
 } from "../../redux/slices/wastePlant/wastePlantPickupSlice";
-import { ReschedulePickupModalProps } from "../../types/wastePlantTypes";
+import { getAxiosErrorMessage } from "../../utils/handleAxiosError";
+import { DriverDTO } from "../../types/driver/driverTypes";
+import { ReschedulePickupModalProps } from "../../types/common/modalTypes";
 
 const ReschedulePickupModal = ({
   visible,
@@ -51,7 +53,7 @@ const ReschedulePickupModal = ({
     form.setFieldsValue({ assignedZone: value });
     if (!pickup?.wasteType) return;
     const filtered = driver.filter(
-      (d: any) =>
+      (d: DriverDTO) =>
         d.assignedZone?.toLowerCase() === value.toLowerCase() &&
         d.category?.toLowerCase() === pickup.wasteType?.toLowerCase()
     );
@@ -98,13 +100,13 @@ const ReschedulePickupModal = ({
       };
       console.log("date", selectedDateTime.toISOString());
 
-      await dispatch(reschedulePickup(formData));
-      toast.success("Pickup rescheduled successfully");
+      const res = await dispatch(reschedulePickup(formData)).unwrap();
+      toast.success(res?.message);
       onSubmit(formData);
       onClose();
       form.resetFields();
     } catch (err) {
-      toast.error("Please check all fields");
+      toast.error(getAxiosErrorMessage(err));
     }
   };
 

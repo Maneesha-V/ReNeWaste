@@ -1,21 +1,12 @@
 import { PaginationInput } from "../../../dtos/common/commonDTO";
-import { PopulatedPIckupPlans } from "../../../dtos/pickupReq/pickupReqDTO";
+import { PickupStatusByWasteType, PopulatedPIckupPlans, RevenueByWasteType } from "../../../dtos/pickupReq/pickupReqDTO";
+import { FetchPaymentPayload, FilterReport, PaginatedPaymentsResult, PickupFilterParams } from "../../../dtos/wasteplant/WasteplantDTO";
 import {
   IPickupRequest,
   IPickupRequestDocument,
 } from "../../../models/pickupRequests/interfaces/pickupInterface";
 import { PickupDriverFilterParams } from "../../../types/driver/pickupTypes";
-import { PickupFilterParams } from "../../../types/wastePlant/authTypes";
-import {
-  FetchPaymentPayload,
-  PaginatedPaymentsResult,
-} from "../../../types/wastePlant/paymentTypes";
-import { FilterReport } from "../../../types/wastePlant/reportTypes";
-import {
-  PaymentRecord,
-  PickupStatusByWasteType,
-  RevenueByWasteType,
-} from "../types/pickupTypes";
+
 export interface EnhancedPickup extends IPickupRequest {
   userFullName?: string;
   selectedAddress?: any;
@@ -25,7 +16,7 @@ export interface IPickupRepository {
   createPickup(
     pickupData: Partial<IPickupRequest>
   ): Promise<IPickupRequestDocument>;
-  getPickupsByPlantId(filters: PickupFilterParams): Promise<IPickupRequest[]>;
+  getPickupsByPlantId(filters: PickupFilterParams): Promise<IPickupRequestDocument[]>;
   updatePickupStatusAndDriver(
     pickupReqId: string,
     updateData: { status: string; driverId: string; truckId: string }

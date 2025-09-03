@@ -1,3 +1,6 @@
+import { MsgSuccessResp } from "../common/commonTypes";
+import { DriverDTO } from "../driver/driverTypes";
+import { PickupReqDTO } from "../pickupReq/pickupTypes";
 import { WasteplantDTO } from "../superadmin/superAdminTypes";
 
 type PlantStatus = "Pending" | "Active" | "Inactive" | "Rejected";
@@ -114,3 +117,34 @@ export type WastePlantFormData = {
     payments: PaymentRecord[]
     total: number;
   }
+export type FetchPickupReqParams = {
+  wasteType: "Residential" | "Commercial";
+  status: "Pending" | "Scheduled" | "Completed" | "Cancelled" | "Rescheduled";
+};
+  
+  export type FetchPickupResp = {
+success: boolean;
+pickups: PickupReqDTO[];
+  }
+  export type ApprovePickupPayload = {
+  pickupReqId: string;
+  pickupId: string;
+  status: string;
+  driverId: string;
+  assignedTruckId: string;
+}
+export type ApprovePickupResp = {
+  message: string;
+  result: PickupReqDTO;
+}
+export type ReschedulePickupResp = MsgSuccessResp & {
+  updatedPickup: PickupReqDTO;
+}
+export type PickupCancelResp = {
+    message: string;
+  result: PickupReqDTO;
+}
+export type FetchDriversByPlaceResp = {
+  success: boolean;
+  drivers: DriverDTO[];
+}

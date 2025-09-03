@@ -74,3 +74,9 @@ export interface DriverChatWindowProps {
   driver: any;
   wasteplantId: string;
 }
+export interface ReschedulePickupModalProps {
+  visible: boolean;
+  onClose: () => void;
+  pickup: any;
+  onSubmit: (formData: any) => void;
+}

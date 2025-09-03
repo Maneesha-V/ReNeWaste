@@ -1,4 +1,4 @@
-import { Modal, Select, Input, Form, Button } from "antd";
+import { Modal, Select, Form, Button } from "antd";
 import { useEffect, useState } from "react";
 import { useAppDispatch } from "../../redux/hooks";
 import { RootState } from "../../redux/store";
@@ -14,6 +14,8 @@ import {
   formatDateToDDMMYYYY,
   formatTimeTo12Hour,
 } from "../../utils/formatDate";
+import { getAxiosErrorMessage } from "../../utils/handleAxiosError";
+import { DriverDTO } from "../../types/driver/driverTypes";
 
 interface AssignDriverModalProps {
   visible: boolean;
@@ -58,7 +60,7 @@ const AssignDriverModal = ({
   }, [truck]);
 
   const filteredDrivers = Array.isArray(driver)
-    ? driver.filter((d: any) => {
+    ? driver.filter((d: DriverDTO) => {
         return (
           d.assignedZone === pickup?.location &&
           d.category?.toLowerCase() === pickup?.wasteType?.toLowerCase()
@@ -95,11 +97,11 @@ const AssignDriverModal = ({
       //   toast.error(result.payload.error);
       //   return;
       // }
-      toast.success("Pickup scheduled successfully");
+      toast.success(result?.message);
       onSuccess();
       onClose();
-    } catch (err: any) {
-      toast.error(err || "Failed to assign pickup");
+    } catch (err) {
+      toast.error(getAxiosErrorMessage(err));
     }
   };
 

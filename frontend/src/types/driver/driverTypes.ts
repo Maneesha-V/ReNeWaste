@@ -1,4 +1,3 @@
-import { string } from "zod";
 
 export type DriverDTO = {
    _id: string;

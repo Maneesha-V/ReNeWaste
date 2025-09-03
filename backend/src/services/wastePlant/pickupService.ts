@@ -1,9 +1,4 @@
 import { IPickupRequest } from "../../models/pickupRequests/interfaces/pickupInterface";
-import { PickupFilterParams } from "../../types/wastePlant/authTypes";
-import {
-  ApprovePickupDTO,
-  ReschedulePickupDTO,
-} from "../../types/wastePlant/pickupTypes";
 import { IPickupService } from "./interface/IPickupService";
 import { inject, injectable } from "inversify";
 import TYPES from "../../config/inversify/types";
@@ -15,6 +10,10 @@ import { IWastePlantRepository } from "../../repositories/wastePlant/interface/I
 import { IUserRepository } from "../../repositories/user/interface/IUserRepository";
 import { ISubscriptionPlanRepository } from "../../repositories/subscriptionPlan/interface/ISubscriptionPlanRepository";
 import { setDriver } from "mongoose";
+import { ApprovePickupDTO, PickupFilterParams, ReschedulePickupDTO } from "../../dtos/wasteplant/WasteplantDTO";
+import { PickupRequestMapper } from "../../mappers/PIckupReqMapper";
+import { PickupReqDTO } from "../../dtos/pickupReq/pickupReqDTO";
+import { DriverMapper } from "../../mappers/DriverMapper";
 
 @injectable()
 export class PickupService implements IPickupService {
@@ -36,8 +35,9 @@ export class PickupService implements IPickupService {
   ) {}
   async getPickupRequestService(
     filters: PickupFilterParams
-  ): Promise<IPickupRequest[]> {
-    return await this.pickupRepository.getPickupsByPlantId(filters);
+  ): Promise<PickupReqDTO[]> {
+    const pickups =  await this.pickupRepository.getPickupsByPlantId(filters);
+    return PickupRequestMapper.mapPickupReqsDTO(pickups);
   }
 
   async approvePickupService(data: ApprovePickupDTO) {
@@ -132,14 +132,13 @@ export class PickupService implements IPickupService {
       io.to(`${userId}`).emit("newNotification", userNotification);
     }
 
-    return updatedPickup;
+    return PickupRequestMapper.mapPickupReqDTO(updatedPickup);
   }
   async cancelPickupRequest(
     plantId: string,
     pickupReqId: string,
     reason: string
   ) {
-    try {
       const updatedPickupRequest =
         await this.pickupRepository.updatePickupRequest(pickupReqId);
 
@@ -162,11 +161,7 @@ export class PickupService implements IPickupService {
         io.to(`${userId}`).emit("newNotification", userNotification);
       }
 
-      return updatedPickupRequest;
-    } catch (error) {
-      console.error(error);
-      throw new Error("Error in cancelling the pickup request.");
-    }
+      return PickupRequestMapper.mapPickupReqDTO(updatedPickupRequest);
   }
   async reschedulePickup(
     wasteplantId: string,
@@ -252,9 +247,10 @@ export class PickupService implements IPickupService {
     if (io) {
       io.to(`${userId}`).emit("newNotification", userNotification);
     }
-    return updatedPickup;
+    return PickupRequestMapper.mapPickupReqDTO(updatedPickup);
   }
   async getAvailableDriverService(location: string, plantId: string) {
-    return await this.driverRepository.getDriversByLocation(location, plantId);
+    const drivers = await this.driverRepository.getDriversByLocation(location, plantId);
+    return DriverMapper.mapDriversDTO(drivers);
   }
 }

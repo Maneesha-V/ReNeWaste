@@ -132,4 +132,7 @@ export class PickupRequestMapper {
       // updatedAt: doc.updatedAt.toISOString(),
     };
   }
+  static mapPickupReqsDTO(docs: IPickupRequestDocument[]): PickupReqDTO[] {
+    return docs.map((doc) => this.mapPickupReqDTO(doc));
+  }
 }

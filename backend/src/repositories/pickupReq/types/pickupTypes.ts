@@ -8,13 +8,13 @@ export type PickupStatus =
   | "Cancelled";
 export type StatusCounts = Record<PickupStatus | "Active", number>;
 
-export type PickupStatusByWasteType = Record<WasteType, StatusCounts>;
+// export type PickupStatusByWasteType = Record<WasteType, StatusCounts>;
 
-export type RevenueByWasteType = {
-  totalResidentialRevenue: number;
-  totalCommercialRevenue: number;
-  totalRevenue: number;
-};
+// export type RevenueByWasteType = {
+//   totalResidentialRevenue: number;
+//   totalCommercialRevenue: number;
+//   totalRevenue: number;
+// };
 export type PaymentRecord = {
   _id: string;
   pickupId: string;

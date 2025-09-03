@@ -11,8 +11,8 @@ export type LoginResponse = {
   token: string;
 }
 
-  export type PickupFilterParams = {
-    status?: string;
-    wasteType?: string;
-    plantId: string;
-  }
+  // export type PickupFilterParams = {
+  //   status?: string;
+  //   wasteType?: string;
+  //   plantId: string;
+  // }

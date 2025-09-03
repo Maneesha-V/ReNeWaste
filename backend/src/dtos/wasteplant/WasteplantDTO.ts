@@ -181,3 +181,23 @@ export type FilterReport = {
     to: string;
     plantId: string;
 }
+  export type PickupFilterParams = {
+    status?: string;
+    wasteType?: string;
+    plantId: string;
+  }
+  export type ApprovePickupDTO = {
+  plantId: string;
+  pickupReqId: string;
+  status: string;
+  driverId: string;
+  assignedTruckId: string;
+}
+
+export type ReschedulePickupDTO = {
+  driverId: string;
+  assignedZone: string;
+  rescheduledPickupDate: string; 
+  pickupTime: string;
+  status: string;
+}
