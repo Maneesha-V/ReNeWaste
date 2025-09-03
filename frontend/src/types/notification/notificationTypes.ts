@@ -9,3 +9,9 @@ export type NotificationResp = {
   isRead: boolean;
   createdAt: string;
 };
+export type FetchNotificationsResp = {
+  notifications: NotificationResp[];
+}
+export type markAsReadResp = {
+  updatedNotification: NotificationResp;
+}

@@ -5,7 +5,6 @@ import {
   IDriverDocument,
 } from "../../models/driver/interfaces/driverInterface";
 import { IDriverRepository } from "./interface/IDriverRepository";
-import { PaginatedDriversResult } from "../../types/wastePlant/driverTypes";
 import { inject, injectable } from "inversify";
 import TYPES from "../../config/inversify/types";
 import BaseRepository from "../baseRepository/baseRepository";
@@ -18,6 +17,8 @@ import { INotificationRepository } from "../notification/interface/INotifcationR
 import {
   ReturnFetchAllDriversByPlantId,
 } from "./types/driverTypes";
+import { PaginatedDriversResult } from "../../dtos/driver/driverDTO";
+import { DriverMapper } from "../../mappers/DriverMapper";
 
 @injectable()
 export class DriverRepository
@@ -82,7 +83,10 @@ export class DriverRepository
 
     const total = await this.model.countDocuments(query);
 
-    return { drivers, total };
+    return { 
+      drivers: DriverMapper.mapDriversDTO(drivers), 
+      total 
+    };
   }
   async updateDriverPassword(
     email: string,
@@ -97,7 +101,7 @@ export class DriverRepository
   async getDriverById(driverId: string) {
     return await this.model.findById(driverId);
   }
-  async updateDriverById(driverId: string, data: any): Promise<IDriver | null> {
+  async updateDriverById(driverId: string, data: any): Promise<IDriverDocument | null> {
     return await this.model.findByIdAndUpdate(driverId, data, { new: true });
   }
   async deleteDriverById(driverId: string) {

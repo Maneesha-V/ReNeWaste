@@ -4,8 +4,9 @@ import {
   markAsReadService,
   saveWasteMeasurementService,
 } from "../../../services/wastePlant/notificationService";
-import { NotificationResp } from "../../../types/notification/notificationTypes";
-import { SaveWasteMeasurementPayload } from "../../../types/wasteCollections/wasteCollectionTypes";
+import { FetchNotificationsResp, markAsReadResp, NotificationResp } from "../../../types/notification/notificationTypes";
+import { SaveWasteMeasurementPayload, SaveWasteMeasurementResp } from "../../../types/wasteCollections/wasteCollectionTypes";
+import { getAxiosErrorMessage } from "../../../utils/handleAxiosError";
 
 interface NotificationState {
   notifications: NotificationResp[];
@@ -23,33 +24,46 @@ const initialState: NotificationState = {
   measuredNotificationId: null,
 };
 
-export const fetchNotifications = createAsyncThunk(
+export const fetchNotifications = createAsyncThunk<
+FetchNotificationsResp,
+void,
+{ rejectValue: { message: string } }
+>(
   "wastePlantNotifications/fetchNotifications",
   async (_, { rejectWithValue }) => {
     try {
       const response = await getNotifications();
+      console.log("response", response);
       return response;
-    } catch (error: any) {
-      return rejectWithValue(
-        error.response?.data || "Failed to fetch notifications."
-      );
+    } catch (error) {
+      const msg = getAxiosErrorMessage(error);
+           return rejectWithValue({ message: msg });
     }
   }
 );
 
-export const markAsRead = createAsyncThunk(
+export const markAsRead = createAsyncThunk<
+markAsReadResp,
+string,
+{ rejectValue: { message: string } }
+>(
   "wastePlantNotifications/markAsRead",
   async (id: string, { rejectWithValue }) => {
     try {
       const response = await markAsReadService(id);
       return response;
-    } catch (error: any) {
-      return rejectWithValue(error.response?.data || "Failed to mark as read.");
+    } catch (error) {
+        const msg = getAxiosErrorMessage(error);
+           return rejectWithValue({ message: msg });
     }
   }
 );
 
-export const saveWasteMeasurement = createAsyncThunk(
+export const saveWasteMeasurement = createAsyncThunk<
+SaveWasteMeasurementResp,
+SaveWasteMeasurementPayload,
+{ rejectValue: { message: string } }
+>(
   "wastePlantNotifications/saveWasteMeasurement",
   async (data: SaveWasteMeasurementPayload, { rejectWithValue }) => {
     try {
@@ -57,11 +71,10 @@ export const saveWasteMeasurement = createAsyncThunk(
       const response = await saveWasteMeasurementService(data);
       console.log("response", response);
       return response;
-    } catch (error: any) {
+    } catch (error) {
       console.error("err", error);
-      return rejectWithValue(
-        error.response?.data || "Failed to measure weight."
-      );
+      const msg = getAxiosErrorMessage(error);
+           return rejectWithValue({ message: msg });
     }
   }
 );
@@ -79,15 +92,17 @@ const wastePlantNotificationSlice = createSlice({
         state.loading = true;
       })
       .addCase(fetchNotifications.fulfilled, (state, action) => {
+        console.log("fetchNotifications",action.payload.notifications);
+        
         state.loading = false;
-        state.notifications = action.payload;
+        state.notifications = action.payload.notifications;
       })
       .addCase(fetchNotifications.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload as string;
+        state.error = action.payload?.message as string;
       })
       .addCase(markAsRead.fulfilled, (state, action) => {
-        const updatedId = action.payload._id;
+        const updatedId = action.payload.updatedNotification._id;
         const notification = state.notifications.find(
           (n) => n._id === updatedId
         );
@@ -96,7 +111,7 @@ const wastePlantNotificationSlice = createSlice({
         }
       })
       .addCase(markAsRead.rejected, (state, action) => {
-        state.error = action.payload as string;
+        state.error = action.payload?.message as string;
       })
       .addCase(saveWasteMeasurement.pending, (state) => {
         state.saveLoading = true;
@@ -117,7 +132,7 @@ const wastePlantNotificationSlice = createSlice({
       .addCase(saveWasteMeasurement.rejected, (state, action) => {
         state.saveLoading = false;
         state.measuredNotificationId = null;
-        state.error = action.payload as string;
+        state.error = action.payload?.message as string;
       });
   },
 });

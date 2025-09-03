@@ -10,7 +10,7 @@ export interface IDriver {
   password: string;
   licenseFront: string;
   licenseBack: string;
-  role: "driver" | "user" | "superadmin" | "wasteplant";
+  role: "driver";
   wasteplantId?: mongoose.Types.ObjectId;
   assignedTruckId?: mongoose.Types.ObjectId | null;
   assignedZone?: string;

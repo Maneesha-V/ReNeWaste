@@ -65,3 +65,57 @@ export type NotificationBadgeProps = {
 export interface ValidationErrors {
   [field: string]: string;
 }
+export type  DashboardDataResp = {
+  summary: {
+    totalDrivers: {
+      active: number;
+      inactive: number;
+      suspended: number;
+    };
+    totalTrucks: {
+      active: number;
+      inactive: number;
+      maintenance: number;
+    };
+    totalActivePickups: number;
+    totalCompletedPickups: number;
+    totalWasteCollected: {
+      totalResidWaste: number;
+      totalCommWaste: number;
+    };
+    totalRevenue: number;
+  };
+  pickupStatus: {
+    Residential: {
+      Pending: number;
+      Scheduled: number;
+      Rescheduled: number;
+      Completed: number;
+      Cancelled: number;
+      Active: number;
+    };
+    Commercial: {
+      Pending: number;
+      Scheduled: number;
+      Rescheduled: number;
+      Completed: number;
+      Cancelled: number;
+      Active: number;
+    };
+  };
+  drivers: {
+    active: number;
+    inactive: number;
+    suspended: number;
+  };
+  trucks: {
+    active: number;
+    inactive: number;
+    maintenance: number;
+  };
+  revenue: {
+    totalResidentialRevenue: number;
+    totalCommercialRevenue: number;
+    totalRevenue: number;
+  };
+};

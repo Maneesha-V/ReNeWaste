@@ -1,12 +1,13 @@
 import bcrypt from "bcrypt";
 import { IDriver } from "../../models/driver/interfaces/driverInterface";
 import { IDriverService } from "./interface/IDriverService";
-import { PaginatedDriversResult, ReturnGetEditDriver, ReturnTaluk } from "../../types/wastePlant/driverTypes";
 import { inject, injectable } from "inversify";
 import TYPES from "../../config/inversify/types";
 import { IDriverRepository } from "../../repositories/driver/interface/IDriverRepository";
 import { IWastePlantRepository } from "../../repositories/wastePlant/interface/IWastePlantRepository";
 import { ISubscriptionPlanRepository } from "../../repositories/subscriptionPlan/interface/ISubscriptionPlanRepository";
+import { DriverMapper } from "../../mappers/DriverMapper";
+import { DriverDTO, PaginatedDriversResult, ReturnGetEditDriver, ReturnTaluk } from "../../dtos/driver/driverDTO";
 
 @injectable()
 export class DriverService implements IDriverService {
@@ -18,7 +19,7 @@ export class DriverService implements IDriverService {
     @inject(TYPES.SubscriptionPlanRepository)
     private subscriptionplanRepository: ISubscriptionPlanRepository
   ) {}
-  async addDriver(data: IDriver): Promise<IDriver> {
+  async addDriver(data: IDriver): Promise<boolean> {
      const driversCount = await this.driverRepository.fetchAllDriversByPlantId(
       data.wasteplantId!.toString()
     );
@@ -69,7 +70,11 @@ export class DriverService implements IDriverService {
       ...data,
       password: hashedPassword,
     };
-    return await this.driverRepository.createDriver(newData);
+    const created =  await this.driverRepository.createDriver(newData);
+    if(!created){
+      throw new Error("Can't create driver.")
+    }
+    return true;
   }
   async getAllDrivers(
     plantId: string,
@@ -85,27 +90,27 @@ export class DriverService implements IDriverService {
     );
   }
   async getDriverByIdService(driverId: string, plantId: string): Promise<ReturnGetEditDriver> {
-    try {
       const driver = await this.driverRepository.getDriverById(driverId);
       if (!driver) throw new Error("Driver not found");
       const { taluk } = await this.getTalukByPlantIdService(plantId);
-      return { driver, taluk }
-    } catch (error) {
-      throw new Error("Error fetching driver from service");
-    }
+      return { 
+        driver: DriverMapper.mapDriverDTO(driver), 
+        taluk 
+      }
   }
   async updateDriverByIdService(
     driverId: string,
-    data: any
-  ): Promise<IDriver | null> {
-    try {
-      return await this.driverRepository.updateDriverById(driverId, data);
-    } catch (error) {
-      throw new Error("Error updating driver in service");
-    }
+    data: IDriver
+  ): Promise<DriverDTO> {
+      const driver =  await this.driverRepository.updateDriverById(driverId, data);
+      if(!driver){
+        throw new Error("Driver not found.")
+      }
+      return DriverMapper.mapDriverDTO(driver);
   }
   async deleteDriverByIdService(driverId: string) {
-    return await this.driverRepository.deleteDriverById(driverId);
+    const updated = await this.driverRepository.deleteDriverById(driverId);
+      return DriverMapper.mapDriverDTO(updated);
   }
   async getTalukByPlantIdService(plantId: string): Promise<ReturnTaluk> {
     const res =  await this.wastePlantRepository.getWastePlantById(plantId) 

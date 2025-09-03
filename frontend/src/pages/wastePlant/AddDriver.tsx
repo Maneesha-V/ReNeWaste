@@ -13,6 +13,7 @@ import {
   getMunicipalityByTaluk,
   getPanchayatsByTaluk,
 } from "../../utils/locationUtils";
+import { getAxiosErrorMessage } from "../../utils/handleAxiosError";
 
 const AddDriver = () => {
   const navigate = useNavigate();
@@ -112,17 +113,13 @@ const AddDriver = () => {
       }
     });
     try {
-      const result = await dispatch(addDriver(formDataToSend));
-      if (result.payload?.error) {
-        toast.error(result.payload.error);
-        return;
-      }
-      toast.success("Add driver successfully!");
+      const result = await dispatch(addDriver(formDataToSend)).unwrap();
+      toast.success(result?.message);
       setTimeout(() => {
         navigate("/waste-plant/drivers");
       }, 2000);
-    } catch (error: any) {
-      toast.error("Driver creation failed. Please try again.");
+    } catch (error) {
+      toast.error(getAxiosErrorMessage(error));
     }
   };
 

@@ -1,34 +1,44 @@
-import { Response } from "express";
+import { NextFunction, Response } from "express";
 import { inject, injectable } from "inversify";
 import TYPES from "../../config/inversify/types";
 import { IDashboardController } from "./interface/IDashboardController";
 import { IDashboardService } from "../../services/wastePlant/interface/IDashboardService";
 import { AuthRequest } from "../../types/common/middTypes";
+import { ApiError } from "../../utils/ApiError";
+import { MESSAGES, STATUS_CODES } from "../../utils/constantUtils";
 
 @injectable()
 export class DashboardController implements IDashboardController {
   constructor(
     @inject(TYPES.PlantDashboardService)
-    private dashboardService: IDashboardService
-  ){}
-  async fetchDashboardData(req: AuthRequest, res: Response): Promise<void> {
-         try {
+    private _dashboardService: IDashboardService
+  ) {}
+  async fetchDashboardData(
+    req: AuthRequest,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
+    try {
       const plantId = req.user?.id;
       if (!plantId) {
-        res.status(404).json({ message: "plantId not found" });
-        return;
+        throw new ApiError(
+          STATUS_CODES.UNAUTHORIZED,
+          MESSAGES.COMMON.ERROR.UNAUTHORIZED
+        );
       }
 
-    const dashboardData = await this.dashboardService.getDashboardData(plantId);
-      console.log("dashboardData",dashboardData);
-      
-      res.status(200).json({
+      const dashboardData = await this._dashboardService.getDashboardData(
+        plantId
+      );
+      console.log("dashboardData", dashboardData);
+
+      res.status(STATUS_CODES.SUCCESS).json({
         dashboardData,
-        success: true
+        success: true,
       });
-    } catch (error: any) {
+    } catch (error) {
       console.error("err", error);
-      res.status(500).json({ message: "Error fetching dashboard dat.", error });
-    } 
+      next(error);
+    }
   }
 }

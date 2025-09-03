@@ -1,5 +1,7 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { getDashboard } from "../../../services/wastePlant/dashboardService";
+import { getAxiosErrorMessage } from "../../../utils/handleAxiosError";
+import { DashboardDataResp } from "../../../types/common/commonTypes";
 
 // interface DashboardState {
 //   loading: boolean;
@@ -49,7 +51,11 @@ const initialState: DashboardState = {
   pickupStatus: null,
 };
 
-export const fetchDashboardData = createAsyncThunk(
+export const fetchDashboardData = createAsyncThunk<
+DashboardDataResp,
+void,
+{rejectValue: {message: string}}
+>(
   "wastePlantDashboard/fetchDashboardData",
   async (_, { rejectWithValue }) => {
     try {
@@ -57,10 +63,9 @@ export const fetchDashboardData = createAsyncThunk(
       console.log("resp", response);
 
       return response;
-    } catch (error: any) {
-      return rejectWithValue(
-        error.response?.data || "Failed to fetch dashboard data."
-      );
+    } catch (error) {
+      const msg = getAxiosErrorMessage(error);
+             return rejectWithValue({ message: msg });
     }
   }
 );
@@ -91,7 +96,7 @@ const wasteplantDashboardSlice = createSlice({
       })
       .addCase(fetchDashboardData.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload as string;
+        state.error = action.payload?.message as string;
       });
   },
 });

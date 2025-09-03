@@ -1,4 +1,4 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import { IDriverController } from "./interface/IDriverController";
 import { IDriver } from "../../models/driver/interfaces/driverInterface";
 import mongoose from "mongoose";
@@ -6,35 +6,38 @@ import { AuthRequest } from "../../types/common/middTypes";
 import { inject, injectable } from "inversify";
 import TYPES from "../../config/inversify/types";
 import { IDriverService } from "../../services/wastePlant/interface/IDriverService";
+import { ApiError } from "../../utils/ApiError";
+import { MESSAGES, STATUS_CODES } from "../../utils/constantUtils";
 
 @injectable()
 export class DriverController implements IDriverController {
   constructor(
     @inject(TYPES.PlantDriverService)
-    private driverService: IDriverService
+    private _driverService: IDriverService
   ) {}
   
-   async getCreateDriver(req: AuthRequest, res: Response): Promise<void> {
+   async getCreateDriver(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
     try {
       const plantId = req.user?.id;
       if (!plantId) {
-        res.status(404).json({ message: "plantId not found" });
-        return;
+        throw new ApiError(
+                  STATUS_CODES.UNAUTHORIZED,
+                  MESSAGES.COMMON.ERROR.UNAUTHORIZED
+                );
       }
 
-    const data = await this.driverService.getTalukByPlantIdService(plantId);
+    const data = await this._driverService.getTalukByPlantIdService(plantId);
 
-      res.status(200).json({
+      res.status(STATUS_CODES.SUCCESS).json({
         data,
-        success: true,
-        message: "Fetch create driver successfully"
+        success: true
       });
-    } catch (error: any) {
+    } catch (error) {
       console.error("err", error);
-      res.status(500).json({ message: "Error fetching create driver.", error });
+      next(error);
     }
   }
-  async addDriver(req: AuthRequest, res: Response): Promise<void> {
+  async addDriver(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
     try {
       const plantId = req.user?.id;
       console.log("plantId", plantId);
@@ -60,22 +63,22 @@ export class DriverController implements IDriverController {
       };
       console.log("driver", driverData);
 
-      const newDriver = await this.driverService.addDriver(driverData);
+      const newDriver = await this._driverService.addDriver(driverData);
       console.log("✅ Inserted Driver:", newDriver);
-      res.status(201).json({
+      if(newDriver){
+      res.status(STATUS_CODES.CREATED).json({
         success: true,
-        message: "Driver created successfully",
-        data: newDriver,
+        message: MESSAGES.DRIVER.SUCCESS.CREATE_DRIVER
       });
-    } catch (error: any) {
+      }
+
+    } catch (error) {
       console.error("err", error);
-      res
-        .status(500)
-        .json({ error: error.message || "Failed to create driver." });
+      next(error);
     }
   }
 
-  async fetchDrivers(req: AuthRequest, res: Response): Promise<void> {
+  async fetchDrivers(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
     try {
       const plantId = req.user?.id;
       if (!plantId) {
@@ -89,7 +92,7 @@ export class DriverController implements IDriverController {
       let limit = Math.min(parseInt(req.query.limit as string) || DEFAULT_LIMIT, MAX_LIMIT);
       const search = (req.query.search as string) || "";
 
-      const { drivers, total } = await this.driverService.getAllDrivers(
+      const { drivers, total } = await this._driverService.getAllDrivers(
         plantId,
         page,
         limit,
@@ -99,39 +102,36 @@ export class DriverController implements IDriverController {
 
       res.status(200).json({
         success: true,
-        message: "Fetch drivers successfully",
+         message: MESSAGES.DRIVER.SUCCESS.FETCH_DRIVER,
         drivers,
         total,
       });
-    } catch (error: any) {
+    } catch (error) {
       console.error("err", error);
-      res.status(500).json({ message: "Error fetching drivers.", error });
+      next(error);
     }
   }
-  async getDriverById(req: AuthRequest, res: Response): Promise<void> {
+  async getDriverById(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
     try {
       const plantId = req.user?.id;
       if (!plantId) {
-        res.status(404).json({ message: "plantId not found" });
-        return;
+       throw new ApiError(
+                  STATUS_CODES.UNAUTHORIZED,
+                  MESSAGES.COMMON.ERROR.UNAUTHORIZED
+                );
       }
       const { driverId } = req.params;
 
-      const driver = await this.driverService.getDriverByIdService(driverId, plantId);
+      const driver = await this._driverService.getDriverByIdService(driverId, plantId);
       console.log("driver", driver);
 
-      if (!driver) {
-        res.status(404).json({ message: "Driver not found" });
-        return;
-      }
-
       res.status(200).json({ data: driver });
-    } catch (error: any) {
+    } catch (error) {
       console.error("Error fetching Driver:", error);
-      res.status(500).json({ message: "Server error" });
+      next(error);
     }
   }
-  async updateDriver(req: Request, res: Response): Promise<void> {
+  async updateDriver(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       console.log("body", req.body);
 
@@ -153,30 +153,26 @@ export class DriverController implements IDriverController {
       if (updatedData.experience) {
         updatedData.experience = Number(updatedData.experience);
       }
-      const updatedDriver = await this.driverService.updateDriverByIdService(
+      const updatedDriver = await this._driverService.updateDriverByIdService(
         driverId,
         updatedData
       );
 
-      if (!updatedDriver) {
-        res.status(404).json({ message: "Driver not found" });
-        return;
-      }
       res.status(200).json({
         success: true,
-        message: "Driver updated successfully",
+        message: MESSAGES.DRIVER.SUCCESS.UPDATE_DRIVER,
         data: updatedDriver,
       });
-    } catch (error: any) {
+    } catch (error) {
       console.error("Error updating driver:", error);
-      res.status(500).json({ message: "Server error" });
+      next(error);
     }
   }
-  async deleteDriverById(req: Request, res: Response): Promise<void> {
+  async deleteDriverById(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       console.log("body", req.body);
       const { driverId } = req.params;
-      const updatedDriver = await this.driverService.deleteDriverByIdService(driverId);
+      const updatedDriver = await this._driverService.deleteDriverByIdService(driverId);
 
       if (!updatedDriver) {
         res.status(404).json({ message: "Driver not found" });
@@ -185,10 +181,11 @@ export class DriverController implements IDriverController {
 
       res.status(200).json({ 
         updatedDriver,
-        message: "Driver deleted successfully" });
-    } catch (error: any) {
+        message: MESSAGES.DRIVER.SUCCESS.DELETE_DRIVER 
+      });
+    } catch (error) {
       console.error("Error in deleting driver:", error);
-      res.status(500).json({ message: "Server error" });
+      next(error);
     }
   }
 }

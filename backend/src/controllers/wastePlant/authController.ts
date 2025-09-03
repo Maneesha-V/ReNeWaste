@@ -12,7 +12,7 @@ import { MESSAGES, STATUS_CODES } from "../../utils/constantUtils";
 export class AuthController implements IAuthController {
   constructor(
     @inject(TYPES.PlantAuthService)
-    private authService: IAuthService
+    private _authService: IAuthService
   ) {}
   async refreshToken(
     req: Request,
@@ -29,7 +29,7 @@ export class AuthController implements IAuthController {
         );
       }
 
-      const { token } = await this.authService.verifyToken(refreshToken);
+      const { token } = await this._authService.verifyToken(refreshToken);
       res.status(STATUS_CODES.SUCCESS).json({ token });
     } catch (error) {
       console.error("err", error);
@@ -44,7 +44,7 @@ export class AuthController implements IAuthController {
     try {
       console.log("body", req.body);
       const { email, password } = req.body;
-      const { wastePlant, token } = await this.authService.loginWastePlant({
+      const { wastePlant, token } = await this._authService.loginWastePlant({
         email,
         password,
       });
@@ -115,7 +115,7 @@ export class AuthController implements IAuthController {
       console.log("otp-body", req.body);
       const { email } = req.body;
 
-      const otpResponse = await this.authService.sendOtpService(email);
+      const otpResponse = await this._authService.sendOtpService(email);
       if (otpResponse) {
         res
           .status(STATUS_CODES.SUCCESS)
@@ -145,7 +145,7 @@ export class AuthController implements IAuthController {
         );
       }
 
-      const success = await this.authService.resendOtpService(email);
+      const success = await this._authService.resendOtpService(email);
       if (success) {
         res
           .status(STATUS_CODES.SUCCESS)
@@ -175,7 +175,7 @@ export class AuthController implements IAuthController {
         return;
       }
 
-      const isValid = await this.authService.verifyOtpService(email, otp);
+      const isValid = await this._authService.verifyOtpService(email, otp);
 
       if (!isValid) {
         throw new ApiError(
@@ -206,7 +206,7 @@ export class AuthController implements IAuthController {
           MESSAGES.COMMON.ERROR.EMAIL_PASSWORD_REQUIRED
         );
       }
-      await this.authService.resetPasswordService(email, password);
+      await this._authService.resetPasswordService(email, password);
       res
         .status(STATUS_CODES.SUCCESS)
         .json({ message: MESSAGES.COMMON.SUCCESS.PASSWORD_RESET });

@@ -6,6 +6,8 @@ import { IWasteCollectionRepository } from "../../repositories/wasteCollection/i
 import { InputWasteMeasurement } from "../../repositories/wasteCollection/types/wasteCollectionTypes";
 import { INotificationDocument } from "../../models/notification/interfaces/notificationInterface";
 import { IPickupRepository } from "../../repositories/pickupReq/interface/IPickupRepository";
+import { NotificationMapper } from "../../mappers/NotificationMapper";
+import { NotificationDTO } from "../../dtos/notification/notificationDTO";
 
 @injectable()
 export class NotificationService implements INotificationService {
@@ -19,12 +21,16 @@ export class NotificationService implements INotificationService {
   ) {}
 
   async getNotifications(wasteplantId: string) {
-    return await this.notificationRepository.findByReceiverId(wasteplantId);
+    const notifications =  await this.notificationRepository.findByReceiverId(wasteplantId);
+    if (!notifications) {
+      throw new Error("Notification not found.");
+    }
+    return NotificationMapper.mapNotificationsDTO(notifications);
   }
   async markNotificationAsRead(
     notifId: string,
     plantId: string
-  ): Promise<INotificationDocument | null> {
+  ): Promise<NotificationDTO> {
     const notification = await this.notificationRepository.markAsReadById(
       notifId
     );
@@ -68,7 +74,7 @@ export class NotificationService implements INotificationService {
         io.to(`${userId}`).emit("newNotification", userNotification);
       }
     }
-    return notification;
+    return NotificationMapper.mapNotificationDTO(notification);
   }
   async saveWasteMeasurement(data: InputWasteMeasurement) {
     return await this.wasteCollectionRepository.createWasteMeasurement(data);

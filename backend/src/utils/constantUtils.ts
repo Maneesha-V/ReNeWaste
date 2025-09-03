@@ -76,7 +76,8 @@ export const MESSAGES = {
       DROP_SPOT_CREATE: "Dropspot created successfully.",
       DROP_SPOT_UPDATE: "Dropspot updated successfully.",
       DROP_SPOT_DELETE: "Dropspot deleted successfully.",
-      FETCH_DROP_SPOT: "Fetch dropspots successfully."
+      FETCH_DROP_SPOT: "Fetch dropspots successfully.",
+      WASTE_MWASURED: "Waste measurement saved."
     },
     ERROR: {
       ID_REQUIRED: "Plant ID is required.",
@@ -89,8 +90,16 @@ export const MESSAGES = {
     },
   },
   DRIVER: {
-    SUCCESS: {},
-    ERROR: {},
+    SUCCESS: {
+      FETCH_DRIVER: "Fetch drivers successfully.",
+      CREATE_DRIVER: "Driver created successfully.",
+      UPDATE_DRIVER: "Driver updated successfully.",
+      DELETE_DRIVER: "Driver deleted successfully."
+
+    },
+    ERROR: {
+      IMG_ERRROR: "Both license front and back images are required."
+    },
   },
   USER: {
     SUCCESS: {

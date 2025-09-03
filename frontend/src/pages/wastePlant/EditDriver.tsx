@@ -17,6 +17,7 @@ import {
   getMunicipalityByTaluk,
   getPanchayatsByTaluk,
 } from "../../utils/locationUtils";
+import { getAxiosErrorMessage } from "../../utils/handleAxiosError";
 
 const EditDriver = () => {
   const { driverId } = useParams();
@@ -24,7 +25,7 @@ const EditDriver = () => {
   const navigate = useNavigate();
   const { errors, validateField, setErrors } = useWastePlantValidation();
 
-  const { driver, loading } = useSelector(
+  const { driver } = useSelector(
     (state: RootState) => state.wastePlantDriver
   );
   const [formData, setFormData] = useState<PartialDriverFormData>({});
@@ -132,15 +133,12 @@ const EditDriver = () => {
       console.log("formDataToSend", formDataToSend);
       const result = await dispatch(
         updateDriver({ driverId, data: formDataToSend })
-      );
-      if (result.payload?.error) {
-        toast.error(result.payload.error);
-        return;
-      }
-      toast.success("Driver updated successfully!");
+      ).unwrap();
+ 
+      toast.success(result?.message);
       setTimeout(() => navigate("/waste-plant/drivers"), 2000);
-    } catch {
-      toast.error("Update failed. Please try again.");
+    } catch(error) {
+      toast.error(getAxiosErrorMessage(error));
     }
   };
 

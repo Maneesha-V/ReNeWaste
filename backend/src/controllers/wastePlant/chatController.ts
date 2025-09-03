@@ -11,7 +11,7 @@ import { MESSAGES, STATUS_CODES } from "../../utils/constantUtils";
 export class ChatController implements IChatController {
   constructor(
     @inject(TYPES.PlantChatService)
-    private chatService: IChatService
+    private _chatService: IChatService
   ) {}
   async getConversationId(
     req: AuthRequest,
@@ -29,7 +29,7 @@ export class ChatController implements IChatController {
         );
       }
 
-      const conversationId = await this.chatService.getOrCreateConversationId(
+      const conversationId = await this._chatService.getOrCreateConversationId(
         senderId,
         senderRole,
         receiverId,
@@ -62,7 +62,7 @@ export class ChatController implements IChatController {
           MESSAGES.COMMON.ERROR.ID_REQUIRED
         );
       }
-      const messages = await this.chatService.getChatMessageService(
+      const messages = await this._chatService.getChatMessageService(
         conversationId
       );
       console.log("messages", messages);

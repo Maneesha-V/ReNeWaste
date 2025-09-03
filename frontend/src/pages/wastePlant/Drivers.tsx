@@ -14,6 +14,7 @@ import usePagination from "../../hooks/usePagination";
 import PaginationSearch from "../../components/common/PaginationSearch";
 import { debounce } from "lodash";
 import { toast } from "react-toastify";
+import { getAxiosErrorMessage } from "../../utils/handleAxiosError";
 
 const Drivers: React.FC = () => {
   const dispatch = useAppDispatch();
@@ -50,8 +51,8 @@ const Drivers: React.FC = () => {
     try {
       const response = await dispatch(deleteDriver(driverId)).unwrap();
       toast.success(response.message);
-    } catch (error: any) {
-      console.error("Delete failed:", error);
+    } catch (error) {
+      toast.error(getAxiosErrorMessage(error));
     }
   };
 

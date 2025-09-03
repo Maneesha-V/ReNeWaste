@@ -1,9 +1,9 @@
+import { PaginatedDriversResult } from "../../../dtos/driver/driverDTO";
 import {
   IDriver,
   IDriverDocument,
 } from "../../../models/driver/interfaces/driverInterface";
 import { MarkTruckReturnResult } from "../../../types/driver/truckTypes";
-import { PaginatedDriversResult } from "../../../types/wastePlant/driverTypes";
 import { ReturnFetchAllDriversByPlantId } from "../types/driverTypes";
 
 export interface IDriverRepository {
@@ -19,8 +19,8 @@ export interface IDriverRepository {
   ): Promise<PaginatedDriversResult>;
   updateDriverPassword(email: string, hashedPassword: string): Promise<void>;
   getDriverById(driverId: string): Promise<IDriverDocument | null>;
-  updateDriverById(driverId: string, data: any): Promise<IDriver | null>;
-  deleteDriverById(driverId: string): Promise<IDriver | null>;
+  updateDriverById(driverId: string, data: any): Promise<IDriverDocument | null>;
+  deleteDriverById(driverId: string): Promise<IDriverDocument>;
   fetchDriversByPlantId(wastePlantId: string): Promise<IDriverDocument[]>;
   updateDriverTruck(
     driverId: string,

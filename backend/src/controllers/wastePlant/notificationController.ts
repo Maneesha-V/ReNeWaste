@@ -1,81 +1,101 @@
-import { Response } from "express";
+import { NextFunction, Response } from "express";
 import { inject, injectable } from "inversify";
 import { AuthRequest } from "../../types/common/middTypes";
 import TYPES from "../../config/inversify/types";
 import { INotificationController } from "./interface/INotificationController";
 import { INotificationService } from "../../services/wastePlant/interface/INotificationService";
+import { ApiError } from "../../utils/ApiError";
+import { MESSAGES, STATUS_CODES } from "../../utils/constantUtils";
 
 @injectable()
 export class NotificationController implements INotificationController {
   constructor(
     @inject(TYPES.PlantNotificationService)
-    private notificationService: INotificationService
+    private _notificationService: INotificationService
   ) {}
 
-  async fetchNotifications(req: AuthRequest, res: Response): Promise<void> {
+  async fetchNotifications(
+    req: AuthRequest,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
     try {
       const wasteplantId = req.user?.id;
       if (!wasteplantId) {
-        res.status(404).json({ message: "wasteplantId not found" });
-        return;
+        throw new ApiError(
+          STATUS_CODES.UNAUTHORIZED,
+          MESSAGES.COMMON.ERROR.UNAUTHORIZED
+        );
       }
-      const notifications = await this.notificationService.getNotifications(
+      const notifications = await this._notificationService.getNotifications(
         wasteplantId
       );
-      res.status(200).json(notifications);
+      res.status(STATUS_CODES.SUCCESS).json({notifications: notifications});
     } catch (error) {
       console.error("Error fetching notifications:", error);
-      res.status(500).json({ error: "Failed to fetch notifications" });
+      next(error);
     }
   }
-  async markReadNotification(req: AuthRequest, res: Response): Promise<void> {
+  async markReadNotification(
+    req: AuthRequest,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
     try {
       const { notifId } = req.params;
       const plantId = req.user?.id;
       if (!plantId) {
-        res.status(404).json({ message: "wasteplantId not found" });
-        return;
+        throw new ApiError(
+          STATUS_CODES.UNAUTHORIZED,
+          MESSAGES.COMMON.ERROR.UNAUTHORIZED
+        );
       }
       const updatedNotification =
-        await this.notificationService.markNotificationAsRead(notifId, plantId);
+        await this._notificationService.markNotificationAsRead(notifId, plantId);
 
-      if (!updatedNotification) {
-        res.status(404).json({ message: "Notification not found" });
-        return;
-      }
-
-      res.status(200).json(updatedNotification);
+      res.status(STATUS_CODES.SUCCESS).json({updatedNotification: updatedNotification});
     } catch (error) {
-      res.status(500).json({ error: "Failed to mark notification as read." });
+      next(error);
     }
   }
-  async saveWasteMeasurement(req: AuthRequest, res: Response): Promise<void> {
-        try {
-          console.log("body",req.body);
-          
+  async saveWasteMeasurement(
+    req: AuthRequest,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
+    try {
+      console.log("body", req.body);
+
       const wasteplantId = req.user?.id;
       if (!wasteplantId) {
-        res.status(404).json({ message: "wasteplantId not found" });
-        return;
+        throw new ApiError(
+          STATUS_CODES.UNAUTHORIZED,
+          MESSAGES.COMMON.ERROR.UNAUTHORIZED
+        );
       }
 
-    const { notificationId, weight } = req.body;
+      const { notificationId, weight } = req.body;
 
-    if (!notificationId || !weight) {
-      res.status(400).json({ message: "Missing required fields" });
-      return;
-    }
+      if (!notificationId || !weight) {
+        throw new ApiError(
+          STATUS_CODES.NOT_FOUND,
+          MESSAGES.COMMON.ERROR.MISSING_FIELDS
+        );
+      }
 
-    const result = await this.notificationService.saveWasteMeasurement({
-      wasteplantId,
-      weight,
-      notificationId
-    });
+      const result = await this._notificationService.saveWasteMeasurement({
+        wasteplantId,
+        weight,
+        notificationId,
+      });
 
-    res.status(200).json({ message: "Waste measurement saved", data: result });
+      res.status(STATUS_CODES.SUCCESS).json({
+        message: MESSAGES.WASTEPLANT.SUCCESS.WASTE_MWASURED,
+        data: result,
+      });
     } catch (error) {
       console.error("Error in waste measurement:", error);
-      res.status(500).json({ error: "Error in waste measurement" });
+      next(error);
     }
   }
 }

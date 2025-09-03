@@ -7,8 +7,20 @@ import {
   getDrivers,
   updateDriverById,
 } from "../../../services/wastePlant/driverService";
-import { PaginationPayload } from "../../../types/common/commonTypes"
+import {
+  MsgSuccessResp,
+  PaginationPayload,
+} from "../../../types/common/commonTypes";
 import { driverLogin } from "../driver/driverSlice";
+import { getAxiosErrorMessage } from "../../../utils/handleAxiosError";
+import {
+  DeleteDriverResp,
+  DriverDTO,
+  FetchDriverByIdResp,
+  FetchDriversResp,
+  GetCreateDriverResp,
+  UpdateDriverResp,
+} from "../../../types/driver/driverTypes";
 
 interface DriverState {
   driver: any;
@@ -28,87 +40,104 @@ const initialState: DriverState = {
   total: 0,
 };
 
-export const getCreateDriver = createAsyncThunk(
-  "wastePlantDriver/getCreateDriver",
-  async (_, { rejectWithValue }) => {
-    try {
-      const response = await getCreateDriverService();
-      return response;
-    } catch (error: any) {
-      return rejectWithValue(
-        error.response?.data || "Failed to fetch add driver"
-      );
-    }
+export const getCreateDriver = createAsyncThunk<
+  GetCreateDriverResp,
+  void,
+  { rejectValue: { message: string } }
+>("wastePlantDriver/getCreateDriver", async (_, { rejectWithValue }) => {
+  try {
+    const response = await getCreateDriverService();
+    return response;
+  } catch (error) {
+    const msg = getAxiosErrorMessage(error);
+    return rejectWithValue({ message: msg });
   }
-);
+});
 
-export const addDriver = createAsyncThunk(
+export const addDriver = createAsyncThunk<
+  MsgSuccessResp,
+  FormData,
+  { rejectValue: { message: string } }
+>(
   "wastePlantDriver/addDriver",
   async (formData: FormData, { rejectWithValue }) => {
     try {
       const response = await createDriver(formData);
       return response;
-    } catch (error: any) {
-      return rejectWithValue(
-        error.response?.data || "Failed to add waste plant"
-      );
+    } catch (error) {
+      const msg = getAxiosErrorMessage(error);
+      return rejectWithValue({ message: msg });
     }
   }
 );
-export const fetchDrivers = createAsyncThunk(
+export const fetchDrivers = createAsyncThunk<
+  FetchDriversResp,
+  PaginationPayload,
+  { rejectValue: { message: string } }
+>(
   "wastePlantDriver/fetchDrivers",
   async ({ page, limit, search }: PaginationPayload, { rejectWithValue }) => {
     try {
       const response = await getDrivers({ page, limit, search });
       return response;
-    } catch (error: any) {
-      return rejectWithValue(
-        error.response?.data || "Failed to fetch waste plants"
-      );
+    } catch (error) {
+      const msg = getAxiosErrorMessage(error);
+      return rejectWithValue({ message: msg });
     }
   }
 );
-export const fetchDriverById = createAsyncThunk(
+export const fetchDriverById = createAsyncThunk<
+  FetchDriverByIdResp,
+  string,
+  { rejectValue: { message: string } }
+>(
   "wastePlantDriver/fetchDriverById",
   async (driverId: string, { rejectWithValue }) => {
     try {
       const response = await getDriverById(driverId);
-      console.log("response",response);
-      
+      console.log("response", response);
+
       return response;
-    } catch (error: any) {
-      return rejectWithValue(error.response?.data || "Failed to fetch data");
+    } catch (error) {
+      const msg = getAxiosErrorMessage(error);
+      return rejectWithValue({ message: msg });
     }
   }
 );
-export const updateDriver = createAsyncThunk(
+export const updateDriver = createAsyncThunk<
+  UpdateDriverResp,
+  { driverId: string; data: FormData },
+  { rejectValue: { message: string } }
+>(
   "wastePlantDriver/updateDriver",
   async (
     { driverId, data }: { driverId: string; data: FormData },
-    thunkAPI
+    { rejectWithValue }
   ) => {
     try {
       console.log("data", data);
 
       const response = await updateDriverById(driverId, data);
       return response;
-    } catch (error: any) {
-      return thunkAPI.rejectWithValue(
-        error.response.data || "Failed to update data."
-      );
+    } catch (error) {
+      const msg = getAxiosErrorMessage(error);
+      return rejectWithValue({ message: msg });
     }
   }
 );
-export const deleteDriver = createAsyncThunk(
+export const deleteDriver = createAsyncThunk<
+  DeleteDriverResp,
+  string,
+  { rejectValue: { message: string } }
+>(
   "wastePlantDriver/deleteDriver ",
-  async (driverId: string, thunkAPI) => {
+  async (driverId: string, { rejectWithValue }) => {
     try {
       const response = await deleteDriverById(driverId);
       return response;
-    } catch (error: any) {
-      return thunkAPI.rejectWithValue(
-        error.response.data || "Failed to update data."
-      );
+    } catch (error) {
+      const msg = getAxiosErrorMessage(error);
+      return rejectWithValue({ message: msg });
     }
   }
 );
@@ -121,7 +150,7 @@ const wastePlantDriverSlice = createSlice({
     builder
       .addCase(getCreateDriver.fulfilled, (state, action) => {
         state.loading = false;
-        state.taluk = action.payload?.taluk;
+        state.taluk = action.payload?.data.taluk;
       })
       .addCase(fetchDrivers.pending, (state) => {
         state.loading = true;
@@ -134,7 +163,7 @@ const wastePlantDriverSlice = createSlice({
       })
       .addCase(fetchDrivers.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload as string;
+        state.error = action.payload?.message as string;
       })
       .addCase(addDriver.pending, (state) => {
         state.loading = true;
@@ -146,20 +175,22 @@ const wastePlantDriverSlice = createSlice({
       })
       .addCase(addDriver.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload as string;
+        state.error = action.payload?.message as string;
       })
       .addCase(fetchDriverById.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
-      .addCase(fetchDriverById.fulfilled, (state, action) => { 
+      .addCase(fetchDriverById.fulfilled, (state, action) => {
+        console.log("acc",action.payload);
+        
         state.loading = false;
-        state.driver = action.payload.driver;
-        state.taluk = action.payload.taluk;
+        state.driver = action.payload.data.driver;
+        state.taluk = action.payload.data.taluk;
       })
       .addCase(fetchDriverById.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload as string;
+        state.error = action.payload?.message as string;
       })
       .addCase(updateDriver.pending, (state) => {
         state.loading = true;
@@ -171,13 +202,13 @@ const wastePlantDriverSlice = createSlice({
       })
       .addCase(updateDriver.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload as string;
+        state.error = action.payload?.message as string;
       })
       .addCase(deleteDriver.fulfilled, (state, action) => {
         state.message = action.payload.message;
-        state.driver = state.driver.filter((d:any)=>{
-          return d._id !== action.payload.updatedDriver._id
-        })
+        state.driver = state.driver.filter((d: DriverDTO) => {
+          return d._id !== action.payload.updatedDriver._id;
+        });
       });
   },
 });

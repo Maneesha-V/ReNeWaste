@@ -55,7 +55,7 @@ export interface IWastePlant {
   isBlocked?: boolean;
   blockedAt?: Date;
   autoUnblockAt?: Date;
-  unblockNotificationSent?: Boolean;
+  unblockNotificationSent?: boolean;
   autoSubscribeAt?: Date | null;
   subscribeNotificationSent?: boolean;
   autoRechargeAt?: Date | null;

@@ -11,6 +11,7 @@ import {
   SaveWasteMeasurementPayload,
 } from "../../types/notificationTypes";
 import { toast } from "react-toastify";
+import { getAxiosErrorMessage } from "../../utils/handleAxiosError";
 
 const WastePlantLayout = () => {
   const dispatch = useAppDispatch();
@@ -70,13 +71,14 @@ const WastePlantLayout = () => {
             };
             dispatch(saveWasteMeasurement(payload))
               .unwrap()
-              .then(() => {
-                toast.success("Waste measurement saved successfully!");
+              .then((res) => {
+                toast.success(res?.message);
                 handleCloseWasteModal();
               })
               .catch((err) => {
+                console.error("err",err)
                 toast.error(
-                  typeof err === "string" ? err : "Failed to save measurement."
+                  getAxiosErrorMessage(err)
                 );
               });
           }}
