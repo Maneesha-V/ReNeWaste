@@ -1,5 +1,4 @@
-import { IUser } from "../../../models/user/interfaces/userInterface";
-import { PaginatedUsersResult } from "../../../types/wastePlant/userTypes";
+import { PaginatedResult, UserDTO } from "../../../dtos/user/userDTO";
 
 export interface IUserService {
   getAllUsers(
@@ -7,11 +6,11 @@ export interface IUserService {
     page: number,
     limit: number,
     search: string
-  ): Promise<PaginatedUsersResult>;
+  ): Promise<PaginatedResult>;
 
   userBlockStatusService(
     wasteplantId: string,
     userId: string,
     isBlocked: boolean
-  ): Promise<IUser | null>;
+  ): Promise<UserDTO>;
 }

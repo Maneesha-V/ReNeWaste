@@ -1,7 +1,6 @@
-import { UserDTO } from "../../../dtos/user/userDTO";
+import { PaginatedUsersResult, UserDTO } from "../../../dtos/user/userDTO";
 import { IUser, IUserDocument } from "../../../models/user/interfaces/userInterface";
 import { OtpRecord } from "../../../types/user/authTypes";
-import { PaginatedUsersResult } from "../../../types/wastePlant/userTypes";
 import IBaseRepository from "../../baseRepository/interface/IBaseRepository";
 
 export interface IUserRepository extends IBaseRepository<IUserDocument> {

@@ -1,4 +1,4 @@
-import { IUser } from "../../models/user/interfaces/userInterface";
+import { IUser, IUserDocument } from "../../models/user/interfaces/userInterface";
 import { BaseDTO } from "../base/BaseDTO";
 
 export type Role = "user" | "driver" | "superadmin" | "wasteplant";
@@ -108,6 +108,11 @@ export type ProfileAddress = {
     district: string;
     state: string;
   }
-  
-
-  
+  export type PaginatedResult = {
+      users: UserDTO[];
+  total: number;
+  }
+export type PaginatedUsersResult = {
+  users: IUserDocument[];
+  total: number;
+}

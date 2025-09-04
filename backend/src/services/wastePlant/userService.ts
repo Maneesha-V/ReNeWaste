@@ -1,9 +1,10 @@
 import { IUser } from "../../models/user/interfaces/userInterface";
 import { IUserService } from "./interface/IUserService";
-import { PaginatedUsersResult } from "../../types/wastePlant/userTypes";
 import { inject, injectable } from "inversify";
 import TYPES from "../../config/inversify/types";
 import { IUserRepository } from "../../repositories/user/interface/IUserRepository";
+import { PaginatedResult } from "../../dtos/user/userDTO";
+import { UserMapper } from "../../mappers/UserMapper";
 
 @injectable()
 export class UserService implements IUserService {
@@ -11,8 +12,12 @@ export class UserService implements IUserService {
     @inject(TYPES.UserRepository)
     private userRepository: IUserRepository
   ){}
-  async getAllUsers(wasteplantId: string, page: number, limit: number, search: string): Promise<PaginatedUsersResult> {
-    return await this.userRepository.getUsersByWastePlantId(wasteplantId, page, limit, search);
+  async getAllUsers(wasteplantId: string, page: number, limit: number, search: string): Promise<PaginatedResult> {
+    const { users, total } = await this.userRepository.getUsersByWastePlantId(wasteplantId, page, limit, search);
+    return {
+      users: UserMapper.mapUsersDTO(users),
+      total
+    }
   }
   
   async userBlockStatusService(
@@ -22,12 +27,12 @@ export class UserService implements IUserService {
 ) {
   const user = await this.userRepository.findUserById(userId)
  if (!user || !user.wasteplantId || String(user.wasteplantId) !== String(wasteplantId)) {
-    return null;
+    throw new Error("User not found");
   }
   user.isBlocked = isBlocked;
   await user.save({ validateModifiedOnly: true});
 
-  return user;
+  return UserMapper.mapUserDTO(user);
 };
 }
 

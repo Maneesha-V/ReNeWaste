@@ -2,6 +2,7 @@ import { MsgSuccessResp } from "../common/commonTypes";
 import { DriverDTO } from "../driver/driverTypes";
 import { PickupReqDTO } from "../pickupReq/pickupTypes";
 import { WasteplantDTO } from "../superadmin/superAdminTypes";
+import { UserResp } from "../user/userTypes";
 
 type PlantStatus = "Pending" | "Active" | "Inactive" | "Rejected";
 export type LoginWPResp = {
@@ -147,4 +148,11 @@ export type PickupCancelResp = {
 export type FetchDriversByPlaceResp = {
   success: boolean;
   drivers: DriverDTO[];
+}
+export type FetchUsers = MsgSuccessResp & {
+  users: UserResp[];
+  total: number;
+}
+export type ToggleUserBlockStatusResp = MsgSuccessResp & {
+  updatedUser: UserResp;
 }

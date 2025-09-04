@@ -1,47 +1,51 @@
-import { Response } from "express";
+import { NextFunction, Response } from "express";
 import { AuthRequest } from "../../types/common/middTypes";
 import { IUserController } from "./interface/IUserController";
 import { inject, injectable } from "inversify";
 import TYPES from "../../config/inversify/types";
 import { IUserService } from "../../services/wastePlant/interface/IUserService";
+import { ApiError } from "../../utils/ApiError";
+import { MESSAGES, STATUS_CODES } from "../../utils/constantUtils";
 
 @injectable()
 export class UserController implements IUserController {
   constructor(
     @inject(TYPES.PlantUserService)
-    private userService: IUserService
+    private _userService: IUserService
   ) {}
-  async fetchUsers(req: AuthRequest, res: Response): Promise<void> {
+  async fetchUsers(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
     try {
       const wasteplantId = req.user?.id;
       if (!wasteplantId) {
-        res.status(404).json({ message: "wasteplantId not found" });
-        return;
+        throw new ApiError(
+                 STATUS_CODES.UNAUTHORIZED,
+                 MESSAGES.COMMON.ERROR.UNAUTHORIZED
+               );
       }
       const page = parseInt(req.query.page as string) || 1;
       const limit = parseInt(req.query.limit as string) || 5;
       const search = (req.query.search as string) || "";
 
-      const { users, total } = await this.userService.getAllUsers(
+      const { users, total } = await this._userService.getAllUsers(
         wasteplantId,
         page,
         limit,
         search
       );
 
-      res.status(200).json({
+      res.status(STATUS_CODES.SUCCESS).json({
         success: true,
-        message: "Fetch users successfully",
+        message: MESSAGES.WASTEPLANT.SUCCESS.FETCH_USER,
         users,
         total,
       });
-    } catch (error: any) {
+    } catch (error) {
       console.error("err", error);
-      res.status(500).json({ message: "Error fetching users.", error });
+      next(error);
     }
   }
 
-  async userBlockStatus(req: AuthRequest, res: Response): Promise<void> {
+  async userBlockStatus(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
     try {
       const userId = req.params.userId;
       const { isBlocked } = req.body;
@@ -49,31 +53,30 @@ export class UserController implements IUserController {
       console.log({ userId, isBlocked, wasteplantId });
 
       if (!wasteplantId) {
-        res.status(404).json({ message: "wasteplantId not found" });
-        return;
+        throw new ApiError(
+                 STATUS_CODES.UNAUTHORIZED,
+                 MESSAGES.COMMON.ERROR.UNAUTHORIZED
+               );
       }
       if (typeof isBlocked !== "boolean") {
-        res.status(400).json({ message: "Invalid block status" });
-        return;
+         throw new ApiError(STATUS_CODES.BAD_REQUEST, MESSAGES.COMMON.ERROR.INVALID_BLOCK)
       }
-      const updatedUser = await this.userService.userBlockStatusService(
+      const updatedUser = await this._userService.userBlockStatusService(
         wasteplantId,
         userId,
         isBlocked
       );
       console.log("updatedUser ", updatedUser);
 
-      if (!updatedUser) {
-        res.status(404).json({ message: "User not found" });
-        return;
-      }
 
-      res.json(updatedUser);
-    } catch (error: any) {
+      res.json({
+        success: true,
+        message: MESSAGES.COMMON.SUCCESS.BLOCK_UPDATE,
+        updatedUser
+      });
+    } catch (error) {
       console.error("err", error);
-      res
-        .status(500)
-        .json({ message: "Error toggling user block status.", error });
+      next(error);
     }
   }
 }

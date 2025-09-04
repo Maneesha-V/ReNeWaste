@@ -1,7 +1,7 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import { AuthRequest } from "../../../types/common/middTypes";
 
 export interface IUserController {
-    fetchUsers(req: AuthRequest, res: Response): Promise<void>;
-    userBlockStatus(req: AuthRequest, res: Response): Promise<void>;
+    fetchUsers(req: AuthRequest, res: Response, next: NextFunction): Promise<void>;
+    userBlockStatus(req: AuthRequest, res: Response, next: NextFunction): Promise<void>;
 }

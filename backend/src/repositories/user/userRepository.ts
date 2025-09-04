@@ -5,13 +5,12 @@ import {
 } from "../../models/user/interfaces/userInterface";
 import { IUserRepository } from "./interface/IUserRepository";
 import { OtpRecord } from "../../types/user/authTypes";
-import { PaginatedUsersResult } from "../../types/wastePlant/userTypes";
 import BaseRepository from "../baseRepository/baseRepository";
 import { inject, injectable } from "inversify";
 import TYPES from "../../config/inversify/types";
 import { IOtpRepository } from "../otp/interface/IOtpRepository";
 import { Types } from "mongoose";
-import { UserDTO } from "../../dtos/user/userDTO";
+import { PaginatedUsersResult, UserDTO } from "../../dtos/user/userDTO";
 
 @injectable()
 export class UserRepository

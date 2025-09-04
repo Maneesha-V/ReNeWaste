@@ -89,7 +89,9 @@ export const MESSAGES = {
       TRUCK_UPDATE: "Truck updated successfully.",
       TRUCK_DELETE: "Truck deleted successfully.",
       FETCH_TRUCK_REQ: "Fetch avaialable truck requests successfully.",
-      ASSIGN_TRUCK_DRIVER: "Assign truck to driver successfully."
+      ASSIGN_TRUCK_DRIVER: "Assign truck to driver successfully.",
+      FETCH_USER: "Fetch users successfully.",
+      
     },
     ERROR: {
       ID_REQUIRED: "Plant ID is required.",

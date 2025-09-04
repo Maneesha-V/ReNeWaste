@@ -1,12 +1,15 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { fetchUsersService, toggleUserBlockStatusService } from "../../../services/wastePlant/userService";
 import { PaginationPayload } from "../../../types/common/commonTypes";
+import { getAxiosErrorMessage } from "../../../utils/handleAxiosError";
+import { UserResp } from "../../../types/user/userTypes";
+import { FetchUsers, ToggleUserBlockStatusResp } from "../../../types/wasteplant/wastePlantTypes";
 
 interface UserState {
   loading: boolean;
   error: string | null;
   success: boolean;
-  users: any;
+  users: UserResp[] | [];
   total: number;
 }
 
@@ -18,27 +21,35 @@ const initialState: UserState = {
   total: 0,
 };
 
-export const fetchUsers = createAsyncThunk(
+export const fetchUsers = createAsyncThunk<
+FetchUsers,
+PaginationPayload,
+{ rejectValue: {message: string}}
+>(
   "wastePlantUser/fetchUsers",
   async ({ page, limit, search }: PaginationPayload, { rejectWithValue }) => {
     try {
       const response = await fetchUsersService({ page, limit, search });
       return response;
-    } catch (error: any) {
-      return rejectWithValue(
-        error.response?.data || "Failed to fetch users."
-      );
+    } catch (error) {
+      const msg = getAxiosErrorMessage(error);
+      return rejectWithValue({ message: msg });
     }
   }
 );
-export const toggleUserBlockStatus = createAsyncThunk(
+export const toggleUserBlockStatus = createAsyncThunk<
+ToggleUserBlockStatusResp,
+{ userId: string; isBlocked: boolean },
+{ rejectValue: {message: string}}
+>(
   "wastePlantUser/toggleUserBlockStatus",
-  async ({ userId, isBlocked }: { userId: string; isBlocked: boolean }, thunkAPI) => {
+  async ({ userId, isBlocked }: { userId: string; isBlocked: boolean }, { rejectWithValue }) => {
     try {
       const response = await toggleUserBlockStatusService(userId, isBlocked);
       return response;
-    } catch (error: any) {
-      return thunkAPI.rejectWithValue(error.response.data.message || "Something went wrong");
+    } catch (error) {
+      const msg = getAxiosErrorMessage(error);
+      return rejectWithValue({ message: msg });
     }
   }
 );
@@ -60,7 +71,7 @@ const wastePlantUserSlice = createSlice({
       })
       .addCase(fetchUsers.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload as string;
+        state.error = action.payload?.message as string;
       })
       .addCase(toggleUserBlockStatus.pending, (state) => {
         state.loading = true;
@@ -68,15 +79,15 @@ const wastePlantUserSlice = createSlice({
       })
       .addCase(toggleUserBlockStatus.fulfilled, (state, action) => {
         state.loading = false;
-        const updatedUser = action.payload;
-        const index = state.users.findIndex((u: any) => u._id === updatedUser._id);
+        const updatedUser = action.payload.updatedUser;
+        const index = state.users.findIndex((u: UserResp) => u._id === updatedUser._id);
         if (index !== -1) {
           state.users[index] = updatedUser;
         }
       })
       .addCase(toggleUserBlockStatus.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload as string;
+        state.error = action.payload?.message as string;
       });
   },
 });

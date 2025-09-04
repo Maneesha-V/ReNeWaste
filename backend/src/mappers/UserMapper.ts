@@ -40,4 +40,7 @@ export class UserMapper {
       role: doc.role ?? "user",
     };
   }
+  static mapUsersDTO(docs: IUserDocument[]): UserDTO[] {
+    return docs.map((doc) => this.mapUserDTO(doc));
+  }
 }

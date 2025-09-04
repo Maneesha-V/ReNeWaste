@@ -19,6 +19,7 @@ import {
 import usePagination from "../../hooks/usePagination";
 import PaginationSearch from "../../components/common/PaginationSearch";
 import { debounce } from "lodash";
+import { getAxiosErrorMessage } from "../../utils/handleAxiosError";
 
 const { Title } = Typography;
 
@@ -54,7 +55,7 @@ const Users: React.FC = () => {
       toast.success(`User ${isBlocked ? "unblocked" : "blocked"} successfully`);
       // dispatch(fetchUsers({ page: currentPage, limit: pageSize, search }));
     } catch (err) {
-      toast.error("Failed to update user status");
+      toast.error(getAxiosErrorMessage(err));
     }
   };
 
