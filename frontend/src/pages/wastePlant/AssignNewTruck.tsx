@@ -4,6 +4,7 @@ import { useAppDispatch } from "../../redux/hooks";
 import {assignTruckToDriver, fetchTruckRequests, fetchTrucksForDriver } from "../../redux/slices/wastePlant/wastePlantTruckSlice";
 import { useSelector } from "react-redux";
 import { RootState } from "../../redux/store";
+import { TruckDTO } from "../../types/truck/truckTypes";
 
 const { Title } = Typography;
 const { Option } = Select;
@@ -114,7 +115,7 @@ const AssignNewTruck = () => {
           onChange={(value) => setSelectedTruckId(value)}
           value={selectedTruckId || undefined}
         >
-          {availableTrucks.map((truck: any) => (
+          {availableTrucks.map((truck: TruckDTO) => (
             <Option key={truck._id} value={truck._id}>
               {truck.name}
             </Option>

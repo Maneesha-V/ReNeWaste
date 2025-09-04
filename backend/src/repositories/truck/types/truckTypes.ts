@@ -1,5 +1,5 @@
-export type ReturnFetchAllTrucksByPlantId = {
-    active: number;
-    inactive: number;
-    maintenance: number;
-}
+// export type ReturnFetchAllTrucksByPlantId = {
+//     active: number;
+//     inactive: number;
+//     maintenance: number;
+// }

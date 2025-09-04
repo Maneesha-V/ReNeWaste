@@ -1,4 +1,4 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import mongoose from "mongoose";
 import { ITruckController } from "./interface/ITruckController";
 import { ITruck } from "../../models/truck/interfaces/truckInterface";
@@ -6,6 +6,8 @@ import { AuthRequest } from "../../types/common/middTypes";
 import { inject, injectable } from "inversify";
 import TYPES from "../../config/inversify/types";
 import { ITruckService } from "../../services/wastePlant/interface/ITruckService";
+import { MESSAGES, STATUS_CODES } from "../../utils/constantUtils";
+import { ApiError } from "../../utils/ApiError";
 
 @injectable()
 export class TruckController implements ITruckController {
@@ -13,7 +15,7 @@ export class TruckController implements ITruckController {
     @inject(TYPES.PlantTruckService)
     private truckService: ITruckService
   ) {}
-  async addTruck(req: AuthRequest, res: Response): Promise<void> {
+  async addTruck(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
     try {
       const plantId = req.user?.id;
       console.log("plantId", plantId);
@@ -28,26 +30,28 @@ export class TruckController implements ITruckController {
 
       const newTruck = await this.truckService.addTruck(truckData);
       console.log("✅ Inserted Truck:", newTruck);
-      res.status(201).json({
+      if(newTruck){
+      res.status(STATUS_CODES.CREATED).json({
         success: true,
-        message: "Truck created successfully",
-        data: newTruck,
+        message: MESSAGES.WASTEPLANT.SUCCESS.CRETAE_TRUCK,
       });
-    } catch (error: any) {
+      }
+
+    } catch (error) {
       console.error("err", error);
-      res
-        .status(500)
-        .json({ error: error.message || "Failed to create truck." });
+      next(error);
     }
   }
 
-  async fetchTrucks(req: AuthRequest, res: Response): Promise<void> {
+  async fetchTrucks(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
     try {
       const plantId = req.user?.id;
 
       if (!plantId) {
-        res.status(400).json({ message: "Plant ID is required" });
-        return;
+       throw new ApiError(
+          STATUS_CODES.UNAUTHORIZED,
+          MESSAGES.COMMON.ERROR.UNAUTHORIZED
+        );
       }
       const page = parseInt(req.query.page as string) || 1;
       const limit = parseInt(req.query.limit as string) || 5;
@@ -61,24 +65,26 @@ export class TruckController implements ITruckController {
       );
       console.log("trucks", trucks);
 
-      res.status(200).json({
+      res.status(STATUS_CODES.SUCCESS).json({
         success: true,
-        message: "Fetch trucks successfully",
+        message: MESSAGES.WASTEPLANT.SUCCESS.FETCH_TRUCK,
         trucks,
         total,
       });
-    } catch (error: any) {
+    } catch (error) {
       console.error("err", error);
-      res.status(500).json({ message: "Error fetching trucks.", error });
+      next(error);
     }
   }
-  async fetchAvailableTrucks(req: AuthRequest, res: Response): Promise<void> {
+  async fetchAvailableTrucks(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
     try {
       const plantId = req.user?.id;
 
       if (!plantId) {
-        res.status(400).json({ message: "Plant ID is required" });
-        return;
+     throw new ApiError(
+          STATUS_CODES.UNAUTHORIZED,
+          MESSAGES.COMMON.ERROR.UNAUTHORIZED
+        );
       }
       const { driverId } = req.query;
       if (typeof driverId !== "string") {
@@ -90,38 +96,42 @@ export class TruckController implements ITruckController {
         driverId, plantId
       );
       console.log("trucks", trucks);
-      res.status(200).json({
+      res.status(STATUS_CODES.SUCCESS).json({
         success: true,
-        message: "Fetch trucks successfully",
-        data: trucks,
+        message: MESSAGES.WASTEPLANT.SUCCESS.FETCH_TRUCK,
+        trucks,
       });
-    } catch (error: any) {
+    } catch (error) {
       console.error("err", error);
-      res.status(500).json({ message: "Error fetching trucks.", error });
+      next(error);
     }
   }
-  async getTruckById(req: Request, res: Response): Promise<void> {
+  async getTruckById(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const { truckId } = req.params;
       const truck = await this.truckService.getTruckByIdService(truckId);
       if (!truck) {
-        res.status(404).json({ message: "Truck not found" });
-        return;
+       throw new ApiError(
+          STATUS_CODES.BAD_REQUEST,
+          MESSAGES.COMMON.ERROR.ID_REQUIRED
+        );
       }
 
-      res.status(200).json({ data: truck });
-    } catch (error: any) {
+      res.status(STATUS_CODES.SUCCESS).json({ truck });
+    } catch (error) {
       console.error("Error fetching truck:", error);
-      res.status(500).json({ message: "Server error" });
+      next(error);
     }
   }
 
-  async updateTruck(req: Request, res: Response): Promise<void> {
+  async updateTruck(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const { truckId } = req.params;
       if (!truckId) {
-        res.status(400).json({ message: "Truck ID is required" });
-        return;
+        throw new ApiError(
+          STATUS_CODES.BAD_REQUEST,
+          MESSAGES.COMMON.ERROR.ID_REQUIRED
+        );
       }
       const updatedData = req.body;
 
@@ -137,94 +147,94 @@ export class TruckController implements ITruckController {
         res.status(404).json({ message: "Truck not found" });
         return;
       }
-      res.status(200).json({
+      res.status(STATUS_CODES.SUCCESS).json({
         success: true,
-        message: "Truck updated successfully",
-        data: updatedTruck,
+        message: MESSAGES.WASTEPLANT.SUCCESS.TRUCK_UPDATE,
+        updatedTruck,
       });
-    } catch (error: any) {
+    } catch (error) {
       console.error("Error updating truck:", error);
-      res.status(500).json({ message: "Server error" });
+      next(error);
     }
   }
 
-  async deleteTruckById(req: AuthRequest, res: Response): Promise<void> {
+  async deleteTruckById(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
     try {
       const { truckId } = req.params;
        if (!truckId) {
-        res.status(400).json({ message: "Truck ID is required" });
-        return;
+       throw new ApiError(
+          STATUS_CODES.BAD_REQUEST,
+          MESSAGES.COMMON.ERROR.ID_REQUIRED
+        );
       }
       const updatedTruck = await this.truckService.deleteTruckByIdService(truckId);
-      if (!updatedTruck) {
-        res.status(404).json({ message: "Truck not found" });
-        return;
-      }
+  
       console.log("updatedTruck",updatedTruck);
       
-      res.status(200).json({ 
+      res.status(STATUS_CODES.SUCCESS).json({ 
         success: true,
         updatedTruck,
-        message: "Truck deleted successfully"
+        message: MESSAGES.WASTEPLANT.SUCCESS.TRUCK_DELETE
        });
-    } catch (error: any) {
+    } catch (error) {
       console.error("Error in deleting truck:", error);
-      res.status(500).json({ message: "Server error" });
+      next(error);
     }
   }
   async getAvailableTruckReqsts(
     req: AuthRequest,
-    res: Response
+    res: Response,
+    next: NextFunction
   ): Promise<void> {
     try {
       const plantId = req.user?.id;
       if (!plantId) {
-        res.status(400).json({ message: "Plant ID is required" });
-        return;
+        throw new ApiError(
+          STATUS_CODES.UNAUTHORIZED,
+          MESSAGES.COMMON.ERROR.UNAUTHORIZED
+        );
       }
       const pendingTruckReqsts = await this.truckService.pendingTruckReqsts(
         plantId
       );
       console.log("pendingTruckReqsts", pendingTruckReqsts);
 
-      res.status(200).json({
+      res.status(STATUS_CODES.SUCCESS).json({
         success: true,
-        message: "Fetch avaialable truck requests successfully",
-        data: pendingTruckReqsts,
+        message: MESSAGES.WASTEPLANT.SUCCESS.FETCH_TRUCK_REQ,
+        pendingTruckReqsts,
       });
-    } catch (error: any) {
+    } catch (error) {
       console.error("err", error);
-      res
-        .status(500)
-        .json({ message: "Error fetching avaialable truck requests.", error });
+      next(error);
     }
   }
 
-  async getTrucksForDriver(req: AuthRequest, res: Response): Promise<void> {
+  async getTrucksForDriver(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
     try {
       const plantId = req.user?.id;
       if (!plantId) {
-        res.status(400).json({ message: "Plant ID is required" });
-        return;
+       throw new ApiError(
+          STATUS_CODES.UNAUTHORIZED,
+          MESSAGES.COMMON.ERROR.UNAUTHORIZED
+        );
       }
       const availableTrucks = await this.truckService.availableTrucksForDriver(
         plantId
       );
       console.log("availableTrucks", availableTrucks);
 
-      res.status(200).json({
+      res.status(STATUS_CODES.SUCCESS).json({
         success: true,
-        message: "Fetch avaialable trucks successfully",
-        data: availableTrucks,
+        message: MESSAGES.WASTEPLANT.SUCCESS.FETCH_TRUCK,
+        availableTrucks,
       });
-    } catch (error: any) {
+    } catch (error) {
       console.error("err", error);
-      res
-        .status(500)
-        .json({ message: "Error fetching avaialable trucks.", error });
+      next(error);
     }
   }
-  async assignTruckToDriver(req: AuthRequest, res: Response): Promise<void> {
+  async assignTruckToDriver(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
     try {
       const plantId = req.user?.id;
       const { driverId, truckId, prevTruckId } = req.body;
@@ -232,8 +242,10 @@ export class TruckController implements ITruckController {
       console.log(req.body);
 
       if (!plantId || !driverId || !truckId || !prevTruckId) {
-        res.status(400).json({ message: "Missing id's are required" });
-        return;
+       throw new ApiError(
+                 STATUS_CODES.UNAUTHORIZED,
+                 MESSAGES.COMMON.ERROR.MISSING_FIELDS
+               );
       }
 
       const updatedRequests =
@@ -246,15 +258,13 @@ export class TruckController implements ITruckController {
       console.log("updatedRequest", updatedRequests);
 
       res.status(200).json({
-        data: updatedRequests,
+        updatedRequests,
         success: true,
-        message: "Assign truck to driver successfully",
+        message: MESSAGES.WASTEPLANT.SUCCESS.ASSIGN_TRUCK_DRIVER,
       });
-    } catch (error: any) {
+    } catch (error) {
       console.error("err", error);
-      res
-        .status(500)
-        .json({ message: "Error assigning truck to driver.", error });
+      next(error);
     }
   }
 }

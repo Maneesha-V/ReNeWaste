@@ -10,6 +10,7 @@ import {
   fetchTruckById,
   updateTruck,
 } from "../../redux/slices/wastePlant/wastePlantTruckSlice";
+import { getAxiosErrorMessage } from "../../utils/handleAxiosError";
 
 const EditTruck = () => {
   const { truckId } = useParams();
@@ -28,13 +29,18 @@ const EditTruck = () => {
     }
   }, [truckId, dispatch]);
 
-  useEffect(() => {
-    if (truck) {
-      setFormData({
-        ...truck,
-      });
-    }
-  }, [truck]);
+  // useEffect(() => {
+  //   if (truck) {
+  //     setFormData({
+  //       ...truck,
+  //     });
+  //   }
+  // }, [truck]);
+useEffect(() => {
+  if (truck) {
+    setFormData(truck as PartialTruckFormData);
+  }
+}, [truck]);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -85,15 +91,12 @@ const EditTruck = () => {
       console.log("formDataToSend", formDataToSend);
       const result = await dispatch(
         updateTruck({ truckId, data: formDataToSend })
-      );
-      if (result.payload?.error) {
-        toast.error(result.payload.error);
-        return;
-      }
-      toast.success("Truck updated successfully!");
+      ).unwrap();
+     
+      toast.success(result?.message);
       setTimeout(() => navigate("/waste-plant/trucks"), 2000);
-    } catch {
-      toast.error("Update failed. Please try again.");
+    } catch(error) {
+      toast.error(getAxiosErrorMessage(error));
     }
   };
 

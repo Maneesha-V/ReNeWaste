@@ -16,6 +16,7 @@ import {
 } from "../../utils/formatDate";
 import { getAxiosErrorMessage } from "../../utils/handleAxiosError";
 import { DriverDTO } from "../../types/driver/driverTypes";
+import { TruckDTO } from "../../types/truck/truckTypes";
 
 interface AssignDriverModalProps {
   visible: boolean;
@@ -34,13 +35,13 @@ const AssignDriverModal = ({
   const dispatch = useAppDispatch();
   const [selectedDriver, setSelectedDriver] = useState<string | null>(null);
   const { driver } = useSelector((state: RootState) => state.wastePlantPickup);
-  const { truck } = useSelector((state: RootState) => state.wastePlantTruck);
+  const { trucks } = useSelector((state: RootState) => state.wastePlantTruck);
   const [form] = Form.useForm();
 
   const token = localStorage.getItem("token");
   console.log(token);
 
-  console.log("trucks", truck);
+  console.log("trucks", trucks);
   console.log("drivers", driver);
   console.log("pickup", pickup);
   useEffect(() => {
@@ -54,10 +55,10 @@ const AssignDriverModal = ({
   }, [visible, pickup?.wasteplantId, token]);
 
   useEffect(() => {
-    if (truck.length === 1) {
-      form.setFieldValue("truck", truck[0]._id);
+    if (trucks.length === 1) {
+      form.setFieldValue("trucks", trucks[0]._id);
     }
-  }, [truck]);
+  }, [trucks]);
 
   const filteredDrivers = Array.isArray(driver)
     ? driver.filter((d: DriverDTO) => {
@@ -68,8 +69,8 @@ const AssignDriverModal = ({
       })
     : [];
   console.log("filteredDrivers", filteredDrivers);
-  const filteredTrucks = Array.isArray(truck)
-    ? truck.filter((t: any) => {
+  const filteredTrucks = Array.isArray(trucks)
+    ? trucks.filter((t: TruckDTO) => {
         if (pickup?.wasteType?.toLowerCase() === "residential") {
           return t.capacity < 5000;
         } else if (pickup?.wasteType?.toLowerCase() === "commercial") {

@@ -3,14 +3,13 @@ import {
   ITruckDocument,
 } from "../../models/truck/interfaces/truckInterface";
 import { TruckModel } from "../../models/truck/truckModel";
-import { PaginatedTrucksResult } from "../../types/wastePlant/truckTypes";
 import { ITruckRepository } from "./interface/ITruckRepository";
 import { inject, injectable } from "inversify";
 import TYPES from "../../config/inversify/types";
 import BaseRepository from "../baseRepository/baseRepository";
 import { IDriverRepository } from "../driver/interface/IDriverRepository";
 import { Types } from "mongoose";
-import { ReturnFetchAllTrucksByPlantId } from "./types/truckTypes";
+import { PaginatedTrucksResult, ReturnFetchAllTrucksByPlantId } from "../../dtos/truck/truckDTO";
 
 @injectable()
 export class TruckRepository
@@ -29,14 +28,9 @@ export class TruckRepository
     return await this.model.findOne({ vehicleNumber });
   }
   async createTruck(data: ITruck): Promise<ITruckDocument> {
-    try {
       const truck = new this.model(data);
       console.log("db-truck", truck);
       return await truck.save();
-    } catch (error: any) {
-      console.error("MongoDB Insert Error:", error);
-      throw error;
-    }
   }
   async getAllTrucks(
     plantId: string,
@@ -76,7 +70,7 @@ export class TruckRepository
   async getAvailableTrucks(
     driverId: string,
     plantId: string
-  ): Promise<ITruck[]> {
+  ): Promise<ITruckDocument[]> {
     const existingTruck = await this.model
       .findOne({
         assignedDriver: driverId,
@@ -91,7 +85,7 @@ export class TruckRepository
       .find({ assignedDriver: null, wasteplantId: plantId })
       .populate("wasteplantId");
   }
-  async getAssignedAvailableTrucks(driverId: string, plantId: string): Promise<ITruck[] | null> {
+  async getAssignedAvailableTrucks(driverId: string, plantId: string): Promise<ITruckDocument[] | null> {
      const existingTruck = await this.model
       .findOne({
         assignedDriver: driverId,
@@ -106,7 +100,7 @@ export class TruckRepository
   async getTruckById(truckId: string) {
     return await this.model.findById(truckId);
   }
-  async updateTruckById(truckId: string, data: any): Promise<ITruck | null> {
+  async updateTruckById(truckId: string, data: ITruck): Promise<ITruckDocument | null> {
     return await this.model.findByIdAndUpdate(truckId, data, { new: true });
   }
   async deleteTruckById(truckId: string) {

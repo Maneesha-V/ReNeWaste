@@ -3,8 +3,7 @@ import {
   ITruck,
   ITruckDocument,
 } from "../../../models/truck/interfaces/truckInterface";
-import { PaginatedTrucksResult } from "../../../types/wastePlant/truckTypes";
-import { ReturnFetchAllTrucksByPlantId } from "../types/truckTypes";
+import { PaginatedTrucksResult, ReturnFetchAllTrucksByPlantId } from "../../../dtos/truck/truckDTO";
 
 export interface ITruckRepository {
   findTruckByVehicle(vehicleNumber: string): Promise<ITruckDocument | null>;
@@ -15,13 +14,13 @@ export interface ITruckRepository {
     limit: number,
     search: string
   ): Promise<PaginatedTrucksResult>;
-  getAvailableTrucks(driverId: string, plantId: string): Promise<ITruck[]>;
-  getAssignedAvailableTrucks(driverId: string, plantId: string): Promise<ITruck[] | null> 
+  getAvailableTrucks(driverId: string, plantId: string): Promise<ITruckDocument[]>;
+  getAssignedAvailableTrucks(driverId: string, plantId: string): Promise<ITruckDocument[] | null> 
   getTruckById(truckId: string): Promise<ITruckDocument | null>;
-  updateTruckById(truckId: string, data: any): Promise<ITruck | null>;
+  updateTruckById(truckId: string, data: ITruck): Promise<ITruckDocument | null>;
   deleteTruckById(truckId: string): Promise<ITruckDocument | null>;
   reqTruckToWastePlant(driverId: string): Promise<any>;
-  getMaintainanceTrucks(plantId: string): Promise<any>;
+  getMaintainanceTrucks(plantId: string): Promise<ITruckDocument[]>;
   activeAvailableTrucks(plantId: string): Promise<ITruckDocument[]>;
   assignTruckToDriver(
     plantId: string,

@@ -14,17 +14,18 @@ import PaginationSearch from "../../components/common/PaginationSearch";
 import usePagination from "../../hooks/usePagination";
 import debounce from "lodash/debounce";
 import { toast } from "react-toastify";
+import { getAxiosErrorMessage } from "../../utils/handleAxiosError";
 
 const Trucks: React.FC = () => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
-  const { truck, total, loading, error } = useSelector(
+  const { trucks, total, loading, error } = useSelector(
     (state: RootState) => state.wastePlantTruck
   );
   const { currentPage, setCurrentPage, pageSize, search, setSearch } =
     usePagination();
 
-  console.log("trucks", truck);
+  console.log("trucks", trucks);
 
   const debouncedFetchTrucks = useCallback(
     debounce((page: number, limit: number, query: string) => {
@@ -53,8 +54,8 @@ const Trucks: React.FC = () => {
     try {
       const response = await dispatch(deleteTruck(truckId)).unwrap();
       toast.success(response.message);
-    } catch (error: any) {
-      console.error("Delete failed:", error);
+    } catch (error) {
+      toast.error(getAxiosErrorMessage(error));
     }
   };
 
@@ -92,7 +93,7 @@ const Trucks: React.FC = () => {
           <PaginationSearch onSearchChange={setSearch} searchValue={search} />
           <Spin spinning={loading}>
             <Table
-              dataSource={Array.isArray(truck) ? truck : []}
+              dataSource={Array.isArray(trucks) ? trucks : []}
               rowKey="_id"
               bordered
               className="shadow-sm"

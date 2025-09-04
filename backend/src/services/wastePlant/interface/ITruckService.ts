@@ -1,19 +1,20 @@
+import { PaginatedResult, TruckDTO } from "../../../dtos/truck/truckDTO";
 import { ITruck } from "../../../models/truck/interfaces/truckInterface";
-import { PaginatedTrucksResult } from "../../../types/wastePlant/truckTypes";
+
 
 export interface ITruckService {
-    addTruck(data: ITruck): Promise<ITruck>;
-    getAllTrucks(plantId: string, page: number, limit: number, search: string): Promise<PaginatedTrucksResult>
-    getAvailableTrucksService(driverId: string, plantId: string): Promise<ITruck[]>;
-    getTruckByIdService(truckId: string): Promise<ITruck | null>;
-    updateTruckByIdService(truckId: string, data: any): Promise<ITruck | null>;
-    deleteTruckByIdService(truckId: string): Promise<ITruck | null>;
-    pendingTruckReqsts(plantId: string): Promise<any>;
-    availableTrucksForDriver(plantId: string): Promise<any>;
+    addTruck(data: ITruck): Promise<boolean>;
+    getAllTrucks(plantId: string, page: number, limit: number, search: string): Promise<PaginatedResult>
+    getAvailableTrucksService(driverId: string, plantId: string): Promise<TruckDTO[]>;
+    getTruckByIdService(truckId: string): Promise<TruckDTO>;
+    updateTruckByIdService(truckId: string, data: ITruck): Promise<TruckDTO>;
+    deleteTruckByIdService(truckId: string): Promise<TruckDTO>;
+    pendingTruckReqsts(plantId: string): Promise<TruckDTO[]>;
+    availableTrucksForDriver(plantId: string): Promise<TruckDTO[]>;
     assignTruckToDriverService(
     plantId: string,
     driverId: string,
     truckId: string,
     prevTruckId: string
-  ): Promise<any>;
+  ): Promise<TruckDTO[]>;
 }

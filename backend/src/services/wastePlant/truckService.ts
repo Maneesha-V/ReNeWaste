@@ -1,11 +1,12 @@
 import { ITruck } from "../../models/truck/interfaces/truckInterface";
 import { ITruckService } from "./interface/ITruckService";
-import { PaginatedTrucksResult } from "../../types/wastePlant/truckTypes";
 import { inject, injectable } from "inversify";
 import TYPES from "../../config/inversify/types";
 import { ITruckRepository } from "../../repositories/truck/interface/ITruckRepository";
 import { IWastePlantRepository } from "../../repositories/wastePlant/interface/IWastePlantRepository";
 import { ISubscriptionPlanRepository } from "../../repositories/subscriptionPlan/interface/ISubscriptionPlanRepository";
+import { PaginatedResult, TruckDTO } from "../../dtos/truck/truckDTO";
+import { TruckMapper } from "../../mappers/TruckMapper";
 
 @injectable()
 export class TruckService implements ITruckService {
@@ -17,7 +18,7 @@ export class TruckService implements ITruckService {
     @inject(TYPES.SubscriptionPlanRepository)
     private subscriptionplanRepository: ISubscriptionPlanRepository
   ) {}
-  async addTruck(data: ITruck): Promise<ITruck> {
+  async addTruck(data: ITruck): Promise<boolean> {
     const trucksCount = await this.truckRepository.fetchAllTrucksByPlantId(
       data.wasteplantId!.toString()
     );
@@ -53,71 +54,79 @@ export class TruckService implements ITruckService {
     const newData: ITruck = {
       ...data,
     };
-    return await this.truckRepository.createTruck(newData);
+    const created = await this.truckRepository.createTruck(newData);
+    if(!created){
+      throw new Error("Can't create truck.")
+    }
+    return true;
   }
   async getAllTrucks(
     plantId: string,
     page: number,
     limit: number,
     search: string
-  ): Promise<PaginatedTrucksResult> {
-    return await this.truckRepository.getAllTrucks(
+  ): Promise<PaginatedResult> {
+    const { trucks, total } = await this.truckRepository.getAllTrucks(
       plantId,
       page,
       limit,
       search
     );
+    return {
+      trucks: TruckMapper.mapTrucksDTO(trucks),
+      total
+    }
   }
   async getAvailableTrucksService(
     driverId: string,
     plantId: string
-  ): Promise<ITruck[]> {
-    return await this.truckRepository.getAvailableTrucks(driverId, plantId);
+  ): Promise<TruckDTO[]> {
+    const trucks = await this.truckRepository.getAvailableTrucks(driverId, plantId);
+    return TruckMapper.mapTrucksDTO(trucks);
   }
-  async getTruckByIdService(truckId: string): Promise<ITruck | null> {
-    try {
-      return await this.truckRepository.getTruckById(truckId);
-    } catch (error) {
-      throw new Error("Error fetching truck from service");
+  async getTruckByIdService(truckId: string): Promise<TruckDTO> {
+
+      const truck = await this.truckRepository.getTruckById(truckId);
+ if (!truck) {
+      throw new Error("Truck not found.");
     }
+    return TruckMapper.mapTruckDTO(truck);
   }
 
   async updateTruckByIdService(
     truckId: string,
-    data: any
-  ): Promise<ITruck | null> {
-    try {
-      return await this.truckRepository.updateTruckById(truckId, data);
-    } catch (error) {
-      throw new Error("Error updating truck in service");
+    data: ITruck
+  ): Promise<TruckDTO> {
+      const truck = await this.truckRepository.updateTruckById(truckId, data);
+    if (!truck) {
+      throw new Error("Truck not found.");
     }
+    return TruckMapper.mapTruckDTO(truck);
   }
 
   async deleteTruckByIdService(truckId: string) {
-    return await this.truckRepository.deleteTruckById(truckId);
+    const truck = await this.truckRepository.deleteTruckById(truckId);
+     if (!truck) {
+      throw new Error("Truck not found.");
+    }
+    return TruckMapper.mapTruckDTO(truck);
   }
 
-  async pendingTruckReqsts(plantId: string): Promise<any> {
-    try {
-      return await this.truckRepository.getMaintainanceTrucks(plantId);
-    } catch (error) {
-      throw new Error("Error fetching pending truck reqsts from service");
-    }
+  async pendingTruckReqsts(plantId: string): Promise<TruckDTO[]> {
+      const trucks =  await this.truckRepository.getMaintainanceTrucks(plantId);
+      return TruckMapper.mapTrucksDTO(trucks);
   }
 
-  async availableTrucksForDriver(plantId: string): Promise<any> {
-    try {
-      return await this.truckRepository.activeAvailableTrucks(plantId);
-    } catch (error) {
-      throw new Error("Error fetching trucks from service");
-    }
+  async availableTrucksForDriver(plantId: string): Promise<TruckDTO[]> {
+      const trucks =  await this.truckRepository.activeAvailableTrucks(plantId);
+   return TruckMapper.mapTrucksDTO(trucks);
   }
   async assignTruckToDriverService(
     plantId: string,
     driverId: string,
     truckId: string,
     prevTruckId: string
-  ): Promise<any> {
+  ): Promise<TruckDTO[]> {
     const truck = await this.truckRepository.getTruckById(truckId);
     if (!truck || truck.status !== "Active") {
       throw new Error("Selected truck is not available");
@@ -128,6 +137,6 @@ export class TruckService implements ITruckService {
       truckId,
       prevTruckId
     );
-    return updatedRequest;
+    return TruckMapper.mapTrucksDTO(updatedRequest);
   }
 }

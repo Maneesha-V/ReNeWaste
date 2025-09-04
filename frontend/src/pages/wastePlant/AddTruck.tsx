@@ -5,6 +5,7 @@ import { toast } from "react-toastify";
 import { useWastePlantValidation } from "../../hooks/useWastePlantValidation";
 import { TruckFormData, ValidationErrors } from "../../types/truckTypes";
 import { addTruck } from "../../redux/slices/wastePlant/wastePlantTruckSlice";
+import { getAxiosErrorMessage } from "../../utils/handleAxiosError";
 
 const AddTruck = () => {
   const navigate = useNavigate();
@@ -52,17 +53,14 @@ const AddTruck = () => {
       }
     });
     try {
-      const result = await dispatch(addTruck(formDataToSend));
-      if (result.payload?.error) {
-        toast.error(result.payload.error);
-        return;
-      }
-      toast.success("Add truck successfully!");
+      const result = await dispatch(addTruck(formDataToSend)).unwrap();
+
+      toast.success(result?.message);
       setTimeout(() => {
         navigate("/waste-plant/trucks");
       }, 2000);
-    } catch (error: any) {
-      toast.error("Truck creation failed. Please try again.");
+    } catch (error) {
+      toast.error(getAxiosErrorMessage(error));
     }
   };
 

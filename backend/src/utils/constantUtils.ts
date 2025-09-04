@@ -83,7 +83,13 @@ export const MESSAGES = {
       DROP_SPOT_UPDATE: "Dropspot updated successfully.",
       DROP_SPOT_DELETE: "Dropspot deleted successfully.",
       FETCH_DROP_SPOT: "Fetch dropspots successfully.",
-      WASTE_MWASURED: "Waste measurement saved."
+      WASTE_MWASURED: "Waste measurement saved.",
+      CRETAE_TRUCK: "Truck created successfully.",
+      FETCH_TRUCK: "Fetch trucks successfully",
+      TRUCK_UPDATE: "Truck updated successfully.",
+      TRUCK_DELETE: "Truck deleted successfully.",
+      FETCH_TRUCK_REQ: "Fetch avaialable truck requests successfully.",
+      ASSIGN_TRUCK_DRIVER: "Assign truck to driver successfully."
     },
     ERROR: {
       ID_REQUIRED: "Plant ID is required.",
