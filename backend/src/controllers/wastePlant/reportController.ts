@@ -1,9 +1,11 @@
 import { inject, injectable } from "inversify";
 import TYPES from "../../config/inversify/types";
 import { AuthRequest } from "../../types/common/middTypes";
-import { Response } from "express";
+import { NextFunction, Response } from "express";
 import { IReportController } from "./interface/IReportController";
 import { IReportService } from "../../services/wastePlant/interface/IReportService";
+import { ApiError } from "../../utils/ApiError";
+import { MESSAGES, STATUS_CODES } from "../../utils/constantUtils";
 
 @injectable()
 export class ReportController implements IReportController {
@@ -11,36 +13,40 @@ export class ReportController implements IReportController {
     @inject(TYPES.PlantReportService)
     private reportService: IReportService
   ) {}
-  async getWasteReports(req: AuthRequest, res: Response): Promise<void> {
+  async getWasteReports(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
     try {
       const plantId = req.user?.id;
 
       if (!plantId) {
-        res.status(400).json({ message: "Plant ID is required" });
-        return;
+        throw new ApiError(
+                 STATUS_CODES.UNAUTHORIZED,
+                 MESSAGES.COMMON.ERROR.UNAUTHORIZED
+               );
       }
       const wasteReports = await this.reportService.getWasteReports(plantId);
       console.log("wasteReports",wasteReports);
       
-      res.status(200).json({
+      res.status(STATUS_CODES.SUCCESS).json({
         success: true,
-        message: "Fetch waste reports successfully",
+        message: MESSAGES.WASTEPLANT.SUCCESS.FETCH_WASTE_REPORT,
         wasteReports,
       });
-    } catch (error: any) {
+    } catch (error) {
       console.error("Controller Error:", error);
-      res.status(500).json({ message: "Failed to fetch waste reports" });
+      next(error);
     }
   }
-  async filterWasteReports(req: AuthRequest, res: Response): Promise<void> {
+  async filterWasteReports(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
     try {
       const { from, to } = req.params;
       const plantId = req.user?.id;
       console.log({ from, to, plantId });
 
       if (!plantId) {
-        res.status(400).json({ message: "Plant ID is required" });
-        return;
+        throw new ApiError(
+          STATUS_CODES.UNAUTHORIZED,
+          MESSAGES.COMMON.ERROR.UNAUTHORIZED
+        );
       }
       const reports = await this.reportService.filterWasteReports({
         from,
@@ -48,14 +54,14 @@ export class ReportController implements IReportController {
         plantId,
       });
 
-      res.status(200).json({
+      res.status(STATUS_CODES.SUCCESS).json({
         success: true,
-        message: "Fetch filter waste reports successfully",
+        message: MESSAGES.WASTEPLANT.SUCCESS.FETCH_FILTER_WASTE_REPORT,
         reports,
       });
-    } catch (error: any) {
+    } catch (error) {
       console.error("Controller Error:", error);
-      res.status(500).json({ message: "Failed to filter waste reports" });
+      next(error);
     }
   }
 }

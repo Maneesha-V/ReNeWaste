@@ -1,4 +1,4 @@
-export type WasteReportFilter = {
-  from: string;
-  to: string;
-};
+// export type WasteReportFilter = {
+//   from: string;
+//   to: string;
+// };

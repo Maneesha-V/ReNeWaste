@@ -10,7 +10,4 @@ export const updateProfile = async (formData: FormData) => {
   });
   return response.data;
 };
-//   export const fetchDriversService = async(wastePlantId: string) => {
-//     const response = await axiosDriver.get(`/drivers?wastePlantId=${wastePlantId}`);
-//     return response.data;
-//   }
+

@@ -3,6 +3,7 @@ import { inject, injectable } from "inversify";
 import TYPES from "../../config/inversify/types";
 import { IWastePlantRepository } from "../../repositories/wastePlant/interface/IWastePlantRepository";
 import { IWastePlant } from "../../models/wastePlant/interfaces/wastePlantInterface";
+import { WastePlantMapper } from "../../mappers/WastePlantMapper";
 
 @injectable()
 export class ProfileService implements IProfileService {
@@ -13,15 +14,16 @@ export class ProfileService implements IProfileService {
   async getPlantProfile(plantId: string) {
     const wasteplant = await this.wastePlantRepository.getWastePlantById(plantId);
     if (!wasteplant) throw new Error("Wasteplant not found");
-    return wasteplant;
+    return WastePlantMapper.mapWastePlantDTO(wasteplant);
   }
   async updatePlantProfile(plantId: string, updatedData: IWastePlant ) {
     const wasteplant = await this.wastePlantRepository.getWastePlantById(plantId);
     if (!wasteplant) throw new Error("Plant not found");
 
-    return await this.wastePlantRepository.updateWastePlantById(plantId, updatedData);
+    const updated = await this.wastePlantRepository.updateWastePlantById(plantId, updatedData);
+    if(!updated){
+      throw new Error("Plant can't update.")
+    }
+    return WastePlantMapper.mapWastePlantDTO(updated);
   }
-//   async fetchDriversService(wastePlantId: string) {
-//     return await this.driverRepository.fetchDriversByPlantId(wastePlantId);
-//   }
 }

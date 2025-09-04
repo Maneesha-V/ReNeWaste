@@ -33,7 +33,7 @@ export type WastePlant = {
   cloudinaryPublicId?: string;
   subscriptionPlan?: string;
   password: string;
-  role: "wasteplant";
+  role: string;
   isDeleted?: boolean;
   isBlocked?: boolean;
   blockedAt?: Date | null;
@@ -156,3 +156,13 @@ export type FetchUsers = MsgSuccessResp & {
 export type ToggleUserBlockStatusResp = MsgSuccessResp & {
   updatedUser: UserResp;
 }
+export type FetchPlantProfileResp = {
+  wasteplant: WastePlant;
+}
+export type UpdatePlantProfileResp = {
+  updatedPlant: WastePlant;
+}
+export type WasteReportFilter = {
+  from: string;
+  to: string;
+};

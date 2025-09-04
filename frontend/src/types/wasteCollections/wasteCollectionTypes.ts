@@ -1,3 +1,15 @@
+import { MsgSuccessResp } from "../common/commonTypes";
+
+export type WasteCollectionDTO = {
+  _id: string;
+     driverId: string;
+      truckId: string;
+      wasteplantId: string;
+      measuredWeight: number;
+      collectedWeight: number;
+      wasteType: string;
+      returnedAt: Date | null;
+}
 export type MeasureDataPayload = {
   vehicleNumber: string;
   driverName: string;
@@ -15,4 +27,10 @@ export type ReturnWasteMeasurement = {
 export type SaveWasteMeasurementResp = {
   data: ReturnWasteMeasurement;
   message: string;
+}
+export type FilterWasteReportsResp = MsgSuccessResp & {
+ reports: WasteCollectionDTO[];
+}
+export type FetchWasteReportsResp = MsgSuccessResp &{
+ wasteReports: WasteCollectionDTO[];
 }

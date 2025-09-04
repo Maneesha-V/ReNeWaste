@@ -4,6 +4,7 @@ import { IReportService } from "./interface/IReportService";
 import { IPickupRepository } from "../../repositories/pickupReq/interface/IPickupRepository";
 import { IWasteCollectionRepository } from "../../repositories/wasteCollection/interface/IWasteCollectionRepository";
 import { FilterReport } from "../../dtos/wasteplant/WasteplantDTO";
+import { WasteCollectionMapper } from "../../mappers/WasteCollectionMapper";
 
 @injectable()
 export class ReportService implements IReportService {
@@ -16,14 +17,18 @@ export class ReportService implements IReportService {
     private wasteCollectionRepository: IWasteCollectionRepository
   ) {}
   async getWasteReports(plantId: string) {
-    // const plantPickups = await this.pickupRepository.fetchWasteReportsByPlantId(plantId);
-    // return plantPickups;
-    return await this.wasteCollectionRepository.fetchWasteCollectionReportsByPlantId(plantId);
+    const wastereports = await this.wasteCollectionRepository.fetchWasteCollectionReportsByPlantId(plantId);
+    if(!wastereports){
+      throw new Error("Waste report not found.")
+    }
+    return WasteCollectionMapper.mapWasteCollectionsDTO(wastereports);
   }
   async filterWasteReports(data: FilterReport){
     const { plantId, from, to } = data;
-    // const plantPickups = await this.pickupRepository.filterWasteReportsByPlantId(data);
-    // return plantPickups;
-    return await this.wasteCollectionRepository.filterWasteCollectionReportsByPlantId(data);
+    const wastereports =  await this.wasteCollectionRepository.filterWasteCollectionReportsByPlantId(data);
+    if(!wastereports){
+      throw new Error("Waste report not found.")
+    }
+    return WasteCollectionMapper.mapWasteCollectionsDTO(wastereports);
   }
 }

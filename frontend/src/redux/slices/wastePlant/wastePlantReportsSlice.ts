@@ -1,6 +1,8 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { fetchWasteReportsService, filterReportsService } from "../../../services/wastePlant/reportService";
-import { WasteReportFilter } from "../../../types/wasteReportTypes";
+import { getAxiosErrorMessage } from "../../../utils/handleAxiosError";
+import { WasteReportFilter } from "../../../types/wasteplant/wastePlantTypes";
+import { FetchWasteReportsResp, FilterWasteReportsResp } from "../../../types/wasteCollections/wasteCollectionTypes";
 
 
 interface SubscriptionState {
@@ -19,21 +21,28 @@ const initialState: SubscriptionState = {
   filterReports: [],
 };
 
-export const filterWasteReports = createAsyncThunk(
+export const filterWasteReports = createAsyncThunk<
+FilterWasteReportsResp,
+WasteReportFilter,
+ { rejectValue: { message: string } }
+>(
   "wastePlantReports/filterWasteReports",
   async (filter: WasteReportFilter, { rejectWithValue }) => {
     try {
       const response = await filterReportsService(filter.from, filter.to);
       return response;
-    } catch (error: any) {
-      return rejectWithValue(
-        error.response?.data || "Failed to fetch fetch filter reports."
-      );
+    } catch (error) {
+      const msg = getAxiosErrorMessage(error);
+          return rejectWithValue({ message: msg });
     }
   }
 );
 
-export const fetchWasteReports = createAsyncThunk(
+export const fetchWasteReports = createAsyncThunk<
+FetchWasteReportsResp,
+void,
+ { rejectValue: { message: string } }
+>(
   "wastePlantReports/fetchWasteReports",
   async (_, { rejectWithValue }) => {
     try {
@@ -41,10 +50,9 @@ export const fetchWasteReports = createAsyncThunk(
       console.log("response",response);
       
       return response;
-    } catch (error: any) {
-      return rejectWithValue(
-        error.response?.data || "Failed to fetch fetch waste reports."
-      );
+    } catch (error) {
+      const msg = getAxiosErrorMessage(error);
+          return rejectWithValue({ message: msg });
     }
   }
 );
@@ -65,7 +73,7 @@ const wastePlantReportsSlice = createSlice({
       })
       .addCase(filterWasteReports.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload as string;
+        state.error = action.payload?.message as string;
       })
         .addCase(fetchWasteReports.pending, (state) => {
         state.loading = true;
@@ -79,7 +87,7 @@ const wastePlantReportsSlice = createSlice({
       })
       .addCase(fetchWasteReports.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload as string;
+        state.error = action.payload?.message as string;
       })
   },
 });

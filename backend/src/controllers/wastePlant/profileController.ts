@@ -8,6 +8,7 @@ import cloudinary from "../../config/cloudinary";
 import streamifier from "streamifier";
 import axios from "axios";
 import { MESSAGES, STATUS_CODES } from "../../utils/constantUtils";
+import { ApiError } from "../../utils/ApiError";
 
 @injectable()
 export class ProfileController implements IProfileController {
@@ -15,21 +16,31 @@ export class ProfileController implements IProfileController {
     @inject(TYPES.PlantProfileService)
     private profileService: IProfileService
   ) {}
-  async getPlantProfile(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
+  async getPlantProfile(
+    req: AuthRequest,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
     try {
       const plantId = req.user?.id;
       if (!plantId) {
-        res.status(401).json({ error: "Unauthorized" });
-        return;
+        throw new ApiError(
+          STATUS_CODES.UNAUTHORIZED,
+          MESSAGES.COMMON.ERROR.UNAUTHORIZED
+        );
       }
       const wasteplant = await this.profileService.getPlantProfile(plantId);
-      res.status(200).json({ wasteplant });
+      res.status(STATUS_CODES.SUCCESS).json({ wasteplant });
     } catch (error) {
       console.log("error", error);
       next(error);
     }
   }
-  async viewLicenseDocument(req: Request, res: Response, next: NextFunction): Promise<void> {
+  async viewLicenseDocument(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
     try {
       const publicId = req.params.publicId;
 
@@ -47,7 +58,11 @@ export class ProfileController implements IProfileController {
       next(error);
     }
   }
-  async updatePlantProfile(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
+  async updatePlantProfile(
+    req: AuthRequest,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
     try {
       console.log("file", req.file);
 
@@ -55,8 +70,10 @@ export class ProfileController implements IProfileController {
       const updatedData = req.body;
       console.log({ plantId, updatedData });
       if (!plantId) {
-        res.status(STATUS_CODES.UNAUTHORIZED).json({ message: MESSAGES.COMMON.ERROR.UNAUTHORIZED });
-        return;
+        throw new ApiError(
+          STATUS_CODES.UNAUTHORIZED,
+          MESSAGES.COMMON.ERROR.UNAUTHORIZED
+        );
       }
 
       if (req.file) {
@@ -89,26 +106,10 @@ export class ProfileController implements IProfileController {
       );
       console.log("updatedPlant", updatedPlant);
 
-      res.status(200).json({ wasteplant: updatedPlant });
+      res.status(STATUS_CODES.SUCCESS).json({ updatedPlant });
     } catch (error) {
       console.error("Error updating plant profile:", error);
       next(error);
     }
   }
-  //   async getDriversByWastePlant (req: Request, res: Response): Promise<void> {
-  //     try {
-  //       const wastePlantId = req.query.wastePlantId as string;
-
-  //       if (!wastePlantId) {
-  //          res.status(400).json({ message: "wastePlantId is required" });
-  //          return;
-  //       }
-  //       const drivers = await this.profileService.fetchDriversService(wastePlantId)
-
-  //       res.status(200).json({data:drivers});
-  //     } catch (error) {
-  //       console.error("Error fetching drivers:", error);
-  //       res.status(500).json({ message: "Server error while fetching drivers" });
-  //     }
-  //   };
 }

@@ -91,7 +91,8 @@ export const MESSAGES = {
       FETCH_TRUCK_REQ: "Fetch avaialable truck requests successfully.",
       ASSIGN_TRUCK_DRIVER: "Assign truck to driver successfully.",
       FETCH_USER: "Fetch users successfully.",
-      
+      FETCH_WASTE_REPORT: "Fetch waste reports successfully.",
+      FETCH_FILTER_WASTE_REPORT: "Fetch filter waste reports successfully."
     },
     ERROR: {
       ID_REQUIRED: "Plant ID is required.",

@@ -1,8 +1,8 @@
-import { IPickupRequestDocument } from "../../../models/pickupRequests/interfaces/pickupInterface";
-import { IWasteCollectionDocument } from "../../../models/wasteCollection/interfaces/wasteCollectionInterface";
-import { FilterReport } from "../../../types/wastePlant/reportTypes";
+import { WasteCollectionDTO } from "../../../dtos/wasteCollection/wasteCollectionDTO";
+import { FilterReport } from "../../../dtos/wasteplant/WasteplantDTO";
+
 
 export interface IReportService {
-    getWasteReports(plantId: string): Promise<IWasteCollectionDocument[]>;
-    filterWasteReports(data: FilterReport): Promise<IWasteCollectionDocument[]>;
+    getWasteReports(plantId: string): Promise<WasteCollectionDTO[]>;
+    filterWasteReports(data: FilterReport): Promise<WasteCollectionDTO[]>;
 }
