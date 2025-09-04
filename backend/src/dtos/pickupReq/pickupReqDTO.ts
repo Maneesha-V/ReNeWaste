@@ -130,3 +130,7 @@ export type RevenueByWasteType = {
   totalCommercialRevenue: number;
   totalRevenue: number;
 };
+export type PickupDriverFilterParams = {
+    wasteType?: string;
+    driverId: string;
+  }

@@ -1,5 +1,4 @@
 import { inject, injectable } from "inversify";
-import { LoginRequest, LoginResponse } from "../../types/driver/authTypes";
 import { generateToken } from "../../utils/authUtils";
 import { sendEmail } from "../../utils/mailerUtils";
 import { generateOtp } from "../../utils/otpUtils";
@@ -9,15 +8,11 @@ import jwt from "jsonwebtoken";
 import TYPES from "../../config/inversify/types";
 import { IUserRepository } from "../../repositories/user/interface/IUserRepository";
 import { IDriverRepository } from "../../repositories/driver/interface/IDriverRepository";
+import { LoginRequest, LoginResponse } from "../../dtos/driver/driverDTO";
+import { DriverMapper } from "../../mappers/DriverMapper";
 
 @injectable()
 export class AuthService implements IAuthService {
-  // constructor(
-    // @inject(TYPES.UserRepository)
-    // private userRepository: IUserRepository,
-  //   @inject(TYPES.DriverRepository)
-  //   private driverRepository: IDriverRepository,    
-  // ){}
     private driverRepository: IDriverRepository;
 
   constructor(
@@ -29,7 +24,6 @@ export class AuthService implements IAuthService {
     this.driverRepository = getDriverRepo(); 
   }
   async verifyToken(token: string): Promise<{ token: string }> {
-    try {
       const decoded = jwt.verify(token, process.env.JWT_REFRESH_SECRET!) as {
         userId: string;
         role: string;
@@ -47,10 +41,6 @@ export class AuthService implements IAuthService {
       );
 
       return { token: accessToken };
-    } catch (error) {
-      console.error("err",error)
-      throw new Error("Invalid or expired refresh token");
-    }
   }
   async loginDriver({ email, password }: LoginRequest): Promise<LoginResponse> {
     const driver = await this.driverRepository.findDriverByEmail(email);
@@ -62,7 +52,10 @@ export class AuthService implements IAuthService {
       userId: driver._id.toString(),
       role: driver.role,
     });
-    return { driver, token };
+    return { 
+      driver: DriverMapper.mapDriverDTO(driver), 
+      token 
+    };
   }
   async sendOtpService(email: string) {
     const driver = await this.driverRepository.findDriverByEmail(email);
@@ -77,7 +70,7 @@ export class AuthService implements IAuthService {
       "Your OTP Code",
       `Your OTP code is: ${otp}. It will expire in 30s.`
     );
-    return { message: "OTP sent successfully", otp };
+    return otp;
   }
   async resendOtpService(email: string) {
     const driver = await this.driverRepository.findDriverByEmail(email);
@@ -92,7 +85,7 @@ export class AuthService implements IAuthService {
       "Your Resend OTP Code",
       `Your Resend OTP code is: ${otp}. It will expire in 30s.`
     );
-    return { message: "Resend OTP sent successfully", otp };
+    return otp;
   }
   async verifyOtpService(email: string, otp: string): Promise<boolean> {
     const storedOtp = await this.userRepository.findOtpByEmail(email);

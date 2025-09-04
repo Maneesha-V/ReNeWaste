@@ -1,4 +1,4 @@
-export type PickupDriverFilterParams = {
-    wasteType?: string;
-    driverId: string;
-  }
+// export type PickupDriverFilterParams = {
+//     wasteType?: string;
+//     driverId: string;
+//   }

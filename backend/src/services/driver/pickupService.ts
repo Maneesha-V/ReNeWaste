@@ -1,10 +1,10 @@
 import { inject, injectable } from "inversify";
 import { IPickupRequest, IPickupRequestDocument } from "../../models/pickupRequests/interfaces/pickupInterface";
-import { PickupDriverFilterParams } from "../../types/driver/pickupTypes";
 import { IPickupService } from "./interface/IPickupService";
 import TYPES from "../../config/inversify/types";
 import { IUserRepository } from "../../repositories/user/interface/IUserRepository";
 import { IPickupRepository } from "../../repositories/pickupReq/interface/IPickupRepository";
+import { PickupDriverFilterParams } from "../../dtos/pickupReq/pickupReqDTO";
 
 @injectable()
 export class PickupService implements IPickupService {
@@ -16,7 +16,7 @@ export class PickupService implements IPickupService {
   ){}
   async getPickupRequestService(
     filters: PickupDriverFilterParams
-  ): Promise<IPickupRequest[]> {
+  ) {
     return await this.pickupRepository.getPickupsByDriverId(filters);
   }
   async getPickupByIdForDriver(pickupReqId: string, driverId: string) {

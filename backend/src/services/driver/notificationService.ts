@@ -2,6 +2,7 @@ import { inject, injectable } from "inversify";
 import TYPES from "../../config/inversify/types";
 import { INotificationService } from "./interface/INotificationService";
 import { INotificationRepository } from "../../repositories/notification/interface/INotifcationRepository";
+import { NotificationMapper } from "../../mappers/NotificationMapper";
 
 @injectable()
 export class NotificationService implements INotificationService {
@@ -10,9 +11,17 @@ export class NotificationService implements INotificationService {
     private notificationRepository: INotificationRepository,
   ) {}
  async getNotifications(driverId: string) {
-    return await this.notificationRepository.findByReceiverId(driverId );
+    const notifications = await this.notificationRepository.findByReceiverId(driverId );
+    if (!notifications) {
+          throw new Error("Notification not found.");
+        }
+        return NotificationMapper.mapNotificationsDTO(notifications);
   }
   async markNotificationAsRead(notifId: string) {
-    return this.notificationRepository.markAsReadById(notifId);
+    const notification = await this.notificationRepository.markAsReadById(notifId);
+    if (!notification) {
+      throw new Error("Notification not found.");
+    }
+    return NotificationMapper.mapNotificationDTO(notification);
   }
 }

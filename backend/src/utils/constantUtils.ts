@@ -109,7 +109,10 @@ export const MESSAGES = {
       FETCH_DRIVER: "Fetch drivers successfully.",
       CREATE_DRIVER: "Driver created successfully.",
       UPDATE_DRIVER: "Driver updated successfully.",
-      DELETE_DRIVER: "Driver deleted successfully."
+      DELETE_DRIVER: "Driver deleted successfully.",
+      FETCH_ASSIGN_TRUCK: "Fetch assigned truck successfully.",
+      TRUCK_REQ_SENT: "Truck request sent successfully.",
+      MARK_RETURN_TRUCK: "Truck marked as returned.",
 
     },
     ERROR: {

@@ -1,9 +1,10 @@
-import { Response } from "express";
+import { NextFunction, Response } from "express";
 import { IPickupController } from "./interface/IPIckupController";
 import { AuthRequest } from "../../types/common/middTypes";
 import { inject, injectable } from "inversify";
 import TYPES from "../../config/inversify/types";
 import { IPickupService } from "../../services/driver/interface/IPickupService";
+import { STATUS_CODES } from "../../utils/constantUtils";
 
 @injectable()
 export class PickupController implements IPickupController {
@@ -11,7 +12,7 @@ export class PickupController implements IPickupController {
     @inject(TYPES.DriverPickupService)
     private pickupService: IPickupService
   ) {}
-  async getPickupRequests(req: AuthRequest, res: Response): Promise<void> {
+  async getPickupRequests(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
     try {
       const { wasteType } = req.query;
       const driverId = req.user?.id;
@@ -21,16 +22,16 @@ export class PickupController implements IPickupController {
       });
       console.log("pick-driver", pickups);
 
-      res.status(200).json({
+      res.status(STATUS_CODES.SUCCESS).json({
         success: true,
         data: pickups,
       });
     } catch (error) {
       console.error("Error fetching pickups:", error);
-      res.status(500).json({ message: "Server error" });
+      next(error);
     }
   }
-  async getPickupRequestById(req: AuthRequest, res: Response): Promise<void> {
+  async getPickupRequestById(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
     try {
       const { pickupReqId } = req.params;
       const driverId = req.user?.id;
@@ -56,13 +57,13 @@ export class PickupController implements IPickupController {
       }
       console.log("pickup", pickup);
 
-      res.status(200).json({ success: true, data: pickup });
+      res.status(STATUS_CODES.SUCCESS).json({ success: true, data: pickup });
     } catch (error) {
       console.error("Error fetching pickups:", error);
-      res.status(500).json({ success: false, message: "Server error" });
+      next(error);
     }
   }
-  async updateAddressLatLng(req: AuthRequest, res: Response): Promise<void> {
+  async updateAddressLatLng(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
     try {
       const { addressId } = req.params;
       const { latitude, longitude } = req.body;
@@ -82,16 +83,11 @@ export class PickupController implements IPickupController {
         );
 
       res.status(200).json({ success: true, data: updatedAddress });
-    } catch (error: any) {
-      res
-        .status(500)
-        .json({
-          success: false,
-          message: error.message || "Failed to update address location",
-        });
+    } catch (error) {
+     next(error);
     }
   }
-  async updateTrackingStatus(req: AuthRequest, res: Response): Promise<void> {
+  async updateTrackingStatus(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
     try {
       console.log(req.params);
       console.log(req.body);
@@ -109,17 +105,12 @@ export class PickupController implements IPickupController {
       );
 
       res.status(200).json({ success: true, data: updatedPickup });
-    } catch (error: any) {
-      res
-        .status(500)
-        .json({
-          success: false,
-          error: error.message || "Failed to update tracking status",
-        });
+    } catch (error) {
+     next(error);
     }
   }
 
-  async markPickupCompleted(req: AuthRequest, res: Response): Promise<void> {
+  async markPickupCompleted(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
     try {
       console.log(req.params);
       const { pickupReqId } = req.params;
@@ -134,13 +125,8 @@ export class PickupController implements IPickupController {
       );
 
       res.status(200).json({ success: true, data: updatedPickup });
-    } catch (error: any) {
-      res
-        .status(500)
-        .json({
-          success: false,
-          error: error.message || "Failed to update pickup completed",
-        });
+    } catch (error) {
+      next(error);
     }
   }
 }

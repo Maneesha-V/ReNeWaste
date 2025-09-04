@@ -9,7 +9,6 @@ import {
   EnhancedPickup,
   IPickupRepository,
 } from "./interface/IPickupRepository";
-import { PickupDriverFilterParams } from "../../types/driver/pickupTypes";
 import BaseRepository from "../baseRepository/baseRepository";
 import { inject, injectable } from "inversify";
 import TYPES from "../../config/inversify/types";
@@ -23,7 +22,7 @@ import { IUserDocument } from "../../models/user/interfaces/userInterface";
 //   PaymentRecord,
 // } from "./types/pickupTypes";
 import { populate } from "dotenv";
-import { PickupStatus, PickupStatusByWasteType, PopulatedPIckupPlans, RevenueByWasteType, WasteType } from "../../dtos/pickupReq/pickupReqDTO";
+import { PickupDriverFilterParams, PickupStatus, PickupStatusByWasteType, PopulatedPIckupPlans, RevenueByWasteType, WasteType } from "../../dtos/pickupReq/pickupReqDTO";
 import { PaginationInput } from "../../dtos/common/commonDTO";
 import { FetchPaymentPayload, FilterReport, PaginatedPaymentsResult, PickupFilterParams } from "../../dtos/wasteplant/WasteplantDTO";
 

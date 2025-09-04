@@ -37,7 +37,7 @@ export type DriverSidebarProps = {
   collapsed: boolean;
   children?: ReactNode;
 };
-export type markReturnedProps = {
-  truckId: string;
-  plantId: string;
-}
+// export type markReturnedProps = {
+//   truckId: string;
+//   plantId: string;
+// }

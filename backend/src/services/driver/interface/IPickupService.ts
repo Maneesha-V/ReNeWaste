@@ -1,14 +1,16 @@
+import { PickupDriverFilterParams } from "../../../dtos/pickupReq/pickupReqDTO";
 import {
   IPickupRequest,
   IPickupRequestDocument,
 } from "../../../models/pickupRequests/interfaces/pickupInterface";
 import { IUserDocument } from "../../../models/user/interfaces/userInterface";
-import { PickupDriverFilterParams } from "../../../types/driver/pickupTypes";
+import { EnhancedPickup } from "../../../repositories/pickupReq/interface/IPickupRepository";
+
 
 export interface IPickupService {
   getPickupRequestService(
     filters: PickupDriverFilterParams
-  ): Promise<IPickupRequest[]>;
+  ): Promise<EnhancedPickup[]>;
   getPickupByIdForDriver(
     pickupReqId: string,
     driverId: string

@@ -1,4 +1,5 @@
 import { MsgSuccessResp } from "../common/commonTypes";
+import { DriverDTO } from "../driver/driverTypes";
 
 export type TruckDTO = {
     _id: string;
@@ -36,4 +37,10 @@ availableTrucks: TruckDTO[];
 }
 export type AssignTruckToDriverResp = MsgSuccessResp & {
 updatedRequests: TruckDTO[];
+}
+export type fetchDriverTrucksResp = MsgSuccessResp & {
+    assignedTruck: TruckDTO[];
+}
+export type reqTruckByDriverResp = MsgSuccessResp & {
+    requestedDriver: DriverDTO[];
 }

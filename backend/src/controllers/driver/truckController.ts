@@ -1,9 +1,11 @@
-import { Response } from "express";
+import { NextFunction, Response } from "express";
 import { ITruckController } from "./interface/ITruckController";
 import { AuthRequest } from "../../types/common/middTypes";
 import { inject, injectable } from "inversify";
 import TYPES from "../../config/inversify/types";
 import { ITruckService } from "../../services/driver/interface/ITruckService";
+import { ApiError } from "../../utils/ApiError";
+import { MESSAGES, STATUS_CODES } from "../../utils/constantUtils";
 
 @injectable()
 export class TruckController implements ITruckController {
@@ -11,13 +13,19 @@ export class TruckController implements ITruckController {
     @inject(TYPES.DriverTruckService)
     private truckService: ITruckService
   ) {}
-  async fetchTruckForDriver(req: AuthRequest, res: Response): Promise<void> {
+  async fetchTruckForDriver(
+    req: AuthRequest,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
     try {
       const driverId = req.user?.id;
 
       if (!driverId) {
-        res.status(400).json({ success: false, message: "Required driverId" });
-        return;
+        throw new ApiError(
+          STATUS_CODES.UNAUTHORIZED,
+          MESSAGES.COMMON.ERROR.UNAUTHORIZED
+        );
       }
       const { wasteplantId } = req.params;
 
@@ -27,70 +35,69 @@ export class TruckController implements ITruckController {
       );
       console.log("assignedTruck", assignedTruck);
 
-      res.status(200).json({
+      res.status(STATUS_CODES.SUCCESS).json({
         success: true,
-        message: "Fetch assigned truck successfully",
-        data: assignedTruck,
+        message: MESSAGES.DRIVER.SUCCESS.FETCH_ASSIGN_TRUCK,
+        assignedTruck,
       });
-    } catch (error: any) {
-      res.status(500).json({
-        success: false,
-        message: "Failed to fetch assigned truck",
-        error: error.message,
-      });
+    } catch (error) {
+      next(error);
     }
   }
-  async requestTruckForDriver(req: AuthRequest, res: Response): Promise<void> {
+  async requestTruckForDriver(
+    req: AuthRequest,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
     try {
       const driverId = req.user?.id;
 
       if (!driverId) {
-        res.status(400).json({ success: false, message: "Required driverId" });
-        return;
+        throw new ApiError(
+          STATUS_CODES.UNAUTHORIZED,
+          MESSAGES.COMMON.ERROR.UNAUTHORIZED
+        );
       }
       const requestedDriver = await this.truckService.requestTruck(driverId);
 
-      res.status(200).json({
+      res.status(STATUS_CODES.SUCCESS).json({
         success: true,
-        message: "Truck request sent successfully",
-        data: requestedDriver,
+        message: MESSAGES.DRIVER.SUCCESS.TRUCK_REQ_SENT,
+        requestedDriver,
       });
-    } catch (error: any) {
-      res.status(500).json({
-        success: false,
-        message: "Failed to send request truck",
-        error: error.message,
-      });
+    } catch (error) {
+      next(error);
     }
   }
-  async markTruckReturn(req: AuthRequest, res: Response): Promise<void> {
+  async markTruckReturn(
+    req: AuthRequest,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
     try {
       const { truckId, plantId } = req.body;
       const driverId = req.user?.id;
 
       if (!truckId || !plantId || !driverId) {
-        res
-          .status(400)
-          .json({ success: false, message: "Missing required fields" });
-        return;
+        throw new ApiError(
+          STATUS_CODES.NOT_FOUND,
+          MESSAGES.COMMON.ERROR.MISSING_FIELDS
+        );
       }
 
-      await this.truckService.markTruckReturnService({
+      const updated = await this.truckService.markTruckReturnService({
         truckId,
         plantId,
         driverId,
       });
-
-      res.status(200).json({
-        success: true,
-        message: "Truck marked as returned",
-      });
-    } catch (error: any) {
-      res.status(500).json({
-        success: false,
-        message: "Failed to mark return truck.",
-        error: error.message,
-      });
+      if (updated) {
+        res.status(STATUS_CODES.SUCCESS).json({
+          success: true,
+          message: MESSAGES.DRIVER.SUCCESS.MARK_RETURN_TRUCK,
+        });
+      }
+    } catch (error) {
+      next(error);
     }
   }
 }

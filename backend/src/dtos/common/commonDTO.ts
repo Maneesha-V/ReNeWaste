@@ -63,3 +63,17 @@ export type DashboardDataResp = {
     totalRevenue: number;
   };
 };
+interface EtaResult {
+  text: string;
+  value: number;
+}
+
+interface Location {
+  lat: number;
+  lng: number;
+}
+
+export interface GetAndSaveETAResponse {
+  duration: EtaResult;
+  location: Location;
+}

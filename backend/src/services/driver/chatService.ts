@@ -4,6 +4,7 @@ import { ParticipantRole } from "../../models/chat/interfaces/conversationInterf
 import TYPES from "../../config/inversify/types";
 import { IConversationRepository } from "../../repositories/chat/interface/IConversation";
 import { IChatMsgRepository } from "../../repositories/chat/interface/IChatMsgRepository";
+import { ChatMessageMapper } from "../../mappers/ChatMessageMapper";
 
 @injectable()
 export class ChatService implements IChatService {
@@ -37,7 +38,8 @@ export class ChatService implements IChatService {
     return conversation._id.toString();
   }
   async getChatMessageService(conversationId: string) {
-    return await this.chatMsgRepository.findChatMsgByConversationId(conversationId);
+    const chatMessages = await this.chatMsgRepository.findChatMsgByConversationId(conversationId);
+    return ChatMessageMapper.mapChatMessagesDTO(chatMessages);
   }
 }
 

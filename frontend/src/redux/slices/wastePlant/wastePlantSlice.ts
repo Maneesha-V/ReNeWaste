@@ -141,7 +141,7 @@ const wastePlantSlice = createSlice({
         state.loading = true;
         state.error = null;
       })
-      .addCase(wastePlantLogin.fulfilled, (state, action) => {
+      .addCase(wastePlantLogin.fulfilled, (state) => {
         state.loading = false;
       })
       .addCase(wastePlantLogin.rejected, (state, action) => {

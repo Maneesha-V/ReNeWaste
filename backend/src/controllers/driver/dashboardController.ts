@@ -5,6 +5,7 @@ import { AuthRequest } from "../../types/common/middTypes";
 import { IDashboardController } from "./interface/IDashboardController";
 import { IDashboardService } from "../../services/driver/interface/IDashboardService";
 import { MESSAGES, STATUS_CODES } from "../../utils/constantUtils";
+import { ApiError } from "../../utils/ApiError";
 
 @injectable()
 export class DashboardController implements IDashboardController {
@@ -16,10 +17,10 @@ export class DashboardController implements IDashboardController {
     try {
       const driverId = req.user?.id;
       if (!driverId) {
-        res
-          .status(STATUS_CODES.UNAUTHORIZED)
-          .json({ message: MESSAGES.COMMON.ERROR.UNAUTHORIZED });
-        return;
+        throw new ApiError(
+          STATUS_CODES.UNAUTHORIZED,
+          MESSAGES.COMMON.ERROR.UNAUTHORIZED
+        );
       }
 
       const dashboardData = await this.dashboardService.fetchDriverDashboard(
@@ -40,10 +41,10 @@ export class DashboardController implements IDashboardController {
      try {
       const driverId = req.user?.id;
       if (!driverId) {
-        res
-          .status(STATUS_CODES.UNAUTHORIZED)
-          .json({ message: MESSAGES.COMMON.ERROR.UNAUTHORIZED });
-        return;
+        throw new ApiError(
+                 STATUS_CODES.UNAUTHORIZED,
+                 MESSAGES.COMMON.ERROR.UNAUTHORIZED
+               );
       }
 
       const supportData = await this.dashboardService.fetchWastePlantSupport(

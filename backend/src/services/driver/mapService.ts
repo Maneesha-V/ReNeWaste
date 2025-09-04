@@ -4,6 +4,7 @@ import { inject, injectable } from "inversify";
 import TYPES from "../../config/inversify/types";
 import { IUserRepository } from "../../repositories/user/interface/IUserRepository";
 import { IPickupRepository } from "../../repositories/pickupReq/interface/IPickupRepository";
+import { GetAndSaveETAResponse } from "../../dtos/common/commonDTO";
 
 @injectable()
 export class MapService implements IMapService {
@@ -18,7 +19,7 @@ export class MapService implements IMapService {
     destination: string,
     pickupReqId: string,
     addressId: string
-  ): Promise<any> {
+  ): Promise<GetAndSaveETAResponse> {
     const apiKey = process.env.GOOGLE_MAPS_API_KEY;
     const distBaseUrl = process.env.GOOGLE_MAPS_DISTANCE_URL;
     const geoBaseUrl = process.env.GOOGLE_MAPS_GEOCODE_URL;

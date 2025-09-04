@@ -3,11 +3,8 @@ import {
   getChatMessages,
   getConversationId,
 } from "../../../services/driver/chatService";
-import {
-  Message,
-  MessagesPayload,
-} from "../../../types/chatTypes";
-import { ConversationIdPayload } from "../../../types/chat/chatMessageType";
+import { ConversationIdPayload, fetchChatMessagesResp, fetchConversationIdResp, Message, MessagesPayload, MessagesResp } from "../../../types/chat/chatMessageType";
+import { getAxiosErrorMessage } from "../../../utils/handleAxiosError";
 
 interface ChatState {
   conversationId: string | null;
@@ -22,7 +19,11 @@ const initialState: ChatState = {
   loading: false,
   error: null,
 };
-export const fetchConversationId = createAsyncThunk(
+export const fetchConversationId = createAsyncThunk<
+fetchConversationIdResp,
+ConversationIdPayload,
+  { rejectValue: {message: string}}
+>(
   "driverChats/fetchConversationId",
   async (payload: ConversationIdPayload, { rejectWithValue }) => {
     try {
@@ -30,14 +31,17 @@ export const fetchConversationId = createAsyncThunk(
       console.log("resp", response);
 
       return response;
-    } catch (error: any) {
-      return rejectWithValue(
-        error.response?.data || "Failed to fetch conversation Id."
-      );
+    } catch (error) {
+      const msg = getAxiosErrorMessage(error);
+              return rejectWithValue({ message: msg });
     }
   }
 );
-export const fetchChatMessages = createAsyncThunk(
+export const fetchChatMessages = createAsyncThunk<
+ fetchChatMessagesResp,
+  MessagesPayload,
+  { rejectValue: {message: string}}
+>(
   "driverChats/fetchMessages",
   async (payload: MessagesPayload, { rejectWithValue }) => {
     try {
@@ -45,10 +49,9 @@ export const fetchChatMessages = createAsyncThunk(
       console.log("resp", response);
 
       return response;
-    } catch (error: any) {
-      return rejectWithValue(
-        error.response?.data || "Failed to fetch messages."
-      );
+    } catch (error) {
+      const msg = getAxiosErrorMessage(error);
+              return rejectWithValue({ message: msg });
     }
   }
 );
@@ -67,7 +70,7 @@ const driverConversationSlice = createSlice({
       })
       .addCase(fetchConversationId.fulfilled, (state, action) => {
         state.loading = false;
-        state.conversationId = action.payload;
+        state.conversationId = action.payload.conversationId;
       })
       .addCase(fetchConversationId.rejected, (state, action) => {
         state.loading = false;
@@ -79,7 +82,7 @@ const driverConversationSlice = createSlice({
       .addCase(fetchChatMessages.fulfilled, (state, action) => {
         state.loading = false;
         // state.messages = action.payload;
-        state.messages = action.payload.map((msg: Message)=>({
+        state.messages = action.payload.messages.map((msg: MessagesResp): Message => ({
           ...msg,
           sender: msg.senderRole
         }))

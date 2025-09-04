@@ -1,4 +1,7 @@
+import { IDriverDocument } from "../../models/driver/interfaces/driverInterface";
+import { ITruckDocument } from "../../models/truck/interfaces/truckInterface";
 import { BaseDTO } from "../base/BaseDTO";
+import { TruckDTO } from "../truck/truckDTO";
 
 export interface DriverDTO extends BaseDTO {
     name: string;
@@ -62,4 +65,16 @@ export interface WastePlantInfo {
 }
 export interface DriverSupportInfo {
   supportInfo: WastePlantInfo | null;
+}
+export type LoginRequest = {
+  email: string;
+  password: string;
+}
+export type LoginResponse = {
+  driver: DriverDTO;
+  token: string;
+}
+export type MarkTruckReturnResult = {
+  driver: IDriverDocument;
+  truck: ITruckDocument;
 }

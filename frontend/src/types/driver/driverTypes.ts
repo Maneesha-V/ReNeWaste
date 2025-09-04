@@ -73,3 +73,31 @@ export interface DriverSupportInfo {
   contactNo: string;
   email: string;
 }
+export type LoginRequest = {
+  email: string;
+  password: string;
+}
+export type LoginResponse = {
+    success: boolean;
+  message: string;
+  category: string;
+  driverId: string;
+  role: string;
+  token: string;
+}
+export interface UpdateDriverArgs {
+  data: FormData;
+}
+export type FetchDriverProfileResp = {
+ driver: DriverDTO;
+}
+export type UpdateDriverProfileResp = {
+updatedDriver: DriverDTO;
+}
+export type fetchDriversResp = {
+drivers: DriverDTO[];
+}
+export type markReturnedProps = {
+  truckId: string;
+  plantId: string;
+}

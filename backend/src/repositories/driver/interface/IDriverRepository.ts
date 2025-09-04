@@ -1,9 +1,8 @@
-import { PaginatedDriversResult } from "../../../dtos/driver/driverDTO";
+import { MarkTruckReturnResult, PaginatedDriversResult } from "../../../dtos/driver/driverDTO";
 import {
   IDriver,
   IDriverDocument,
 } from "../../../models/driver/interfaces/driverInterface";
-import { MarkTruckReturnResult } from "../../../types/driver/truckTypes";
 import { ReturnFetchAllDriversByPlantId } from "../types/driverTypes";
 
 export interface IDriverRepository {

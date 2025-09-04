@@ -4,6 +4,7 @@ import {
   ITruckDocument,
 } from "../../../models/truck/interfaces/truckInterface";
 import { PaginatedTrucksResult, ReturnFetchAllTrucksByPlantId } from "../../../dtos/truck/truckDTO";
+import { IDriverDocument } from "../../../models/driver/interfaces/driverInterface";
 
 export interface ITruckRepository {
   findTruckByVehicle(vehicleNumber: string): Promise<ITruckDocument | null>;
@@ -19,7 +20,7 @@ export interface ITruckRepository {
   getTruckById(truckId: string): Promise<ITruckDocument | null>;
   updateTruckById(truckId: string, data: ITruck): Promise<ITruckDocument | null>;
   deleteTruckById(truckId: string): Promise<ITruckDocument | null>;
-  reqTruckToWastePlant(driverId: string): Promise<any>;
+  reqTruckToWastePlant(driverId: string): Promise<IDriverDocument | null>;
   getMaintainanceTrucks(plantId: string): Promise<ITruckDocument[]>;
   activeAvailableTrucks(plantId: string): Promise<ITruckDocument[]>;
   assignTruckToDriver(

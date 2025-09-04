@@ -1,6 +1,7 @@
-import { INotificationDocument } from "../../../models/notification/interfaces/notificationInterface";
+import { NotificationDTO } from "../../../dtos/notification/notificationDTO";
+
 
 export interface INotificationService {
-        getNotifications(driverId: string) : Promise<INotificationDocument[]>;
-        markNotificationAsRead(notifId: string): Promise<INotificationDocument | null>;
+        getNotifications(driverId: string) : Promise<NotificationDTO[]>;
+        markNotificationAsRead(notifId: string): Promise<NotificationDTO>;
 }

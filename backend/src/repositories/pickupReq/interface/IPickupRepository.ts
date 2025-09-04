@@ -1,11 +1,10 @@
 import { PaginationInput } from "../../../dtos/common/commonDTO";
-import { PickupStatusByWasteType, PopulatedPIckupPlans, RevenueByWasteType } from "../../../dtos/pickupReq/pickupReqDTO";
+import { PickupDriverFilterParams, PickupStatusByWasteType, PopulatedPIckupPlans, RevenueByWasteType } from "../../../dtos/pickupReq/pickupReqDTO";
 import { FetchPaymentPayload, FilterReport, PaginatedPaymentsResult, PickupFilterParams } from "../../../dtos/wasteplant/WasteplantDTO";
 import {
   IPickupRequest,
   IPickupRequestDocument,
 } from "../../../models/pickupRequests/interfaces/pickupInterface";
-import { PickupDriverFilterParams } from "../../../types/driver/pickupTypes";
 
 export interface EnhancedPickup extends IPickupRequest {
   userFullName?: string;

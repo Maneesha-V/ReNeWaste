@@ -9,15 +9,11 @@ import { inject, injectable } from "inversify";
 import TYPES from "../../config/inversify/types";
 import BaseRepository from "../baseRepository/baseRepository";
 import { ITruckRepository } from "../truck/interface/ITruckRepository";
-import {
-  MarkReturnProps,
-  MarkTruckReturnResult,
-} from "../../types/driver/truckTypes";
 import { INotificationRepository } from "../notification/interface/INotifcationRepository";
 import {
   ReturnFetchAllDriversByPlantId,
 } from "./types/driverTypes";
-import { PaginatedDriversResult } from "../../dtos/driver/driverDTO";
+import { MarkTruckReturnResult, PaginatedDriversResult } from "../../dtos/driver/driverDTO";
 import { DriverMapper } from "../../mappers/DriverMapper";
 
 @injectable()
