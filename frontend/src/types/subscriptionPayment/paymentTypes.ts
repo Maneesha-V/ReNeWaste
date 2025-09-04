@@ -86,6 +86,10 @@ export type SubscptnCancelReq = {
   subPayId: string;
   reason: string;
 }
+export  type SubscptnCancelResp = {
+  message: string;
+  payment: SubscriptionPaymentDTO;
+}
 export type UpdateRefundStatusReq = {
   subPayId: string;
   refundStatus:  string

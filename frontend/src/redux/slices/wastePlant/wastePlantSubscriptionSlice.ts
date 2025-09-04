@@ -13,6 +13,7 @@ import {
 } from "../../../types/subscription/subscriptionTypes";
 import {
   SubscptnCancelReq,
+  SubscptnCancelResp,
   SubscriptionPaymentHisDTO,
 } from "../../../types/subscriptionPayment/paymentTypes";
 
@@ -70,7 +71,7 @@ export const fetchSubscriptionPlans = createAsyncThunk<
 );
 
 export const cancelSubPayReq = createAsyncThunk<
-  any,
+  SubscptnCancelResp,
   SubscptnCancelReq,
   { rejectValue: { error: string } }
 >(
