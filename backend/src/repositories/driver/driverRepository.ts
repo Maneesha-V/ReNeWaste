@@ -30,14 +30,9 @@ export class DriverRepository
     super(DriverModel);
   }
   async createDriver(data: IDriver): Promise<IDriverDocument> {
-    try {
       const driver = new this.model(data);
       console.log("driver", driver);
       return await driver.save();
-    } catch (error: any) {
-      console.error("MongoDB Insert Error:", error);
-      throw error;
-    }
   }
   async findDriverByEmail(email: string): Promise<IDriverDocument | null> {
     return await this.model.findOne({ email });
@@ -228,6 +223,7 @@ export class DriverRepository
       {
         $match: {
           wasteplantId: new Types.ObjectId(wastePlantId),
+          isDeleted: false
         },
       },
       {

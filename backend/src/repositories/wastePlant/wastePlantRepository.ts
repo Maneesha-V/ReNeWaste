@@ -25,14 +25,9 @@ export class WastePlantRepository
     super(WastePlantModel);
   }
   async createWastePlant(data: IWastePlant): Promise<IWastePlantDocument> {
-    try {
       const wastePlant = new this.model(data);
       console.log("wastePlantData", wastePlant);
       return await wastePlant.save();
-    } catch (error: any) {
-      console.error("MongoDB Insert Error:", error);
-      throw error;
-    }
   }
 
   async findWastePlantByEmail(

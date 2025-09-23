@@ -1,5 +1,6 @@
 import { PaginationInput } from "../../../dtos/common/commonDTO";
-import { PickupDriverFilterParams, PickupStatusByWasteType, PopulatedPIckupPlans, RevenueByWasteType } from "../../../dtos/pickupReq/pickupReqDTO";
+import { CheckExistingBusinessReq, CheckExistingBusinessResp, CheckExistingResidReq, IPickupRequestExtDocument, PickupDriverFilterParams, PickupStatusByWasteType, PopulatedPIckupPlans, RevenueByWasteType } from "../../../dtos/pickupReq/pickupReqDTO";
+import { AddressDTO } from "../../../dtos/user/userDTO";
 import { FetchPaymentPayload, FilterReport, PaginatedPaymentsResult, PickupFilterParams } from "../../../dtos/wasteplant/WasteplantDTO";
 import {
   IPickupRequest,
@@ -7,8 +8,8 @@ import {
 } from "../../../models/pickupRequests/interfaces/pickupInterface";
 
 export interface EnhancedPickup extends IPickupRequest {
-  userFullName?: string;
-  selectedAddress?: any;
+  userName?: string;
+  userAddress?: AddressDTO;
 }
 export interface IPickupRepository {
   getPickupById(pickupReqId: string): Promise<IPickupRequestDocument>;
@@ -27,11 +28,11 @@ export interface IPickupRepository {
   ): Promise<IPickupRequestDocument>;
   getPickupsByDriverId(
     filters: PickupDriverFilterParams
-  ): Promise<EnhancedPickup[]>;
+  ): Promise<IPickupRequestDocument[]>;
   findPickupByIdAndDriver(
     pickupReqId: string,
     driverId: string
-  ): Promise<EnhancedPickup | null>;
+  ): Promise<IPickupRequestExtDocument>;
   updateETAAndTracking(
     pickupReqId: string,
     updateFields: { eta: { text: string; value: number } }
@@ -40,7 +41,7 @@ export interface IPickupRepository {
   updateTrackingStatus(
     pickupReqId: string,
     trackingStatus: string
-  ): Promise<IPickupRequestDocument | null>;
+  ): Promise<IPickupRequestDocument>;
   updatePickupStatus(
     pickupReqId: string,
     status: string
@@ -86,4 +87,6 @@ export interface IPickupRepository {
   getMonthlyPickupPlansByUserId(userId: string): Promise<{ count: number }>;
   totalRevenueByMonth(): Promise<{ month: string; totalRevenue: number }[]>;
   getAllPickupsByStatus(plantId: string): Promise<IPickupRequestDocument[]>;
+  checkExistingBusiness(data: CheckExistingBusinessReq): Promise<CheckExistingBusinessResp | null>;
+  checkExistingResid(data: CheckExistingResidReq): Promise<CheckExistingBusinessResp | null>;
 }

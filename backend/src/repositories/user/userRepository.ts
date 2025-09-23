@@ -9,7 +9,7 @@ import BaseRepository from "../baseRepository/baseRepository";
 import { inject, injectable } from "inversify";
 import TYPES from "../../config/inversify/types";
 import { IOtpRepository } from "../otp/interface/IOtpRepository";
-import { Types } from "mongoose";
+import { FilterQuery, Types, UpdateQuery } from "mongoose";
 import { PaginatedUsersResult, UserDTO } from "../../dtos/user/userDTO";
 
 @injectable()
@@ -56,7 +56,7 @@ export class UserRepository
   ): Promise<IUserDocument | null> {
     console.log("updatedData", updatedData);
 
-    const updateOps: any = {};
+    const updateOps: UpdateQuery<IUserDocument> = {};
 
     if (updatedData.phone) {
       updateOps.phone = updatedData.phone;
@@ -97,7 +97,7 @@ export class UserRepository
     addressId: string,
     latitude: number,
     longitude: number
-  ): Promise<any> {
+  ): Promise<IUserDocument> {
     const updatedUser = await this.model.findOneAndUpdate(
       { "addresses._id": addressId },
       {
@@ -116,13 +116,7 @@ export class UserRepository
       throw new Error("Address not found");
     }
 
-    const updatedAddress = updatedUser.addresses.id(addressId);
-
-    if (!updatedAddress) {
-      throw new Error("Updated address not found");
-    }
-
-    return updatedAddress;
+    return updatedUser;
   }
   async findAddressByAddressId(
     userId: string,
@@ -151,15 +145,23 @@ export class UserRepository
     limit: number,
     search: string
   ): Promise<PaginatedUsersResult> {
-    const query = {
-      wasteplantId,
-      $or: [
-        { firstName: { $regex: search, $options: "i" } },
-        { lastName: { $regex: search, $options: "i" } },
+    const searchTerms = search.trim().split(" ").filter(Boolean);
+
+    let query: FilterQuery<IUserDocument> = { wasteplantId };
+    if (searchTerms.length) {
+      query.$or = [
+        {
+          $and: searchTerms.map((term) => ({
+            $or: [
+              { firstName: { $regex: term, $options: "i" } },
+              { lastName: { $regex: term, $options: "i" } },
+            ],
+          })),
+        },
         { email: { $regex: search, $options: "i" } },
         { phone: { $regex: search, $options: "i" } },
-      ],
-    };
+      ];
+    }
     const skip = (page - 1) * limit;
 
     const users = await this.model
@@ -169,6 +171,7 @@ export class UserRepository
       .sort({ createdAt: -1 });
 
     const total = await this.model.countDocuments(query);
+    console.log("users", users);
 
     return { users, total };
   }

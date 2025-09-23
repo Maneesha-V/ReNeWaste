@@ -15,7 +15,7 @@ export interface IUserRepository extends IBaseRepository<IUserDocument> {
   findOtpByEmail(email: string): Promise<OtpRecord | null>;
   deleteOtp(email: string): Promise<void>;
   updateUserPassword(email: string, hashedPassword: string): Promise<void>;
-  updateAddressByIdLatLng(addressId: string, latitude: number, longitude: number): Promise<any>;
+  updateAddressByIdLatLng(addressId: string, latitude: number, longitude: number): Promise<IUserDocument>;
   findAddressByAddressId(userId: string, addressId: string, latitude: number, longitude: number): Promise<IUser | null>;
   getUsersByWastePlantId(wasteplantId: string, page: number, limit: number, search: string): Promise<PaginatedUsersResult>;
   fetchAllUsersByPlantId(plantId: string): Promise<number>;

@@ -10,6 +10,7 @@ import TYPES from "../config/inversify/types";
 import container from "../config/inversify/container";
 import { NotificationController } from "../controllers/driver/notificationController";
 import { DashboardController } from "../controllers/driver/dashboardController";
+import { MapController } from "../controllers/driver/mapController";
 
 const router = express.Router()
 const upload = multer();
@@ -21,6 +22,7 @@ const driverPickupCtrl = container.get<PickupController>(TYPES.DriverPickupContr
 const driverTruckCtrl = container.get<TruckController>(TYPES.DriverTruckController);
 const driverNotificationCtrl = container.get<NotificationController>(TYPES.DriverNotificationController);
 const driverDashboardCtrl = container.get<DashboardController>(TYPES.DriverDashboardController);
+const driverMapCtrl = container.get<MapController>(TYPES.DriverMapController);
 
 router.get("/refresh-token", driverCtrl.refreshToken.bind(driverCtrl))
 router.post("/",driverCtrl.driverLogin.bind(driverCtrl))
@@ -48,6 +50,7 @@ router.get("/notifications", authenticateDriver as RequestHandler, driverNotific
 router.patch("/notifications/:notifId/read", authenticateDriver as RequestHandler, driverNotificationCtrl.markReadNotification.bind(driverNotificationCtrl));
 router.get("/dashboard", authenticateDriver as RequestHandler, driverDashboardCtrl.fetchDriverDashboard.bind(driverDashboardCtrl));
 router.get("/support", authenticateDriver as RequestHandler, driverDashboardCtrl.fetchWastePlantSupport.bind(driverDashboardCtrl));
+router.get("/maps/eta", authenticateDriver as RequestHandler, driverMapCtrl.getETA.bind(driverMapCtrl));
 
 export default router;
 

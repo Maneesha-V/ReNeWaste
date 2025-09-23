@@ -1,5 +1,6 @@
 import mongoose, { PipelineStage, Types } from "mongoose";
 import {
+  Address,
   IPickupRequest,
   IPickupRequestDocument,
   PopulatedPickup,
@@ -22,7 +23,7 @@ import { IUserDocument } from "../../models/user/interfaces/userInterface";
 //   PaymentRecord,
 // } from "./types/pickupTypes";
 import { populate } from "dotenv";
-import { PickupDriverFilterParams, PickupStatus, PickupStatusByWasteType, PopulatedPIckupPlans, RevenueByWasteType, WasteType } from "../../dtos/pickupReq/pickupReqDTO";
+import { CheckExistingBusinessReq, CheckExistingResidReq, PickupDriverFilterParams, PickupStatus, PickupStatusByWasteType, PopulatedPIckupPlans, RevenueByWasteType, WasteType } from "../../dtos/pickupReq/pickupReqDTO";
 import { PaginationInput } from "../../dtos/common/commonDTO";
 import { FetchPaymentPayload, FilterReport, PaginatedPaymentsResult, PickupFilterParams } from "../../dtos/wasteplant/WasteplantDTO";
 
@@ -77,7 +78,7 @@ export class PickupRepository
         select: "name assignedZone",
       })
       .sort({ createdAt: -1 });
-
+ console.log("pickups", pickups);
     return pickups.map((pickup: any) => {
       const pickupObj = pickup.toObject();
 
@@ -181,46 +182,68 @@ export class PickupRepository
     const enhancedPickups = pickups.map((pickup) => {
       const user = pickup.userId;
       const matchedAddress = user.addresses?.find(
-        (addr: any) => addr._id.toString() === pickup.addressId.toString()
+        (addr) => addr._id.toString() === pickup.addressId.toString()
       );
 
       return {
         ...pickup.toObject?.(),
-        userFullName: `${user.firstName} ${user.lastName}`,
-        selectedAddress: matchedAddress,
+        userName: `${user.firstName} ${user.lastName}`,
+        userAddress: matchedAddress,
       };
     });
 
     return enhancedPickups;
   }
-  async findPickupByIdAndDriver(pickupReqId: string, driverId: string) {
-    const objectIdPickup = new Types.ObjectId(pickupReqId);
-    const objectIdDriver = new Types.ObjectId(driverId);
+    async findPickupByIdAndDriver(pickupReqId: string, driverId: string) {
     const pickup = (await this.model
       .findOne({
-        _id: objectIdPickup,
-        driverId: objectIdDriver,
+        _id: pickupReqId,
+        driverId,
       })
-      .lean()) as EnhancedPickup;
+      .populate({
+        path: "userId",
+        select: "firstName lastName addresses",
+      }) as unknown as PopulatedPickup);
 
-    if (!pickup) return null;
+      
+    // if (!pickup) return null;
+const userAddress = pickup.userId.addresses.map((add: Address) => add._id === pickup.addressId.toString());
+const userName = `${pickup.userId.firstName} ${pickup.userId.lastName}`
 
-    const user = await this._userRepository.findOne(
-      { _id: pickup.userId, "addresses._id": pickup.addressId },
-      { "addresses.$": 1, firstName: 1, lastName: 1 },
-      true
-    );
-
-    if (user && user.addresses?.[0]) {
-      pickup.selectedAddress = user.addresses[0];
-      pickup.userFullName = `${user.firstName} ${user.lastName}`;
-    } else {
-      pickup.selectedAddress = null;
-      pickup.userFullName = "Unknown User";
-    }
-
-    return pickup;
+    return {
+      ...pickup.toObject(),
+      userAddress,
+      userName
+    };
   }
+  // async findPickupByIdAndDriver(pickupReqId: string, driverId: string) {
+  //   const objectIdPickup = new Types.ObjectId(pickupReqId);
+  //   const objectIdDriver = new Types.ObjectId(driverId);
+  //   const pickup = (await this.model
+  //     .findOne({
+  //       _id: objectIdPickup,
+  //       driverId: objectIdDriver,
+  //     })
+  //     .lean()) as EnhancedPickup;
+
+  //   if (!pickup) return null;
+
+  //   const user = await this._userRepository.findOne(
+  //     { _id: pickup.userId, "addresses._id": pickup.addressId },
+  //     { "addresses.$": 1, firstName: 1, lastName: 1 },
+  //     true
+  //   );
+
+  //   if (user && user.addresses?.[0]) {
+  //     pickup.userAddress = user.addresses[0];
+  //     pickup.userName = `${user.firstName} ${user.lastName}`;
+  //   } else {
+  //     pickup.userAddress = undefined;
+  //     pickup.userName = "Unknown User";
+  //   }
+
+  //   return pickup;
+  // }
   async updateETAAndTracking(
     pickupReqId: string,
     updateFields: {
@@ -278,7 +301,12 @@ export class PickupRepository
     const skip = (page - 1) * limit;
     const [pickups, total] = await Promise.all([
       this.model
-        .find(query)
+        // .find(query)
+         .find({
+        ...query,
+        addressId: { $exists: true, $ne: null }, 
+      })
+      .sort({originalPickupDate: 1})
         .skip(skip)
         .limit(limit)
         .populate({
@@ -290,7 +318,11 @@ export class PickupRepository
           select: "name vehicleNumber",
         })
         .lean(),
-      this.model.countDocuments(query),
+      // this.model.countDocuments(query),
+      this.model.countDocuments({
+      ...query,
+      addressId: { $exists: true, $ne: null },
+    }),
     ]);
     console.log("pickups",pickups);
     const user: IUserDocument = await this._userRepository.findById(
@@ -298,17 +330,6 @@ export class PickupRepository
       true
     );
 
-    (pickups as any[]).forEach((pickup) => {
-      const matchedAddress = user?.addresses?.find(
-        (address) => address._id.toString() === pickup.addressId?.toString()
-      );
-      pickup.address = matchedAddress || null;
-      pickup.user = {
-        firstName: user?.firstName || "",
-        lastName: user?.lastName || "",
-        phone: user?.phone || "",
-      };
-    });
     type TrackingStatus = "Pending" | "Scheduled" | "Completed" | "Cancelled";
     const sortedPickups = pickups.sort((a, b) => {
       const statusOrder: Record<TrackingStatus, number> = {
@@ -336,13 +357,18 @@ export class PickupRepository
 
       return aDateTime.getTime() - bDateTime.getTime();
     });
-
+    console.log("sortedPickups",sortedPickups);
+    
     return {
       pickupPlans: sortedPickups.map((p) => {
         const matchedAddress = user?.addresses?.find(
           (a) => a._id.toString() === p.addressId?.toString()
         );
+        console.log("user.addresses", user?.addresses);
+console.log("pickup.addressId", p.addressId);
+console.log("matchedAddress",matchedAddress);
 
+        if (!matchedAddress) return null;
         const address = matchedAddress
           ? {
               ...matchedAddress,
@@ -359,7 +385,7 @@ export class PickupRepository
                 phone: user.phone,
               }
             : null,
-          address,
+           address: address,
         };
       }) as PopulatedPIckupPlans[],
       total,
@@ -369,7 +395,7 @@ export class PickupRepository
   async updateTrackingStatus(
     pickupReqId: string,
     trackingStatus: string
-  ): Promise<IPickupRequestDocument | null> {
+  ): Promise<IPickupRequestDocument> {
     const updatedPickup = await this.model.findByIdAndUpdate(
       pickupReqId,
       { trackingStatus },
@@ -411,9 +437,9 @@ export class PickupRepository
       );
     }
     pickup.status = "Completed";
-    const updatedPickup = await pickup.save();
+    await pickup.save();
 
-    return updatedPickup;
+    return pickup;
   }
   async getPickupByUserIdAndPickupReqId(pickupReqId: string, userId: string) {
     return await this.model.findOne({
@@ -860,9 +886,7 @@ export class PickupRepository
   ): Promise<{ count: number }> {
     const now = new Date();
     const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-    const lastDayOfMonth = new Date(
-      now.getFullYear(),
-      now.getMonth() + 1,
+    const lastDayOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 
       0,
       23,
       59,
@@ -954,5 +978,49 @@ export class PickupRepository
       wasteplantId: plantId,
       status: { $in: ["Pending", "Scheduled", "Rescheduled"] },
     });
+  }
+  async checkExistingBusiness(data: CheckExistingBusinessReq) {
+    const { userId,frequency, businessName, wasteType } = data;
+    const now = new Date();
+    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    const endOfMonth = new Date(now.getFullYear(), now.getMonth()+1, 0);
+    const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(),0,0,0);
+    const endOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59);
+
+    const existingMonthly = await this.model.findOne({
+      userId,
+      wasteType,
+      businessName,
+      originalPickupDate: {$gte: startOfMonth, $lte: endOfMonth}
+    })
+    if(existingMonthly) {
+      return { type: "monthly", data: existingMonthly };
+    }
+
+    const existingDaily  = await this.model.findOne({
+      userId,
+      wasteType,
+      createdAt: {$gte: startOfDay, $lte: endOfDay}
+    })
+    if(existingDaily){
+      return { type: "daily", data: existingDaily }
+    }
+    return null;
+  }
+  async checkExistingResid(data: CheckExistingResidReq){
+    const { wasteType, pickupDate, userId} = data;
+    const now = new Date();
+    const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0 ,0);
+    const endOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59);
+
+    const existingDaily = await this.model.findOne({
+      userId,
+      wasteType,
+      createdAt: {$gte: startOfDay, $lte: endOfDay }
+    });
+    if(existingDaily){
+      return { type: "daily", data: existingDaily }
+    }
+    return null;
   }
 }

@@ -8,13 +8,6 @@ export type PickupStatus =
   | "Cancelled";
 export type StatusCounts = Record<PickupStatus | "Active", number>;
 
-// export type PickupStatusByWasteType = Record<WasteType, StatusCounts>;
-
-// export type RevenueByWasteType = {
-//   totalResidentialRevenue: number;
-//   totalCommercialRevenue: number;
-//   totalRevenue: number;
-// };
 export type PaymentRecord = {
   _id: string;
   pickupId: string;
@@ -33,16 +26,3 @@ export type PaymentRecord = {
   userName?: string;
   dueDate: Date;
 };
-
-// export type SavePaymentReq = {
-//   paymentData: {
-//     status: "Paid";
-//     razorpayOrderId: string;
-//     razorpayPaymentId: string;
-//     razorpaySignature: string;
-//     amount: number;
-//     paidAt: Date;
-//   };
-//   pickupReqId: string;
-//   userId: string;
-// };

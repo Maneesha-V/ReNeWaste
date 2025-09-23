@@ -43,6 +43,7 @@ export const MESSAGES = {
       EMAIL_PASSWORD_REQUIRED: "Email and password are required",
       EMAIL_OTP_REQUIRED: "Email and OTP are required",
       ID_REQUIRED: "Id is required.",
+      MISSING_IDS: "Missing Id's are required.",
       MISSING_FIELDS: "All fields are required.",
       UNAUTHORIZED: "Unauthorized access.",
       UNAUTHENTICATED: "You are not authenticated.",
@@ -113,10 +114,13 @@ export const MESSAGES = {
       FETCH_ASSIGN_TRUCK: "Fetch assigned truck successfully.",
       TRUCK_REQ_SENT: "Truck request sent successfully.",
       MARK_RETURN_TRUCK: "Truck marked as returned.",
+      MARK_PICKUP_COMPLETED: "Marked pickup as completed.",
 
     },
     ERROR: {
-      IMG_ERRROR: "Both license front and back images are required."
+      IMG_ERRROR: "Both license front and back images are required.",
+      LAT_LONG_REQUIRED: "Latitude and longitude are required.",
+      STATUS_REQUIRED: "TrackingStatus is required."
     },
   },
   USER: {
