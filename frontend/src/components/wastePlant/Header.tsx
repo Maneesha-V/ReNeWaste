@@ -9,12 +9,12 @@ import { useNavigate } from "react-router-dom";
 import { Dropdown, Menu } from "antd";
 import { useAppDispatch } from "../../redux/hooks";
 import { wastePlantLogout } from "../../redux/slices/wastePlant/wastePlantSlice";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import NotificationPanel from "./NotificationPanel";
 import { useSelector } from "react-redux";
 import { RootState } from "../../redux/store";
 import { fetchNotifications } from "../../redux/slices/wastePlant/wastePlantNotificationSlice";
-import { MeasureDataPayload } from "../../types/notificationTypes";
+import { MeasureDataPayload } from "../../types/wasteCollections/wasteCollectionTypes";
 
 type HeaderProps = {
   collapsed: boolean;

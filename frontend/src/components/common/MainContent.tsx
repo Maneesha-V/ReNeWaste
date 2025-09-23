@@ -1,4 +1,4 @@
-import { MainContentProps } from '../../types/commonTypes';
+import { MainContentProps } from "../../types/common/modalTypes";
 
 const MainContent = ({ children }: MainContentProps) => {
   return (

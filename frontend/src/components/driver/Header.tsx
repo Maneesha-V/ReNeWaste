@@ -9,10 +9,10 @@ import { useNavigate } from "react-router-dom";
 import { Dropdown, Menu } from "antd";
 import { useAppDispatch } from "../../redux/hooks";
 import { driverLogout } from "../../redux/slices/driver/driverSlice";
-import { DriverHeaderProps } from "../../types/driverTypes";
 import NotificationPanel from "./NotificationPanel";
 import { RootState } from "../../redux/store";
 import { useSelector } from "react-redux";
+import { DriverHeaderProps } from "../../types/common/modalTypes";
 
 const Header = ({
   collapsed,

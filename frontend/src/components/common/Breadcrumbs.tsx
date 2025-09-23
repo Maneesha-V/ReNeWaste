@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { BreadcrumbsProps } from "../../types/commonTypes";
+import { BreadcrumbsProps } from "../../types/common/commonTypes";
 
 
 const Breadcrumbs: React.FC<BreadcrumbsProps> = ({ paths, fullWidth }) => {

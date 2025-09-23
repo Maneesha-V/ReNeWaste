@@ -14,9 +14,10 @@ const InputMessage = ({
 }: CancelPickupModalProps) => {
   const dispatch = useAppDispatch();
   const [form] = Form.useForm();
+  
   useEffect(() => {
     if (!visible) form.resetFields();
-  }, [visible]);
+  }, [visible, form]);
 
   if (!pickupId) return null;
   const handleSubmit = async () => {

@@ -1,4 +1,4 @@
-import { FaUserCircle, FaBell, FaBars, FaCaretDown } from "react-icons/fa";
+import { FaUserCircle, FaBars, FaCaretDown } from "react-icons/fa";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAppDispatch } from "../../redux/hooks";

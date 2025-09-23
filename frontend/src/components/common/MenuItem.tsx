@@ -1,4 +1,4 @@
-import { MenuItemProps } from '../../types/menuTypes';
+import { MenuItemProps } from "../../types/common/modalTypes";
 
 const MenuItem = ({ item, collapsed, active, onClick }: MenuItemProps) => {
   return (

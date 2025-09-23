@@ -2,15 +2,11 @@ import { NavLink, useNavigate } from 'react-router-dom';
 import {
   DashboardOutlined,
   CarOutlined,
-  FileTextOutlined,
-  DollarOutlined,
   InboxOutlined,
-  BarChartOutlined,
   CustomerServiceOutlined,
 } from '@ant-design/icons';
 import { FaUserCircle } from 'react-icons/fa';
-import { DriverSidebarProps } from '../../types/driverTypes';
-
+import { DriverSidebarProps } from '../../types/common/modalTypes';
 
 const SidebarDriver = ({ collapsed }: DriverSidebarProps) => {
   const navigate  = useNavigate();

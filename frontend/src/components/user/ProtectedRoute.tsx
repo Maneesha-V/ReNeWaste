@@ -1,5 +1,5 @@
 import { Navigate, Outlet } from "react-router-dom";
-import { ProtectedRouteProps } from "../../types/commonTypes";
+import { ProtectedRouteProps } from "../../types/common/commonTypes";
 
 export const ProtectedRoute = ({ allowedRoles }: ProtectedRouteProps) => {
     const token = localStorage.getItem("token");

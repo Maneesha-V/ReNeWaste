@@ -1,15 +1,15 @@
 import { MenuFoldOutlined, MenuUnfoldOutlined, LogoutOutlined } from '@ant-design/icons';
 import NotificationBadge from '../common/NotificationBadge';
 import { useNavigate } from 'react-router-dom';
-import { Button, Dropdown, Menu } from 'antd';
+import { Dropdown, Menu } from 'antd';
 import { useAppDispatch } from '../../redux/hooks';
 import { superAdminLogout } from '../../redux/slices/superAdmin/superAdminSlice';
-import { AdminHeaderProps } from '../../types/adminTypes';
 import { useEffect } from 'react';
 import NotificationPanel from './NotificationPanel';
 import { fetchNotifications } from '../../redux/slices/superAdmin/superAdminNotificationSlice';
 import { RootState } from '../../redux/store';
 import { useSelector } from 'react-redux';
+import { AdminHeaderProps } from '../../types/common/modalTypes';
 
 const Header = ({ collapsed, toggleCollapse, isNotifOpen, setIsNotifOpen }: AdminHeaderProps) => {
   const navigate = useNavigate();

@@ -1,6 +1,6 @@
 import React, { createContext, useEffect, useState } from "react";
 import { Socket, io } from "socket.io-client";
-import { SocketProviderProps } from "../types/socketTypes";
+import { SocketProviderProps } from "../types/common/commonTypes";
 
 const SocketContext = createContext<Socket | null>(null);
 export { SocketContext };
