@@ -1,5 +1,10 @@
 import { Auth, GoogleAuthProvider } from "firebase/auth";
 
+  export type LoginRequest = {
+    email: string;
+    password: string;
+  }
+  
 export type TokenResp = {
   token: string;
 }
@@ -119,3 +124,34 @@ export type  DashboardDataResp = {
     totalRevenue: number;
   };
 };
+ export type FormErrors = {
+    firstName?: string;
+    lastName?: string;
+    phone?: string;
+    email?: string;
+    password?: string;
+    confirmPassword?: string;  
+    agreeToTerms?: string;
+  };
+  export interface ProtectedRouteProps {
+    allowedRoles: string[];
+}
+interface BreadcrumbItem {
+  label: string;
+  path?: string;
+}
+
+export interface BreadcrumbsProps {
+  paths: BreadcrumbItem[];
+  fullWidth?: boolean;
+}
+export interface ErrorBoundaryState {
+  hasError: boolean;
+  error: Error | null;
+}
+export interface ProfValidationErrors {
+  [field: string]: string[];
+}
+export interface SocketProviderProps {
+  children: React.ReactNode;
+}

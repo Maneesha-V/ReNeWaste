@@ -4,7 +4,7 @@ import { PickupReqDTO } from "../pickupReq/pickupTypes";
 import { WasteplantDTO } from "../superadmin/superAdminTypes";
 import { UserResp } from "../user/userTypes";
 
-type PlantStatus = "Pending" | "Active" | "Inactive" | "Rejected";
+// type PlantStatus = "Pending" | "Active" | "Inactive" | "Rejected";
 export type LoginWPResp = {
   success: boolean;
   message: string;

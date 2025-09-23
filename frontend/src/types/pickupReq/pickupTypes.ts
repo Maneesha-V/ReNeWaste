@@ -35,7 +35,36 @@ export interface PickupPlansResp {
   address: Address;
   payment: PickupReqPayment;
 }
-
+export type PickupReqGetResp = {
+  _id: string;
+    userId: {
+    _id: string;
+    firstName: string;
+    lastName: string;
+  };
+  driverId?: string;
+  wasteplantId?: string;
+  truckId?: string;
+  addressId: string;
+  wasteType: string;
+  originalPickupDate: Date;
+  rescheduledPickupDate?: Date;
+  pickupTime: string;
+  pickupId: string;
+  businessName?: string;
+  service?: string;
+  frequency?: string;
+  status: string;
+  trackingStatus?:string | null;
+  eta?: {
+    text: string | null;
+    value: number | null;
+  };
+  payment: PickupReqPayment;
+  userName: string;
+  userAddress: Address;
+  location?: string;
+}
 export interface PickupPlansResponse {
   pickups: PickupPlansResp[];
   total: number;

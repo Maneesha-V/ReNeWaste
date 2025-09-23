@@ -1,6 +1,19 @@
+import { ReactNode } from "react";
 import { PickupCancelData } from "../pickupReq/pickupTypes";
 import { SubcptnPaymtPayload } from "../subscription/subscriptionTypes";
 import { MeasureDataPayload } from "../wasteCollections/wasteCollectionTypes";
+
+export type AdminHeaderProps = {
+  collapsed: boolean;
+  toggleCollapse: () => void;
+  isNotifOpen: boolean;
+  setIsNotifOpen: React.Dispatch<React.SetStateAction<boolean>>;
+};
+export type AdminSidebarProps = {
+  collapsed: boolean;
+  children?: ReactNode;
+  isNotifOpen?: boolean;
+};
 
 export type PickupCommercialFormModalProps = {
   isOpen: boolean;
@@ -34,7 +47,9 @@ export type CancelPickupModalProps = {
 export type NotificationPanelProps = {
   onClose: () => void;
 }
-
+export type MainContentProps = {
+  children: ReactNode;
+};
 interface BaseNotificationPanelProps {
   onClose: () => void;
 }
@@ -80,3 +95,30 @@ export interface ReschedulePickupModalProps {
   pickup: any;
   onSubmit: (formData: any) => void;
 }
+export type DriverHeaderProps = {
+  collapsed: boolean;
+  toggleCollapse: () => void;
+  isNotifOpen: boolean;
+  setIsNotifOpen: React.Dispatch<React.SetStateAction<boolean>>;
+};
+export type DriverSidebarProps = {
+  collapsed: boolean;
+  children?: ReactNode;
+};
+type MenuItemType = {
+  key: string;
+  icon: ReactNode;
+  label: string;
+};
+
+export type MenuItemProps = {
+  item: MenuItemType;
+  collapsed: boolean;
+  active: boolean;
+  onClick: () => void;
+};
+export type SidebarWastePlantProps = {
+  collapsed: boolean;
+  children?: ReactNode;
+  isNotifOpen: boolean;
+};

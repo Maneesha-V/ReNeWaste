@@ -44,8 +44,8 @@ export type Address = {
   state: string;
   pincode: string;
   district: string;
-  latitude?: number;
-  longitude?: number;
+  latitude: number;
+  longitude: number;
 };
 export type UserResp = {
   _id: string;
@@ -55,7 +55,7 @@ export type UserResp = {
   agreeToTerms: boolean;
   role: string;
   phone?: string;
-  googleId: string | null;
+  googleId?: string | null;
   addresses: Address[];
   wasteplantId?: string;
   isBlocked: boolean;

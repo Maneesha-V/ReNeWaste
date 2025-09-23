@@ -1,52 +1,55 @@
+import { MsgSuccessResp } from "../common/commonTypes";
+import { PickupPlansResp, PickupReqDTO, PickupReqGetResp } from "../pickupReq/pickupTypes";
+import { Address } from "../user/userTypes";
 
 export type DriverDTO = {
-   _id: string;
-    name: string;
-    email: string;
-    licenseNumber: string;
-    contact: string;
-    experience: number;
-    status: string;
-    licenseFront: string;
-    licenseBack: string;
-    role: string;
-    wasteplantId?: string;
-    assignedTruckId?: string;
-    assignedZone?: string;
-    hasRequestedTruck?: boolean;
-    category: string;
-    isDeleted?: boolean;
-}
-export type ReturnTaluk= {
+  _id: string;
+  name: string;
+  email: string;
+  licenseNumber: string;
+  contact: string;
+  experience: number;
+  status: string;
+  licenseFront: string;
+  licenseBack: string;
+  role: string;
+  wasteplantId?: string;
+  assignedTruckId?: string;
+  assignedZone?: string;
+  hasRequestedTruck?: boolean;
+  category: string;
+  isDeleted?: boolean;
+};
+export type ReturnTaluk = {
   taluk: string;
-}
+};
 export type GetCreateDriverResp = {
   data: ReturnTaluk;
   success: boolean;
-}
+};
 export type FetchDriversResp = {
   success: boolean;
-         message: string;
-        drivers: DriverDTO[]
-        total: number;
-}
+  message: string;
+  drivers: DriverDTO[];
+  total: number;
+};
 export type FetchDriverByIdResp = {
   data: {
     driver: DriverDTO;
-    taluk: string
-  }
-}
+    taluk: string;
+  };
+};
 export type UpdateDriverResp = {
   data: DriverDTO;
   success: boolean;
   message: string;
-}
+};
 export type DeleteDriverResp = {
   updatedDriver: DriverDTO;
   message: string;
-}
+};
 export interface DashboardSummary {
-driver: {
+  driver: {
     name: string;
     email: string;
   };
@@ -76,28 +79,102 @@ export interface DriverSupportInfo {
 export type LoginRequest = {
   email: string;
   password: string;
-}
+};
 export type LoginResponse = {
-    success: boolean;
+  success: boolean;
   message: string;
   category: string;
   driverId: string;
   role: string;
   token: string;
-}
+};
 export interface UpdateDriverArgs {
   data: FormData;
 }
 export type FetchDriverProfileResp = {
- driver: DriverDTO;
-}
+  driver: DriverDTO;
+};
 export type UpdateDriverProfileResp = {
-updatedDriver: DriverDTO;
-}
-export type fetchDriversResp = {
-drivers: DriverDTO[];
-}
+  updatedDriver: DriverDTO;
+  message: string;
+};
+export type FetchDriversRespns = {
+  drivers: DriverDTO[];
+};
 export type markReturnedProps = {
   truckId: string;
   plantId: string;
+};
+export interface ValidationErrors {
+  [field: string]: string;
 }
+export type DriverFormData = {
+  name: string;
+  contact: string;
+  email: string;
+  licenseNumber: string;
+  experience: number;
+  status: "Active" | "Inactive" | "Suspended";
+  password: string;
+  licenseFront?: File;
+  licenseBack?: File;
+  assignedZone: string;
+  category: "Residential" | "Commercial" | "Pending";
+};
+export type PartialDriverFormData = Partial<DriverFormData>;
+export type FetchDriverPickupsReq = {
+  wasteType: string;
+};
+export type FetchDriverPickupsResp = {
+   success: string;
+  pickups: PickupPlansResp[]
+}
+export type MarkPickupCompletedResp = MsgSuccessResp & { 
+  pickupStatus: {
+    pickupReqId: string;
+    status: string;
+  }
+}
+export type FetchPickupByIdResp = {
+  success: string;
+  pickup: PickupReqGetResp;
+}
+export type FetchEtaReq = {
+  origin: string;
+  destination: string;
+  pickupReqId: string;
+  addressId: string;
+};
+interface EtaResult {
+  text: string;
+  value: number;
+}
+
+interface Location {
+  lat: number;
+  lng: number;
+}
+export type FetchEtaResp = {
+ duration: EtaResult;
+  location: Location;
+}
+
+export type UpdateAddressLatLngReq = {
+addressId: string; 
+latitude: number; 
+longitude: number
+}
+export type UpdateAddressLatLngResp = {
+success: string;
+updatedAddress: Address;
+}
+
+export type UpdateTrackingStatusReq ={
+pickupReqId: string; 
+trackingStatus: string;
+}
+export type UpdateTrackingStatusResp ={
+success: string; 
+updatedPickup: PickupReqDTO;
+}
+
