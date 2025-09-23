@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import Footer from "../../components/user/Footer";
 import Header from "../../components/user/Header";
 import { toast } from "react-toastify";
@@ -69,18 +69,24 @@ const PickupPlans = () => {
     setStatusFilter,
   } = usePagination();
 
-  const debouncedFetchPickupPlans = useCallback(
-    debounce((page: number, limit: number, query: string, filter?: string) => {
-      dispatch(fetchtPickupPlans({ page, limit, search: query, filter }));
-    }, 500),
-    [dispatch]
-  );
+  // const debouncedFetchPickupPlans = useCallback(
+  //   debounce((page: number, limit: number, query: string, filter?: string) => {
+  //     dispatch(fetchtPickupPlans({ page, limit, search: query, filter }));
+  //   }, 500),
+  //   [dispatch]
+  // );
   useEffect(() => {
+    const debouncedFetchPickupPlans = debounce(
+      (page: number, limit: number, query: string, filter?: string) => {
+        dispatch(fetchtPickupPlans({ page, limit, search: query, filter }));
+      },
+      500
+    );
     debouncedFetchPickupPlans(currentPage, pageSize, search, statusFilter);
     return () => {
       debouncedFetchPickupPlans.cancel();
     };
-  }, [currentPage, pageSize, search, statusFilter, debouncedFetchPickupPlans]);
+  }, [dispatch, currentPage, pageSize, search, statusFilter]);
 
   const shouldRefresh = location.state?.refresh;
   useEffect(() => {
@@ -94,7 +100,7 @@ const PickupPlans = () => {
         })
       );
     }
-  }, [shouldRefresh]);
+  }, [shouldRefresh, currentPage, pageSize, search, statusFilter, dispatch]);
 
   const handleTrackClick = (pickup: PickupPlansResp) => {
     if (!pickup || !pickup.pickupId) return null;
@@ -115,9 +121,9 @@ const PickupPlans = () => {
         setSelectedTrackingStatus(null);
         setSelectedEta(null);
         setIsModalOpen(false);
-        await dispatch(updateCancelPickupStatus({pickupReqId: pickup._id }))
+        await dispatch(updateCancelPickupStatus({ pickupReqId: pickup._id }));
       } catch (err) {
-         toast.error(getAxiosErrorMessage(err)); 
+        toast.error(getAxiosErrorMessage(err));
       }
     }
   };
@@ -160,7 +166,7 @@ const PickupPlans = () => {
                     {/* PAY button only if not paid AND cooldown expired */}
                     {(pickup.status === "Scheduled" ||
                       pickup.status === "Rescheduled") &&
-                      pickup.payment?.status !== "Paid" &&
+                    pickup.payment?.status !== "Paid" &&
                     // status === "Pending" &&
                     isCooldownExpired &&
                     !isRetryCase ? (
@@ -191,8 +197,9 @@ const PickupPlans = () => {
                     ) : null}
 
                     {/* TRACK or CANCEL button */}
-                    {pickup.status === "Cancelled" || pickup.payment?.refundRequested
-                    ? null : pickup.trackingStatus ? (
+                    {pickup.status === "Cancelled" ||
+                    pickup.payment
+                      ?.refundRequested ? null : pickup.trackingStatus ? (
                       <Button
                         type="primary"
                         onClick={() => handleTrackClick(pickup)}
@@ -219,7 +226,6 @@ const PickupPlans = () => {
                   </>
                 );
               })()}
-
             >
               <Meta
                 title={`Pickup Date: ${

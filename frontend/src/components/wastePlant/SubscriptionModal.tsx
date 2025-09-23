@@ -57,8 +57,8 @@ const SubscriptionModal: React.FC<SubscriptionModalProps> = ({
         order_id: paymentOrder.orderId,
         handler: async function (response: RazorpayResponse) {
           // 4. On success → verify payment
-          console.log("response",response);
-          
+          console.log("response", response);
+
           const { razorpay_order_id, razorpay_payment_id, razorpay_signature } =
             response;
 
@@ -74,11 +74,9 @@ const SubscriptionModal: React.FC<SubscriptionModalProps> = ({
           )
             .unwrap()
             .then((res) => {
-              Swal.fire("Success", res?.message, "success").then(
-                () => {
-                  onClose();
-                }
-              );
+              Swal.fire("Success", res?.message, "success").then(() => {
+                onClose();
+              });
             })
             .catch(() => {
               Swal.fire("Error", "Payment verification failed.", "error");
@@ -95,12 +93,12 @@ const SubscriptionModal: React.FC<SubscriptionModalProps> = ({
       rzp.open();
     } catch (err) {
       const msg = getAxiosErrorMessage(err);
-          Swal.fire({
-            icon: "error",
-            title: "Payment Failed",
-            text: msg,
-            confirmButtonColor: "#d33",
-          });
+      Swal.fire({
+        icon: "error",
+        title: "Payment Failed",
+        text: msg,
+        confirmButtonColor: "#d33",
+      });
     }
   };
 
@@ -131,35 +129,35 @@ const SubscriptionModal: React.FC<SubscriptionModalProps> = ({
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {plans.map((plan) => {
               const isSelected = selectedPlanId === plan._id;
-
               return (
-                <label key={plan._id}>
-                  <div
-                    className={clsx(
-                      "border p-4 rounded-xl shadow transition-all cursor-pointer",
-                      {
-                        "border-green-500 bg-green-50": isSelected,
-                        "hover:border-green-400 hover:bg-green-100":
-                          !isSelected,
-                      }
-                    )}
-                  >
-                    <Radio value={plan._id} className="hidden" />
-                    <h3 className="text-lg font-semibold text-green-700">
-                      {plan.planName}
-                    </h3>
-                    <p className="text-sm text-gray-600">{plan.description}</p>
-                    <p className="mt-2 text-base font-medium text-black">
-                      ₹{plan.price} / {plan.billingCycle}
-                    </p>
-                    <ul className="mt-2 text-xs text-gray-500 list-disc list-inside">
-                      <li>Users: {plan.userLimit}</li>
-                      <li>Drivers: {plan.driverLimit}</li>
-                      <li>Trucks: {plan.truckLimit}</li>
-                      <li>Trial Days: {plan.trialDays}</li>
-                    </ul>
-                  </div>
-                </label>
+                  <Radio key={plan._id} value={plan._id} className="w-full">
+                    <div
+                      className={clsx(
+                        "border p-4 rounded-xl shadow transition-all",
+                        {
+                          "border-green-500 bg-green-50": isSelected,
+                          "hover:border-green-400 hover:bg-green-100":
+                            !isSelected,
+                        }
+                      )}
+                    >
+                      <h3 className="text-lg font-semibold text-green-700">
+                        {plan.planName}
+                      </h3>
+                      <p className="text-sm text-gray-600">
+                        {plan.description}
+                      </p>
+                      <p className="mt-2 text-base font-medium text-black">
+                        ₹{plan.price} / {plan.billingCycle}
+                      </p>
+                      <ul className="mt-2 text-xs text-gray-500 list-disc list-inside">
+                        <li>Users: {plan.userLimit}</li>
+                        <li>Drivers: {plan.driverLimit}</li>
+                        <li>Trucks: {plan.truckLimit}</li>
+                        <li>Trial Days: {plan.trialDays}</li>
+                      </ul>
+                    </div>
+                  </Radio>
               );
             })}
           </div>

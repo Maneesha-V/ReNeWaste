@@ -7,7 +7,6 @@ import {
   approvePickup,
   fetchDriversByPlace,
 } from "../../redux/slices/wastePlant/wastePlantPickupSlice";
-import { useNavigate } from "react-router-dom";
 import { fetchAvailableTrucks } from "../../redux/slices/wastePlant/wastePlantTruckSlice";
 import { toast } from "react-toastify";
 import {
@@ -31,34 +30,30 @@ const AssignDriverModal = ({
   pickup,
   onSuccess,
 }: AssignDriverModalProps) => {
-  const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const [selectedDriver, setSelectedDriver] = useState<string | null>(null);
   const { driver } = useSelector((state: RootState) => state.wastePlantPickup);
   const { trucks } = useSelector((state: RootState) => state.wastePlantTruck);
   const [form] = Form.useForm();
 
-  const token = localStorage.getItem("token");
-  console.log(token);
+  // const token = localStorage.getItem("token");
+  console.log("selectedDriver",selectedDriver);
 
   console.log("trucks", trucks);
   console.log("drivers", driver);
   console.log("pickup", pickup);
   useEffect(() => {
-    if (!token) {
-      navigate("/waste-plant/");
-      return;
-    }
+
     if (visible && pickup?.wasteplantId) {
       dispatch(fetchDriversByPlace(pickup?.location));
     }
-  }, [visible, pickup?.wasteplantId, token]);
+  }, [visible, pickup?.wasteplantId, pickup?.location, dispatch]);
 
   useEffect(() => {
     if (trucks.length === 1) {
       form.setFieldValue("trucks", trucks[0]._id);
     }
-  }, [trucks]);
+  }, [trucks, form]);
 
   const filteredDrivers = Array.isArray(driver)
     ? driver.filter((d: DriverDTO) => {
@@ -93,11 +88,7 @@ const AssignDriverModal = ({
         })
       ).unwrap();
       console.log("result",result);
-      
-      // if (result.payload?.error) {
-      //   toast.error(result.payload.error);
-      //   return;
-      // }
+
       toast.success(result?.message);
       onSuccess();
       onClose();

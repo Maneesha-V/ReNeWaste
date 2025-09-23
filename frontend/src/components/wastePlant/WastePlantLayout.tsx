@@ -6,12 +6,9 @@ import Footer from "./Footer";
 import MeasureWasteModal from "./MeasureWasteModal";
 import { useAppDispatch } from "../../redux/hooks";
 import { saveWasteMeasurement } from "../../redux/slices/wastePlant/wastePlantNotificationSlice";
-import {
-  MeasureDataPayload,
-  SaveWasteMeasurementPayload,
-} from "../../types/notificationTypes";
 import { toast } from "react-toastify";
 import { getAxiosErrorMessage } from "../../utils/handleAxiosError";
+import { MeasureDataPayload, SaveWasteMeasurementPayload } from "../../types/wasteCollections/wasteCollectionTypes";
 
 const WastePlantLayout = () => {
   const dispatch = useAppDispatch();

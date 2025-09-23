@@ -1,5 +1,5 @@
-import React, { useCallback, useEffect } from "react";
-import { Table, Button, Popconfirm, Spin, Tooltip, Pagination } from "antd";
+import React, { useCallback, useEffect, useMemo } from "react";
+import { Table, Button, Popconfirm, Pagination } from "antd";
 import {
   EditOutlined,
   DeleteOutlined,
@@ -40,7 +40,19 @@ const WastePlants: React.FC = () => {
     capacityFilter,
     setCapacityFilter,
   } = usePagination();
-  const debouncedFetchWastePlants = useCallback(
+  // const debouncedFetchWastePlants = useCallback(
+  //   debounce(
+  //     (page: number, limit: number, query: string, capacityRange: string) => {
+  //       dispatch(
+  //         fetchWastePlants({ page, limit, search: query, capacityRange })
+  //       );
+  //     },
+  //     500
+  //   ),
+  //   [dispatch]
+  // );
+   const debouncedFetchWastePlants = useMemo(
+    () =>
     debounce(
       (page: number, limit: number, query: string, capacityRange: string) => {
         dispatch(
@@ -49,7 +61,7 @@ const WastePlants: React.FC = () => {
       },
       500
     ),
-    [dispatch]
+    []
   );
   useEffect(() => {
     debouncedFetchWastePlants(currentPage, pageSize, search, capacityFilter);
@@ -60,8 +72,7 @@ const WastePlants: React.FC = () => {
     currentPage,
     pageSize,
     search,
-    capacityFilter,
-    debouncedFetchWastePlants,
+    capacityFilter
   ]);
 
   useEffect(() => {
@@ -94,39 +105,10 @@ const WastePlants: React.FC = () => {
       dispatch(updateDeleteWastePlant(response.updatedPlant.plantId));
       toast.success(response.message);
     } catch (error) {
-      const msg = getAxiosErrorMessage(error);
-      toast.error(msg);
+      toast.error(getAxiosErrorMessage(error));
     }
   };
-  // const remindSubscribe = async (id: string) => {
-  //   try {
-  //     await dispatch(sendSubscribeNotification(id)).unwrap();
-  //     toast.success("Renew notification sent successfully");
-  //   } catch (error: any) {
-  //     console.error("Failed to send renew notification:", error);
-  //     toast.error(error || "Failed to send renew notification");
-  //   }
-  // };
 
-  // const remindRenew = async (plantId: string, daysLeft: number) => {
-  //   try {
-  //     await dispatch(sendRenewNotification({ plantId, daysLeft })).unwrap();
-  //     toast.success("Renew notification sent successfully");
-  //   } catch (error) {
-  //     console.error("Failed to send renew notification:", error);
-  //     toast.error("Failed to send renew notification");
-  //   }
-  // };
-
-  // const remindRecharge = async (plantId: string) => {
-  //   try {
-  //     await dispatch(sendRechargeNotification(plantId)).unwrap();
-  //     toast.success("Renew notification sent successfully");
-  //   } catch (error) {
-  //     console.error("Failed to send renew notification:", error);
-  //     toast.error("Failed to send renew notification");
-  //   }
-  // };
   const handleToggleBlock = async (plantId: string, isBlocked: boolean) => {
     try {
       await dispatch(
@@ -134,7 +116,7 @@ const WastePlants: React.FC = () => {
       ).unwrap();
       toast.success(`Wasteplant ${isBlocked ? "unblocked" : "blocked"} successfully`);
     } catch (err) {
-      toast.error("Failed to update wasteplant status");
+      toast.error(getAxiosErrorMessage(err));
     }
   };
 

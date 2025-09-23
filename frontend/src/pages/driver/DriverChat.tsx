@@ -14,7 +14,7 @@ import { useSocket } from "../../hooks/useSocket";
 const DriverChat: React.FC = () => {
   const dispatch = useAppDispatch();
   const { driver } = useSelector((state: RootState) => state.driverProfile);
-  const { messages, loading } = useSelector((state: RootState) => state.driverChats)
+  const { messages } = useSelector((state: RootState) => state.driverChats)
 
   const [input, setInput] = useState("");
   const [conversationId, setConversationId] = useState<string | null>(null);
@@ -25,7 +25,7 @@ const DriverChat: React.FC = () => {
     if (!driver) {
       dispatch(fetchDriverProfile());
     }
-  }, [dispatch]);
+  }, [driver, dispatch]);
 
   useEffect(() => {
     if (driver && driver._id && driver.wasteplantId) {
@@ -38,10 +38,10 @@ const DriverChat: React.FC = () => {
         })
       )
         .unwrap()
-        .then((id) => {
-          setConversationId(id);
-          socket?.emit("joinChatRoom", id);
-          dispatch(fetchChatMessages({ conversationId: id }));
+        .then((res) => {
+          setConversationId(res.conversationId);
+          socket?.emit("joinChatRoom", res.conversationId);
+          dispatch(fetchChatMessages({ conversationId: res.conversationId }));
         })
         .catch(console.error);
     }
@@ -52,7 +52,7 @@ const DriverChat: React.FC = () => {
 socket.on("receiveMessage", (message) => {
       if (message.conversationId === conversationId) {
         const sender =
-        message.senderId === driver._id ? "driver" : "wasteplant";
+        message.senderId === driver?._id ? "driver" : "wasteplant";
         dispatch(addMessage({ ...message, sender }));
       }
     });

@@ -1,9 +1,9 @@
 import { useState } from "react";
-import { LoginRequest } from "../../types/authTypes";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import { useAppDispatch } from "../../redux/hooks";
 import { driverLogin } from "../../redux/slices/driver/driverSlice";
+import { LoginRequest } from "../../types/common/commonTypes";
 
 const LoginDriver = () => {
   const [formData, setFormData] = useState<LoginRequest>({

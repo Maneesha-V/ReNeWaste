@@ -46,10 +46,11 @@ const MeasureWasteModal: React.FC<MeasureWasteModalProps> = ({
           <strong>Returned At:</strong> {`${date} ${time}`}
         </p>
         <div className="mt-4">
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="weight">
             Enter Weight (kg)
           </label>
           <input
+            id="weight"
             type="number"
             className="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
             value={weight}

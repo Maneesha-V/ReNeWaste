@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Table, Button, Space, Modal, Typography, Popconfirm } from "antd";
+import { Table, Button, Modal, Typography, Popconfirm } from "antd";
 import { useAppDispatch } from "../../redux/hooks";
 import { useSelector } from "react-redux";
 import { RootState } from "../../redux/store";
@@ -64,11 +64,11 @@ const Subscription = () => {
       setIsModalVisible(true);
     }
   };
-  const handlePay = (plan: SubcptnPaymtPayload) => {
-    console.log("plan", plan);
-    setSelectedPlan(plan);
-    setIsPayNowModalOpen(true);
-  };
+  // const handlePay = (plan: SubcptnPaymtPayload) => {
+  //   console.log("plan", plan);
+  //   setSelectedPlan(plan);
+  //   setIsPayNowModalOpen(true);
+  // };
   const handleCancel = (paymtId: string) => {
     setCancelSubsptn(paymtId);
     setCancelModalVisible(true);

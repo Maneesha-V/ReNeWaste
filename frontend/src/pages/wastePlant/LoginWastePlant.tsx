@@ -2,9 +2,9 @@ import { useState } from "react";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import { useAppDispatch } from "../../redux/hooks";
-import { LoginRequest } from "../../types/authTypes";
 import { wastePlantLogin } from "../../redux/slices/wastePlant/wastePlantSlice";
 import { getAxiosErrorMessage } from "../../utils/handleAxiosError";
+import { LoginRequest } from "../../types/common/commonTypes";
 
 const LoginWastePlant = () => {
   const [formData, setFormData] = useState<LoginRequest>({

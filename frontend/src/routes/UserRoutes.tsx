@@ -12,7 +12,6 @@ import Commercial from "../pages/user/Commercial";
 import PickupPlans from "../pages/user/PickupPlans";
 import Unauthorized from "../pages/user/Unauthorized";
 import Payments from "../pages/user/Payments";
-import ErrorBoundary from "../components/common/ErrorBoundary";
 import DropSpotMap from "../pages/user/DropSpotMap";
 import Blocked from "../pages/user/Blocked";
 import ServicesUnavailable from "../pages/user/ServicesUnavailable";

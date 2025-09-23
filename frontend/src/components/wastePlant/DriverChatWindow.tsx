@@ -11,7 +11,7 @@ import { DriverChatWindowProps } from "../../types/common/modalTypes";
 const DriverChatWindow: React.FC<DriverChatWindowProps> = ({ driver, wasteplantId }) => {
   const dispatch = useAppDispatch();
   const socket = useSocket();
-  const { messages, loading } = useSelector((state: RootState) => state.wastePlantChats)
+  const { messages } = useSelector((state: RootState) => state.wastePlantChats)
   const [input, setInput] = useState("");
   const [conversationId, setConversationId] = useState<string | null>(null);
 
@@ -48,7 +48,7 @@ const DriverChatWindow: React.FC<DriverChatWindowProps> = ({ driver, wasteplantI
     return () => {
       socket.off("receiveMessage");
     };
-  }, [socket, conversationId, dispatch]);
+  }, [socket, conversationId, wasteplantId, dispatch]);
 
   const handleSend = () => {
     if (!input.trim() || !conversationId || !socket) return;

@@ -16,7 +16,7 @@ const CancelSubptnModal = ({
     const [form] = Form.useForm();
     useEffect(() => {
       if (!visible) form.resetFields();
-    }, [visible]);
+    }, [visible, form]);
   
     if (!subPayId) return null;
     const handleSubmit = async () => {

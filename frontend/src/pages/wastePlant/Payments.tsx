@@ -1,5 +1,5 @@
 import { Pagination, Table } from "antd";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useAppDispatch } from "../../redux/hooks";
 import {
   clearPaymentError,
@@ -10,7 +10,6 @@ import {
 import { useSelector } from "react-redux";
 import { RootState } from "../../redux/store";
 import { extractDateTimeParts } from "../../utils/formatDate";
-import { PaymentRecord } from "../../types/paymentTypes";
 import PaginationSearch from "../../components/common/PaginationSearch";
 import usePagination from "../../hooks/usePagination";
 import { debounce } from "lodash";
@@ -18,6 +17,7 @@ import RefundModal from "../../components/wastePlant/RefundModal";
 import { toast } from "react-toastify";
 import Swal from "sweetalert2";
 import { getAxiosErrorMessage } from "../../utils/handleAxiosError";
+import { PaymentRecord } from "../../types/wasteplant/wastePlantTypes";
 
 const Payments = () => {
   const [selectedRecord, setSelectedRecord] = useState<PaymentRecord | null>(
@@ -42,11 +42,18 @@ const Payments = () => {
       dispatch(clearPaymentError());
     }
   }, [error, dispatch]);
-  const debouncedFetchPayments = useCallback(
+  // const debouncedFetchPayments = useCallback(
+  //   debounce((page: number, limit: number, query: string) => {
+  //     dispatch(fetchPayments({ page, limit, search: query }));
+  //   }, 500),
+  //   [dispatch]
+  // );
+    const debouncedFetchPayments = useMemo(
+      () =>
     debounce((page: number, limit: number, query: string) => {
       dispatch(fetchPayments({ page, limit, search: query }));
     }, 500),
-    [dispatch]
+    []
   );
   const refetchPayments = () => {
     dispatch(fetchPayments({ page: currentPage, limit: pageSize, search }));
@@ -58,7 +65,7 @@ const Payments = () => {
     return () => {
       debouncedFetchPayments.cancel();
     };
-  }, [currentPage, pageSize, search, debouncedFetchPayments]);
+  }, [currentPage, pageSize, search]);
 
   console.log("payments", payments);
   console.log("total", total);

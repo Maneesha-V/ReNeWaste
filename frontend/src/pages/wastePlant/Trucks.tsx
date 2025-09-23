@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from "react";
+import React, { useCallback, useEffect, useMemo } from "react";
 import { Table, Button, Popconfirm, Spin, Pagination } from "antd";
 import { EditOutlined, DeleteOutlined, PlusOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
@@ -27,20 +27,26 @@ const Trucks: React.FC = () => {
 
   console.log("trucks", trucks);
 
-  const debouncedFetchTrucks = useCallback(
+  // const debouncedFetchTrucks = useCallback(
+  //   debounce((page: number, limit: number, query: string) => {
+  //     dispatch(fetchTrucks({ page, limit, search: query }));
+  //   }, 500),
+  //   [dispatch]
+  // );
+  const debouncedFetchTrucks = useMemo(
+    () =>
     debounce((page: number, limit: number, query: string) => {
       dispatch(fetchTrucks({ page, limit, search: query }));
     }, 500),
-    [dispatch]
+    []
   );
-
   useEffect(() => {
     debouncedFetchTrucks(currentPage, pageSize, search);
 
     return () => {
       debouncedFetchTrucks.cancel();
     };
-  }, [currentPage, pageSize, search, debouncedFetchTrucks]);
+  }, [currentPage, pageSize, search]);
 
   const handleEdit = async (truckId: string) => {
     try {

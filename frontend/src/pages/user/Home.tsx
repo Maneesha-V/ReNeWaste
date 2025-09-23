@@ -32,7 +32,7 @@ const Home = () => {
 
         {/* Services Below Banner */}
         <div className="absolute inset-0 flex flex-col md:flex-row justify-center items-center gap-6 bg-black/30 rounded-lg">
-          <div
+          <button
             onClick={() => navigate("/residential")}
             className="bg-white/90 cursor-pointer text-gray-800 p-6 rounded-xl shadow-md w-60 text-center transition
             duration-300 hover:bg-green-600 hover:text-white"
@@ -44,9 +44,9 @@ const Home = () => {
               <li>Safe and timely waste disposal</li>
               <li>Keeping your neighborhood clean</li>
             </ul>
-          </div>
+          </button>
 
-          <div
+          <button
             onClick={() => navigate("/commercial")}
             className="bg-white/90 cursor-pointer text-gray-800 p-6 rounded-xl shadow-md w-60 text-center transition
             duration-300 hover:bg-green-600 hover:text-white"
@@ -58,7 +58,7 @@ const Home = () => {
               <li>Industry-compliant waste management</li>
               <li>Reliable service for offices & industries</li>
             </ul>
-          </div>
+          </button>
         </div>
       </section>
 

@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from "react";
+import React, { useCallback, useEffect, useMemo } from "react";
 import { Table, Button, Space, Typography, Popconfirm, Pagination } from "antd";
 import { useSelector } from "react-redux";
 import { RootState } from "../../redux/store";
@@ -28,20 +28,26 @@ const DropSpots: React.FC = () => {
   const { currentPage, setCurrentPage, pageSize, search, setSearch } =
     usePagination();
 
-  const debouncedFetchDropSpots = useCallback(
+  // const debouncedFetchDropSpots = useCallback(
+  //   debounce((page: number, limit: number, query: string) => {
+  //     dispatch(fetchDropSpots({ page, limit, search: query }));
+  //   }, 500),
+  //   [dispatch]
+  // );
+ const debouncedFetchDropSpots = useMemo(
+  () =>
     debounce((page: number, limit: number, query: string) => {
       dispatch(fetchDropSpots({ page, limit, search: query }));
     }, 500),
-    [dispatch]
+    []
   );
-
   useEffect(() => {
     debouncedFetchDropSpots(currentPage, pageSize, search);
 
     return () => {
       debouncedFetchDropSpots.cancel();
     };
-  }, [currentPage, pageSize, search, debouncedFetchDropSpots]);
+  }, [currentPage, pageSize, search]);
 
 
   const handleDelete = async (id: string) => {

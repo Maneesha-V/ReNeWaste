@@ -20,7 +20,7 @@ const WasteplantChat: React.FC = () => {
 
   useEffect(() => {
     dispatch(fetchDrivers({ page: currentPage, limit: pageSize, search  }));
-  }, [dispatch]);;
+  }, [dispatch, currentPage, pageSize, search]);;
 
   console.log("drivers",drivers);
   

@@ -19,7 +19,7 @@ const Residential = () => {
   );
   
   const startOfMonth = currentMonth.startOf("month");
-  const endOfMonth = currentMonth.endOf("month");
+  // const endOfMonth = currentMonth.endOf("month");
   const startDay = startOfMonth.day();
   const daysInMonth = currentMonth.daysInMonth();
 
@@ -101,7 +101,7 @@ const Residential = () => {
             const isPastDate = date.isBefore(dayjs().startOf("day"));
 
             return (
-              <div
+              <button
                 key={i}
                 className={`p-2 rounded text-sm ${
                   isPastDate
@@ -113,7 +113,7 @@ const Residential = () => {
                 }}
               >
                 {i + 1}
-              </div>
+              </button>
             );
           })}
         </div>

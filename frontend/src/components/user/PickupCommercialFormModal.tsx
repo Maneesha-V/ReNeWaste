@@ -8,6 +8,7 @@ import { updateCommercialPickup } from "../../redux/slices/user/commercialSlice"
 import { PickupCommercialFormModalProps } from "../../types/common/modalTypes";
 import { PartialCommPickupReq } from "../../types/pickupReq/pickupTypes";
 import { getAxiosErrorMessage } from "../../utils/handleAxiosError";
+import { Address } from "../../types/user/userTypes";
 
 
 const PickupCommercialFormModal: React.FC<PickupCommercialFormModalProps> = ({
@@ -176,8 +177,7 @@ const PickupCommercialFormModal: React.FC<PickupCommercialFormModalProps> = ({
       onClose();
       setTimeout(() => navigate("/commercial"), 2000);
     } catch(error) {
-      toast.error("Submission failed. Please try again.");
-      getAxiosErrorMessage(error)
+      toast.error(getAxiosErrorMessage(error));
     }
   };
 
@@ -200,10 +200,11 @@ const PickupCommercialFormModal: React.FC<PickupCommercialFormModalProps> = ({
           >
             {/* Full Name */}
             <div>
-              <label className="block text-sm font-medium mb-1">
+              <label className="block text-sm font-medium mb-1" htmlFor="fullName">
                 Full Name
               </label>
               <input
+                id="fullName"
                 type="text"
                 value={fullName}
                 readOnly
@@ -213,10 +214,11 @@ const PickupCommercialFormModal: React.FC<PickupCommercialFormModalProps> = ({
 
             {/* Contact Number */}
             <div>
-              <label className="block text-sm font-medium mb-1">
+              <label className="block text-sm font-medium mb-1" htmlFor="phone">
                 Contact Number
               </label>
               <input
+                id="phone"
                 type="text"
                 name="phone"
                 value={formData.phone}
@@ -231,10 +233,11 @@ const PickupCommercialFormModal: React.FC<PickupCommercialFormModalProps> = ({
 
             {/* Address */}
             <div className="col-span-2">
-              <label className="block text-sm font-medium mb-1">
+              <label className="block text-sm font-medium mb-1" htmlFor="addressSelect">
                 Select Address
               </label>
               <select
+                id="addressSelect"
                 className="w-full p-2 border rounded"
                 value={selectedAddressIndex}
                 onChange={(e) =>
@@ -245,7 +248,7 @@ const PickupCommercialFormModal: React.FC<PickupCommercialFormModalProps> = ({
                   )
                 }
               >
-                {user.addresses?.map((addr: any, index: number) => (
+                {user.addresses?.map((addr: Address, index: number) => (
                   <option key={index} value={index.toString()}>
                     {addr.addressLine1},{addr.addressLine2},{addr.location},{" "}
                     {addr.pincode},{addr.district},{addr.state}
@@ -260,10 +263,11 @@ const PickupCommercialFormModal: React.FC<PickupCommercialFormModalProps> = ({
               <>
                 <div className="col-span-2 grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium mb-1">
+                    <label className="block text-sm font-medium mb-1" htmlFor="addressLine1">
                       Address Line 1
                     </label>
                     <input
+                      id="addressLine1"
                       name="addressLine1"
                       value={newAddress.addressLine1}
                       onChange={handleNewAddressChange}
@@ -276,10 +280,11 @@ const PickupCommercialFormModal: React.FC<PickupCommercialFormModalProps> = ({
                     )}
                   </div>
                   <div>
-                    <label className="block text-sm font-medium mb-1">
+                    <label className="block text-sm font-medium mb-1" htmlFor="addressLine2">
                       Address Line 2
                     </label>
                     <input
+                      id="addressLine2"
                       name="addressLine2"
                       value={newAddress.addressLine2}
                       onChange={handleNewAddressChange}
@@ -292,10 +297,11 @@ const PickupCommercialFormModal: React.FC<PickupCommercialFormModalProps> = ({
                     )}
                   </div>
                   <div>
-                    <label className="block text-sm font-medium mb-1">
+                    <label className="block text-sm font-medium mb-1" htmlFor="district">
                       District
                     </label>
                     <input
+                      id="district"
                       name="district"
                       value={newAddress.district}
                       onChange={handleNewAddressChange}
@@ -306,10 +312,11 @@ const PickupCommercialFormModal: React.FC<PickupCommercialFormModalProps> = ({
                     )}
                   </div>
                   <div>
-                    <label className="block text-sm font-medium mb-1">
+                    <label className="block text-sm font-medium mb-1" htmlFor="location">
                       Location
                     </label>
                     <input
+                      id="location"
                       name="location"
                       value={newAddress.location}
                       onChange={handleNewAddressChange}
@@ -320,10 +327,11 @@ const PickupCommercialFormModal: React.FC<PickupCommercialFormModalProps> = ({
                     )}
                   </div>
                   <div>
-                    <label className="block text-sm font-medium mb-1">
+                    <label className="block text-sm font-medium mb-1" htmlFor="pincode">
                       Pincode
                     </label>
                     <input
+                      id="pincode"
                       name="pincode"
                       value={newAddress.pincode}
                       onChange={handleNewAddressChange}
@@ -334,10 +342,11 @@ const PickupCommercialFormModal: React.FC<PickupCommercialFormModalProps> = ({
                     )}
                   </div>
                   <div>
-                    <label className="block text-sm font-medium mb-1">
+                    <label className="block text-sm font-medium mb-1" htmlFor="state">
                       State
                     </label>
                     <input
+                      id="state"
                       name="state"
                       value={newAddress.state}
                       onChange={handleNewAddressChange}
@@ -353,10 +362,11 @@ const PickupCommercialFormModal: React.FC<PickupCommercialFormModalProps> = ({
 
             {/* Waste Type */}
             <div>
-              <label className="block text-sm font-medium mb-1">
+              <label className="block text-sm font-medium mb-1" htmlFor="wasteType">
                 Waste Type
               </label>
               <input
+                id="wasteType"
                 type="text"
                 value="Commercial"
                 readOnly
@@ -366,10 +376,11 @@ const PickupCommercialFormModal: React.FC<PickupCommercialFormModalProps> = ({
 
             {/* Pickup Time */}
             <div>
-              <label className="block text-sm font-medium mb-1">
+              <label className="block text-sm font-medium mb-1" htmlFor="pickupTime">
                 Preferred Pickup Time
               </label>
               <input
+                id="pickupTime"
                 type="time"
                 name="pickupTime"
                 value={formData.pickupTime}
@@ -383,10 +394,11 @@ const PickupCommercialFormModal: React.FC<PickupCommercialFormModalProps> = ({
             </div>
             {/* Service Selection */}
             <div>
-              <label className="block text-sm font-medium mb-1">
+              <label className="block text-sm font-medium mb-1" htmlFor="service">
                 Selected Service
               </label>
               <input
+                id="service"
                 type="text"
                 name="service"
                 value={serviceQuery ?? ""}
@@ -398,10 +410,11 @@ const PickupCommercialFormModal: React.FC<PickupCommercialFormModalProps> = ({
 
             {/* Business Name */}
             <div>
-              <label className="block text-sm font-medium mb-1">
+              <label className="block text-sm font-medium mb-1" htmlFor="businessName">
                 Business Name
               </label>
               <input
+                id="businessName"
                 type="text"
                 name="businessName"
                 value={formData.businessName}
@@ -416,10 +429,11 @@ const PickupCommercialFormModal: React.FC<PickupCommercialFormModalProps> = ({
 
             {/* Frequency of Collection */}
             <div className="col-span-2">
-              <label className="block text-sm font-medium mb-1">
+              <label className="block text-sm font-medium mb-1" htmlFor="frequency">
                 Frequency of Waste Collection
               </label>
               <select
+                id="frequency"
                 name="frequency"
                 value={formData.frequency}
                 onChange={handleChange}
@@ -429,7 +443,7 @@ const PickupCommercialFormModal: React.FC<PickupCommercialFormModalProps> = ({
                 <option value="">-- Select Frequency --</option>
                 <option value="Daily">Daily</option>
                 <option value="Weekly">Weekly</option>
-                <option value="Bi-weekly">Bi-weekly</option>
+                {/* <option value="Bi-weekly">Bi-weekly</option> */}
                 <option value="Monthly">Monthly</option>
               </select>
               {errors.frequency && (

@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { Table, Button, Spin, Tag, Popconfirm } from "antd";
 import { CheckOutlined, CloseOutlined } from "@ant-design/icons";
-import { useNavigate } from "react-router-dom";
 import {cancelPickupReq, fetchPickupReqsts} from "../../redux/slices/wastePlant/wastePlantPickupSlice";
 import { useAppDispatch } from "../../redux/hooks";
 import { useSelector } from "react-redux";
@@ -31,7 +30,6 @@ const Pickups = () => {
   const [cancelModalVisible, setCancelModalVisible] = useState(false);
   const [cancelPickup, setCancelPickup] = useState<string | null>(null);
 
-  const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const { loading, error } = useSelector(
     (state: RootState) => state.wastePlantPickup
@@ -45,14 +43,10 @@ const Pickups = () => {
     ? [rawPickups]
     : [];
 
-  const token = localStorage.getItem("token");
+  // const token = localStorage.getItem("token");
   useEffect(() => {
-    if (!token) {
-      navigate("/waste-plant/");
-      return;
-    }
     dispatch(fetchPickupReqsts({ wasteType: activeTab, status: statusTab }));
-  }, [dispatch, token, activeTab, statusTab]);
+  }, [dispatch, activeTab, statusTab]);
 
   console.log("pickups", pickups);
 

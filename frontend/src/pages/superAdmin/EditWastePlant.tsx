@@ -22,7 +22,7 @@ const EditWastePlant = () => {
   const dispatch = useAppDispatch();
   const { errors, validateField, setErrors } = useWastePlantValidation();
 
-  const { wastePlant, loading } = useSelector(
+  const { wastePlant } = useSelector(
     (state: RootState) => state.superAdminWastePlant
   );
 
@@ -69,9 +69,7 @@ const EditWastePlant = () => {
         const res = await dispatch(fetchPostOffices(value)).unwrap();
         setPostOffices(res);
       } catch (error) {
-        const msg= getAxiosErrorMessage(error);
-        // toast.error("Failed to fetch post offices for this PIN");
-        toast.error(msg);
+        toast.error(getAxiosErrorMessage(error));
         setPostOffices([]);
         setFormData((prev) => ({ ...prev, location: "", taluk: "" }));
       }
@@ -135,18 +133,12 @@ const EditWastePlant = () => {
       const result = await dispatch(
         updateWastePlant({ id, data: formDataToSend })
       ).unwrap();
-      // if (result.payload?.error) {
-      //   toast.error(result.payload.error);
-      //   return;
-      // }
       toast.success(result?.message);
       setTimeout(() => {
         navigate("/super-admin/waste-plants");
       }, 2000);
     } catch (error) {
-      // toast.error("Waste Plant updation failed. Please try again.");
-      const msg = getAxiosErrorMessage(error);
-      toast.error(msg);
+      toast.error(getAxiosErrorMessage(error));
     }
   };
 
@@ -157,8 +149,9 @@ const EditWastePlant = () => {
       <h2 className="text-2xl font-semibold mb-4">Edit Waste Plant</h2>
       <form onSubmit={handleSubmit} className="grid grid-cols-2 gap-4">
         <div>
-          <label className="block text-gray-700">Plant Name</label>
+          <label className="block text-gray-700" htmlFor="plantName">Plant Name</label>
           <input
+            id="plantName"
             type="text"
             name="plantName"
             value={formData.plantName}
@@ -172,8 +165,9 @@ const EditWastePlant = () => {
         </div>
 
         <div>
-          <label className="block text-gray-700">Owner Name</label>
+          <label className="block text-gray-700" htmlFor="ownerName">Owner Name</label>
           <input
+            id="ownerName"
             type="text"
             name="ownerName"
             value={formData.ownerName}
@@ -187,8 +181,9 @@ const EditWastePlant = () => {
         </div>
         {/* Pincode */}
         <div>
-          <label className="block text-gray-700 font-medium">Pincode</label>
+          <label className="block text-gray-700 font-medium" htmlFor="pincode">Pincode</label>
           <input
+            id="pincode"
             type="text"
             name="pincode"
             value={formData.pincode}
@@ -202,9 +197,10 @@ const EditWastePlant = () => {
         </div>
 
         <div>
-          <label className="block text-gray-700">Location</label>
+          <label className="block text-gray-700" htmlFor="location">Location</label>
           {postOffices.length > 0 ? (
             <select
+              id="location"
               name="location"
               value={formData.location}
               onChange={(e) => {
@@ -228,6 +224,7 @@ const EditWastePlant = () => {
             </select>
           ) : (
             <input
+              id="location"
               type="text"
               name="location"
               value={formData.location}
@@ -243,8 +240,9 @@ const EditWastePlant = () => {
 
         {/* Taluk */}
         <div>
-          <label className="block text-gray-700 font-medium">Taluk</label>
+          <label className="block text-gray-700 font-medium" htmlFor="taluk">Taluk</label>
           <input
+            id="taluk"
             type="text"
             name="taluk"
             value={formData.taluk}
@@ -258,8 +256,9 @@ const EditWastePlant = () => {
 
         {/* District */}
         <div>
-          <label className="block text-gray-700 font-medium">District</label>
+          <label className="block text-gray-700 font-medium" htmlFor="district">District</label>
           <input
+            id="district"
             type="text"
             name="district"
             value="Malappuram"
@@ -268,8 +267,9 @@ const EditWastePlant = () => {
           />
         </div>
         <div>
-          <label className="block text-gray-700">State</label>
+          <label className="block text-gray-700" htmlFor="state">State</label>
           <input
+            id="state"
             type="text"
             name="state"
             value="Kerala"
@@ -282,8 +282,9 @@ const EditWastePlant = () => {
         </div>
 
         <div>
-          <label className="block text-gray-700">Contact Person</label>
+          <label className="block text-gray-700" htmlFor="contactInfo">Contact Person</label>
           <input
+            id="contactInfo"
             type="text"
             name="contactInfo"
             value={formData.contactInfo}
@@ -297,8 +298,9 @@ const EditWastePlant = () => {
         </div>
 
         <div>
-          <label className="block text-gray-700">Contact No</label>
+          <label className="block text-gray-700" htmlFor="contactNo">Contact No</label>
           <input
+            id="contactNo"
             type="text"
             name="contactNo"
             value={formData.contactNo}
@@ -312,8 +314,9 @@ const EditWastePlant = () => {
         </div>
 
         <div>
-          <label className="block text-gray-700">Email</label>
+          <label className="block text-gray-700" htmlFor="email">Email</label>
           <input
+            id="email"
             type="email"
             name="email"
             value={formData.email}
@@ -327,8 +330,9 @@ const EditWastePlant = () => {
         </div>
 
         <div>
-          <label className="block text-gray-700">License Number</label>
+          <label className="block text-gray-700" htmlFor="licenseNumber">License Number</label>
           <input
+            id="licenseNumber"
             type="text"
             name="licenseNumber"
             value={formData.licenseNumber}
@@ -342,9 +346,9 @@ const EditWastePlant = () => {
         </div>
         {/* Services  */}
         <div className="md:col-span-2">
-          <label className="block text-gray-700 font-medium mb-1">
+          <span className="block text-gray-700 font-medium mb-1">
             Services Provided
-          </label>
+          </span>
           <div className="flex flex-wrap gap-4">
             {[
               "Building Waste",
@@ -373,8 +377,9 @@ const EditWastePlant = () => {
         </div>
 
         <div>
-          <label className="block text-gray-700">Capacity</label>
+          <label className="block text-gray-700" htmlFor="capacity">Capacity</label>
           <input
+            id="capacity"
             type="number"
             name="capacity"
             value={formData.capacity}
@@ -388,8 +393,9 @@ const EditWastePlant = () => {
         </div>
 
         <div>
-          <label className="block text-gray-700">Status</label>
+          <label className="block text-gray-700" htmlFor="status">Status</label>
           <select
+            id="status"
             name="status"
             value={formData.status}
             onChange={handleChange}
@@ -406,8 +412,9 @@ const EditWastePlant = () => {
         </div>
 
         <div>
-          <label className="block text-gray-700">Subscription Plan</label>
+          <label className="block text-gray-700" htmlFor="subscriptionPlan">Subscription Plan</label>
           <select
+            id="subscriptionPlan"
             name="subscriptionPlan"
             value={formData.subscriptionPlan}
             onChange={handleChange}
@@ -427,8 +434,9 @@ const EditWastePlant = () => {
         </div>
 
         <div>
-          <label className="block text-gray-700">License Document</label>
+          <label className="block text-gray-700" htmlFor="licenseDocument">License Document</label>
           <input
+            id="licenseDocument"
             type="file"
             accept=".pdf"
             className="w-full p-2 border rounded"

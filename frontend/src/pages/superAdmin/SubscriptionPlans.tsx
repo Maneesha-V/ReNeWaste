@@ -1,4 +1,4 @@
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useMemo } from "react";
 import { Table, Button, Popconfirm, Tag, Pagination } from "antd";
 import { EditOutlined, DeleteOutlined, PlusOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
@@ -27,18 +27,25 @@ const SubscriptionPlans = () => {
 
   const { currentPage, setCurrentPage, pageSize, search, setSearch } =
     usePagination();
-  const debouncedFetchSubscriptionPlans = useCallback(
+  // const debouncedFetchSubscriptionPlans = useCallback(
+  //   debounce((page: number, limit: number, query: string) => {
+  //     dispatch(fetchSubscriptionPlans({ page, limit, search: query }));
+  //   }, 500),
+  //   [dispatch]
+  // );
+    const debouncedFetchSubscriptionPlans = useMemo(
+      () =>
     debounce((page: number, limit: number, query: string) => {
       dispatch(fetchSubscriptionPlans({ page, limit, search: query }));
     }, 500),
-    [dispatch]
+    []
   );
   useEffect(() => {
     debouncedFetchSubscriptionPlans(currentPage, pageSize, search);
     return () => {
       debouncedFetchSubscriptionPlans.cancel();
     };
-  }, [currentPage, pageSize, search, debouncedFetchSubscriptionPlans]);
+  }, [currentPage, pageSize, search]);
 
   const handleEdit = (planId: string) => {
     try {
@@ -54,8 +61,7 @@ const SubscriptionPlans = () => {
       toast.success(res?.message);
       dispatch(updateDeleteSubscription(planId));
     } catch (error) {
-      const msg = getAxiosErrorMessage(error);
-      toast.error(msg);
+      toast.error(getAxiosErrorMessage(error));
     }
   };
 

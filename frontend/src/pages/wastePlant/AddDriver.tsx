@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import { DriverFormData, ValidationErrors } from "../../types/driverTypes";
 import { useAppDispatch } from "../../redux/hooks";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
@@ -14,6 +13,8 @@ import {
   getPanchayatsByTaluk,
 } from "../../utils/locationUtils";
 import { getAxiosErrorMessage } from "../../utils/handleAxiosError";
+import { RootState } from "../../redux/store";
+import { DriverFormData,  ValidationErrors } from "../../types/driver/driverTypes";
 
 const AddDriver = () => {
   const navigate = useNavigate();
@@ -33,7 +34,7 @@ const AddDriver = () => {
     category: "Pending",
   });
 
-  const taluk = useSelector((state: any) => state.wastePlantDriver.taluk);
+  const taluk = useSelector((state: RootState) => state.wastePlantDriver.taluk);
   const [assignedZones, setAssignedZones] = useState<string[]>([]);
 
   console.log("taluk", taluk);
@@ -79,8 +80,18 @@ const AddDriver = () => {
 
       if (type === "front") {
         setFormData((prev) => ({ ...prev, licenseFront: file }));
+        setErrors((prev) => {
+          const newErrors = {...prev};
+          delete newErrors.licenseFront
+          return newErrors;
+        })
       } else {
         setFormData((prev) => ({ ...prev, licenseBack: file }));
+        setErrors((prev) => {
+          const newErrors = {...prev};
+          delete newErrors.licenseBack;
+          return newErrors;
+        })
       }
     }
   };
@@ -135,8 +146,9 @@ const AddDriver = () => {
         >
           {/* Name */}
           <div>
-            <label className="block text-gray-700 font-medium">Name</label>
+            <label className="block text-gray-700 font-medium" htmlFor="name">Name</label>
             <input
+              id="name"
               type="text"
               name="name"
               value={formData.name}
@@ -151,10 +163,11 @@ const AddDriver = () => {
 
           {/* License Number */}
           <div>
-            <label className="block text-gray-700 font-medium">
+            <label className="block text-gray-700 font-medium" htmlFor="licenseNumber">
               License Number
             </label>
             <input
+              id="licenseNumber"
               type="text"
               name="licenseNumber"
               value={formData.licenseNumber}
@@ -169,8 +182,9 @@ const AddDriver = () => {
 
           {/* Contact */}
           <div>
-            <label className="block text-gray-700 font-medium">Contact</label>
+            <label className="block text-gray-700 font-medium" htmlFor="contact">Contact</label>
             <input
+              id="contact"
               type="text"
               name="contact"
               value={formData.contact}
@@ -185,8 +199,9 @@ const AddDriver = () => {
 
           {/* Email */}
           <div>
-            <label className="block text-gray-700 font-medium">Email</label>
+            <label className="block text-gray-700 font-medium" htmlFor="email">Email</label>
             <input
+              id="email"
               type="email"
               name="email"
               value={formData.email}
@@ -201,10 +216,11 @@ const AddDriver = () => {
 
           {/* Experience */}
           <div>
-            <label className="block text-gray-700 font-medium">
+            <label className="block text-gray-700 font-medium" htmlFor="experience">
               Experience (years)
             </label>
             <input
+              id="experience"
               type="number"
               name="experience"
               value={formData.experience}
@@ -219,8 +235,9 @@ const AddDriver = () => {
 
           {/* Password */}
           <div>
-            <label className="block text-gray-700 font-medium">Password</label>
+            <label className="block text-gray-700 font-medium" htmlFor="password">Password</label>
             <input
+              id="password"
               type="password"
               name="password"
               value={formData.password}
@@ -235,10 +252,11 @@ const AddDriver = () => {
 
           {/* License Front */}
           <div>
-            <label className="block text-gray-700 font-medium">
+            <label className="block text-gray-700 font-medium" htmlFor="licenseFront">
               License Front Image
             </label>
             <input
+              id="licenseFront"
               type="file"
               accept="image/*"
               onChange={(e) => handleFileChange(e, "front")}
@@ -252,10 +270,11 @@ const AddDriver = () => {
 
           {/* License Back */}
           <div>
-            <label className="block text-gray-700 font-medium">
+            <label className="block text-gray-700 font-medium" htmlFor="licenseBack">
               License Back Image
             </label>
             <input
+              id="licenseBack"
               type="file"
               accept="image/*"
               onChange={(e) => handleFileChange(e, "back")}
@@ -268,11 +287,12 @@ const AddDriver = () => {
           </div>
           {/* Assigned Zone */}
           <div>
-            <label className="block text-gray-700 font-medium">
+            <label className="block text-gray-700 font-medium" htmlFor="assignedZone">
               Assigned Zone
             </label>
 
             <select
+              id="assignedZone"
               name="assignedZone"
               value={formData.assignedZone}
               onBlur={handleBlur}
@@ -293,8 +313,9 @@ const AddDriver = () => {
 
           {/* Status */}
           <div>
-            <label className="block text-gray-700 font-medium">Status</label>
+            <label className="block text-gray-700 font-medium" htmlFor="status">Status</label>
             <select
+              id="status"
               name="status"
               value={formData.status}
               onChange={handleChange}
@@ -312,8 +333,9 @@ const AddDriver = () => {
 
           {/* Category */}
           <div>
-            <label className="block text-gray-700 font-medium">Category</label>
+            <label className="block text-gray-700 font-medium" htmlFor="category">Category</label>
             <select
+              id="category"
               name="category"
               value={formData.category}
               onChange={handleChange}

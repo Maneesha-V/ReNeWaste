@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from "react";
+import React, { useCallback, useEffect, useMemo } from "react";
 import {
   Table,
   Button,
@@ -31,14 +31,21 @@ const Users: React.FC = () => {
 
   const { currentPage, setCurrentPage, pageSize, search, setSearch } =
     usePagination();
-
-  const debouncedFetchUsers = useCallback(
+  console.log("users",users);
+  
+  // const debouncedFetchUsers = useCallback(
+  //   debounce((page: number, limit: number, query: string) => {
+  //     dispatch(fetchUsers({ page, limit, search: query }));
+  //   }, 500),
+  //   [dispatch]
+  // );
+const debouncedFetchUsers = useMemo(
+  () =>
     debounce((page: number, limit: number, query: string) => {
       dispatch(fetchUsers({ page, limit, search: query }));
     }, 500),
     [dispatch]
   );
-
   useEffect(() => {
     debouncedFetchUsers(currentPage, pageSize, search);
 

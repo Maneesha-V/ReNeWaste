@@ -82,7 +82,8 @@ const AddWastePlant = () => {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
-
+      console.log("file",file);
+      
       if (file.type !== "application/pdf") {
         toast.error("Only PDF files are allowed");
         return;
@@ -132,6 +133,7 @@ const AddWastePlant = () => {
     });
 
     try {
+     
       const result = await dispatch(addWastePlant(formDataToSend)).unwrap();
       console.log("result",result);
       
@@ -164,11 +166,12 @@ const AddWastePlant = () => {
         >
           {/* Plant Name */}
           <div>
-            <label className="block text-gray-700 font-medium">
+            <label className="block text-gray-700 font-medium" htmlFor="plantName">
               Plant Name
             </label>
             <input
               type="text"
+              id="plantName"
               name="plantName"
               value={formData.plantName}
               onChange={handleChange}
@@ -182,10 +185,11 @@ const AddWastePlant = () => {
 
           {/* Owner Name */}
           <div>
-            <label className="block text-gray-700 font-medium">
+            <label className="block text-gray-700 font-medium" htmlFor="ownerName">
               Owner Name
             </label>
             <input
+              id="ownerName"
               type="text"
               name="ownerName"
               value={formData.ownerName}
@@ -200,8 +204,9 @@ const AddWastePlant = () => {
 
           {/* Pincode */}
           <div>
-            <label className="block text-gray-700 font-medium">Pincode</label>
+            <label className="block text-gray-700 font-medium" htmlFor="pincode">Pincode</label>
             <input
+              id="pincode"
               type="text"
               name="pincode"
               value={formData.pincode}
@@ -216,9 +221,10 @@ const AddWastePlant = () => {
 
           {/* Location */}
           <div>
-            <label className="block text-gray-700 font-medium">Location</label>
+            <label className="block text-gray-700 font-medium" htmlFor="location">Location</label>
             {postOffices.length > 0 ? (
               <select
+                id="location"
                 name="location"
                 value={formData.location}
                 onChange={(e) => {
@@ -243,6 +249,7 @@ const AddWastePlant = () => {
             ) : (
               <input
                 type="text"
+                id="location"
                 name="location"
                 value={formData.location}
                 onChange={handleChange}
@@ -257,8 +264,9 @@ const AddWastePlant = () => {
 
           {/* Taluk */}
           <div>
-            <label className="block text-gray-700 font-medium">Taluk</label>
+            <label className="block text-gray-700 font-medium" htmlFor="taluk">Taluk</label>
             <select
+              id="taluk"
               name="taluk"
               value={formData.taluk}
               onChange={handleChange}
@@ -281,8 +289,9 @@ const AddWastePlant = () => {
 
           {/* District */}
           <div>
-            <label className="block text-gray-700 font-medium">District</label>
+            <label className="block text-gray-700 font-medium" htmlFor="district">District</label>
             <input
+              id="district"
               type="text"
               name="district"
               value="Malappuram"
@@ -293,8 +302,9 @@ const AddWastePlant = () => {
 
           {/* State */}
           <div>
-            <label className="block text-gray-700 font-medium">State</label>
+            <label className="block text-gray-700 font-medium" htmlFor="state">State</label>
             <input
+              id="state"
               type="text"
               name="state"
               value="Kerala"
@@ -304,10 +314,11 @@ const AddWastePlant = () => {
           </div>
           {/*Contact No */}
           <div>
-            <label className="block text-gray-700 font-medium">
+            <label className="block text-gray-700 font-medium" htmlFor="contactNo">
               Contact No
             </label>
             <input
+              id="contactNo"
               type="tel"
               name="contactNo"
               value={formData.contactNo}
@@ -322,10 +333,11 @@ const AddWastePlant = () => {
 
           {/* Contact Info */}
           <div>
-            <label className="block text-gray-700 font-medium">
+            <label className="block text-gray-700 font-medium" htmlFor="contactInfo">
               Contact Person Name
             </label>
             <input
+              id="contactInfo"
               type="text"
               name="contactInfo"
               value={formData.contactInfo}
@@ -340,8 +352,9 @@ const AddWastePlant = () => {
 
           {/* Email */}
           <div>
-            <label className="block text-gray-700 font-medium">Email</label>
+            <label className="block text-gray-700 font-medium" htmlFor="email">Email</label>
             <input
+              id="email"
               type="email"
               name="email"
               value={formData.email}
@@ -356,10 +369,11 @@ const AddWastePlant = () => {
 
           {/* License Number */}
           <div>
-            <label className="block text-gray-700 font-medium">
+            <label className="block text-gray-700 font-medium" htmlFor="licenseNumber">
               License Number
             </label>
             <input
+              id="licenseNumber"
               type="text"
               name="licenseNumber"
               value={formData.licenseNumber}
@@ -374,10 +388,11 @@ const AddWastePlant = () => {
 
           {/* License Document Upload */}
           <div>
-            <label className="block text-gray-700 font-medium">
+            <label className="block text-gray-700 font-medium" htmlFor="licenseDocument">
               Upload License Document
             </label>
             <input
+              id="licenseDocument"
               type="file"
               accept=".pdf"
               name="licenseDocument"
@@ -391,9 +406,9 @@ const AddWastePlant = () => {
           </div>
           {/* Services  */}
           <div className="md:col-span-2">
-            <label className="block text-gray-700 font-medium mb-1">
-              Services Provided
-            </label>
+             <span className="block text-gray-700 font-medium mb-1">
+    Services Provided
+  </span>
             <div className="flex flex-wrap gap-4">
               {[
                 "Building Waste",
@@ -423,10 +438,11 @@ const AddWastePlant = () => {
 
           {/* Capacity */}
           <div>
-            <label className="block text-gray-700 font-medium">
+            <label className="block text-gray-700 font-medium" htmlFor="capacity">
               Capacity (Kg/Day)
             </label>
             <input
+              id="capacity"
               type="number"
               name="capacity"
               value={formData.capacity}
@@ -441,8 +457,9 @@ const AddWastePlant = () => {
 
           {/* Status */}
           <div>
-            <label className="block text-gray-700 font-medium">Status</label>
+            <label className="block text-gray-700 font-medium" htmlFor="status">Status</label>
             <select
+              id="status"
               name="status"
               value={formData.status}
               onChange={handleChange}
@@ -458,10 +475,11 @@ const AddWastePlant = () => {
           </div>
           {/* Subscription Plan */}
           <div>
-            <label className="block text-gray-700 font-medium">
+            <label className="block text-gray-700 font-medium" htmlFor="subscriptionPlan">
               Subscription Plan
             </label>
             <select
+              id="subscriptionPlan"
               name="subscriptionPlan"
               value={formData.subscriptionPlan}
               onChange={handleChange}
@@ -482,8 +500,9 @@ const AddWastePlant = () => {
 
           {/* Password */}
           <div>
-            <label className="block text-gray-700 font-medium">Password</label>
+            <label className="block text-gray-700 font-medium" htmlFor="password">Password</label>
             <input
+              id="password"
               type="password"
               name="password"
               value={formData.password}

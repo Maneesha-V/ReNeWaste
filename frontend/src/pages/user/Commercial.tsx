@@ -176,21 +176,12 @@ const Commercial = () => {
                 <div key={`empty-${idx}`}></div>
               ))}
 
-            {/* {Array.from({ length: daysInMonth }, (_, i) => (
-            <div
-              key={i}
-              className="p-2 cursor-pointer rounded hover:bg-green-100 bg-green-50"
-              onClick={() => handleDateClick(i + 1)}
-            >
-              {i + 1}
-            </div>
-          ))} */}
             {Array.from({ length: daysInMonth }, (_, i) => {
               const date = currentMonth.date(i + 1);
               const isPastDate = date.isBefore(dayjs().startOf("day"));
 
               return (
-                <div
+                <button
                   key={i}
                   className={`p-2 rounded text-sm ${
                     isPastDate
@@ -202,7 +193,7 @@ const Commercial = () => {
                   }}
                 >
                   {i + 1}
-                </div>
+                </button>
               );
             })}
           </div>

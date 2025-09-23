@@ -35,7 +35,7 @@ const DropSpotMap: React.FC = () => {
     };
 
     fetchDropSpots();
-  }, []);
+  }, [dispatch]);
   console.log("dropSpots", dropSpots);
 
   return (

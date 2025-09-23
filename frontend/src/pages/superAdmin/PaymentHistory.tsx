@@ -1,5 +1,5 @@
 import { Table, Tag, Typography, Alert, Breakpoint, Pagination } from "antd";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useAppDispatch } from "../../redux/hooks";
 import { useSelector } from "react-redux";
 import { RootState } from "../../redux/store";
@@ -31,18 +31,25 @@ const PaymentHistory = () => {
   );
   const { currentPage, setCurrentPage, pageSize, search, setSearch } =
     usePagination();
-  const debouncedFetchPayments = useCallback(
-    debounce((page: number, limit: number, query: string) => {
+  // const debouncedFetchPayments = useCallback(
+  //   debounce((page: number, limit: number, query: string) => {
+  //     dispatch(fetchPaymentHistory({ page, limit, search: query }));
+  //   }, 500),
+  //   [dispatch]
+  // );
+  const debouncedFetchPayments = useMemo( 
+    () => 
+       debounce((page: number, limit: number, query: string) => {
       dispatch(fetchPaymentHistory({ page, limit, search: query }));
     }, 500),
-    [dispatch]
-  );
+    []
+  )
   useEffect(() => {
     debouncedFetchPayments(currentPage, pageSize, search);
     return () => {
       debouncedFetchPayments.cancel();
     };
-  }, [currentPage, pageSize, search, debouncedFetchPayments]);
+  }, [currentPage, pageSize, search]);
   const handleView = (record: SubscriptionPaymentHisDTO) => {
     setSelectedRecord(record);
     setRefundModalVisible(true);

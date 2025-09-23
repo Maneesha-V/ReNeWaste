@@ -18,27 +18,29 @@ import {
   reqTruckByDriver,
 } from "../../redux/slices/driver/truckDriverSlice";
 import { fetchDriverProfile } from "../../redux/slices/driver/profileDriverSlice";
+import { getAxiosErrorMessage } from "../../utils/handleAxiosError";
+import { TruckAvailbleDTO } from "../../types/truck/truckTypes";
 
 const { Title, Text } = Typography;
 
 const AssignedTrucks: React.FC = () => {
   const dispatch = useAppDispatch();
   const { driver } = useSelector((state: RootState) => state.driverProfile);
-  const { trucks } = useSelector((state: RootState) => state.driverTrucks);
+  const { availableTrucks } = useSelector((state: RootState) => state.driverTrucks);
   const hasRequested = useSelector(
     (state: RootState) => state.driverTrucks.hasRequestedTruck
   );
   console.log("driver", driver);
-  console.log("trucks", trucks);
+  console.log("trucks", availableTrucks);
 
   useEffect(() => {
     if (!driver) {
       dispatch(fetchDriverProfile());
     }
-  }, [dispatch]);
+  }, [driver, dispatch]);
 
   useEffect(() => {
-    if (driver && driver._id) {
+    if (driver && driver.wasteplantId) {
       dispatch(fetchDriverTrucks(driver.wasteplantId));
     }
   }, [dispatch, driver]);
@@ -46,22 +48,22 @@ const AssignedTrucks: React.FC = () => {
   const handleRequestTruck = () => {
     dispatch(reqTruckByDriver())
       .unwrap()
-      .then(() => {
-        toast.success("Truck request sent!");
+      .then((res) => {
+        toast.success(res?.message);
       })
       .catch((err) => {
-        toast.error(err.message || "Failed to send request");
+        toast.error(getAxiosErrorMessage(err));
       });
   };
   const handleMarkReturned = (truckId: string, plantId: string) => {
     dispatch(markTruckReturned({ truckId, plantId }))
       .unwrap()
-      .then(() => {
-        toast.success("Truck marked as returned!");
+      .then((res) => {
+        toast.success(res?.message);
         // dispatch(fetchDriverTrucks(driver.wasteplantId));
       })
-      .catch((err: any) => {
-        toast.error(err || "Failed to mark as returned");
+      .catch((err) => {
+        toast.error(getAxiosErrorMessage(err));
       });
   };
 
@@ -79,7 +81,7 @@ const AssignedTrucks: React.FC = () => {
     {
       title: "Address",
       key: "address",
-      render: (_: any, record: any) => {
+      render: (record: TruckAvailbleDTO) => {
         const wp = record.wasteplantId;
         return wp
           ? `${wp.plantName}, ${wp.location}, ${wp.taluk}, ${wp.district}, ${wp.state} - ${wp.pincode}`
@@ -89,7 +91,7 @@ const AssignedTrucks: React.FC = () => {
     {
       title: "Status",
       key: "status",
-      render: (_: any, record: any) => {
+      render: (record: TruckAvailbleDTO) => {
         if (record.status === "Maintenance") {
           return (
             <Button
@@ -107,7 +109,7 @@ const AssignedTrucks: React.FC = () => {
     {
       title: "Actions",
       key: "actions",
-      render: (_: any, record: any) => {
+      render: (record: TruckAvailbleDTO) => {
         const isReturned = record?.isReturned;
         return (
           <Popconfirm
@@ -137,10 +139,10 @@ const AssignedTrucks: React.FC = () => {
       </Title>
 
       <Card bodyStyle={{ padding: "16px" }} bordered={false}>
-        {trucks && trucks.length > 0 ? (
+        {availableTrucks && availableTrucks.length > 0 ? (
           <Table
             columns={columns}
-            dataSource={trucks.map((truck: any, index: number) => ({
+            dataSource={availableTrucks.map((truck: TruckAvailbleDTO, index: number) => ({
               ...truck,
               key: index.toString(),
             }))}

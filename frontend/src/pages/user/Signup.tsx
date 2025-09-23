@@ -1,5 +1,5 @@
 import { useSelector } from "react-redux";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { toast } from "react-toastify";
 import GoogleSignUpButton from "../../components/user/GoogleSignUpButton";
 import { sendOtpSignup } from "../../redux/slices/user/userSlice";
@@ -143,12 +143,12 @@ const Signup = ({
               autoComplete="new-password"
               className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 pr-10"
             />
-            <span
+            <button
               onClick={() => setShowPassword(!showPassword)}
               className="absolute right-3 top-1/2 transform -translate-y-1/2 cursor-pointer text-gray-600"
             >
               {showPassword ? "🙈" : "👁️"}
-            </span>
+            </button>
             {errors.password && (
               <p className="text-red-500 text-sm">{errors.password}</p>
             )}
@@ -164,12 +164,12 @@ const Signup = ({
               autoComplete="new-password"
               className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 pr-10"
             />
-            <span
+            <button
               onClick={() => setShowConfirmPassword(!showConfirmPassword)}
               className="absolute right-3 top-1/2 transform -translate-y-1/2 cursor-pointer text-gray-600"
             >
               {showConfirmPassword ? "🙈" : "👁️"}
-            </span>
+            </button>
             {errors.confirmPassword && (
               <p className="text-red-500 text-sm">{errors.confirmPassword}</p>
             )}

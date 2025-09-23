@@ -2,10 +2,6 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useAppDispatch } from "../../redux/hooks";
 import { toast } from "react-toastify";
-import {
-  PartialDriverFormData,
-  ValidationErrors,
-} from "../../types/driverTypes";
 import { useWastePlantValidation } from "../../hooks/useWastePlantValidation";
 import {
   fetchDriverById,
@@ -18,6 +14,8 @@ import {
   getPanchayatsByTaluk,
 } from "../../utils/locationUtils";
 import { getAxiosErrorMessage } from "../../utils/handleAxiosError";
+import { PartialDriverFormData } from "../../types/driver/driverTypes";
+import { ValidationErrors } from "../../types/common/commonTypes";
 
 const EditDriver = () => {
   const { driverId } = useParams();
@@ -154,8 +152,9 @@ const EditDriver = () => {
         >
           {/* Name */}
           <div>
-            <label className="block text-gray-700 font-medium">Name</label>
+            <label className="block text-gray-700 font-medium" htmlFor="name">Name</label>
             <input
+              id="name"
               type="text"
               name="name"
               value={formData.name}
@@ -170,10 +169,11 @@ const EditDriver = () => {
 
           {/* License Number */}
           <div>
-            <label className="block text-gray-700 font-medium">
+            <label className="block text-gray-700 font-medium" htmlFor="licenseNumber">
               License Number
             </label>
             <input
+              id="licenseNumber"
               type="text"
               name="licenseNumber"
               value={formData.licenseNumber}
@@ -184,8 +184,9 @@ const EditDriver = () => {
 
           {/* Contact */}
           <div>
-            <label className="block text-gray-700 font-medium">Contact</label>
+            <label className="block text-gray-700 font-medium" htmlFor="contact">Contact</label>
             <input
+              id="contact"
               type="text"
               name="contact"
               value={formData.contact}
@@ -200,8 +201,9 @@ const EditDriver = () => {
 
           {/* Email */}
           <div>
-            <label className="block text-gray-700 font-medium">Email</label>
+            <label className="block text-gray-700 font-medium" htmlFor="email">Email</label>
             <input
+              id="email"
               type="email"
               name="email"
               value={formData.email}
@@ -216,10 +218,11 @@ const EditDriver = () => {
 
           {/* Experience */}
           <div>
-            <label className="block text-gray-700 font-medium">
+            <label className="block text-gray-700 font-medium" htmlFor="experience">
               Experience (years)
             </label>
             <input
+              id="experience"
               type="number"
               name="experience"
               value={formData.experience}
@@ -233,8 +236,9 @@ const EditDriver = () => {
           </div>
           {/* Status */}
           <div>
-            <label className="block text-gray-700 font-medium">Status</label>
+            <label className="block text-gray-700 font-medium" htmlFor="status">Status</label>
             <select
+              id="status"
               name="status"
               value={formData.status}
               onChange={handleChange}
@@ -248,10 +252,11 @@ const EditDriver = () => {
           </div>
           {/* License Front */}
           <div>
-            <label className="block text-gray-700 font-medium">
+            <label className="block text-gray-700 font-medium" htmlFor="licenseFront">
               License Front Image
             </label>
             <input
+              id="licenseFront"
               type="file"
               accept="image/*"
               onChange={(e) => handleFileChange(e, "front")}
@@ -265,10 +270,11 @@ const EditDriver = () => {
 
           {/* License Back */}
           <div>
-            <label className="block text-gray-700 font-medium">
+            <label className="block text-gray-700 font-medium" htmlFor="licenseBack">
               License Back Image
             </label>
             <input
+              id="licenseBack"
               type="file"
               accept="image/*"
               onChange={(e) => handleFileChange(e, "back")}
@@ -281,10 +287,11 @@ const EditDriver = () => {
           </div>
           {/* Assigned Zone */}
           <div>
-            <label className="block text-gray-700 font-medium">
+            <label className="block text-gray-700 font-medium" htmlFor="assignedZone">
               Assigned Zone
             </label>
             <select
+              id="assignedZone"
               name="assignedZone"
               value={formData.assignedZone || ""}
               onBlur={handleBlur}
@@ -304,8 +311,9 @@ const EditDriver = () => {
           </div>
           {/* Category */}
           <div>
-            <label className="block text-gray-700 font-medium">Category</label>
+            <label className="block text-gray-700 font-medium" htmlFor="category">Category</label>
             <select
+              id="category"
               name="category"
               value={formData.category}
               onChange={handleChange}

@@ -4,13 +4,12 @@ import { RootState } from "../../redux/store";
 import { useNavigate } from "react-router-dom";
 import Breadcrumbs from "../../components/common/Breadcrumbs";
 import { useAppDispatch } from "../../redux/hooks";
-import {
-  PartialDriverFormData,
-  ValidationErrors,
-} from "../../types/driverTypes";
 import { toast } from "react-toastify";
 import { useWastePlantValidation } from "../../hooks/useWastePlantValidation";
 import { updateDriverProfile } from "../../redux/slices/driver/profileDriverSlice";
+import { getAxiosErrorMessage } from "../../utils/handleAxiosError";
+import { DriverDTO } from "../../types/driver/driverTypes";
+import { ValidationErrors } from "../../types/common/commonTypes";
 
 const EditProfileDriver: React.FC = () => {
   const dispatch = useAppDispatch();
@@ -18,7 +17,7 @@ const EditProfileDriver: React.FC = () => {
   const { errors, validateField, setErrors } = useWastePlantValidation();
 
   const { driver } = useSelector((state: RootState) => state.driverProfile);
-  const [formData, setFormData] = useState<PartialDriverFormData>({});
+  const [formData, setFormData] = useState<Partial<DriverDTO>>({});
   useEffect(() => {
     if (driver) {
       setFormData({
@@ -67,15 +66,12 @@ const EditProfileDriver: React.FC = () => {
     try {
       const result = await dispatch(
         updateDriverProfile({ data: formDataToSend })
-      );
-      if (result.payload?.error) {
-        toast.error(result.payload.error);
-        return;
-      }
-      toast.success("Profile updated successfully!");
+      ).unwrap();
+
+      toast.success(result?.message);
       setTimeout(() => navigate("/driver/profile"), 2000);
-    } catch {
-      toast.error("Update failed. Please try again.");
+    } catch(error) {
+      toast.error(getAxiosErrorMessage(error));
     }
   };
 
@@ -95,8 +91,9 @@ const EditProfileDriver: React.FC = () => {
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
-            <label className="block font-medium mb-1">Name</label>
+            <label className="block font-medium mb-1" htmlFor="name">Name</label>
             <input
+              id="name"
               type="text"
               name="name"
               value={formData.name}
@@ -110,8 +107,9 @@ const EditProfileDriver: React.FC = () => {
           </div>
 
           <div>
-            <label className="block font-medium mb-1">Email</label>
+            <label className="block font-medium mb-1" htmlFor="email">Email</label>
             <input
+              id="email"
               type="email"
               name="email"
               value={formData.email}
@@ -121,8 +119,9 @@ const EditProfileDriver: React.FC = () => {
           </div>
 
           <div>
-            <label className="block font-medium mb-1">License Number</label>
+            <label className="block font-medium mb-1" htmlFor="licenseNumber">License Number</label>
             <input
+              id="licenseNumber"
               type="text"
               name="licenseNumber"
               value={formData.licenseNumber}
@@ -131,8 +130,9 @@ const EditProfileDriver: React.FC = () => {
             />
           </div>
           <div>
-            <label className="block font-medium mb-1">Experience</label>
+            <label className="block font-medium mb-1" htmlFor="experience">Experience</label>
             <input
+              id="experience"
               type="text"
               name="experience"
               value={formData.experience}
@@ -145,8 +145,9 @@ const EditProfileDriver: React.FC = () => {
             )}
           </div>
           <div>
-            <label className="block font-medium mb-1">Phone</label>
+            <label className="block font-medium mb-1" htmlFor="contact">Phone</label>
             <input
+              id="contact"
               type="text"
               name="contact"
               value={formData.contact}

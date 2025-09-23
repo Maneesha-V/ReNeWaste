@@ -197,10 +197,11 @@ const PickupResidentialFormModal: React.FC<PickupResidentialFormModalProps> = ({
           >
             {/* Full Name */}
             <div>
-              <label className="block text-sm font-medium mb-1">
+              <label htmlFor="fullName" className="block text-sm font-medium mb-1">
                 Full Name
               </label>
               <input
+                id="fullName"
                 type="text"
                 value={fullName}
                 readOnly
@@ -210,11 +211,12 @@ const PickupResidentialFormModal: React.FC<PickupResidentialFormModalProps> = ({
 
             {/* Contact Number */}
             <div>
-              <label className="block text-sm font-medium mb-1">
+              <label htmlFor="phone" className="block text-sm font-medium mb-1">
                 Contact Number
               </label>
               <input
                 type="text"
+                id="phone"
                 name="phone"
                 value={formData.phone}
                 className="w-full p-2 border rounded"
@@ -229,13 +231,14 @@ const PickupResidentialFormModal: React.FC<PickupResidentialFormModalProps> = ({
             {/* Address */}
 
             <div className="col-span-2">
-              <label className="block text-sm font-medium mb-1">
+              <label className="block text-sm font-medium mb-1" htmlFor="addressSelect">
                 Select Address
               </label>
 
               {user.addresses?.length > 0 ? (
                 // Show address dropdown if user has addresses
                 <select
+                  id="addressSelect"
                   className="w-full p-2 border rounded"
                   value={selectedAddressIndex}
                   onChange={(e) =>
@@ -274,10 +277,11 @@ const PickupResidentialFormModal: React.FC<PickupResidentialFormModalProps> = ({
               <>
                 <div className="col-span-2 grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium mb-1">
+                    <label className="block text-sm font-medium mb-1" htmlFor="addressLine1">
                       Address Line 1
                     </label>
                     <input
+                      id="addressLine1"
                       name="addressLine1"
                       value={newAddress.addressLine1}
                       onChange={handleNewAddressChange}
@@ -290,10 +294,11 @@ const PickupResidentialFormModal: React.FC<PickupResidentialFormModalProps> = ({
                     )}
                   </div>
                   <div>
-                    <label className="block text-sm font-medium mb-1">
+                    <label className="block text-sm font-medium mb-1" htmlFor="addressLine2">
                       Address Line 2
                     </label>
                     <input
+                      id="addressLine2"
                       name="addressLine2"
                       value={newAddress.addressLine2}
                       onChange={handleNewAddressChange}
@@ -306,10 +311,11 @@ const PickupResidentialFormModal: React.FC<PickupResidentialFormModalProps> = ({
                     )}
                   </div>
                   <div>
-                    <label className="block text-sm font-medium mb-1">
+                    <label className="block text-sm font-medium mb-1" htmlFor="district">
                       District
                     </label>
                     <input
+                      id="district"
                       name="district"
                       value={newAddress.district}
                       onChange={handleNewAddressChange}
@@ -320,10 +326,11 @@ const PickupResidentialFormModal: React.FC<PickupResidentialFormModalProps> = ({
                     )}
                   </div>
                   <div>
-                    <label className="block text-sm font-medium mb-1">
+                    <label className="block text-sm font-medium mb-1" htmlFor="location">
                       Location
                     </label>
                     <input
+                      id="location"
                       name="location"
                       value={newAddress.location}
                       onChange={handleNewAddressChange}
@@ -334,10 +341,11 @@ const PickupResidentialFormModal: React.FC<PickupResidentialFormModalProps> = ({
                     )}
                   </div>
                   <div>
-                    <label className="block text-sm font-medium mb-1">
+                    <label className="block text-sm font-medium mb-1" htmlFor="pincode">
                       Pincode
                     </label>
                     <input
+                      id="pincode"
                       name="pincode"
                       value={newAddress.pincode}
                       onChange={handleNewAddressChange}
@@ -348,10 +356,11 @@ const PickupResidentialFormModal: React.FC<PickupResidentialFormModalProps> = ({
                     )}
                   </div>
                   <div>
-                    <label className="block text-sm font-medium mb-1">
+                    <label className="block text-sm font-medium mb-1" htmlFor="state">
                       State
                     </label>
                     <input
+                      id="state"
                       name="state"
                       value={newAddress.state}
                       onChange={handleNewAddressChange}
@@ -367,10 +376,11 @@ const PickupResidentialFormModal: React.FC<PickupResidentialFormModalProps> = ({
 
             {/* Waste Type */}
             <div>
-              <label className="block text-sm font-medium mb-1">
+              <label className="block text-sm font-medium mb-1" htmlFor="wasteType">
                 Waste Type
               </label>
               <input
+                id="wasteType"
                 type="text"
                 value="Residential"
                 readOnly
@@ -380,10 +390,11 @@ const PickupResidentialFormModal: React.FC<PickupResidentialFormModalProps> = ({
 
             {/* Pickup Time */}
             <div>
-              <label className="block text-sm font-medium mb-1">
+              <label className="block text-sm font-medium mb-1" htmlFor="pickupTime">
                 Preferred Pickup Time
               </label>
               <input
+                id="pickupTime"
                 type="time"
                 name="pickupTime"
                 value={formData.pickupTime}

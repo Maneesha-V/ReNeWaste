@@ -3,10 +3,10 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import GoogleLoginButton from "../../components/user/GoogleLoginButton";
-import { LoginRequest } from "../../types/authTypes";
 import { login } from "../../redux/slices/user/userSlice";
 import { useAppDispatch } from "../../redux/hooks";
 import { getAxiosErrorMessage } from "../../utils/handleAxiosError";
+import { LoginRequest } from "../../types/common/commonTypes";
 
 const Login = () => {
   const dispatch = useAppDispatch();

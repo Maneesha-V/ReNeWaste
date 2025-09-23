@@ -3,9 +3,10 @@ import { useAppDispatch } from "../../redux/hooks";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useWastePlantValidation } from "../../hooks/useWastePlantValidation";
-import { TruckFormData, ValidationErrors } from "../../types/truckTypes";
 import { addTruck } from "../../redux/slices/wastePlant/wastePlantTruckSlice";
 import { getAxiosErrorMessage } from "../../utils/handleAxiosError";
+import { TruckFormData } from "../../types/truck/truckTypes";
+import { ValidationErrors } from "../../types/common/commonTypes";
 
 const AddTruck = () => {
   const navigate = useNavigate();
@@ -76,8 +77,9 @@ const AddTruck = () => {
         >
           {/* Name */}
           <div>
-            <label className="block text-gray-700 font-medium">Name</label>
+            <label className="block text-gray-700 font-medium" htmlFor="name">Name</label>
             <input
+              id="name"
               type="text"
               name="name"
               value={formData.name}
@@ -92,10 +94,11 @@ const AddTruck = () => {
 
           {/* Vehicle Number */}
           <div>
-            <label className="block text-gray-700 font-medium">
+            <label className="block text-gray-700 font-medium" htmlFor="vehicleNumber">
               Vehicle Number
             </label>
             <input
+              id="vehicleNumber"
               type="text"
               name="vehicleNumber"
               value={formData.vehicleNumber}
@@ -109,8 +112,9 @@ const AddTruck = () => {
           </div>
           {/* Capacity */}
           <div>
-            <label className="block text-gray-700 font-medium">Capacity (Kg)</label>
+            <label className="block text-gray-700 font-medium" htmlFor="capacity">Capacity (Kg)</label>
             <input
+              id="capacity"
               type="number"
               name="capacity"
               value={formData.capacity}
@@ -124,8 +128,9 @@ const AddTruck = () => {
           </div>
              {/* Tare Weight */}
           <div>
-            <label className="block text-gray-700 font-medium">Tare Weight (Kg)</label>
+            <label className="block text-gray-700 font-medium" htmlFor="tareWeight">Tare Weight (Kg)</label>
             <input
+              id="tareWeight"
               type="number"
               name="tareWeight"
               value={formData.tareWeight}
@@ -139,8 +144,9 @@ const AddTruck = () => {
           </div>
           {/* Status */}
           <div>
-            <label className="block text-gray-700 font-medium">Status</label>
+            <label className="block text-gray-700 font-medium" htmlFor="status">Status</label>
             <select
+              id="status"
               name="status"
               value={formData.status}
               onChange={handleChange}

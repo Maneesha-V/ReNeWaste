@@ -1,4 +1,4 @@
-import { NavLink, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import {
   DashboardOutlined,
   CarOutlined,
@@ -10,9 +10,9 @@ import {
   AimOutlined,
   UserOutlined,
 } from "@ant-design/icons";
-import { SidebarWastePlantProps } from "../../types/wastePlantTypes";
 import { toast } from "react-toastify";
 import { FaUserCircle } from "react-icons/fa";
+import { SidebarWastePlantProps } from "../../types/common/modalTypes";
 
 const SidebarWastePlant = ({
   collapsed,

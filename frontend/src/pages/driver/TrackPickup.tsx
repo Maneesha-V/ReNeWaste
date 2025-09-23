@@ -43,7 +43,7 @@ const TrackPickup = () => {
   }, [dispatch, pickupReqId]);
 
   useEffect(() => {
-    if (pickup?.selectedAddress && pickup._id) {
+    if (pickup?.userAddress && pickup._id) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
           const { latitude, longitude, accuracy } = position.coords;
@@ -59,16 +59,16 @@ const TrackPickup = () => {
           });
           setInitialDriverLocation([finalLat, finalLng]);
           const origin = `${finalLat},${finalLng}`;
-
+          
           // const { latitude, longitude } = position.coords;
           // const origin = `${latitude},${longitude}`;
-          const destination = `${pickup.selectedAddress.addressLine1}, ${pickup.selectedAddress.addressLine2}, ${pickup.selectedAddress.location}, ${pickup.selectedAddress.taluk}, ${pickup.selectedAddress.district}, ${pickup.selectedAddress.state}, ${pickup.selectedAddress.pincode}`;
+          const destination = `${pickup.userAddress.addressLine1}, ${pickup.userAddress.addressLine2}, ${pickup.userAddress.location}, ${pickup.userAddress.taluk}, ${pickup.userAddress.district}, ${pickup.userAddress.state}, ${pickup.userAddress.pincode}`;
           dispatch(
             fetchEta({
               origin,
               destination,
               pickupReqId: pickup._id,
-              addressId: pickup.selectedAddress._id,
+              addressId: pickup.addressId,
             })
           );
    
@@ -87,7 +87,7 @@ const TrackPickup = () => {
   }, [pickup, dispatch]);
   console.log("pickup", pickup);
 
-
+  console.log("initialDriverLocation", initialDriverLocation);
   const handleStartJourney = () => {
   if (!pickup?._id || !socket) return;
 
@@ -100,8 +100,9 @@ const TrackPickup = () => {
     [10.888702, 76.041615],
     [10.889702, 76.042615],
     [10.890702, 76.043615], 
-    [pickup.selectedAddress.latitude, pickup.selectedAddress.longitude], 
+    [pickup.userAddress.latitude, pickup.userAddress.longitude], 
   ];
+
 
   let index = 0;
 
@@ -120,8 +121,8 @@ const TrackPickup = () => {
       longitude: lng,
     });
 
-    const pickupLat = pickup.selectedAddress.latitude;
-    const pickupLng = pickup.selectedAddress.longitude;
+    const pickupLat = pickup.userAddress.latitude;
+    const pickupLng = pickup.userAddress.longitude;
     console.log({lat, lng, pickupLat, pickupLng});
     
     const distance = getDistanceFromLatLonInKm(lat, lng, pickupLat, pickupLng);
@@ -169,8 +170,8 @@ if (newStatus === "Completed") {
   if (
     loading ||
     !pickup ||
-    !pickup.selectedAddress?.latitude ||
-    !pickup.selectedAddress?.longitude
+    !pickup.userAddress?.latitude ||
+    !pickup.userAddress?.longitude
   ) {
     return (
       <div className="flex justify-center items-center min-h-[200px]">
@@ -180,8 +181,8 @@ if (newStatus === "Completed") {
   }
 
   const position: [number, number] = [
-    pickup.selectedAddress.latitude,
-    pickup.selectedAddress.longitude,
+    pickup.userAddress.latitude,
+    pickup.userAddress.longitude,
   ];
 
   const pickupIcon = new L.Icon({
@@ -211,11 +212,11 @@ if (newStatus === "Completed") {
               <strong>Pickup ID:</strong> {pickup.pickupId}
             </p>
             <p>
-              <strong>User Name:</strong> {pickup.userFullName}
+              <strong>User Name:</strong> {pickup.userName}
             </p>
             <p>
               <strong>Pickup Date:</strong>{" "}
-              {pickup.originalPickupDate?.slice(0, 10)}
+              {/* {pickup.originalPickupDate?.slice(0, 10)} */}
             </p>
             <p>
               <strong>Time:</strong> {pickup.pickupTime}
@@ -244,14 +245,14 @@ if (newStatus === "Completed") {
             <p>
               <strong>Address:</strong>
             </p>
-            <p>{pickup.selectedAddress.addressLine1}</p>
-            <p>{pickup.selectedAddress.addressLine2}</p>
+            <p>{pickup.userAddress.addressLine1}</p>
+            <p>{pickup.userAddress.addressLine2}</p>
             <p>
-              {pickup.selectedAddress.location}, {pickup.selectedAddress.taluk}
+              {pickup.userAddress.location}, {pickup.userAddress.taluk}
             </p>
             <p>
-              {pickup.selectedAddress.district}, {pickup.selectedAddress.state}{" "}
-              - {pickup.selectedAddress.pincode}
+              {pickup.userAddress.district}, {pickup.userAddress.state}{" "}
+              - {pickup.userAddress.pincode}
             </p>
           </div>
         </div>
@@ -269,11 +270,11 @@ if (newStatus === "Completed") {
           />
 
           {/* Pickup Location Marker */}
-          {pickup.selectedAddress.latitude &&
-            pickup.selectedAddress.longitude && (
+          {pickup.userAddress.latitude &&
+            pickup.userAddress.longitude && (
               <Marker position={position} icon={pickupIcon}>
                 <Popup>
-                  Pickup Location <br /> {pickup.userFullName}
+                  Pickup Location <br /> {pickup.userName}
                 </Popup>
               </Marker>
             )}

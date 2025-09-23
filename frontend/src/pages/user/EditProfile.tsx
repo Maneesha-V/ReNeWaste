@@ -12,8 +12,6 @@ import {
 import { useAppDispatch } from "../../redux/hooks";
 import { UserProfileReq } from "../../types/user/userTypes";
 import { getAxiosErrorMessage } from "../../utils/handleAxiosError";
-import { RootState } from "../../redux/store";
-import { useSelector } from "react-redux";
 
 const EditProfilePage = () => {
   const navigate = useNavigate();
@@ -32,8 +30,8 @@ const EditProfilePage = () => {
         taluk: "",
         location: "",
         pincode: "",
-        district: "",
-        state: "",
+        district: "Malappuram",
+        state: "Kerala",
       },
     ],
   });
@@ -46,10 +44,26 @@ const EditProfilePage = () => {
         const res = await dispatch(getUserEditProfile()).unwrap();
         console.log("resss", res);
 
-        setUser(res.user);
+        // setUser(res.user);
+        setUser({
+          ...res.user,
+          addresses:
+            res.user.addresses && res.user.addresses.length > 0
+              ? res.user.addresses
+              : [
+                  {
+                    addressLine1: "",
+                    addressLine2: "",
+                    taluk: "",
+                    location: "",
+                    pincode: "",
+                    state: "Kerala",
+                    district: "Malappuram",
+                  },
+                ],
+        });
       } catch (error) {
-        const msg = getAxiosErrorMessage(error);
-        toast.error(msg);
+        toast.error(getAxiosErrorMessage(error));
       }
     };
 
@@ -115,6 +129,9 @@ const EditProfilePage = () => {
         },
       ],
     };
+     if ("googleId" in updatedUser && !updatedUser.googleId) {
+    delete updatedUser.googleId;
+  }
     try {
       console.log("updatedUser", updatedUser);
 
@@ -122,8 +139,7 @@ const EditProfilePage = () => {
       toast.success(res.message);
       navigate("/profile");
     } catch (error) {
-      const msg = getAxiosErrorMessage(error);
-      toast.error(msg);
+      toast.error(getAxiosErrorMessage(error));
     }
   };
 
@@ -180,8 +196,14 @@ const EditProfilePage = () => {
           <div>
             <form onSubmit={handleSave} className="grid grid-cols-2 gap-6">
               <div className="flex flex-col">
-                <label className="font-medium text-gray-700">First Name:</label>
+                <label
+                  className="font-medium text-gray-700"
+                  htmlFor="firstName"
+                >
+                  First Name:
+                </label>
                 <input
+                  id="firstName"
                   type="text"
                   name="firstName"
                   value={user.firstName}
@@ -197,8 +219,11 @@ const EditProfilePage = () => {
               </div>
 
               <div className="flex flex-col">
-                <label className="font-medium text-gray-700">Last Name:</label>
+                <label className="font-medium text-gray-700" htmlFor="lastName">
+                  Last Name:
+                </label>
                 <input
+                  id="lastName"
                   type="text"
                   name="lastName"
                   value={user.lastName}
@@ -214,8 +239,11 @@ const EditProfilePage = () => {
               </div>
 
               <div className="flex flex-col">
-                <label className="font-medium text-gray-700">Email:</label>
+                <label className="font-medium text-gray-700" htmlFor="email">
+                  Email:
+                </label>
                 <input
+                  id="email"
                   type="email"
                   name="email"
                   value={user.email}
@@ -225,8 +253,11 @@ const EditProfilePage = () => {
               </div>
 
               <div className="flex flex-col">
-                <label className="font-medium text-gray-700">Phone:</label>
+                <label className="font-medium text-gray-700" htmlFor="phone">
+                  Phone:
+                </label>
                 <input
+                  id="phone"
                   type="text"
                   name="phone"
                   value={user.phone}
@@ -242,10 +273,14 @@ const EditProfilePage = () => {
               </div>
 
               <div className="flex flex-col col-span-2">
-                <label className="font-medium text-gray-700">
+                <label
+                  className="font-medium text-gray-700"
+                  htmlFor="addressLine1"
+                >
                   Address Line 1:
                 </label>
                 <input
+                  id="addressLine1"
                   type="text"
                   name="addressLine1"
                   value={user.addresses[0].addressLine1}
@@ -261,10 +296,14 @@ const EditProfilePage = () => {
               </div>
 
               <div className="flex flex-col">
-                <label className="font-medium text-gray-700">
+                <label
+                  className="font-medium text-gray-700"
+                  htmlFor="addressLine2"
+                >
                   Address Line 2:
                 </label>
                 <input
+                  id="addressLine2"
                   type="text"
                   name="addressLine2"
                   value={user.addresses[0]?.addressLine2}
@@ -280,8 +319,11 @@ const EditProfilePage = () => {
               </div>
               {/* Taluk */}
               <div className="flex flex-col">
-                <label className="text-gray-700 font-medium">Taluk</label>
+                <label className="text-gray-700 font-medium" htmlFor="taluk">
+                  Taluk
+                </label>
                 <select
+                  id="taluk"
                   name="taluk"
                   value={user.addresses[0]?.taluk}
                   onChange={handleChange}
@@ -304,8 +346,11 @@ const EditProfilePage = () => {
                 ))}
               </div>
               <div className="flex flex-col">
-                <label className="font-medium text-gray-700">Location:</label>
+                <label className="font-medium text-gray-700" htmlFor="location">
+                  Location:
+                </label>
                 <input
+                  id="location"
                   type="text"
                   name="location"
                   value={user.addresses[0]?.location}
@@ -321,8 +366,11 @@ const EditProfilePage = () => {
               </div>
 
               <div className="flex flex-col">
-                <label className="font-medium text-gray-700">Pincode:</label>
+                <label className="font-medium text-gray-700" htmlFor="pincode">
+                  Pincode:
+                </label>
                 <input
+                  id="pincode"
                   type="text"
                   name="pincode"
                   value={user.addresses[0]?.pincode}
@@ -338,8 +386,11 @@ const EditProfilePage = () => {
               </div>
 
               <div className="flex flex-col">
-                <label className="font-medium text-gray-700">District:</label>
+                <label className="font-medium text-gray-700" htmlFor="district">
+                  District:
+                </label>
                 <input
+                  id="district"
                   type="text"
                   name="district"
                   value="Malappuram"
@@ -349,8 +400,11 @@ const EditProfilePage = () => {
               </div>
 
               <div className="flex flex-col">
-                <label className="font-medium text-gray-700">State:</label>
+                <label className="font-medium text-gray-700" htmlFor="state">
+                  State:
+                </label>
                 <input
+                  id="state"
                   type="text"
                   name="state"
                   value="Kerala"

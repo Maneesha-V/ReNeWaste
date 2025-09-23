@@ -40,10 +40,12 @@ const ReschedulePickupModal = ({
     if (visible && pickup?.wasteplantId) {
       dispatch(fetchDriversByPlace(pickup?.assignedZone));
     }
-  }, [visible, pickup?.wasteplantId]);
+  }, [visible, pickup?.wasteplantId, pickup?.assignedZone, dispatch]);
+
   useEffect(() => {
     setFilteredDrivers(driver ?? []);
   }, [driver]);
+
   console.log("filteredDrivers", filteredDrivers);
   console.log("pickup:", pickup);
   const pickupDateToShow = pickup?.rescheduledPickupDate || pickup?.originalPickupDate;

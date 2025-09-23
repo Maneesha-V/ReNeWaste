@@ -2,8 +2,6 @@ import { Modal } from "antd";
 import { useSelector } from "react-redux";
 import { RootState } from "../../redux/store";
 import {
-  createSubscriptionOrder,
-  fetchSubscrptnPayments,
   verifySubscriptionPayment,
 } from "../../redux/slices/wastePlant/wastePlantPaymentSlice";
 import Swal from "sweetalert2";
@@ -11,8 +9,6 @@ import { useAppDispatch } from "../../redux/hooks";
 import { SubscriptionPayModalProps } from "../../types/common/modalTypes";
 import { loadRazorpayScript } from "../../utils/razorpayUtils";
 import { updateSubPaymentStatus } from "../../redux/slices/wastePlant/wastePlantSubscriptionSlice";
-import { getAxiosErrorMessage } from "../../utils/handleAxiosError";
-
 
 const SubscriptionPayModal = ({
   visible,
@@ -24,18 +20,6 @@ const SubscriptionPayModal = ({
     (state: RootState) => state.wastePlantPayments.paymentOrder
   );
 
-  // useEffect(() => {
-  //   if (visible && plan) {
-  //     dispatch(
-  //       createSubscriptionOrder(plan._id)
-  //     ).unwrap()
-  //     .catch((error) => {
-  //       const msg = getAxiosErrorMessage(error);
-  //       Swal.fire("Error", msg, "error");
-  //       onClose();
-  //     });
-  //   }
-  // }, [visible, plan, dispatch, onClose]);
   if (!plan) return null;
   console.log("plan", plan);
 

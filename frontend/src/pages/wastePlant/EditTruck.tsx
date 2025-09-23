@@ -5,12 +5,13 @@ import { toast } from "react-toastify";
 import { useWastePlantValidation } from "../../hooks/useWastePlantValidation";
 import { useSelector } from "react-redux";
 import { RootState } from "../../redux/store";
-import { PartialTruckFormData, ValidationErrors } from "../../types/truckTypes";
 import {
   fetchTruckById,
   updateTruck,
 } from "../../redux/slices/wastePlant/wastePlantTruckSlice";
 import { getAxiosErrorMessage } from "../../utils/handleAxiosError";
+import { ValidationErrors } from "../../types/common/commonTypes";
+import { PartialTruckFormData } from "../../types/truck/truckTypes";
 
 const EditTruck = () => {
   const { truckId } = useParams();
@@ -18,7 +19,7 @@ const EditTruck = () => {
   const navigate = useNavigate();
   const { errors, validateField, setErrors } = useWastePlantValidation();
 
-  const { truck, loading } = useSelector(
+  const { truck } = useSelector(
     (state: RootState) => state.wastePlantTruck
   );
   const [formData, setFormData] = useState<PartialTruckFormData>({});
@@ -112,8 +113,9 @@ useEffect(() => {
         >
           {/* Name */}
           <div>
-            <label className="block text-gray-700 font-medium">Name</label>
+            <label className="block text-gray-700 font-medium" htmlFor="name">Name</label>
             <input
+              id="name"
               type="text"
               name="name"
               value={formData.name}
@@ -128,10 +130,11 @@ useEffect(() => {
 
           {/* Vehicle Number */}
           <div>
-            <label className="block text-gray-700 font-medium">
+            <label className="block text-gray-700 font-medium" htmlFor="vehicleNumber">
               Vehicle Number
             </label>
             <input
+              id="vehicleNumber"
               type="text"
               name="vehicleNumber"
               value={formData.vehicleNumber}
@@ -141,8 +144,9 @@ useEffect(() => {
           </div>
           {/* Capacity */}
           <div>
-            <label className="block text-gray-700 font-medium">Capacity (Kg)</label>
+            <label className="block text-gray-700 font-medium" htmlFor="capacity">Capacity (Kg)</label>
             <input
+              id="capacity"
               type="number"
               name="capacity"
               value={formData.capacity}
@@ -156,8 +160,9 @@ useEffect(() => {
           </div>
           {/* Tare Weight */}
           <div>
-            <label className="block text-gray-700 font-medium">Tare Weight (Kg)</label>
+            <label className="block text-gray-700 font-medium" htmlFor="tareWeight">Tare Weight (Kg)</label>
             <input
+              id="tareWeight"
               type="number"
               name="tareWeight"
               value={formData.tareWeight}
@@ -171,8 +176,9 @@ useEffect(() => {
           </div>
           {/* Status */}
           <div>
-            <label className="block text-gray-700 font-medium">Status</label>
+            <label className="block text-gray-700 font-medium" htmlFor="status">Status</label>
             <select
+              id="status"
               name="status"
               value={formData.status}
               onChange={handleChange}

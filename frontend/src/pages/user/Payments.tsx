@@ -2,7 +2,7 @@ import Header from "../../components/user/Header";
 import Footer from "../../components/user/Footer";
 import { useSelector } from "react-redux";
 import { RootState } from "../../redux/store";
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useMemo } from "react";
 import {
   clearPaymentError,
   getAllPayments,
@@ -49,18 +49,25 @@ const Payments = () => {
     setStatusFilter,
   } = usePagination();
 
-  const debouncedFetchPayments = useCallback(
+  // const debouncedFetchPayments = useCallback(
+  //   debounce((page: number, limit: number, query: string, filter?: string) => {
+  //     dispatch(getAllPayments({ page, limit, search: query, filter }));
+  //   }, 500),
+  //   [dispatch]
+  // );
+    const debouncedFetchPayments = useMemo(
+      () =>
     debounce((page: number, limit: number, query: string, filter?: string) => {
       dispatch(getAllPayments({ page, limit, search: query, filter }));
     }, 500),
-    [dispatch]
+    []
   );
   useEffect(() => {
     debouncedFetchPayments(currentPage, pageSize, search, statusFilter);
     return () => {
       debouncedFetchPayments.cancel();
     };
-  }, [currentPage, pageSize, search, statusFilter, debouncedFetchPayments]);
+  }, [currentPage, pageSize, search, statusFilter]);
 
   console.log("payments", payments);
 

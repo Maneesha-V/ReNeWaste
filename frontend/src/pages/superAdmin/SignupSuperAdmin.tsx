@@ -5,7 +5,6 @@ import { ValidationErrors } from "../../types/wastePlantTypes";
 import { toast } from "react-toastify";
 import { useAppDispatch } from "../../redux/hooks";
 import { superAdminSignup } from "../../redux/slices/superAdmin/superAdminSlice";
-import { showErrorToast } from "../../utils/toastHandler";
 import { getAxiosErrorMessage } from "../../utils/handleAxiosError";
 
 const SignupSuperAdmin: React.FC = () => {
@@ -57,9 +56,7 @@ const SignupSuperAdmin: React.FC = () => {
       setTimeout(() => navigate("/super-admin/"), 1500);
 
     } catch (error) {
-      // toast.error("Signup failed. Please try again.");
-      const msg = getAxiosErrorMessage(error);
-      toast.error(msg);
+      toast.error(getAxiosErrorMessage(error));
     }
   };
 

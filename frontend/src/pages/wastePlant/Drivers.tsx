@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from "react";
+import React, { useCallback, useEffect, useMemo } from "react";
 import { Table, Button, Popconfirm, Spin, Pagination } from "antd";
 import { EditOutlined, DeleteOutlined, PlusOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
@@ -26,18 +26,25 @@ const Drivers: React.FC = () => {
   const { currentPage, setCurrentPage, pageSize, search, setSearch } =
     usePagination();
 
-  const debouncedFetchDrivers = useCallback(
+  // const debouncedFetchDrivers = useCallback(
+  //   debounce((page: number, limit: number, query: string) => {
+  //     dispatch(fetchDrivers({ page, limit, search: query }));
+  //   }, 500),
+  //   [dispatch]
+  // );
+    const debouncedFetchDrivers = useMemo(
+      () =>
     debounce((page: number, limit: number, query: string) => {
       dispatch(fetchDrivers({ page, limit, search: query }));
     }, 500),
-    [dispatch]
+    []
   );
   useEffect(() => {
     debouncedFetchDrivers(currentPage, pageSize, search);
     return () => {
       debouncedFetchDrivers.cancel();
     };
-  }, [currentPage, pageSize, search, debouncedFetchDrivers]);
+  }, [currentPage, pageSize, search]);
 
   const handleEdit = async (driverId: string) => {
     try {

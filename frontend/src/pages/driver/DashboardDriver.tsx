@@ -3,10 +3,8 @@ import {
   ClipboardCheck,
   Clock,
   CheckCircle,
-  Bell,
   PhoneCall,
   ClipboardList,
-  Wrench,
 } from "lucide-react";
 import { useAppDispatch } from "../../redux/hooks";
 import { useEffect } from "react";
@@ -17,7 +15,7 @@ import { Link } from "react-router-dom";
 
 const DashboardDriver = () => {
   const dispatch = useAppDispatch();
-  const { summary, error } = useSelector(
+  const { summary } = useSelector(
     (state: RootState) => state.driverDashboard
   );
   console.log("summary", summary);
@@ -26,7 +24,6 @@ const DashboardDriver = () => {
     dispatch(fetchDriverDashboard());
   }, [dispatch]);
 
-  const today = new Date().toLocaleDateString();
 
   const quickActions = [
     {
