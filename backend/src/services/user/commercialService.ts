@@ -38,6 +38,14 @@ export class CommercialService implements ICommercialService {
   }
   async updateCommercialPickupService(userId: string, updatedData: UpdatedCommercialDataDTO):
   Promise<boolean> {
+    const {frequency, businessName, wasteType } = updatedData
+    const existing = await this.pickupRepository.checkExistingBusiness({userId,frequency, businessName, wasteType})
+      if (existing?.type === "monthly") {
+    throw new Error("You already submitted a pickup for this business this month.");
+  }
+     if (existing?.type === "daily") {
+    throw new Error("You can only submit one commercial pickup request per day.");
+  }
     const user = await this.userRepository.findUserById(userId);
     if (!user) throw new Error("User not found");
 

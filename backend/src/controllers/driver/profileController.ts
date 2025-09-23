@@ -50,7 +50,10 @@ export class ProfileController implements IProfileController {
         driverId,
         updatedData
       );
-      res.status(STATUS_CODES.SUCCESS).json({ updatedDriver });
+      res.status(STATUS_CODES.SUCCESS).json({ 
+        updatedDriver,
+        message: MESSAGES.DRIVER.SUCCESS.UPDATE_DRIVER
+       });
     } catch (error) {
       next(error);
     }

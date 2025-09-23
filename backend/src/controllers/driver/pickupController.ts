@@ -4,7 +4,8 @@ import { AuthRequest } from "../../types/common/middTypes";
 import { inject, injectable } from "inversify";
 import TYPES from "../../config/inversify/types";
 import { IPickupService } from "../../services/driver/interface/IPickupService";
-import { STATUS_CODES } from "../../utils/constantUtils";
+import { MESSAGES, STATUS_CODES } from "../../utils/constantUtils";
+import { ApiError } from "../../utils/ApiError";
 
 @injectable()
 export class PickupController implements IPickupController {
@@ -14,17 +15,16 @@ export class PickupController implements IPickupController {
   ) {}
   async getPickupRequests(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
     try {
+       console.log("query", req.query);
       const { wasteType } = req.query;
       const driverId = req.user?.id;
       const pickups = await this.pickupService.getPickupRequestService({
         wasteType: wasteType as string,
         driverId: driverId as string,
       });
-      console.log("pick-driver", pickups);
-
       res.status(STATUS_CODES.SUCCESS).json({
         success: true,
-        data: pickups,
+        pickups,
       });
     } catch (error) {
       console.error("Error fetching pickups:", error);
@@ -37,27 +37,19 @@ export class PickupController implements IPickupController {
       const driverId = req.user?.id;
 
       if (!pickupReqId || !driverId) {
-        res
-          .status(400)
-          .json({ success: false, message: "Missing pickupReqId or driverId" });
-        return;
+         throw new ApiError(
+                  STATUS_CODES.BAD_REQUEST,
+                  MESSAGES.COMMON.ERROR.MISSING_IDS
+                );
       }
       const pickup = await this.pickupService.getPickupByIdForDriver(
         pickupReqId,
         driverId
       );
-      if (!pickup) {
-        res
-          .status(404)
-          .json({
-            success: false,
-            message: "Pickup not found or not assigned to this driver",
-          });
-        return;
-      }
-      console.log("pickup", pickup);
 
-      res.status(STATUS_CODES.SUCCESS).json({ success: true, data: pickup });
+      res.status(STATUS_CODES.SUCCESS).json({ 
+        success: true, 
+       pickup });
     } catch (error) {
       console.error("Error fetching pickups:", error);
       next(error);
@@ -70,10 +62,10 @@ export class PickupController implements IPickupController {
       console.log("body", req.body);
 
       if (!latitude || !longitude) {
-        res
-          .status(400)
-          .json({ message: "Latitude and longitude are required" });
-        return;
+       throw new ApiError(
+                  STATUS_CODES.BAD_REQUEST,
+                  MESSAGES.DRIVER.ERROR.LAT_LONG_REQUIRED
+                );
       }
       const updatedAddress =
         await this.pickupService.updateAddressLatLngService(
@@ -82,7 +74,7 @@ export class PickupController implements IPickupController {
           longitude
         );
 
-      res.status(200).json({ success: true, data: updatedAddress });
+      res.status(STATUS_CODES.SUCCESS).json({ success: true, updatedAddress });
     } catch (error) {
      next(error);
     }
@@ -95,8 +87,10 @@ export class PickupController implements IPickupController {
       const { trackingStatus } = req.body;
 
       if (!trackingStatus) {
-        res.status(400).json({ error: "trackingStatus is required" });
-        return;
+         throw new ApiError(
+                  STATUS_CODES.BAD_REQUEST,
+                  MESSAGES.DRIVER.ERROR.STATUS_REQUIRED
+                );
       }
 
       const updatedPickup = await this.pickupService.updateTrackingStatus(
@@ -104,7 +98,7 @@ export class PickupController implements IPickupController {
         trackingStatus
       );
 
-      res.status(200).json({ success: true, data: updatedPickup });
+      res.status(STATUS_CODES.SUCCESS).json({ success: true, updatedPickup });
     } catch (error) {
      next(error);
     }
@@ -116,15 +110,21 @@ export class PickupController implements IPickupController {
       const { pickupReqId } = req.params;
 
       if (!pickupReqId) {
-        res.status(400).json({ error: "pickupReqId is required" });
-        return;
+         throw new ApiError(
+                  STATUS_CODES.BAD_REQUEST,
+                  MESSAGES.COMMON.ERROR.ID_REQUIRED
+                );
       }
 
-      const updatedPickup = await this.pickupService.markPickupCompletedService(
+      const pickupStatus = await this.pickupService.markPickupCompletedService(
         pickupReqId
       );
 
-      res.status(200).json({ success: true, data: updatedPickup });
+      res.status(STATUS_CODES.SUCCESS).json({ 
+        success: true, 
+        message: MESSAGES.DRIVER.SUCCESS.MARK_PICKUP_COMPLETED,
+        pickupStatus 
+      });
     } catch (error) {
       next(error);
     }

@@ -26,16 +26,22 @@ export class ResidentialService implements IResidentialService {
     userId: string,
     updatedData: UpdatedResidentialData
   ): Promise<boolean> {
-    const user = await this.userRepository.findUserById(userId);
-    if (!user) throw new Error("User not found");
-    const pickupCount =
+    const { wasteType, pickupDate} = updatedData;
+    const existing = await this.pickupRepository.checkExistingResid({userId,wasteType,pickupDate});
+    if (existing?.type === "daily") {
+    throw new Error("You can only request one residential pickup per day.");
+  }
+   const pickupCount =
       await this.pickupRepository.getMonthlyPickupPlansByUserId(
-        user._id.toString()
+        userId
       );
 
-    if (pickupCount.count > 3) {
-      throw new Error("Monthly residential pickup limit exceeded.");
+    if (pickupCount.count >= 4) {
+      throw new Error("Monthly residential pickup limit exceeded (max 4).");
     }
+    const user = await this.userRepository.findUserById(userId);
+    if (!user) throw new Error("User not found");
+   
     const updatedUser = await this.userRepository.updatePartialProfileById(
       userId,
       updatedData

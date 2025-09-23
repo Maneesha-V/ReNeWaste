@@ -5,7 +5,7 @@ import TYPES from "../../config/inversify/types";
 import { ITruckRepository } from "../../repositories/truck/interface/ITruckRepository";
 import { IWastePlantRepository } from "../../repositories/wastePlant/interface/IWastePlantRepository";
 import { ISubscriptionPlanRepository } from "../../repositories/subscriptionPlan/interface/ISubscriptionPlanRepository";
-import { PaginatedResult, TruckDTO } from "../../dtos/truck/truckDTO";
+import { PaginatedResult, TruckAvailbleDTO, TruckDTO } from "../../dtos/truck/truckDTO";
 import { TruckMapper } from "../../mappers/TruckMapper";
 
 @injectable()
@@ -80,9 +80,11 @@ export class TruckService implements ITruckService {
   async getAvailableTrucksService(
     driverId: string,
     plantId: string
-  ): Promise<TruckDTO[]> {
+  ): Promise<TruckAvailbleDTO[]> {
     const trucks = await this.truckRepository.getAvailableTrucks(driverId, plantId);
-    return TruckMapper.mapTrucksDTO(trucks);
+    console.log("trucks",trucks);
+    
+    return TruckMapper.mapAvailableTrucksDTO(trucks);
   }
   async getTruckByIdService(truckId: string): Promise<TruckDTO> {
 

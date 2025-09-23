@@ -12,7 +12,7 @@ import { ISubscriptionPlanRepository } from "../../repositories/subscriptionPlan
 import { setDriver } from "mongoose";
 import { ApprovePickupDTO, PickupFilterParams, ReschedulePickupDTO } from "../../dtos/wasteplant/WasteplantDTO";
 import { PickupRequestMapper } from "../../mappers/PIckupReqMapper";
-import { PickupReqDTO } from "../../dtos/pickupReq/pickupReqDTO";
+import { PickupReqDTO, PickupReqGetDTO } from "../../dtos/pickupReq/pickupReqDTO";
 import { DriverMapper } from "../../mappers/DriverMapper";
 
 @injectable()
@@ -35,9 +35,11 @@ export class PickupService implements IPickupService {
   ) {}
   async getPickupRequestService(
     filters: PickupFilterParams
-  ): Promise<PickupReqDTO[]> {
+  ): Promise<PickupReqGetDTO[]> {
     const pickups =  await this.pickupRepository.getPickupsByPlantId(filters);
-    return PickupRequestMapper.mapPickupReqsDTO(pickups);
+    console.log("pickups-pickups",pickups);
+    
+    return PickupRequestMapper.mapPickupReqsGetDTO(pickups);
   }
 
   async approvePickupService(data: ApprovePickupDTO) {

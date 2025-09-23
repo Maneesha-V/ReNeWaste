@@ -9,6 +9,5 @@ export interface IWastePlantService {
     getWastePlantByIdService(id: string): Promise<WasteplantDTO>;
     updateWastePlantByIdService(id: string,data: IWastePlant): Promise<boolean>;
     deleteWastePlantByIdService(id: string): Promise<ReturnDeleteWP>;
-    // sendSubscribeNotification(data: notificationPayload): Promise<any>;
     plantBlockStatus(plantId: string, isBlocked: boolean): Promise<WasteplantDTO>;
   }

@@ -7,6 +7,7 @@ import { IDriverRepository } from "../../repositories/driver/interface/IDriverRe
 import mongoose from "mongoose";
 import { TruckMapper } from "../../mappers/TruckMapper";
 import { DriverMapper } from "../../mappers/DriverMapper";
+import { TruckAvailbleDTO } from "../../dtos/truck/truckDTO";
 
 @injectable()
 export class TruckService implements ITruckService {
@@ -16,12 +17,12 @@ export class TruckService implements ITruckService {
     @inject(TYPES.DriverRepository)
     private driverRepository: IDriverRepository
   ) {}
-  async getTruckForDriver(driverId: string, wasteplantId: string) {
+  async getTruckForDriver(driverId: string, wasteplantId: string): Promise<TruckAvailbleDTO[]> {
     const result = await this.truckRepository.getAssignedAvailableTrucks(driverId, wasteplantId);
     if(!result){
       throw new Error("Can't found trucks.")
     }
-    return TruckMapper.mapTrucksDTO(result);
+    return TruckMapper.mapAvailableTrucksDTO(result);
   }
   async requestTruck(driverId: string) {
     const driver = await this.truckRepository.reqTruckToWastePlant(driverId);

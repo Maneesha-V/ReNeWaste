@@ -25,14 +25,14 @@ export class PickupService implements IPickupService {
         userId,
         paginationData
       );
-console.log("pickupPlans",pickupPlans);
+// console.log("pickupPlans",pickupPlans);
 
     if (!pickupPlans || pickupPlans.length === 0) {
       throw new Error("No pickup plans found");
     }
 
     return {
-      pickups: pickupPlans.map((p) => PickupRequestMapper.toPickupPlansDTO(p)),
+      pickups: PickupRequestMapper.mapToPickupPlansDTO(pickupPlans),
       total,
     };
 

@@ -1,4 +1,6 @@
-import { PickupDriverFilterParams } from "../../../dtos/pickupReq/pickupReqDTO";
+import { MarkPickupCompletedResp } from "../../../dtos/driver/driverDTO";
+import { PickupDriverFilterParams, PickupReqDTO, PickupReqGetDTO } from "../../../dtos/pickupReq/pickupReqDTO";
+import { AddressDTO } from "../../../dtos/user/userDTO";
 import {
   IPickupRequest,
   IPickupRequestDocument,
@@ -10,21 +12,21 @@ import { EnhancedPickup } from "../../../repositories/pickupReq/interface/IPicku
 export interface IPickupService {
   getPickupRequestService(
     filters: PickupDriverFilterParams
-  ): Promise<EnhancedPickup[]>;
+  ): Promise<PickupReqGetDTO[]>;
   getPickupByIdForDriver(
     pickupReqId: string,
     driverId: string
-  ): Promise<IPickupRequest | null>;
+  ): Promise<PickupReqGetDTO>;
   updateAddressLatLngService(
     addressId: string,
     latitude: number,
     longitude: number
-  ): Promise<any>;
+  ): Promise<AddressDTO>;
   updateTrackingStatus(
     pickupReqId: string,
     trackingStatus: string
-  ): Promise<IPickupRequestDocument | null>;
+  ): Promise<PickupReqDTO>;
   markPickupCompletedService(
     pickupReqId: string
-  ): Promise<IPickupRequestDocument | null>;
+  ): Promise<MarkPickupCompletedResp>;
 }

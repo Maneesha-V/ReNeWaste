@@ -21,7 +21,7 @@ export class CommercialController implements ICommercialController {
   ): Promise<void> {
     try {
       const userId = req.user?.id;
-     if (!userId) {
+      if (!userId) {
         throw new ApiError(
           STATUS_CODES.UNAUTHORIZED,
           MESSAGES.COMMON.ERROR.UNAUTHORIZED
@@ -30,7 +30,9 @@ export class CommercialController implements ICommercialController {
       const user = await this.commercialService.getCommercialService(userId);
       console.log("user", user);
 
-      res.status(STATUS_CODES.SUCCESS).json({ user, message: MESSAGES.USER.SUCCESS.COMMERCIAL_PICKUP });
+      res
+        .status(STATUS_CODES.SUCCESS)
+        .json({ user, message: MESSAGES.USER.SUCCESS.COMMERCIAL_PICKUP });
     } catch (error) {
       next(error);
     }
@@ -57,12 +59,9 @@ export class CommercialController implements ICommercialController {
 
       if (success) {
         res.status(STATUS_CODES.SUCCESS).json({ available: true });
-        
       } else {
         res.status(STATUS_CODES.SERVER_ERROR).json({ available: false });
       }
-
-      
     } catch (error) {
       console.error("Error in checking service availability:", error);
       next(error);
@@ -91,10 +90,7 @@ export class CommercialController implements ICommercialController {
         "MM-DD-YYYY",
         true
       ).toDate();
-      // if (isNaN(formattedDate.getTime())) {
-      //   res.status(400).json({ message: "Invalid pickup date format" });
-      //   return;
-      // }
+
       if (isNaN(formattedDate.getTime())) {
         throw new ApiError(
           STATUS_CODES.BAD_REQUEST,
