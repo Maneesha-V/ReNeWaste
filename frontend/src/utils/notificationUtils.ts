@@ -1,5 +1,4 @@
 import { NotificationResp } from "../types/notification/notificationTypes";
-import { Notification } from "../types/notificationTypes";
 
 export const extractRefundReason = (notifications: NotificationResp[], pickupId: string): string => {
   const matchingNotification = notifications.find((n) => {

@@ -1,4 +1,4 @@
-import { FormErrors } from "../types/authTypes";
+import { FormErrors } from "../types/common/commonTypes";
 
 export const validateForm = (values: any): { isValid: boolean; errors: FormErrors } => {
   let errors: FormErrors = {};

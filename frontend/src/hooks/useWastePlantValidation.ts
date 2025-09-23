@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { formatFieldLabel } from "../utils/formatFieldLabel";
-import { ValidationErrors } from "../types/wastePlantTypes";
+import { ValidationErrors } from "../types/common/commonTypes";
 
 export const useWastePlantValidation = () => {
   const [errors, setErrors] = useState<ValidationErrors>({});
@@ -23,12 +23,7 @@ export const useWastePlantValidation = () => {
       case "location":
       case "state":
       case "contactInfo":
-      // case "name":
-      //   if (!value.trim()) error = `${label} is required.`;
-      //   else if (!/^[A-Za-z\s]+$/.test(value))
-      //     error = `${label} must contain only letters.`;
-      //   break;
-      case "name":
+      case "name": // fallthrough
         if (!value.trim()) {
           error = `${label} is required.`;
         } else if (!/^[A-Za-z]+( [A-Za-z]+)*$/.test(value)) {

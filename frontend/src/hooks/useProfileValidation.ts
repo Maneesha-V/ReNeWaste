@@ -1,8 +1,5 @@
 import { useState } from "react";
-
-interface ValidationErrors {
-  [field: string]: string[];
-}
+import { ProfValidationErrors } from "../types/common/commonTypes";
 
 const validateString = (value: string, fieldName: string): string[] => {
   const errors: string[] = [];
@@ -53,7 +50,7 @@ const validateSecureField = (value: string, fieldName: string): string[] => {
 };
 
 export const useProfileValidation = () => {
-  const [errors, setErrors] = useState<ValidationErrors>({});
+  const [errors, setErrors] = useState<ProfValidationErrors>({});
 
   const validate = (field: string, value: string): void => {
     let errorMessages: string[] = [];

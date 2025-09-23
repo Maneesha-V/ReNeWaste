@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { FormErrors } from "../types/authTypes";
+import { FormErrors } from "../types/common/commonTypes";
+
 
 const useFormValidation = <T extends Record<string, any>>(
   initialValues: T,

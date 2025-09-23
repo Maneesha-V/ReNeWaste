@@ -21,9 +21,9 @@ export const createAxiosInstance = ({
 }: AxiosConfig): AxiosInstance => {
   const instance = axios.create({
     baseURL,
-    headers: {
-      "Content-Type": "application/json",
-    },
+    // headers: {
+    //   "Content-Type": "application/json",
+    // },
     withCredentials: true,
   });
 
@@ -31,7 +31,8 @@ export const createAxiosInstance = ({
   instance.interceptors.request.use(
     async (config) => {
       const token = localStorage.getItem("token");
-
+      console.log("role",role);
+      
       if (allowedRoutes.some((route) => config.url?.includes(route))) {
         return config;
       }
@@ -39,6 +40,12 @@ export const createAxiosInstance = ({
       if (!token) {
         logoutHandler();
         return Promise.reject(new Error("No token available, redirecting to login."));
+      }
+
+      if (config.data instanceof FormData) {
+        config.headers["Content-Type"] = "multipart/form-data";
+      } else {
+        config.headers["Content-Type"] = "application/json";
       }
 
       config.headers.Authorization = `Bearer ${token}`;
