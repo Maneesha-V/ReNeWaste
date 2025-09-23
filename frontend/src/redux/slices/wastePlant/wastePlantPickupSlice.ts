@@ -152,7 +152,7 @@ const wastePlantPickupSlice = createSlice({
         state.loading = true;
         state.approveError = null;
       })
-      .addCase(approvePickup.fulfilled, (state, action) => {
+      .addCase(approvePickup.fulfilled, (state) => {
         state.loading = false;
         // state.driver = action.payload.;
       })

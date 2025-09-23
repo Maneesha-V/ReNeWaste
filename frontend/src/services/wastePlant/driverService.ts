@@ -3,7 +3,7 @@ import { PaginationPayload } from "../../types/common/commonTypes";
 
 export const getCreateDriverService = async () => {
   const response = await axiosWasteplant.get(`/add-driver`);
-  return response.data.data;
+  return response.data;
 };
 
 export const getDrivers = async ({

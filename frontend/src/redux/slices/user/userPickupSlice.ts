@@ -63,7 +63,6 @@ export const cancelPickupPlan = createAsyncThunk<
     } catch (err) {
       const msg = getAxiosErrorMessage(err);
       return rejectWithValue({ error: msg });
-      // return rejectWithValue(error.response?.data || "Failed to cancel pickup");
     }
   }
 );

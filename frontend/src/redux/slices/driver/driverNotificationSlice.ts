@@ -1,6 +1,13 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { getNotifications, markAsReadService } from "../../../services/driver/notificationService";
-import { FetchNotificationsResp, markAsReadResp, NotificationResp } from "../../../types/notification/notificationTypes";
+import {
+  getNotifications,
+  markAsReadService,
+} from "../../../services/driver/notificationService";
+import {
+  FetchNotificationsResp,
+  markAsReadResp,
+  NotificationResp,
+} from "../../../types/notification/notificationTypes";
 import { getAxiosErrorMessage } from "../../../utils/handleAxiosError";
 
 interface NotificationState {
@@ -12,43 +19,36 @@ interface NotificationState {
 const initialState: NotificationState = {
   notifications: [],
   loading: false,
-  error: null
+  error: null,
 };
 
 export const fetchNotifications = createAsyncThunk<
-FetchNotificationsResp,
-void,
-{ rejectValue: { message: string } }
->(
-  "driverNotifications/fetchNotifications",
-  async (_, { rejectWithValue }) => {
-    try {
-      const response = await getNotifications();
-      return response;
-    } catch (error) {
-      const msg = getAxiosErrorMessage(error);
-           return rejectWithValue({ message: msg });
-    }
+  FetchNotificationsResp,
+  void,
+  { rejectValue: { message: string } }
+>("driverNotifications/fetchNotifications", async (_, { rejectWithValue }) => {
+  try {
+    const response = await getNotifications();
+    return response;
+  } catch (error) {
+    const msg = getAxiosErrorMessage(error);
+    return rejectWithValue({ message: msg });
   }
-);
+});
 
 export const markAsRead = createAsyncThunk<
-markAsReadResp,
-string,
-{ rejectValue: { message: string } }
->(
-  "driverNotifications/markAsRead",
-  async (id: string, { rejectWithValue }) => {
-    try {
-      const response = await markAsReadService(id);
-      return response;
-    } catch (error) {
-      const msg = getAxiosErrorMessage(error);
-                 return rejectWithValue({ message: msg });
-    }
+  markAsReadResp,
+  string,
+  { rejectValue: { message: string } }
+>("driverNotifications/markAsRead", async (id: string, { rejectWithValue }) => {
+  try {
+    const response = await markAsReadService(id);
+    return response;
+  } catch (error) {
+    const msg = getAxiosErrorMessage(error);
+    return rejectWithValue({ message: msg });
   }
-);
-
+});
 
 const driverNotificationSlice = createSlice({
   name: "driverNotifications",
@@ -82,8 +82,7 @@ const driverNotificationSlice = createSlice({
       })
       .addCase(markAsRead.rejected, (state, action) => {
         state.error = action.payload?.message as string;
-      })
-      
+      });
   },
 });
 

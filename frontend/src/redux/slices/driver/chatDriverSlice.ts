@@ -3,7 +3,14 @@ import {
   getChatMessages,
   getConversationId,
 } from "../../../services/driver/chatService";
-import { ConversationIdPayload, fetchChatMessagesResp, fetchConversationIdResp, Message, MessagesPayload, MessagesResp } from "../../../types/chat/chatMessageType";
+import {
+  ConversationIdPayload,
+  fetchChatMessagesResp,
+  fetchConversationIdResp,
+  Message,
+  MessagesPayload,
+  MessagesResp,
+} from "../../../types/chat/chatMessageType";
 import { getAxiosErrorMessage } from "../../../utils/handleAxiosError";
 
 interface ChatState {
@@ -20,9 +27,9 @@ const initialState: ChatState = {
   error: null,
 };
 export const fetchConversationId = createAsyncThunk<
-fetchConversationIdResp,
-ConversationIdPayload,
-  { rejectValue: {message: string}}
+  fetchConversationIdResp,
+  ConversationIdPayload,
+  { rejectValue: { message: string } }
 >(
   "driverChats/fetchConversationId",
   async (payload: ConversationIdPayload, { rejectWithValue }) => {
@@ -33,14 +40,14 @@ ConversationIdPayload,
       return response;
     } catch (error) {
       const msg = getAxiosErrorMessage(error);
-              return rejectWithValue({ message: msg });
+      return rejectWithValue({ message: msg });
     }
   }
 );
 export const fetchChatMessages = createAsyncThunk<
- fetchChatMessagesResp,
+  fetchChatMessagesResp,
   MessagesPayload,
-  { rejectValue: {message: string}}
+  { rejectValue: { message: string } }
 >(
   "driverChats/fetchMessages",
   async (payload: MessagesPayload, { rejectWithValue }) => {
@@ -51,7 +58,7 @@ export const fetchChatMessages = createAsyncThunk<
       return response;
     } catch (error) {
       const msg = getAxiosErrorMessage(error);
-              return rejectWithValue({ message: msg });
+      return rejectWithValue({ message: msg });
     }
   }
 );
@@ -82,10 +89,12 @@ const driverConversationSlice = createSlice({
       .addCase(fetchChatMessages.fulfilled, (state, action) => {
         state.loading = false;
         // state.messages = action.payload;
-        state.messages = action.payload.messages.map((msg: MessagesResp): Message => ({
-          ...msg,
-          sender: msg.senderRole
-        }))
+        state.messages = action.payload.messages.map(
+          (msg: MessagesResp): Message => ({
+            ...msg,
+            sender: msg.senderRole,
+          })
+        );
       })
       .addCase(fetchChatMessages.rejected, (state, action) => {
         state.loading = false;

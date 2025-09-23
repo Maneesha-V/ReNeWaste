@@ -11,7 +11,6 @@ import {
   MsgSuccessResp,
   PaginationPayload,
 } from "../../../types/common/commonTypes";
-import { driverLogin } from "../driver/driverSlice";
 import { getAxiosErrorMessage } from "../../../utils/handleAxiosError";
 import {
   DeleteDriverResp,

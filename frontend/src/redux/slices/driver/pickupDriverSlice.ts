@@ -1,11 +1,31 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { fetchEtaService, fetchPickupByIdService, getDriverPickups, markPickupService, updateAddressLatLngService, updateTrackingStatusService } from "../../../services/driver/pickupService";
-import { FetchPickupsParams } from "../../../types/driverTypes";
+import {
+  fetchEtaService,
+  fetchPickupByIdService,
+  getDriverPickups,
+  markPickupService,
+  updateAddressLatLngService,
+  updateTrackingStatusService,
+} from "../../../services/driver/pickupService";
+import {
+  FetchDriverPickupsReq,
+  FetchDriverPickupsResp,
+  FetchEtaReq,
+  FetchEtaResp,
+  FetchPickupByIdResp,
+  MarkPickupCompletedResp,
+  UpdateAddressLatLngReq,
+  UpdateAddressLatLngResp,
+  UpdateTrackingStatusReq,
+  UpdateTrackingStatusResp,
+} from "../../../types/driver/driverTypes";
+import { getAxiosErrorMessage } from "../../../utils/handleAxiosError";
+import { PickupPlansResp, PickupReqGetResp } from "../../../types/pickupReq/pickupTypes";
 
 interface PickupState {
-  pickups: any;
-  selectedPickup: any;
-  eta: string | null;
+  pickups: PickupPlansResp[];
+  selectedPickup: PickupReqGetResp | null;
+  eta: FetchEtaResp | null;
   loading: boolean;
   message: string | null;
   error: string | null;
@@ -13,105 +33,126 @@ interface PickupState {
 
 const initialState: PickupState = {
   pickups: [],
-  selectedPickup: null, 
+  selectedPickup: null,
   eta: null,
   loading: false,
   message: null,
   error: null,
 };
-export const fetchDriverPickups = createAsyncThunk(
+export const fetchDriverPickups = createAsyncThunk<
+  FetchDriverPickupsResp,
+  FetchDriverPickupsReq,
+  { rejectValue: { message: string } }
+>(
   "driverPickups/fetchDriverPickups",
-  async ({ wasteType }: FetchPickupsParams, { rejectWithValue }
-  ) => {
+  async ({ wasteType }: FetchDriverPickupsReq, { rejectWithValue }) => {
     try {
       const response = await getDriverPickups(wasteType);
+      console.log("response", response);
+
       return response;
-    } catch (error: any) {
-      console.error("err",error);
-      return rejectWithValue(error.response?.data || "Failed to fetch pickups");
+    } catch (error) {
+      const msg = getAxiosErrorMessage(error);
+      return rejectWithValue({ message: msg });
     }
   }
 );
-export const markPickupCompleted = createAsyncThunk(
-    "driverPickups/markCompleted",
-    async (pickupReqId: string, { rejectWithValue }) => {
-      try { 
-        const response = await markPickupService(pickupReqId);
-        return response;
-      } catch (err: any) {
-        return rejectWithValue(err.response?.data?.message || "Unable to complete pickup");
-      }
+export const markPickupCompleted = createAsyncThunk<
+  MarkPickupCompletedResp,
+  string,
+  { rejectValue: { message: string } }
+>(
+  "driverPickups/markCompleted",
+  async (pickupReqId: string, { rejectWithValue }) => {
+    try {
+      const response = await markPickupService(pickupReqId);
+      return response;
+    } catch (error) {
+      const msg = getAxiosErrorMessage(error);
+      return rejectWithValue({ message: msg });
     }
-  );
-  export const fetchPickupById = createAsyncThunk(
-    "driverPickups/fetchPickupById",
-    async (pickupReqId: string, { rejectWithValue }) => {
-      try { 
-        const response = await fetchPickupByIdService(pickupReqId);
-        return response;
-      } catch (err: any) {
-        console.error("err",err);
-        return rejectWithValue(err.response?.data?.message || "Unable to fetch pickup");
-      }
+  }
+);
+export const fetchPickupById = createAsyncThunk<
+  FetchPickupByIdResp,
+  string,
+  { rejectValue: { message: string } }
+>(
+  "driverPickups/fetchPickupById",
+  async (pickupReqId: string, { rejectWithValue }) => {
+    try {
+      const response = await fetchPickupByIdService(pickupReqId);
+      return response;
+    } catch (error) {
+      const msg = getAxiosErrorMessage(error);
+      return rejectWithValue({ message: msg });
     }
-  );
-  export const fetchEta  = createAsyncThunk(
-    "driverPickups/fetchEta",
-    async ({ origin, destination, pickupReqId, addressId }: { origin: string; destination: string; pickupReqId: string; addressId: string; }, { rejectWithValue }) => {
-      try { 
-        const response = await fetchEtaService({ origin, destination, pickupReqId,addressId});
-        console.log("response",response);
-        
-        return response;
-      } catch (err: any) {
-        console.error("err",err);
-        return rejectWithValue(err.response?.data?.message || "Unable to calculate ETA");
-      }
+  }
+);
+export const fetchEta = createAsyncThunk<
+  FetchEtaResp,
+  FetchEtaReq,
+  { rejectValue: { message: string } }
+>("driverPickups/fetchEta", async (data: FetchEtaReq, { rejectWithValue }) => {
+  try {
+    const response = await fetchEtaService(data);
+    console.log("response", response);
+
+    return response;
+  } catch (error) {
+    const msg = getAxiosErrorMessage(error);
+    return rejectWithValue({ message: msg });
+  }
+});
+export const updateAddressLatLng = createAsyncThunk<
+  UpdateAddressLatLngResp,
+  UpdateAddressLatLngReq,
+  { rejectValue: { message: string } }
+>(
+  "driverPickups/updateAddressLatLng",
+  async (data: UpdateAddressLatLngReq, { rejectWithValue }) => {
+    try {
+      const response = await updateAddressLatLngService(data);
+      console.log("reee", response);
+
+      return response;
+    } catch (error) {
+      const msg = getAxiosErrorMessage(error);
+      return rejectWithValue({ message: msg });
     }
-  );
-  export const updateAddressLatLng  = createAsyncThunk(
-    "driverPickups/updateAddressLatLng",
-    async (
-      {
-        addressId,
-        latitude,
-        longitude,
-      }: { addressId: string; latitude: number; longitude: number }
-      , { rejectWithValue }) => {
-      try { 
-        const response = await updateAddressLatLngService({ addressId, latitude, longitude,});
-        console.log("reee",response);
-        
-        return response;
-      } catch (err: any) {
-        console.error("err",err);
-        return rejectWithValue(err.response?.data?.message || "Failed to update address location");
-      }
+  }
+);
+export const updateTrackingStatus = createAsyncThunk<
+  UpdateTrackingStatusResp,
+  UpdateTrackingStatusReq,
+  { rejectValue: { message: string } }
+>(
+  "driverPickups/updateTrackingStatus",
+  async (data: UpdateTrackingStatusReq, { rejectWithValue }) => {
+    try {
+      // const {pickupReqId,trackingStatus} = data;
+      const response = await updateTrackingStatusService(data);
+      console.log("reee", response);
+
+      return response;
+    } catch (error) {
+      const msg = getAxiosErrorMessage(error);
+      return rejectWithValue({ message: msg });
     }
-  );
-  export const updateTrackingStatus  = createAsyncThunk(
-    "driverPickups/updateTrackingStatus",
-    async (
-      {
-        pickupReqId,
-        trackingStatus
-      }: { pickupReqId: string; trackingStatus: string;}
-      , { rejectWithValue }) => {
-      try { 
-        const response = await updateTrackingStatusService({ pickupReqId, trackingStatus });
-        console.log("reee",response);
-        
-        return response;
-      } catch (err: any) {
-        console.error("err",err);
-        return rejectWithValue(err.response?.data?.message || "Failed to update tracking status");
-      }
-    }
-  );
+  }
+);
 const driverPickupSlice = createSlice({
   name: "driverPickups",
   initialState,
-  reducers: {},
+  reducers: {
+    updatePickupCompletnStatus: (state, action) => {
+      const {pickupReqId, status} = action.payload;
+      const index = state.pickups.findIndex((pickup) => pickup._id === pickupReqId)
+      if(index !== -1){
+        state.pickups[index].status = status;
+      }
+    }
+  },
   extraReducers: (builder) => {
     builder
       .addCase(fetchDriverPickups.pending, (state) => {
@@ -119,28 +160,35 @@ const driverPickupSlice = createSlice({
         state.error = null;
       })
       .addCase(fetchDriverPickups.fulfilled, (state, action) => {
+        console.log("action", action.payload);
         state.loading = false;
-        state.pickups = action.payload;
+        state.pickups = action.payload.pickups;
       })
-      .addCase(fetchDriverPickups.rejected, (state, action) => { 
+      .addCase(fetchDriverPickups.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload as string;
+        state.error = action.payload?.message as string;
       })
       .addCase(markPickupCompleted.fulfilled, (state, action) => {
-        state.pickups = state.pickups.map((pickup: any) =>
-          pickup._id === action.payload._id ? action.payload : pickup
-        );
+        state.pickups = state.pickups.map((pickup: PickupPlansResp) => {
+          if (pickup._id === action.payload.pickupStatus.pickupReqId) {
+            return {
+              ...pickup,
+              status: action.payload.pickupStatus.status,
+            };
+          }
+          return pickup;
+        });
       })
       .addCase(fetchPickupById.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
       .addCase(fetchPickupById.fulfilled, (state, action) => {
-        state.selectedPickup = action.payload;
+        state.selectedPickup = action.payload.pickup;
         state.loading = false;
       })
       .addCase(fetchPickupById.rejected, (state, action) => {
-        state.error = action.payload as string;
+        state.error = action.payload?.message as string;
         state.loading = false;
       })
       .addCase(fetchEta.pending, (state) => {
@@ -153,7 +201,7 @@ const driverPickupSlice = createSlice({
       })
       .addCase(fetchEta.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload as string;
+        state.error = action.payload?.message as string;
       })
       .addCase(updateAddressLatLng.pending, (state) => {
         state.loading = true;
@@ -161,25 +209,28 @@ const driverPickupSlice = createSlice({
       })
       .addCase(updateAddressLatLng.fulfilled, (state, action) => {
         state.loading = false;
-        if (state.selectedPickup && state.selectedPickup.selectedAddress) {
-          state.selectedPickup.selectedAddress.latitude = action.payload.latitude;
-          state.selectedPickup.selectedAddress.longitude = action.payload.longitude;
+        if (state.selectedPickup && state.selectedPickup.userAddress) {
+          state.selectedPickup.userAddress.latitude =
+            action.payload.updatedAddress.latitude;
+          state.selectedPickup.userAddress.longitude =
+            action.payload.updatedAddress.longitude;
         }
       })
       .addCase(updateAddressLatLng.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload as string;
+        state.error = action.payload?.message as string;
       })
       .addCase(updateTrackingStatus.fulfilled, (state, action) => {
-        const updatedStatus = action.payload?.trackingStatus;
+        const updatedStatus = action.payload?.updatedPickup.trackingStatus;
         if (state.selectedPickup && updatedStatus) {
           state.selectedPickup.trackingStatus = updatedStatus;
         }
       })
       .addCase(updateTrackingStatus.rejected, (state, action) => {
-        state.error = action.payload as string;
+        state.error = action.payload?.message as string;
       });
-},
+  },
 });
 
+export const { updatePickupCompletnStatus } = driverPickupSlice.actions;
 export default driverPickupSlice.reducer;

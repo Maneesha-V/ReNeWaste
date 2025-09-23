@@ -6,14 +6,16 @@ import {
 } from "../../../services/driver/profileService";
 import { getAxiosErrorMessage } from "../../../utils/handleAxiosError";
 import {
+  DriverDTO,
   FetchDriverProfileResp,
-  fetchDriversResp,
+  FetchDriversRespns,
   UpdateDriverArgs,
   UpdateDriverProfileResp,
 } from "../../../types/driver/driverTypes";
 
 interface DriverState {
-  driver: any;
+  drivers: DriverDTO[];
+  driver: DriverDTO | null;
   loading: boolean;
   error: string | null;
   message: string | null;
@@ -21,6 +23,7 @@ interface DriverState {
 }
 
 const initialState: DriverState = {
+  drivers: [],
   driver: null,
   loading: false,
   error: null,
@@ -58,7 +61,7 @@ export const updateDriverProfile = createAsyncThunk<
   }
 );
 export const fetchDrivers = createAsyncThunk<
-  fetchDriversResp,
+  FetchDriversRespns,
   string,
   { rejectValue: { message: string } }
 >(
@@ -108,7 +111,7 @@ const driverProfileSlice = createSlice({
       })
       .addCase(fetchDrivers.fulfilled, (state, action) => {
         state.loading = false;
-        state.driver = action.payload.drivers;
+        state.drivers = action.payload.drivers;
       })
       .addCase(fetchDrivers.rejected, (state, action) => {
         state.loading = false;

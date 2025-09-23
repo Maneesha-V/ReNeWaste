@@ -16,8 +16,8 @@ import {
   RefundStatusUpdateResp,
   UpdateStatusPayload,
 } from "../../../types/pickupReq/paymentTypes";
-import { FetchSubscrptnPayments, PaymentOrder, RetryPaymentData, RetrySubptnPaymntResp, SubCreatePaymtResp, subPaymnetPayload, SubptnVerifyPaymenReq, SubptnVerifyPaymenResp } from "../../../types/subscriptionPayment/paymentTypes";
-import { FetchPaymentsResp, PaymentRecord } from "../../../types/wasteplant/wastePlantTypes";
+import { FetchSubscrptnPayments, PaymentOrder, RetryPaymentData, RetrySubptnPaymntResp, SubCreatePaymtResp, SubptnVerifyPaymenReq, SubptnVerifyPaymenResp } from "../../../types/subscriptionPayment/paymentTypes";
+import { FetchPaymentsResp } from "../../../types/wasteplant/wastePlantTypes";
 
 interface PaymentState {
   message: string | null;

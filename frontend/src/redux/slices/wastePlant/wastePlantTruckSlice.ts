@@ -17,7 +17,7 @@ import { AssignTruckToDriverResp, DeleteTruckResp, FetchAvailableTrucksResp, Fet
 interface TruckState {
   truckRequests: TruckDTO[] | [];
   availableTrucks: TruckDTO[] | [];
-  trucks: TruckDTO[] | [];
+  trucks: any;
   truck: TruckDTO | {};
   loading: boolean;
   message: string | null;
@@ -218,8 +218,10 @@ const wastePlantTruckSlice = createSlice({
         state.error = null;
       })
       .addCase(fetchAvailableTrucks.fulfilled, (state, action) => {
+        console.log("action",action.payload);
+        
         state.loading = false;
-        state.truck = action.payload.trucks;
+        state.trucks = action.payload.trucks;
       })
       .addCase(fetchAvailableTrucks.rejected, (state, action) => {
         state.loading = false;

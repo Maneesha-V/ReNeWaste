@@ -8,7 +8,6 @@ import { getAxiosErrorMessage } from "../../../utils/handleAxiosError";
 import {
   FetchSubsptnPlanResp,
   FetchSubsptnPlansResp,
-  PlantData,
   SubsptnPlans,
 } from "../../../types/subscription/subscriptionTypes";
 import {
@@ -104,7 +103,7 @@ const wastePlantSubscriptionSlice = createSlice({
       }
     },
     updateCancelSubdptnButtton: (state,action) => {
-      const { subPayId, payment } = action.payload;
+      const { subPayId } = action.payload;
       state.subPaymentsHis = state.subPaymentsHis.map((p) => {
         if(p._id === subPayId){
           return {...p, refundRequested: true}

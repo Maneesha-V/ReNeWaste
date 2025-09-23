@@ -2,41 +2,45 @@ import { axiosSuperadmin } from "../../config/axiosClients";
 import { PaginationPayload } from "../../types/common/commonTypes";
 
 export const getAddWastePlant = async () => {
-    const response = await axiosSuperadmin.get(`/add-waste-plant`);
-    console.log("res", response);
-    return response.data;
+  const response = await axiosSuperadmin.get(`/add-waste-plant`);
+  console.log("res", response);
+  return response.data;
 };
 export const createWastePlant = async (wastePlantData: FormData) => {
-    const response = await axiosSuperadmin.post(
-      `/add-waste-plant`,
-      wastePlantData
-    );
-    console.log("res", response);
-    return response.data;
+  const response = await axiosSuperadmin.post(
+    `/add-waste-plant`,
+    wastePlantData
+  );
+  console.log("res", response);
+  return response.data;
 };
-export const getWastePlants = async ({ page, limit, search, capacityRange }: PaginationPayload) => {
-    const response = await axiosSuperadmin.get(`/waste-plants`,{
-      params: { page, limit, search, capacityRange },
-    });
-    return response.data;
+export const getWastePlants = async ({
+  page,
+  limit,
+  search,
+  capacityRange,
+}: PaginationPayload) => {
+  const response = await axiosSuperadmin.get(`/waste-plants`, {
+    params: { page, limit, search, capacityRange },
+  });
+  return response.data;
 };
 export const getWastePlantById = async (id: string) => {
-    const response = await axiosSuperadmin.get(`/edit-waste-plant/${id}`);
-    return response.data;
+  const response = await axiosSuperadmin.get(`/edit-waste-plant/${id}`);
+  return response.data;
 };
 export const updateWastePlantById = async (id: string, data: FormData) => {
-    // const token = localStorage.getItem("token");
-    const response = await axiosSuperadmin.patch(
-      `/edit-waste-plant/${id}`,
-      data
-      // {
-      //   headers: {
-      //     "Content-Type": "multipart/form-data",
-      //   },
-      // }
-    );
-    console.log("res", response);
-    return response.data;
+  const response = await axiosSuperadmin.patch(
+    `/edit-waste-plant/${id}`,
+    data,
+    {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    }
+  );
+  console.log("res", response);
+  return response.data;
 };
 export const deleteWastePlantById = async (id: string) => {
   const response = await axiosSuperadmin.delete(`/delete-waste-plant/${id}`);
@@ -74,10 +78,12 @@ export const getPostOffices = async (pincode: string) => {
   console.log("res", response);
   return response.data;
 };
-  export const togglePlantBlockStatusService = async (plantId: string, isBlocked: boolean) => {
-    const response = await axiosSuperadmin.patch(
-      `/${plantId}/block`,{
-        isBlocked
-      });
-    return response.data;
+export const togglePlantBlockStatusService = async (
+  plantId: string,
+  isBlocked: boolean
+) => {
+  const response = await axiosSuperadmin.patch(`/${plantId}/block`, {
+    isBlocked,
+  });
+  return response.data;
 };

@@ -15,6 +15,6 @@ export const markTruckReturnService = async ({
   plantId,
 }: markReturnedProps) => {
   console.log({ truckId, plantId });
-  await axiosDriver.put(`/truck/mark-returned`, { truckId, plantId });
-  return;
+  const response = await axiosDriver.put(`/truck/mark-returned`, { truckId, plantId });
+  return response.data;
 };

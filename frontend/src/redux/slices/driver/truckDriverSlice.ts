@@ -7,13 +7,17 @@ import {
 import { markReturnedProps } from "../../../types/driver/driverTypes";
 import { getAxiosErrorMessage } from "../../../utils/handleAxiosError";
 import {
-  fetchDriverTrucksResp,
-  reqTruckByDriverResp,
+  FetchDriverTrucksResp,
+  ReqTruckByDriverResp,
+  TruckAvailbleDTO,
+  TruckDTO,
 } from "../../../types/truck/truckTypes";
+import { MsgSuccessResp } from "../../../types/common/commonTypes";
 
 interface TruckState {
-  trucks: any;
-  hasRequestedTruck: boolean;
+  trucks: TruckDTO[];
+  availableTrucks: TruckAvailbleDTO[];
+  hasRequestedTruck: boolean | undefined;
   loading: boolean;
   message: string | null;
   error: string | null;
@@ -21,13 +25,14 @@ interface TruckState {
 
 const initialState: TruckState = {
   trucks: [],
+  availableTrucks: [],
   hasRequestedTruck: false,
   loading: false,
   message: null,
   error: null,
 };
 export const fetchDriverTrucks = createAsyncThunk<
-  fetchDriverTrucksResp,
+  FetchDriverTrucksResp,
   string,
   { rejectValue: { message: string } }
 >(
@@ -46,7 +51,7 @@ export const fetchDriverTrucks = createAsyncThunk<
   }
 );
 export const reqTruckByDriver = createAsyncThunk<
-  reqTruckByDriverResp,
+  ReqTruckByDriverResp,
   void,
   { rejectValue: { message: string } }
 >("driverTrucks/reqTruckByDriver", async (_, { rejectWithValue }) => {
@@ -62,15 +67,15 @@ export const reqTruckByDriver = createAsyncThunk<
 });
 
 export const markTruckReturned = createAsyncThunk<
-  any,
+  MsgSuccessResp,
   markReturnedProps,
   { rejectValue: { message: string } }
 >(
   "driverTrucks/markTruckReturned",
   async ({ truckId, plantId }: markReturnedProps, { rejectWithValue }) => {
     try {
-      await markTruckReturnService({ truckId, plantId });
-      return;
+      const response = await markTruckReturnService({ truckId, plantId });
+      return response;
     } catch (error) {
       const msg = getAxiosErrorMessage(error);
       return rejectWithValue({ message: msg });
@@ -90,7 +95,7 @@ const driverTruckSlice = createSlice({
       })
       .addCase(fetchDriverTrucks.fulfilled, (state, action) => {
         state.loading = false;
-        state.trucks = action.payload;
+        state.availableTrucks = action.payload.assignedTruck;
       })
       .addCase(fetchDriverTrucks.rejected, (state, action) => {
         state.loading = false;
@@ -103,7 +108,7 @@ const driverTruckSlice = createSlice({
       .addCase(reqTruckByDriver.fulfilled, (state, action) => {
         state.loading = false;
         state.error = null;
-        state.hasRequestedTruck = true;
+        state.hasRequestedTruck = action.payload.requestedDriver.hasRequestedTruck;
       })
       .addCase(reqTruckByDriver.rejected, (state, action) => {
         state.loading = false;
@@ -114,7 +119,7 @@ const driverTruckSlice = createSlice({
         state.loading = true;
         state.error = null;
       })
-      .addCase(markTruckReturned.fulfilled, (state, action) => {
+      .addCase(markTruckReturned.fulfilled, (state) => {
         state.loading = false;
         state.error = null;
       })
