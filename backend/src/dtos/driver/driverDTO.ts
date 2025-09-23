@@ -78,3 +78,7 @@ export type MarkTruckReturnResult = {
   driver: IDriverDocument;
   truck: ITruckDocument;
 }
+export type MarkPickupCompletedResp = {
+  pickupReqId: string;
+  status: string;
+}

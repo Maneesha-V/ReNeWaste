@@ -19,9 +19,10 @@ export interface WasteplantDTO extends BaseDTO {
   capacity?: number;
   status?: string;
   subscriptionPlan?: string; 
-  // password?: string;
   role: Role;
   services?: string[];
+  licenseDocumentPath: string;
+  cloudinaryPublicId: string;
   isBlocked?: boolean;
   blockedAt?: Date | null;
   autoUnblockAt?: Date | null;

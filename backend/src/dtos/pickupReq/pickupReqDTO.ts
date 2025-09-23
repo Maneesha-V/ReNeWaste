@@ -1,7 +1,7 @@
 import { Types } from "mongoose";
 import { IDriverDocument } from "../../models/driver/interfaces/driverInterface";
 import { IPayment } from "../../models/pickupRequests/interfaces/paymentInterface";
-import { Address, IPickupRequestDocument } from "../../models/pickupRequests/interfaces/pickupInterface";
+import { Address, IPickupRequest, IPickupRequestDocument } from "../../models/pickupRequests/interfaces/pickupInterface";
 import { ITruckDocument } from "../../models/truck/interfaces/truckInterface";
 import { IUserDocument } from "../../models/user/interfaces/userInterface";
 import { BaseDTO } from "../base/BaseDTO";
@@ -21,6 +21,7 @@ export interface PickupReqDTO extends BaseDTO {
   businessName?: string;
   service?: string;
   frequency?: string;
+  parentRequestId?: string;
   status: string;
   trackingStatus?:
     | "Assigned"
@@ -35,8 +36,74 @@ export interface PickupReqDTO extends BaseDTO {
   };
   payment: PaymentDTO;
 }
+export interface IPickupRequestExtDocument
+  extends Omit<IPickupRequest, "userId" | "driverId" | "truckId">,
+    Document {
+  _id: Types.ObjectId;
+
+  userId: {
+    _id: Types.ObjectId;
+    firstName: string;
+    lastName: string;
+    addresses: {
+      addressLine1: string;
+      addressLine2?: string;
+      taluk: string;
+      location: string;
+      state: string;
+      pincode: string;
+      district: string;
+      latitude?: number | null;
+      longitude?: number | null;
+      _id: Types.ObjectId;
+    }[];
+  };
+
+  driverId?: {
+    _id: Types.ObjectId;
+    name: string;
+    contact: string;
+  } | null;
+
+  truckId?: {
+    _id: Types.ObjectId;
+    number: string;
+    capacity: number;
+  } | null;
+}
+
+export interface PickupReqGetDTO extends BaseDTO {
+   userId: {
+    _id: string;
+    firstName: string;
+    lastName: string;
+  };
+  driverId?: string;
+  wasteplantId?: string;
+  truckId?: string;
+  addressId: string;
+  wasteType: string;
+  originalPickupDate: Date;
+  rescheduledPickupDate?: Date;
+  pickupTime: string;
+  pickupId: string;
+  businessName?: string;
+  service?: string;
+  frequency?: string;
+  parentRequestId?: string;
+  status: string;
+  trackingStatus?:string | null;
+  eta?: {
+    text: string | null;
+    value: number | null;
+  };
+  payment: PaymentDTO;
+  userName: string;
+  userAddress?: Address;
+  location?: string;
+}
 export interface PaymentDTO {
-  status: "Pending" | "InProgress" | "Paid" | "Failed";
+  status: string;
   method: string;
   razorpayOrderId: string | null;
   razorpayPaymentId: string | null;
@@ -44,7 +111,7 @@ export interface PaymentDTO {
   amount: number;
   paidAt: Date | null;
   refundRequested: boolean;
-  refundStatus: "Pending" | "Processing" | "Refunded" | "Rejected" | null;
+  refundStatus: string | null;
   refundAt: Date | null;
   razorpayRefundId: string | null;
   inProgressExpiresAt: Date | null;
@@ -67,7 +134,7 @@ export interface PickupPaymentSummaryDTO {
     refundAt: Date | null;
   };
 }
-export interface PopulatedPIckupPlans extends Omit<IPickupRequestDocument, 'driverId' | 'truckId' > {
+export interface PopulatedPIckupPlans extends Omit<IPickupRequestDocument, 'driverId' | 'truckId' | '__v' > {
   // user: IUserDocument;
   user: {
     firstName: string;
@@ -109,7 +176,7 @@ export interface PickupPlansDTO {
   };
   wasteplantId: string;
   addressId: string;
-  address: Address;
+  address: Address | null;
   payment: IPayment;
 }
 
@@ -134,3 +201,18 @@ export type PickupDriverFilterParams = {
     wasteType?: string;
     driverId: string;
   }
+  export type CheckExistingBusinessReq = {
+    userId: string;
+    frequency: string;
+    businessName: string; 
+    wasteType: string;
+  }
+  export type CheckExistingBusinessResp = {
+    type: string;
+    data: IPickupRequestDocument;
+  }
+  export type CheckExistingResidReq = {
+  userId: string; 
+  wasteType: string;
+  pickupDate: string;
+}
