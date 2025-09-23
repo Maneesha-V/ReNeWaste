@@ -39,8 +39,6 @@ export const authenticateSuperAdmin = async (req: AuthRequest, res: Response, ne
     
     if (!token) return res.status(401).json({ error: "No token, authorization denied" });
 
-    // const decoded: any = jwt.verify(token, process.env.JWT_SECRET!);
-    // console.log("Decoded Token:", decoded);
     const decoded = jwt.verify(token, process.env.JWT_SECRET!) as {
       userId: string;
       role: string;

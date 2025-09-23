@@ -64,10 +64,16 @@ export const pickupRequestSchema: Schema<IPickupRequestDocument> = new Schema(
       },
       frequency: {
         type: String,
+        enum: ["Daily", "Weekly", "Monthly"],
         required: function () {
           return this.wasteType === 'Commercial';
         },
       },
+      parentRequestId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "PickupRequest",
+      default: null,
+    },
       status: {
         type: String,
         enum: ["Pending", "Scheduled", "Completed", "Cancelled","Rescheduled"],

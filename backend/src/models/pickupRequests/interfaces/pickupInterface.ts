@@ -15,6 +15,7 @@ export interface IPickupRequest extends Document {
     businessName?: string;
     service?: string;
     frequency?: string;
+    parentRequestId?: mongoose.Types.ObjectId; 
     status: string;
     trackingStatus?: 'Assigned' | 'InTransit' | 'Near' | 'Arrived' | 'Completed' | null;
     eta?: {
@@ -38,8 +39,8 @@ export interface IPickupRequest extends Document {
       state: string;
       pincode: string;
       district: string;
-      latitude?: number;
-      longitude?: number
+      latitude?: number | null;
+      longitude?: number | null;
     }
     export interface PopulatedUser {
       _id: Types.ObjectId;
