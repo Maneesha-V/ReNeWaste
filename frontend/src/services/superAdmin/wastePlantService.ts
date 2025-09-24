@@ -55,17 +55,6 @@ export const deleteWastePlantById = async (id: string) => {
 //   return response.data;
 // };
 
-// export const sendRenewNotificationService = async (
-//   data: RenewNotificationPayload
-// ) => {
-//   const response = await axiosSuperadmin.post(
-//     `/notification/renew-remind`,
-//     data
-//   );
-//   console.log("res", response);
-//   return response.data;
-// };
-
 // export const sendRechargeNotificationService = async (plantId: string) => {
 //   const response = await axiosSuperadmin.post(`/notification/recharge-remind`, {
 //     plantId,

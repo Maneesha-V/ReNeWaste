@@ -153,49 +153,6 @@ export const deleteWastePlant = createAsyncThunk<
   }
 );
 
-// export const sendSubscribeNotification = createAsyncThunk(
-//   "superAdminWastePlant/sendSubscribeNotification",
-//   async (id: string, thunkAPI) => {
-//     try {
-//       const response = await sendSubscribeNotificationById(id);
-//       return response;
-//     } catch (error: any) {
-//       return thunkAPI.rejectWithValue(
-//         error.response.data || "Failed to send subscribe reminder."
-//       );
-//     }
-//   }
-// );
-
-// export const sendRenewNotification = createAsyncThunk(
-//   "superAdminWastePlant/sendRenewNotification",
-//   async ({ plantId, daysLeft }: RenewNotificationPayload, thunkAPI) => {
-//     try {
-//       const response = await sendRenewNotificationService({
-//         plantId,
-//         daysLeft,
-//       });
-//       return response;
-//     } catch (error: any) {
-//       return thunkAPI.rejectWithValue(
-//         error.response.data || "Failed to send renew reminder."
-//       );
-//     }
-//   }
-// );
-// export const sendRechargeNotification = createAsyncThunk(
-//   "superAdminWastePlant/sendRechargeNotification",
-//   async (plantId: string, thunkAPI) => {
-//     try {
-//       const response = await sendRechargeNotificationService(plantId);
-//       return response;
-//     } catch (error: any) {
-//       return thunkAPI.rejectWithValue(
-//         error.response.data || "Failed to send recharge reminder."
-//       );
-//     }
-//   }
-// );
 export const fetchPostOffices = createAsyncThunk<
   PostOffice[],
   string,

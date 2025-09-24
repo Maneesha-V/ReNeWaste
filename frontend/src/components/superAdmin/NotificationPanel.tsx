@@ -18,6 +18,7 @@ const NotificationPanel: React.FC<SuperAdminNotificationPanelProps> = ({
   const notifications = useSelector(
     (state: RootState) => state.superAdminNotifications.notifications
   );
+ console.log("notifications",notifications);
  
   const dispatch = useAppDispatch();
   const socket = useSafeSocket();

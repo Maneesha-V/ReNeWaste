@@ -1,13 +1,13 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { getAxiosErrorMessage } from "../../../utils/handleAxiosError";
 import { getSuperAdminDashboard } from "../../../services/superAdmin/dashboardService";
-import { DashboardAdminSummary } from "../../../types/superadmin/superAdminTypes";
+import { DashboardAdminSummary, FetchSuperAdminDashboardResp } from "../../../types/superadmin/superAdminTypes";
 
 
 interface SuperAdminDashboardState  {
   loading: boolean;
   error: string | null;
-  summary: DashboardAdminSummary | null;
+  summary: DashboardAdminSummary;
 }
 
 const initialState: SuperAdminDashboardState = {
@@ -26,7 +26,7 @@ const initialState: SuperAdminDashboardState = {
 };
 
 export const fetchSuperAdminDashboard = createAsyncThunk<
-{ summary: DashboardAdminSummary },
+FetchSuperAdminDashboardResp,
 void,
 { rejectValue : {message: string}}
 >(
@@ -59,7 +59,7 @@ const superAdminDashboardSlice = createSlice({
         console.log("accc",action.payload);
         
         state.loading = false;
-        state.summary = action.payload;
+        state.summary = action.payload.dashboardData;
       })
       .addCase(fetchSuperAdminDashboard.rejected, (state, action) => {
         state.loading = false;

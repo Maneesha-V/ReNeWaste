@@ -37,6 +37,10 @@ export interface DashboardAdminSummary {
   totalWasteCollected: number;
   monthlyRevenue: MonthlyRevenueEntry[];
 }
+export type FetchSuperAdminDashboardResp = {
+  dashboardData: DashboardAdminSummary;
+  success: string;
+}
 export interface WasteplantDTO {
   _id?: string;
   plantName?: string;

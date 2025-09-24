@@ -23,7 +23,7 @@ interface SubsptnPlanState {
   message: string | null;
   success: boolean;
   subscriptionPlans: SubsptnPlans[];
-  subscriptionPlan: SubsptnPlans;
+  subscriptionPlan: SubsptnPlans | {};
   total: number;
 }
 
