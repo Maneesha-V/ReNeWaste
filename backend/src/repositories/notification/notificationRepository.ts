@@ -3,7 +3,7 @@ import { INotificationDocument } from "../../models/notification/interfaces/noti
 import { NotificationModel } from "../../models/notification/notificationModel";
 import BaseRepository from "../baseRepository/baseRepository";
 import { INotificationRepository } from "./interface/INotifcationRepository";
-import { CreateNotificationDTO } from "./types/notificationTypes";
+import { CreateNotificationDTO } from "../../dtos/notification/notificationDTO";
 
 @injectable()
 export class NotificationRepository extends BaseRepository<INotificationDocument>  implements INotificationRepository {

@@ -1,5 +1,5 @@
-import { INotification, INotificationDocument } from "../../../models/notification/interfaces/notificationInterface";
-import { CreateNotificationDTO } from "../types/notificationTypes";
+import { CreateNotificationDTO } from "../../../dtos/notification/notificationDTO";
+import { INotificationDocument } from "../../../models/notification/interfaces/notificationInterface";
 
 export interface INotificationRepository {
   createNotification(data: CreateNotificationDTO): Promise<INotificationDocument>;

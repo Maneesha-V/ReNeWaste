@@ -1,9 +1,8 @@
-import { MarkTruckReturnResult, PaginatedDriversResult } from "../../../dtos/driver/driverDTO";
+import { MarkTruckReturnResult, PaginatedDriversResult, ReturnFetchAllDriversByPlantId } from "../../../dtos/driver/driverDTO";
 import {
   IDriver,
   IDriverDocument,
 } from "../../../models/driver/interfaces/driverInterface";
-import { ReturnFetchAllDriversByPlantId } from "../types/driverTypes";
 
 export interface IDriverRepository {
   createDriver(data: IDriver): Promise<IDriverDocument>;

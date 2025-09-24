@@ -1,10 +1,10 @@
 import { PaginationInput } from "../../../dtos/common/commonDTO";
+import { OtpRecord } from "../../../dtos/user/otpDTO";
+import { PaginatedWPlantResult } from "../../../dtos/wasteplant/WasteplantDTO";
 import {
   IWastePlant,
   IWastePlantDocument,
 } from "../../../models/wastePlant/interfaces/wastePlantInterface";
-import { OtpRecord } from "../../../types/user/authTypes";
-import { PaginatedWastePlantResult } from "../types/wasteplantTypes";
 
 export interface IWastePlantRepository {
   createWastePlant(data: IWastePlant): Promise<IWastePlantDocument>;
@@ -12,7 +12,7 @@ export interface IWastePlantRepository {
   findWastePlantByLicense(licenseNumber: string): Promise<IWastePlant | null>;
   findWastePlantByTaluk(taluk: string): Promise<string | null>;
   findWastePlantByName(plantName: string): Promise<IWastePlant | null>;
-  getAllWastePlants(data: PaginationInput): Promise<PaginatedWastePlantResult | null>;
+  getAllWastePlants(data: PaginationInput): Promise<PaginatedWPlantResult | null>;
   getWastePlantById(id: string): Promise<IWastePlantDocument | null>;
   updateWastePlantById(id: string,data: Partial<IWastePlant>): Promise<IWastePlantDocument | null>;
   saveOtp(email: string, otp: string): Promise<void>;

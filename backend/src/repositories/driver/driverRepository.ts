@@ -10,10 +10,7 @@ import TYPES from "../../config/inversify/types";
 import BaseRepository from "../baseRepository/baseRepository";
 import { ITruckRepository } from "../truck/interface/ITruckRepository";
 import { INotificationRepository } from "../notification/interface/INotifcationRepository";
-import {
-  ReturnFetchAllDriversByPlantId,
-} from "./types/driverTypes";
-import { MarkTruckReturnResult, PaginatedDriversResult } from "../../dtos/driver/driverDTO";
+import { MarkTruckReturnResult, PaginatedDriversResult, ReturnFetchAllDriversByPlantId } from "../../dtos/driver/driverDTO";
 import { DriverMapper } from "../../mappers/DriverMapper";
 
 @injectable()
@@ -208,7 +205,7 @@ export class DriverRepository
     });
     console.log("notification", notification);
 
-    const io = global.io;
+    const io = globalThis.io;
 
     if (io) {
       io.to(`${plantId}`).emit("newNotification", notification);

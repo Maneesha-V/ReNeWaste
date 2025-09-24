@@ -15,14 +15,6 @@ import { inject, injectable } from "inversify";
 import TYPES from "../../config/inversify/types";
 import { IUserRepository } from "../user/interface/IUserRepository";
 import { IUserDocument } from "../../models/user/interfaces/userInterface";
-// import {
-//   PickupStatus,
-//   PickupStatusByWasteType,
-//   WasteType,
-//   RevenueByWasteType,
-//   PaymentRecord,
-// } from "./types/pickupTypes";
-import { populate } from "dotenv";
 import { CheckExistingBusinessReq, CheckExistingResidReq, PickupDriverFilterParams, PickupStatus, PickupStatusByWasteType, PopulatedPIckupPlans, RevenueByWasteType, WasteType } from "../../dtos/pickupReq/pickupReqDTO";
 import { PaginationInput } from "../../dtos/common/commonDTO";
 import { FetchPaymentPayload, FilterReport, PaginatedPaymentsResult, PickupFilterParams } from "../../dtos/wasteplant/WasteplantDTO";

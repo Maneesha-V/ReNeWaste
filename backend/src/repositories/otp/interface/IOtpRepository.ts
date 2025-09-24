@@ -1,4 +1,4 @@
-import { OtpRecord } from "../../../types/user/authTypes";
+import { OtpRecord } from "../../../dtos/user/otpDTO";
 
 export interface IOtpRepository {
   saveOtp(email: string, otp: string): Promise<void>;

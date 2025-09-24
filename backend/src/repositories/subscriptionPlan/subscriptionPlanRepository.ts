@@ -6,10 +6,10 @@ import {
 import BaseRepository from "../baseRepository/baseRepository";
 import { ISubscriptionPlanRepository } from "./interface/ISubscriptionPlanRepository";
 import { SubscriptionPlanModel } from "../../models/subscriptionPlans/subscriptionPlanModel";
-import { updateSubscptnData } from "../../types/superAdmin/subscriptionTypes";
 import { SubsptnPlansDTO } from "../../dtos/subscription/subscptnPlanDTO";
 import { PaginationInput } from "../../dtos/common/commonDTO";
 import { FilterQuery } from "mongoose";
+import { updateSubscptnData } from "../../dtos/subscription/subscptnPaymentDTO";
 
 @injectable()
 export class SubscriptionPlanRepository

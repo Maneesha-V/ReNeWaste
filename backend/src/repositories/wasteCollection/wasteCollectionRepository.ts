@@ -8,12 +8,8 @@ import { IDriverRepository } from "../driver/interface/IDriverRepository";
 import { ITruckRepository } from "../truck/interface/ITruckRepository";
 import { INotificationRepository } from "../notification/interface/INotifcationRepository";
 import mongoose from "mongoose";
-import {
-  InputWasteMeasurement,
-  ReturnTotalWasteAmount,
-  ReturnWasteMeasurement,
-} from "./types/wasteCollectionTypes";
 import { FilterReport } from "../../dtos/wasteplant/WasteplantDTO";
+import { InputWasteMeasurement, ReturnTotalWasteAmount, ReturnWasteMeasurement } from "../../dtos/wasteCollection/wasteCollectionDTO";
 
 
 @injectable()

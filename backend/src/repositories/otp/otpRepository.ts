@@ -1,9 +1,9 @@
 import { injectable } from "inversify";
 import { IOtpDocument } from "../../models/user/interfaces/otpInterface";
 import { OTPModel } from "../../models/user/otpModel";
-import { OtpRecord } from "../../types/user/authTypes";
 import BaseRepository from "../baseRepository/baseRepository";
 import { IOtpRepository } from "./interface/IOtpRepository";
+import { OtpRecord } from "../../dtos/user/otpDTO";
 
 
 @injectable()

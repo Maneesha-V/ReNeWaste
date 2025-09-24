@@ -3,19 +3,16 @@ import BaseRepository from "../baseRepository/baseRepository";
 import { ISubscriptionPaymentDocument } from "../../models/subsptnPayment/interface/subsptnPaymentInterface";
 import { SubscriptionPaymentModel } from "../../models/subsptnPayment/subsptnPaymentModel";
 import { ISubscriptionPaymentRepository } from "./interface/ISubscriptionPaymentRepository";
-import { CreateSubsptnPaymentPayload } from "./types/subscriptnPaymentTypes";
-import {
-  PaymentUpdate,
-  UpdateSubscptnPayload,
-} from "../../types/wastePlant/paymentTypes";
 import mongoose, { PipelineStage } from "mongoose";
 import { PaginationInput } from "../../dtos/common/commonDTO";
 import {
+  CreateSubsptnPaymentPayload,
   SubscriptionPaymentHisDTO,
   SubscriptionPaymentHisResult,
   UpdateRefundStatusReq,
 } from "../../dtos/subscription/subscptnPaymentDTO";
 import { SubscriptionPaymentMapper } from "../../mappers/SubscriptionPaymentMapper";
+import { PaymentUpdate, UpdateSubscptnPayload } from "../../dtos/pickupReq/paymentDTO";
 
 @injectable()
 export class SubscriptionPaymentRepository

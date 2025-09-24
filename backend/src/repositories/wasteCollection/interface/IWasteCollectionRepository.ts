@@ -1,6 +1,6 @@
+import { InputWasteMeasurement, ReturnTotalWasteAmount, ReturnWasteMeasurement } from "../../../dtos/wasteCollection/wasteCollectionDTO";
 import { FilterReport } from "../../../dtos/wasteplant/WasteplantDTO";
 import { IWasteCollectionDocument } from "../../../models/wasteCollection/interfaces/wasteCollectionInterface";
-import { InputWasteMeasurement, ReturnTotalWasteAmount, ReturnWasteMeasurement } from "../types/wasteCollectionTypes";
 
 export interface IWasteCollectionRepository {
  createWasteMeasurement(data: InputWasteMeasurement): Promise<ReturnWasteMeasurement>;

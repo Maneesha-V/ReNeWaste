@@ -5,13 +5,13 @@ import {
   IWastePlantDocument,
 } from "../../models/wastePlant/interfaces/wastePlantInterface";
 import { WastePlantModel } from "../../models/wastePlant/wastePlantModel";
-import { OtpRecord } from "../../types/user/authTypes";
 import BaseRepository from "../baseRepository/baseRepository";
 import { IWastePlantRepository } from "./interface/IWastePlantRepository";
 import TYPES from "../../config/inversify/types";
 import { IOtpRepository } from "../otp/interface/IOtpRepository";
 import { PaginationInput } from "../../dtos/common/commonDTO";
 import { Number } from "mongoose";
+import { OtpRecord } from "../../dtos/user/otpDTO";
 
 @injectable()
 export class WastePlantRepository

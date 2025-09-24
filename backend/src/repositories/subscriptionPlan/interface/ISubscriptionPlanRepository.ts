@@ -1,7 +1,7 @@
 import { PaginationInput } from "../../../dtos/common/commonDTO";
+import { updateSubscptnData } from "../../../dtos/subscription/subscptnPaymentDTO";
 import { PaginatedSubsptnPlansResult, SubsptnPlansDTO } from "../../../dtos/subscription/subscptnPlanDTO";
-import { ISubscriptionPlan, ISubscriptionPlanDocument } from "../../../models/subscriptionPlans/interfaces/subsptnPlanInterface";
-import { updateSubscptnData } from "../../../types/superAdmin/subscriptionTypes";
+import { ISubscriptionPlanDocument } from "../../../models/subscriptionPlans/interfaces/subsptnPlanInterface";
 
 export interface ISubscriptionPlanRepository {
     createSubscriptionPlan(data: SubsptnPlansDTO): Promise<ISubscriptionPlanDocument>;

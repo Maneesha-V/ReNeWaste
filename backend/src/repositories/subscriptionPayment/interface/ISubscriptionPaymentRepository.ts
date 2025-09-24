@@ -1,8 +1,7 @@
 import { PaginationInput } from "../../../dtos/common/commonDTO";
-import { SubscriptionPaymentHisResult, UpdateRefundStatusReq } from "../../../dtos/subscription/subscptnPaymentDTO";
+import { PaymentUpdate, UpdateSubscptnPayload } from "../../../dtos/pickupReq/paymentDTO";
+import { CreateSubsptnPaymentPayload, SubscriptionPaymentHisResult, UpdateRefundStatusReq } from "../../../dtos/subscription/subscptnPaymentDTO";
 import { ISubscriptionPaymentDocument } from "../../../models/subsptnPayment/interface/subsptnPaymentInterface";
-import { PaymentUpdate, UpdateSubscptnPayload } from "../../../types/wastePlant/paymentTypes";
-import { CreateSubsptnPaymentPayload } from "../types/subscriptnPaymentTypes";
 
 export  interface ISubscriptionPaymentRepository {
 createSubscriptionPayment(
