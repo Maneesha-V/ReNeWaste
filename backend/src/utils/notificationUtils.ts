@@ -18,7 +18,7 @@ export const sendNotification = async ({
   type,
 }: NotificationData) => {
   try {
-    const io = global.io;
+    const io = globalThis.io;
 
     const notification = await NotificationModel.create({
       receiverId,
