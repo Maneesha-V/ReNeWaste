@@ -4,7 +4,8 @@ import { DriverModel } from "../models/driver/driverModel";
 import { UserModel } from "../models/user/userModel";
 import { WastePlantModel } from "../models/wastePlant/wastePlantModel";
 import { SuperAdminModel } from "../models/superAdmin/superAdminModel";
-import { ChatMessage } from "../types/common/socketTypes";
+import { ChatMessage } from "../dtos/chatMessage/chatMessageDTO";
+
 
 async function findRoleById(id: string): Promise<string | null> {
   const [driver, user, wasteplant, superadmin] = await Promise.all([

@@ -2,7 +2,6 @@ import express from "express";
 import connectDB from "./config/db";
 import cors from "cors";
 import dotenv from "dotenv";
-import bodyParser from "body-parser";
 import morgan from "morgan";
 import cookieParser from 'cookie-parser';
 import http from "http";
@@ -46,7 +45,7 @@ const io = new Server(server, {
   },
 });
 
-global.io = io;
+globalThis.io = io;
 
 // Socket.IO connection
 io.on("connection", (socket) => {

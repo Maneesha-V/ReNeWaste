@@ -7,8 +7,8 @@
     "strict": true,
     "esModuleInterop": true,
     "experimentalDecorators": true,
-    "emitDecoratorMetadata": true
-
+    "emitDecoratorMetadata": true,
+    "types": ["./src/types/global.d.ts"]
   },
   "include": ["src"]
 }
