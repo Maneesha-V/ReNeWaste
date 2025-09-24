@@ -10,3 +10,9 @@ export interface ChatMessageDTO extends BaseDTO {
   conversationId: string;
   createdAt: Date;
 }
+export type ChatMessage = {
+  senderId: string;
+  receiverId: string;
+  text: string;
+  conversationId: string;
+}

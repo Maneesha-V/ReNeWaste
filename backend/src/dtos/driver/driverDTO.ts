@@ -74,6 +74,11 @@ export type LoginResponse = {
   driver: DriverDTO;
   token: string;
 }
+export type MarkReturnProps = {
+  truckId: string;
+  plantId: string;
+  driverId: string;
+};
 export type MarkTruckReturnResult = {
   driver: IDriverDocument;
   truck: ITruckDocument;
@@ -81,4 +86,9 @@ export type MarkTruckReturnResult = {
 export type MarkPickupCompletedResp = {
   pickupReqId: string;
   status: string;
+}
+export type ReturnFetchAllDriversByPlantId = {
+    active: number;
+    inactive: number;
+    suspended: number;
 }

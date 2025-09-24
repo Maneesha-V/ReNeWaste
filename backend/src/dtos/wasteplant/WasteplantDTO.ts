@@ -1,5 +1,6 @@
-import { PaymentRecord } from "../../repositories/pickupReq/types/pickupTypes";
+import { IWastePlantDocument } from "../../models/wastePlant/interfaces/wastePlantInterface";
 import { BaseDTO } from "../base/BaseDTO";
+import { PaymentRecord } from "../pickupReq/pickupReqDTO";
 import { SubscriptionPaymentHisDTO } from "../subscription/subscptnPaymentDTO";
 import { SubsptnPlansDTO } from "../subscription/subscptnPlanDTO";
 import { Role } from "../user/userDTO";
@@ -82,6 +83,10 @@ export interface PostOfficeEntry {
   District: string;
 }
 
+export type PaginatedWPlantResult = {
+  wasteplants: IWastePlantDocument[];
+  total: number;
+}
 export interface PaginatedWastePlantResult {
   wasteplants: WasteplantDTO[];
   total: number;

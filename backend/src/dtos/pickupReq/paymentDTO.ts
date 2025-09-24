@@ -35,3 +35,20 @@ export interface RefundStatusUpdateResp {
   refundStatus: RefundStatus;
   inProgressExpiresAt: Date | null;
 }
+export type PaymentUpdate = {
+      status: string;
+      razorpayOrderId: string | null;
+      razorpayPaymentId: string | null;
+      razorpaySignature: string | null;
+      amount: number;
+      paidAt: Date| null;
+      method?: string;
+      refundRequested?: boolean,
+      refundStatus?: string| null,
+      refundAt?: Date| null
+    };
+export type UpdateSubscptnPayload = {
+    planId: string;
+    paymentUpdate: PaymentUpdate;
+    plantId: string;
+}

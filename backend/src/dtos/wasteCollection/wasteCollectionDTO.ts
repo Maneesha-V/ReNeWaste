@@ -9,3 +9,15 @@ export interface WasteCollectionDTO extends BaseDTO {
       wasteType: string;
       returnedAt: Date | null;
 }
+export type InputWasteMeasurement = {
+  wasteplantId: string;
+  weight: number;
+  notificationId: string;
+};
+export type ReturnWasteMeasurement = {
+  notificationId: string;
+};
+export type ReturnTotalWasteAmount = {
+  totalResidWaste: number;
+  totalCommWaste: number;
+};
