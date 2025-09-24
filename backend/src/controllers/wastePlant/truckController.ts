@@ -2,12 +2,12 @@ import { NextFunction, Request, Response } from "express";
 import mongoose from "mongoose";
 import { ITruckController } from "./interface/ITruckController";
 import { ITruck } from "../../models/truck/interfaces/truckInterface";
-import { AuthRequest } from "../../types/common/middTypes";
 import { inject, injectable } from "inversify";
 import TYPES from "../../config/inversify/types";
 import { ITruckService } from "../../services/wastePlant/interface/ITruckService";
 import { MESSAGES, STATUS_CODES } from "../../utils/constantUtils";
 import { ApiError } from "../../utils/ApiError";
+import { AuthRequest } from "../../dtos/base/BaseDTO";
 
 @injectable()
 export class TruckController implements ITruckController {

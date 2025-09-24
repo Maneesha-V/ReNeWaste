@@ -1,11 +1,11 @@
 import { NextFunction, Response } from "express";
 import { inject, injectable } from "inversify";
-import { AuthRequest } from "../../types/common/middTypes";
 import TYPES from "../../config/inversify/types";
 import { INotificationController } from "./interface/INotificationController";
 import { INotificationService } from "../../services/wastePlant/interface/INotificationService";
 import { ApiError } from "../../utils/ApiError";
 import { MESSAGES, STATUS_CODES } from "../../utils/constantUtils";
+import { AuthRequest } from "../../dtos/base/BaseDTO";
 
 @injectable()
 export class NotificationController implements INotificationController {

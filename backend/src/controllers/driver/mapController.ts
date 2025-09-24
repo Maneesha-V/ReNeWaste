@@ -1,11 +1,11 @@
 import { NextFunction, Request, Response } from "express";
 import { IMapController } from "./interface/IMapController";
-import { AuthRequest } from "../../types/common/middTypes";
 import { inject, injectable } from "inversify";
 import TYPES from "../../config/inversify/types";
 import { IMapService } from "../../services/driver/interface/IMapService";
 import { ApiError } from "../../utils/ApiError";
 import { MESSAGES, STATUS_CODES } from "../../utils/constantUtils";
+import { AuthRequest } from "../../dtos/base/BaseDTO";
 
 @injectable()
 export class MapController implements IMapController {

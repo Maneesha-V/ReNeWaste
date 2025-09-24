@@ -1,11 +1,11 @@
 import { NextFunction, Response } from "express";
-import { AuthRequest } from "../../types/common/middTypes";
 import { IUserController } from "./interface/IUserController";
 import { inject, injectable } from "inversify";
 import TYPES from "../../config/inversify/types";
 import { IUserService } from "../../services/wastePlant/interface/IUserService";
 import { ApiError } from "../../utils/ApiError";
 import { MESSAGES, STATUS_CODES } from "../../utils/constantUtils";
+import { AuthRequest } from "../../dtos/base/BaseDTO";
 
 @injectable()
 export class UserController implements IUserController {

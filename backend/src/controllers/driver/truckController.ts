@@ -1,11 +1,11 @@
 import { NextFunction, Response } from "express";
 import { ITruckController } from "./interface/ITruckController";
-import { AuthRequest } from "../../types/common/middTypes";
 import { inject, injectable } from "inversify";
 import TYPES from "../../config/inversify/types";
 import { ITruckService } from "../../services/driver/interface/ITruckService";
 import { ApiError } from "../../utils/ApiError";
 import { MESSAGES, STATUS_CODES } from "../../utils/constantUtils";
+import { AuthRequest } from "../../dtos/base/BaseDTO";
 
 @injectable()
 export class TruckController implements ITruckController {

@@ -1,11 +1,11 @@
 import { NextFunction, Response } from "express";
-import { AuthRequest } from "../../types/common/middTypes";
 import { IDropSpotController } from "./interface/IDropSpotController";
 import { inject, injectable } from "inversify";
 import TYPES from "../../config/inversify/types";
 import { IDropSpotService } from "../../services/wastePlant/interface/IDropSpotService";
 import { ApiError } from "../../utils/ApiError";
 import { MESSAGES, STATUS_CODES } from "../../utils/constantUtils";
+import { AuthRequest } from "../../dtos/base/BaseDTO";
 
 @injectable()
 export class DropSpotController implements IDropSpotController {

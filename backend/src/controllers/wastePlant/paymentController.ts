@@ -1,4 +1,3 @@
-import { AuthRequest } from "../../types/common/middTypes";
 import { NextFunction, Response } from "express";
 import { inject, injectable } from "inversify";
 import TYPES from "../../config/inversify/types";
@@ -6,6 +5,7 @@ import { IPaymentController } from "./interface/IPaymentController";
 import { IPaymentService } from "../../services/wastePlant/interface/IPaymentService";
 import { MESSAGES, STATUS_CODES } from "../../utils/constantUtils";
 import { ApiError } from "../../utils/ApiError";
+import { AuthRequest } from "../../dtos/base/BaseDTO";
 
 @injectable()
 export class PaymentController implements IPaymentController {

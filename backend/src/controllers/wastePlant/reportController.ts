@@ -1,11 +1,11 @@
 import { inject, injectable } from "inversify";
 import TYPES from "../../config/inversify/types";
-import { AuthRequest } from "../../types/common/middTypes";
 import { NextFunction, Response } from "express";
 import { IReportController } from "./interface/IReportController";
 import { IReportService } from "../../services/wastePlant/interface/IReportService";
 import { ApiError } from "../../utils/ApiError";
 import { MESSAGES, STATUS_CODES } from "../../utils/constantUtils";
+import { AuthRequest } from "../../dtos/base/BaseDTO";
 
 @injectable()
 export class ReportController implements IReportController {

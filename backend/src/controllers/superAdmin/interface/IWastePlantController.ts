@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import { AuthRequest } from "../../../types/common/middTypes";
+import { AuthRequest } from "../../../dtos/base/BaseDTO";
 
 export interface IWastePlantController {
     getAddWastePlant(req: Request, res: Response, next: NextFunction): Promise<void>;
@@ -9,6 +9,5 @@ export interface IWastePlantController {
     getWastePlantById(req: Request, res: Response, next: NextFunction): Promise<void>;
     updateWastePlant (req: Request,res: Response, next: NextFunction): Promise<void>;
     deleteWastePlantById (req: Request,res: Response, next: NextFunction): Promise<void>;
-    // sendSubscribeNotification(req: AuthRequest, res: Response, next: NextFunction): Promise<void>;
     plantBlockStatus(req: AuthRequest, res: Response, next: NextFunction): Promise<void>
   }

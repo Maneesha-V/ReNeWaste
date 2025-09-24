@@ -1,11 +1,11 @@
 import { NextFunction, Response } from "express";
 import { inject, injectable } from "inversify";
 import TYPES from "../../config/inversify/types";
-import { AuthRequest } from "../../types/common/middTypes";
 import { IDashboardController } from "./interface/IDashboardController";
 import { IDashboardService } from "../../services/driver/interface/IDashboardService";
 import { MESSAGES, STATUS_CODES } from "../../utils/constantUtils";
 import { ApiError } from "../../utils/ApiError";
+import { AuthRequest } from "../../dtos/base/BaseDTO";
 
 @injectable()
 export class DashboardController implements IDashboardController {

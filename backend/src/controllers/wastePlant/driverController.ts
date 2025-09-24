@@ -2,12 +2,12 @@ import { NextFunction, Request, Response } from "express";
 import { IDriverController } from "./interface/IDriverController";
 import { IDriver } from "../../models/driver/interfaces/driverInterface";
 import mongoose from "mongoose";
-import { AuthRequest } from "../../types/common/middTypes";
 import { inject, injectable } from "inversify";
 import TYPES from "../../config/inversify/types";
 import { IDriverService } from "../../services/wastePlant/interface/IDriverService";
 import { ApiError } from "../../utils/ApiError";
 import { MESSAGES, STATUS_CODES } from "../../utils/constantUtils";
+import { AuthRequest } from "../../dtos/base/BaseDTO";
 
 @injectable()
 export class DriverController implements IDriverController {

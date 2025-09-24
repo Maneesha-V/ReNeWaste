@@ -1,6 +1,5 @@
 import { NextFunction, Request, Response } from "express";
 import { IProfileController } from "./interface/IProfileController";
-import { AuthRequest } from "../../types/common/middTypes";
 import { inject, injectable } from "inversify";
 import TYPES from "../../config/inversify/types";
 import { IProfileService } from "../../services/wastePlant/interface/IProfileService";
@@ -9,6 +8,7 @@ import streamifier from "streamifier";
 import axios from "axios";
 import { MESSAGES, STATUS_CODES } from "../../utils/constantUtils";
 import { ApiError } from "../../utils/ApiError";
+import { AuthRequest } from "../../dtos/base/BaseDTO";
 
 @injectable()
 export class ProfileController implements IProfileController {

@@ -1,11 +1,11 @@
 import { NextFunction, Request, Response } from "express";
 import { IProfileController } from "./interface/IProfileController";
-import { AuthRequest } from "../../types/common/middTypes";
 import { inject, injectable } from "inversify";
 import TYPES from "../../config/inversify/types";
 import { IProfileService } from "../../services/driver/interface/IProfileService";
 import { ApiError } from "../../utils/ApiError";
 import { MESSAGES, STATUS_CODES } from "../../utils/constantUtils";
+import { AuthRequest } from "../../dtos/base/BaseDTO";
 
 @injectable()
 export class ProfileController implements IProfileController {

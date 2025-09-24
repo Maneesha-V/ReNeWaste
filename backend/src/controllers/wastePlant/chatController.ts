@@ -1,11 +1,11 @@
 import { NextFunction, Response } from "express";
-import { AuthRequest } from "../../types/common/middTypes";
 import { IChatController } from "./interface/IChatController";
 import { inject, injectable } from "inversify";
 import TYPES from "../../config/inversify/types";
 import { IChatService } from "../../services/wastePlant/interface/IChatService";
 import { ApiError } from "../../utils/ApiError";
 import { MESSAGES, STATUS_CODES } from "../../utils/constantUtils";
+import { AuthRequest } from "../../dtos/base/BaseDTO";
 
 @injectable()
 export class ChatController implements IChatController {

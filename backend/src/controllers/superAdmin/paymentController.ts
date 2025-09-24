@@ -2,10 +2,10 @@ import { inject, injectable } from "inversify";
 import TYPES from "../../config/inversify/types";
 import { IPaymentController } from "./interface/IPaymentController";
 import { IPaymentService } from "../../services/superAdmin/interface/IPaymentService";
-import { AuthRequest } from "../../types/common/middTypes";
 import { NextFunction, Response } from "express"
 import { MESSAGES, STATUS_CODES } from "../../utils/constantUtils";
 import { ApiError } from "../../utils/ApiError";
+import { AuthRequest } from "../../dtos/base/BaseDTO";
 @injectable()
 export class PaymentController implements IPaymentController {
   constructor(

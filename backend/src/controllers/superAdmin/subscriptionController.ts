@@ -2,10 +2,10 @@ import { inject, injectable } from "inversify";
 import TYPES from "../../config/inversify/types";
 import { ISubscriptionController } from "./interface/ISubscriptionController";
 import { ISubscriptionService } from "../../services/superAdmin/interface/ISubscriptionService";
-import { AuthRequest } from "../../types/common/middTypes";
 import { NextFunction, Response } from "express";
 import { MESSAGES, STATUS_CODES } from "../../utils/constantUtils";
 import { ApiError } from "../../utils/ApiError";
+import { AuthRequest } from "../../dtos/base/BaseDTO";
 
 @injectable()
 export class SubscriptionController implements ISubscriptionController {

@@ -1,11 +1,11 @@
 import { NextFunction, Request, Response } from "express";
 import { IPickupController } from "./interface/IPickupController";
-import { AuthRequest } from "../../types/common/middTypes";
 import { inject, injectable } from "inversify";
 import TYPES from "../../config/inversify/types";
 import { IPickupService } from "../../services/wastePlant/interface/IPickupService";
 import { MESSAGES, STATUS_CODES } from "../../utils/constantUtils";
 import { ApiError } from "../../utils/ApiError";
+import { AuthRequest } from "../../dtos/base/BaseDTO";
 
 @injectable()
 export class PickupController implements IPickupController {

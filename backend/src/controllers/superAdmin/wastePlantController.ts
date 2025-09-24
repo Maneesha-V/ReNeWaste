@@ -1,7 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import { IWastePlant } from "../../models/wastePlant/interfaces/wastePlantInterface";
 import { IWastePlantController } from "./interface/IWastePlantController";
-import { AuthRequest } from "../../types/common/middTypes";
 import TYPES from "../../config/inversify/types";
 import { inject, injectable } from "inversify";
 import { IWastePlantService } from "../../services/superAdmin/interface/IWastePlantService";
@@ -15,8 +14,7 @@ import {
 import { MESSAGES, STATUS_CODES } from "../../utils/constantUtils";
 import { ApiError } from "../../utils/ApiError";
 import { ISubscriptionService } from "../../services/superAdmin/interface/ISubscriptionService";
-import https from "https";
-import fetch from "node-fetch";
+import { AuthRequest } from "../../dtos/base/BaseDTO";
 
 @injectable()
 export class WastePlantController implements IWastePlantController {

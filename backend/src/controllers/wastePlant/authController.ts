@@ -1,12 +1,12 @@
 import { NextFunction, Request, Response } from "express";
 import { IAuthController } from "./interface/IAuthController";
 import { generateRefreshToken } from "../../utils/authUtils";
-import { AuthRequest } from "../../types/common/middTypes";
 import { inject, injectable } from "inversify";
 import TYPES from "../../config/inversify/types";
 import { IAuthService } from "../../services/wastePlant/interface/IAuthService";
 import { ApiError } from "../../utils/ApiError";
 import { MESSAGES, STATUS_CODES } from "../../utils/constantUtils";
+import { AuthRequest } from "../../dtos/base/BaseDTO";
 
 @injectable()
 export class AuthController implements IAuthController {

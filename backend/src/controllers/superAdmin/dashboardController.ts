@@ -3,8 +3,8 @@ import TYPES from "../../config/inversify/types";
 import { inject, injectable } from "inversify";
 import { IDashboardService } from "../../services/superAdmin/interface/IDashboardService";
 import { IDashboardController } from "./interface/IDashboardController";
-import { AuthRequest } from "../../types/common/middTypes";
 import { MESSAGES, STATUS_CODES } from "../../utils/constantUtils";
+import { AuthRequest } from "../../dtos/base/BaseDTO";
 
 @injectable()
 export class DashboardController implements IDashboardController {
