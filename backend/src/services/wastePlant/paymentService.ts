@@ -4,15 +4,6 @@ import { IPaymentService } from "./interface/IPaymentService";
 import { IPickupRepository } from "../../repositories/pickupReq/interface/IPickupRepository";
 import Razorpay from "razorpay";
 import crypto from "crypto";
-// import {
-//   FetchPaymentPayload,
-//   PaginatedPaymentsResult,
-//   RefundDataReq,
-//   ReurnSubcptnCreatePaymt,
-//   SubCreatePaymtPayload,
-//   UpdateStatusPayload,
-//   VerifyPaymtPayload,
-// } from "../../types/wastePlant/paymentTypes";
 import { IWastePlantRepository } from "../../repositories/wastePlant/interface/IWastePlantRepository";
 import { ISubscriptionPaymentRepository } from "../../repositories/subscriptionPayment/interface/ISubscriptionPaymentRepository";
 import { ISubscriptionPlanRepository } from "../../repositories/subscriptionPlan/interface/ISubscriptionPlanRepository";
@@ -398,7 +389,7 @@ export class PaymentService implements IPaymentService {
     }
     await pickupReq.save();
 
-    const io = global.io;
+    const io = globalThis.io;
 
     const userId = pickupReq.userId.toString();
     const userMessage = `Refund process started for Pickup ID ${pickupReq.pickupId}.`;
@@ -468,7 +459,7 @@ export class PaymentService implements IPaymentService {
       pickupReq.payment.refundAt = new Date();
 
       await pickupReq.save();
-      const io = global.io;
+      const io = globalThis.io;
 
       const userId = pickupReq.userId.toString();
       const userMessage = `Refund processed successfully for Pickup ID ${pickupReq.pickupId}. Amount ₹${pickupReq.payment.amount} will be credited soon.`;

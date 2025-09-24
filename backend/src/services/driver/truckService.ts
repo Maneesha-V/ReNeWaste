@@ -2,12 +2,12 @@ import { ITruckService } from "./interface/ITruckService";
 import { inject, injectable } from "inversify";
 import TYPES from "../../config/inversify/types";
 import { ITruckRepository } from "../../repositories/truck/interface/ITruckRepository";
-import { MarkReturnProps } from "../../types/driver/truckTypes";
 import { IDriverRepository } from "../../repositories/driver/interface/IDriverRepository";
 import mongoose from "mongoose";
 import { TruckMapper } from "../../mappers/TruckMapper";
 import { DriverMapper } from "../../mappers/DriverMapper";
 import { TruckAvailbleDTO } from "../../dtos/truck/truckDTO";
+import { MarkReturnProps } from "../../dtos/driver/driverDTO";
 
 @injectable()
 export class TruckService implements ITruckService {

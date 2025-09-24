@@ -99,7 +99,7 @@ export class PickupService implements IPickupService {
       );
     }
 
-    const io = global.io;
+    const io = globalThis.io;
 
     const driverMessage = `New pickup task assigned: Truck ${truck.vehicleNumber} from ${plant.plantName}.`;
     const driverNotification =
@@ -144,7 +144,7 @@ export class PickupService implements IPickupService {
       const updatedPickupRequest =
         await this.pickupRepository.updatePickupRequest(pickupReqId);
 
-      const io = global.io;
+      const io = globalThis.io;
 
       const userId = updatedPickupRequest.userId.toString();
       const userMessage = `Your pickup ID ${updatedPickupRequest.pickupId} is cancelled.${reason}`;
@@ -215,7 +215,7 @@ export class PickupService implements IPickupService {
         "Driver's plant does not match pickup's plant. Skipping notification."
       );
     }
-    const io = global.io;
+    const io = globalThis.io;
 
     const driverMessage = `Pickup ${updatedPickup.pickupId} is rescheduled to you from ${plant.plantName}.`;
     const driverNotification =

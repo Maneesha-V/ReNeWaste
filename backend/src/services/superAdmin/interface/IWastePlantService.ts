@@ -1,5 +1,4 @@
 import { PaginationInput } from "../../../dtos/common/commonDTO";
-import { notificationPayload } from "../../../dtos/notification/notificationDTO";
 import { PaginatedReturnAdminWastePlants, ReturnDeleteWP, WasteplantDTO } from "../../../dtos/wasteplant/WasteplantDTO";
 import { IWastePlant } from "../../../models/wastePlant/interfaces/wastePlantInterface";
 

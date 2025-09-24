@@ -1,6 +1,5 @@
 import { PaginationInput } from "../../../dtos/common/commonDTO";
-import { PaymentDTO, PickupPlansDTO } from "../../../dtos/pickupReq/pickupReqDTO";
-import { cancelPickupReasonData } from "../../../types/user/pickupTypes";
+import { cancelPickupReasonData, PaymentDTO, PickupPlansDTO } from "../../../dtos/pickupReq/pickupReqDTO";
 
 export interface IPickupService {
     getPickupPlanService(userId: string, paginationData: PaginationInput) : Promise<{ pickups: PickupPlansDTO[]; total: number }>;

@@ -3,11 +3,10 @@ import TYPES from "../../config/inversify/types";
 import { INotificationRepository } from "../../repositories/notification/interface/INotifcationRepository";
 import { INotificationService } from "./interface/INotificationService";
 import { IWasteCollectionRepository } from "../../repositories/wasteCollection/interface/IWasteCollectionRepository";
-import { InputWasteMeasurement } from "../../repositories/wasteCollection/types/wasteCollectionTypes";
-import { INotificationDocument } from "../../models/notification/interfaces/notificationInterface";
 import { IPickupRepository } from "../../repositories/pickupReq/interface/IPickupRepository";
 import { NotificationMapper } from "../../mappers/NotificationMapper";
 import { NotificationDTO } from "../../dtos/notification/notificationDTO";
+import { InputWasteMeasurement } from "../../dtos/wasteCollection/wasteCollectionDTO";
 
 @injectable()
 export class NotificationService implements INotificationService {
@@ -55,7 +54,7 @@ export class NotificationService implements INotificationService {
       pickupReq.payment.refundStatus = "Pending";
       await pickupReq.save();
       
-      const io = global.io;
+      const io = globalThis.io;
 
       const userId = pickupReq.userId.toString();
       const userMessage = `Pickup ID ${pickupReq.pickupId} refund request is under review.`;

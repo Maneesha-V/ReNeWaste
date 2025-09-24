@@ -2,8 +2,6 @@ import { inject, injectable } from "inversify";
 import TYPES from "../../config/inversify/types";
 import { ISubscriptionService } from "./interface/ISubscriptionService";
 import { ISubscriptionPlanRepository } from "../../repositories/subscriptionPlan/interface/ISubscriptionPlanRepository";
-import { ISubscriptionPlan } from "../../models/subscriptionPlans/interfaces/subsptnPlanInterface";
-import { updateSubscptnData } from "../../types/superAdmin/subscriptionTypes";
 import { SubscriptionPlanMapper } from "../../mappers/SubscriptionPlanMapper";
 import {
   FetchSubscriptionPlansResp,

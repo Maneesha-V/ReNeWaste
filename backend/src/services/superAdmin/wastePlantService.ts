@@ -167,45 +167,7 @@ export class WastePlantService implements IWastePlantService {
     }
     return { plantId: plant._id.toString() };
   }
-  // async sendSubscribeNotification(data: notificationPayload) {
-  //   const plant = await this._wastePlantRepository.getWastePlantById(
-  //     data.plantId
-  //   );
-  //   if (!plant) {
-  //     throw new Error("Plant not found.");
-  //   }
-  //   if (plant.createdAt) {
-  //     const createdAt = new Date(plant.createdAt);
-  //     const now = new Date();
-  //     const hoursPassed =
-  //       (now.getTime() - createdAt.getTime()) / (1000 * 60 * 60);
 
-  //     if (hoursPassed < 24) {
-  //       throw new Error(
-  //         "Subscription reminder can only be sent after 24 hours of creation."
-  //       );
-  //     }
-  //   }
-
-  //   const message = `Reminder: Your plant subscription is pending. Please subscribe to activate features.`;
-
-  //   const plantNotification =
-  //     await this._notificationRepository.createNotification({
-  //       receiverId: data.plantId,
-  //       receiverType: "wasteplant",
-  //       senderId: data.adminId,
-  //       senderType: "superadmin",
-  //       message,
-  //       type: "subscribe_reminder",
-  //     });
-  //   console.log("notification", plantNotification);
-
-  //   const io = global.io;
-
-  //   if (io) {
-  //     io.to(`${plant._id}`).emit("newNotification", plantNotification);
-  //   }
-  // }
   async plantBlockStatus(plantId: string, isBlocked: boolean): Promise<WasteplantDTO> {
     const wasteplant = await this._wastePlantRepository.getWastePlantById(
       plantId
@@ -223,7 +185,7 @@ export class WastePlantService implements IWastePlantService {
       ...new Set(pickupReqsts.map((p) => p.userId?.toString()).filter(Boolean)),
     ];
     console.log("distinctUserIds", distinctUserIds);
-    const io = global.io;
+    const io = globalThis.io;
     if (isBlocked) {
       wasteplant.blockedAt = new Date();
       // wasteplant.autoUnblockAt = new Date(Date.now() + 24 * 60 * 60 * 1000);

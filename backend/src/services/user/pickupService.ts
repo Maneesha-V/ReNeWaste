@@ -2,10 +2,9 @@ import { IPickupService } from "./interface/IPIckupService";
 import { inject, injectable } from "inversify";
 import TYPES from "../../config/inversify/types";
 import { IPickupRepository } from "../../repositories/pickupReq/interface/IPickupRepository";
-import { cancelPickupReasonData } from "../../types/user/pickupTypes";
 import { INotificationRepository } from "../../repositories/notification/interface/INotifcationRepository";
 import { PickupRequestMapper } from "../../mappers/PIckupReqMapper";
-import { PaymentDTO, PickupPlansDTO } from "../../dtos/pickupReq/pickupReqDTO";
+import { cancelPickupReasonData, PaymentDTO, PickupPlansDTO } from "../../dtos/pickupReq/pickupReqDTO";
 import { PaginationInput } from "../../dtos/common/commonDTO";
 
 @injectable()
@@ -60,7 +59,7 @@ export class PickupService implements IPickupService {
     if (!updatedPickupRequest.wasteplantId) {
       throw new Error("Wasteplant ID not found in pickup request.");
     }
-    const io = global.io;
+    const io = globalThis.io;
 
     const plantId = updatedPickupRequest?.wasteplantId.toString();
 

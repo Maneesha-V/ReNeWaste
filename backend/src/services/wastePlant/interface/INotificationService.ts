@@ -1,5 +1,5 @@
 import { NotificationDTO } from "../../../dtos/notification/notificationDTO";
-import { InputWasteMeasurement, ReturnWasteMeasurement } from "../../../repositories/wasteCollection/types/wasteCollectionTypes";
+import { InputWasteMeasurement, ReturnWasteMeasurement } from "../../../dtos/wasteCollection/wasteCollectionDTO";
 
 export interface INotificationService {
     getNotifications(wasteplantId: string) : Promise<NotificationDTO[]>;
