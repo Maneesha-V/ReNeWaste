@@ -19,14 +19,14 @@ export class PaymentService implements IPaymentService {
   private razorpay: Razorpay;
   constructor(
     @inject(TYPES.PickupRepository)
-    private _pickupRepository: IPickupRepository
+    private _pickupRepository: IPickupRepository,
   ) {
     const key_id = process.env.RAZORPAY_KEY_ID!;
     const key_secret = process.env.RAZORPAY_KEY_SECRET!;
 
     if (!key_id || !key_secret) {
       throw new Error(
-        "Razorpay API keys are not defined in environment variables"
+        "Razorpay API keys are not defined in environment variables",
       );
     }
 
@@ -36,13 +36,13 @@ export class PaymentService implements IPaymentService {
     });
   }
   async createPaymentOrderService(
-    data: CreatePaymentReq
+    data: CreatePaymentReq,
   ): Promise<CreatePaymentResp> {
     const { pickupReqId, userId, amount } = data;
     const pickupRequest =
       await this._pickupRepository.getPickupByUserIdAndPickupReqId(
         pickupReqId,
-        userId
+        userId,
       );
     console.log("pickupRequest ", pickupRequest);
     if (!pickupRequest) {
@@ -51,12 +51,9 @@ export class PaymentService implements IPaymentService {
 
     const now = new Date();
     const payment = pickupRequest.payment;
-    if (
-      payment?.inProgressExpiresAt &&
-      payment?.inProgressExpiresAt > now
-    ) {
+    if (payment?.inProgressExpiresAt && payment?.inProgressExpiresAt > now) {
       throw new Error(
-        "A payment is already in progress. Please wait a few minutes before retrying."
+        "A payment is already in progress. Please wait a few minutes before retrying.",
       );
     }
     const order = await this.razorpay.orders.create({
@@ -108,7 +105,7 @@ export class PaymentService implements IPaymentService {
   }
 
   async verifyPaymentService(
-    data: VerifyPaymentReq
+    data: VerifyPaymentReq,
   ): Promise<VerifyPaymentResp> {
     console.log("data", data);
 
@@ -132,7 +129,7 @@ export class PaymentService implements IPaymentService {
     const pickupRequest =
       await this._pickupRepository.getPickupByUserIdAndPickupReqId(
         pickupReqId,
-        userId
+        userId,
       );
 
     if (!pickupRequest) {
@@ -161,7 +158,7 @@ export class PaymentService implements IPaymentService {
 
   async getAllPayments(
     userId: string,
-    paginationData: PaginationInput
+    paginationData: PaginationInput,
   ): Promise<{ payments: PickupPaymentSummaryDTO[]; total: number }> {
     const { pickups, total } =
       await this._pickupRepository.getAllPaymentsByUser(userId, paginationData);
@@ -173,7 +170,7 @@ export class PaymentService implements IPaymentService {
     const pickupRequest =
       await this._pickupRepository.getPickupByUserIdAndPickupReqId(
         pickupReqId,
-        userId
+        userId,
       );
     console.log("pickupRequest ", pickupRequest);
     if (!pickupRequest) {
@@ -199,7 +196,7 @@ export class PaymentService implements IPaymentService {
       payment.inProgressExpiresAt > now
     ) {
       throw new Error(
-        "A payment is already in progress. Please wait a few minutes before retrying."
+        "A payment is already in progress. Please wait a few minutes before retrying.",
       );
     }
     const expiresIn = 5 * 60 * 1000;

@@ -14,19 +14,19 @@ import { AuthRequest } from "../../dtos/base/BaseDTO";
 export class ProfileController implements IProfileController {
   constructor(
     @inject(TYPES.PlantProfileService)
-    private profileService: IProfileService
+    private profileService: IProfileService,
   ) {}
   async getPlantProfile(
     req: AuthRequest,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ): Promise<void> {
     try {
       const plantId = req.user?.id;
       if (!plantId) {
         throw new ApiError(
           STATUS_CODES.UNAUTHORIZED,
-          MESSAGES.COMMON.ERROR.UNAUTHORIZED
+          MESSAGES.COMMON.ERROR.UNAUTHORIZED,
         );
       }
       const wasteplant = await this.profileService.getPlantProfile(plantId);
@@ -39,7 +39,7 @@ export class ProfileController implements IProfileController {
   async viewLicenseDocument(
     req: Request,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ): Promise<void> {
     try {
       const publicId = req.params.publicId;
@@ -61,7 +61,7 @@ export class ProfileController implements IProfileController {
   async updatePlantProfile(
     req: AuthRequest,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ): Promise<void> {
     try {
       console.log("file", req.file);
@@ -72,7 +72,7 @@ export class ProfileController implements IProfileController {
       if (!plantId) {
         throw new ApiError(
           STATUS_CODES.UNAUTHORIZED,
-          MESSAGES.COMMON.ERROR.UNAUTHORIZED
+          MESSAGES.COMMON.ERROR.UNAUTHORIZED,
         );
       }
 
@@ -88,7 +88,7 @@ export class ProfileController implements IProfileController {
               (error, result) => {
                 if (error) return reject(error);
                 resolve(result);
-              }
+              },
             );
             streamifier.createReadStream(req.file!.buffer).pipe(stream);
           });
@@ -102,7 +102,7 @@ export class ProfileController implements IProfileController {
 
       const updatedPlant = await this.profileService.updatePlantProfile(
         plantId,
-        updatedData
+        updatedData,
       );
       console.log("updatedPlant", updatedPlant);
 

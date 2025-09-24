@@ -7,7 +7,7 @@ import { AuthRequest } from "../dtos/base/BaseDTO";
 export const checkWastePlantNotBlocked = async (
   req: AuthRequest,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ): Promise<void> => {
   const userId = req.user?.id;
   const role = req.user?.role;
@@ -17,7 +17,7 @@ export const checkWastePlantNotBlocked = async (
   }
 
   const user = await UserModel.findById(userId);
-  console.log("user34",user);
+  console.log("user34", user);
   if (!user || !user.wasteplantId) {
     res
       .status(STATUS_CODES.FORBIDDEN)
@@ -26,8 +26,8 @@ export const checkWastePlantNotBlocked = async (
   }
 
   const wastePlant = await WastePlantModel.findById(user.wasteplantId);
-  console.log("wastePlant12",wastePlant);
-  
+  console.log("wastePlant12", wastePlant);
+
   if (!wastePlant) {
     res
       .status(STATUS_CODES.FORBIDDEN)
@@ -36,12 +36,10 @@ export const checkWastePlantNotBlocked = async (
   }
 
   if (wastePlant.isBlocked) {
-    res
-      .status(STATUS_CODES.FORBIDDEN)
-      .json({ 
-        reason: "WASTEPLANT_BLOCKED",
-        message: MESSAGES.USER.ERROR.WASTEPLANT_BLOCK 
-      });
+    res.status(STATUS_CODES.FORBIDDEN).json({
+      reason: "WASTEPLANT_BLOCKED",
+      message: MESSAGES.USER.ERROR.WASTEPLANT_BLOCK,
+    });
     return;
   }
 

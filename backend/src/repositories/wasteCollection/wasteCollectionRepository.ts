@@ -9,8 +9,11 @@ import { ITruckRepository } from "../truck/interface/ITruckRepository";
 import { INotificationRepository } from "../notification/interface/INotifcationRepository";
 import mongoose from "mongoose";
 import { FilterReport } from "../../dtos/wasteplant/WasteplantDTO";
-import { InputWasteMeasurement, ReturnTotalWasteAmount, ReturnWasteMeasurement } from "../../dtos/wasteCollection/wasteCollectionDTO";
-
+import {
+  InputWasteMeasurement,
+  ReturnTotalWasteAmount,
+  ReturnWasteMeasurement,
+} from "../../dtos/wasteCollection/wasteCollectionDTO";
 
 @injectable()
 export class WasteCollectionRepository
@@ -23,16 +26,16 @@ export class WasteCollectionRepository
     @inject(TYPES.TruckRepository)
     private truckRepository: ITruckRepository,
     @inject(TYPES.NotificationRepository)
-    private notificationRepository: INotificationRepository
+    private notificationRepository: INotificationRepository,
   ) {
     super(WasteCollectionModel);
   }
 
   async createWasteMeasurement(
-    data: InputWasteMeasurement
+    data: InputWasteMeasurement,
   ): Promise<ReturnWasteMeasurement> {
     const notification = await this.notificationRepository.getNotificationById(
-      data.notificationId
+      data.notificationId,
     );
     if (!notification) {
       throw new Error("Notification not found.");
@@ -131,10 +134,10 @@ export class WasteCollectionRepository
       {
         $group: {
           _id: null,
-          total: {$sum: "$collectedWeight"}
-        }
-      }
-    ])
+          total: { $sum: "$collectedWeight" },
+        },
+      },
+    ]);
     return result[0]?.total || 0;
   }
 }

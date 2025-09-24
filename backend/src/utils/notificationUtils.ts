@@ -32,7 +32,9 @@ export const sendNotification = async ({
     if (io) {
       io.to(`${receiverId}`).emit("notification", notification);
     } else {
-      console.warn("⚠️ Socket.IO instance not available, skipping real-time push");
+      console.warn(
+        "⚠️ Socket.IO instance not available, skipping real-time push",
+      );
     }
     console.log(`📩 Notification sent to receiver ${receiverId}`);
     return notification;

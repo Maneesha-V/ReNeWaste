@@ -9,7 +9,10 @@ import TYPES from "../../config/inversify/types";
 import BaseRepository from "../baseRepository/baseRepository";
 import { IDriverRepository } from "../driver/interface/IDriverRepository";
 import { Types } from "mongoose";
-import { PaginatedTrucksResult, ReturnFetchAllTrucksByPlantId } from "../../dtos/truck/truckDTO";
+import {
+  PaginatedTrucksResult,
+  ReturnFetchAllTrucksByPlantId,
+} from "../../dtos/truck/truckDTO";
 
 @injectable()
 export class TruckRepository
@@ -18,25 +21,25 @@ export class TruckRepository
 {
   constructor(
     @inject(TYPES.DriverRepository)
-    private getDriverRepo: () => IDriverRepository
+    private getDriverRepo: () => IDriverRepository,
   ) {
     super(TruckModel);
   }
   async findTruckByVehicle(
-    vehicleNumber: string
+    vehicleNumber: string,
   ): Promise<ITruckDocument | null> {
     return await this.model.findOne({ vehicleNumber });
   }
   async createTruck(data: ITruck): Promise<ITruckDocument> {
-      const truck = new this.model(data);
-      console.log("db-truck", truck);
-      return await truck.save();
+    const truck = new this.model(data);
+    console.log("db-truck", truck);
+    return await truck.save();
   }
   async getAllTrucks(
     plantId: string,
     page: number,
     limit: number,
-    search: string
+    search: string,
   ): Promise<PaginatedTrucksResult> {
     console.log("search", search);
 
@@ -69,7 +72,7 @@ export class TruckRepository
   }
   async getAvailableTrucks(
     driverId: string,
-    plantId: string
+    plantId: string,
   ): Promise<ITruckDocument[]> {
     const existingTruck = await this.model
       .findOne({
@@ -85,8 +88,11 @@ export class TruckRepository
       .find({ assignedDriver: null, wasteplantId: plantId })
       .populate("wasteplantId");
   }
-  async getAssignedAvailableTrucks(driverId: string, plantId: string): Promise<ITruckDocument[] | null> {
-     const existingTruck = await this.model
+  async getAssignedAvailableTrucks(
+    driverId: string,
+    plantId: string,
+  ): Promise<ITruckDocument[] | null> {
+    const existingTruck = await this.model
       .findOne({
         assignedDriver: driverId,
         wasteplantId: plantId,
@@ -100,17 +106,20 @@ export class TruckRepository
   async getTruckById(truckId: string) {
     return await this.model.findById(truckId);
   }
-  async updateTruckById(truckId: string, data: ITruck): Promise<ITruckDocument | null> {
+  async updateTruckById(
+    truckId: string,
+    data: ITruck,
+  ): Promise<ITruckDocument | null> {
     return await this.model.findByIdAndUpdate(truckId, data, { new: true });
   }
   async deleteTruckById(truckId: string) {
     const updatedTruck = await this.model.findByIdAndUpdate(
       truckId,
-      {isDeleted: true, status: "Inactive"},
-      {new: true}
-    )
-    if(!updatedTruck){
-      throw new Error("Truck not found.")
+      { isDeleted: true, status: "Inactive" },
+      { new: true },
+    );
+    if (!updatedTruck) {
+      throw new Error("Truck not found.");
     }
     return updatedTruck;
   }
@@ -141,7 +150,7 @@ export class TruckRepository
     plantId: string,
     driverId: string,
     truckId: string,
-    prevTruckId: string
+    prevTruckId: string,
   ) {
     const updatedDriver = await this.getDriverRepo().updateDriverByPlantAndId(
       driverId,
@@ -149,7 +158,7 @@ export class TruckRepository
       {
         assignedTruckId: new Types.ObjectId(truckId),
         hasRequestedTruck: false,
-      }
+      },
     );
     const updatedTruck = await this.model.findOneAndUpdate(
       { _id: truckId },
@@ -158,7 +167,7 @@ export class TruckRepository
           assignedDriver: driverId,
         },
       },
-      { new: true }
+      { new: true },
     );
     if (prevTruckId && prevTruckId !== truckId) {
       await this.model.findOneAndUpdate(
@@ -167,7 +176,7 @@ export class TruckRepository
           $set: {
             assignedDriver: null,
           },
-        }
+        },
       );
     }
     return await this.getMaintainanceTrucks(plantId);
@@ -175,7 +184,7 @@ export class TruckRepository
 
   async updateAssignedDriver(
     truckId: string,
-    driverId: string | Types.ObjectId
+    driverId: string | Types.ObjectId,
   ): Promise<void> {
     const objectIdTruck = new Types.ObjectId(truckId);
     const objectIdDriver =
@@ -194,14 +203,14 @@ export class TruckRepository
   async markTruckAsReturned(
     driverId: string,
     truckId: string,
-    plantId: string
+    plantId: string,
   ): Promise<ITruckDocument> {
     const truck = await this.model.findOneAndUpdate(
       { _id: truckId, assignedDriver: driverId, wasteplantId: plantId },
       {
         $set: { isReturned: true, assignedDriver: null },
       },
-      { new: true }
+      { new: true },
     );
     if (!truck) {
       throw new Error("Truck not found or not assigned to this driver");
@@ -212,7 +221,7 @@ export class TruckRepository
     return await this.model.findOne({ name });
   }
   async fetchAllTrucksByPlantId(
-    plantId: string
+    plantId: string,
   ): Promise<ReturnFetchAllTrucksByPlantId> {
     const truckCounts = await this.model.aggregate([
       {
@@ -243,6 +252,6 @@ export class TruckRepository
     return { active, inactive, maintenance };
   }
   async getTotalTrucks(): Promise<number> {
-    return await this.model.countDocuments()
+    return await this.model.countDocuments();
   }
 }

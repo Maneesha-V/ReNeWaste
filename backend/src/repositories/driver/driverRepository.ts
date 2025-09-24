@@ -10,7 +10,11 @@ import TYPES from "../../config/inversify/types";
 import BaseRepository from "../baseRepository/baseRepository";
 import { ITruckRepository } from "../truck/interface/ITruckRepository";
 import { INotificationRepository } from "../notification/interface/INotifcationRepository";
-import { MarkTruckReturnResult, PaginatedDriversResult, ReturnFetchAllDriversByPlantId } from "../../dtos/driver/driverDTO";
+import {
+  MarkTruckReturnResult,
+  PaginatedDriversResult,
+  ReturnFetchAllDriversByPlantId,
+} from "../../dtos/driver/driverDTO";
 import { DriverMapper } from "../../mappers/DriverMapper";
 
 @injectable()
@@ -22,14 +26,14 @@ export class DriverRepository
     @inject(TYPES.TruckRepositoryFactory)
     private getTruckRepo: () => ITruckRepository,
     @inject(TYPES.NotificationRepository)
-    private notificationRepository: INotificationRepository
+    private notificationRepository: INotificationRepository,
   ) {
     super(DriverModel);
   }
   async createDriver(data: IDriver): Promise<IDriverDocument> {
-      const driver = new this.model(data);
-      console.log("driver", driver);
-      return await driver.save();
+    const driver = new this.model(data);
+    console.log("driver", driver);
+    return await driver.save();
   }
   async findDriverByEmail(email: string): Promise<IDriverDocument | null> {
     return await this.model.findOne({ email });
@@ -44,7 +48,7 @@ export class DriverRepository
     plantId: string,
     page: number,
     limit: number,
-    search: string
+    search: string,
   ): Promise<PaginatedDriversResult> {
     const searchRegex = new RegExp(search, "i");
 
@@ -71,32 +75,35 @@ export class DriverRepository
 
     const total = await this.model.countDocuments(query);
 
-    return { 
-      drivers: DriverMapper.mapDriversDTO(drivers), 
-      total 
+    return {
+      drivers: DriverMapper.mapDriversDTO(drivers),
+      total,
     };
   }
   async updateDriverPassword(
     email: string,
-    hashedPassword: string
+    hashedPassword: string,
   ): Promise<void> {
     await this.model.findOneAndUpdate(
       { email },
       { $set: { password: hashedPassword } },
-      { new: true, runValidators: false }
+      { new: true, runValidators: false },
     );
   }
   async getDriverById(driverId: string) {
     return await this.model.findById(driverId);
   }
-  async updateDriverById(driverId: string, data: any): Promise<IDriverDocument | null> {
+  async updateDriverById(
+    driverId: string,
+    data: any,
+  ): Promise<IDriverDocument | null> {
     return await this.model.findByIdAndUpdate(driverId, data, { new: true });
   }
   async deleteDriverById(driverId: string) {
     const updatedDriver = await this.model.findByIdAndUpdate(
       driverId,
       { isDeleted: true, status: "Inactive" },
-      { new: true }
+      { new: true },
     );
     if (!updatedDriver) {
       throw new Error("Driver not found.");
@@ -117,7 +124,7 @@ export class DriverRepository
     const objectIdTruck = new Types.ObjectId(assignedTruckId);
     await this.getTruckRepo().updateAssignedDriver(
       assignedTruckId,
-      objectIdDriver
+      objectIdDriver,
     );
     return await this.model.findByIdAndUpdate(
       objectIdDriver,
@@ -126,7 +133,7 @@ export class DriverRepository
           assignedTruckId: objectIdTruck,
         },
       },
-      { new: true }
+      { new: true },
     );
   }
   async updateDriverAssignedZone(driverId: string, assignedZone: string) {
@@ -138,7 +145,7 @@ export class DriverRepository
           assignedZone: assignedZone,
         },
       },
-      { new: true }
+      { new: true },
     );
   }
 
@@ -155,7 +162,7 @@ export class DriverRepository
   async updateDriverByPlantAndId(
     driverId: string,
     plantId: string,
-    updateData: Partial<IDriver>
+    updateData: Partial<IDriver>,
   ): Promise<IDriver | null> {
     return await this.model.findOneAndUpdate(
       {
@@ -167,7 +174,7 @@ export class DriverRepository
       },
       {
         new: true,
-      }
+      },
     );
   }
   async countAll(): Promise<number> {
@@ -176,7 +183,7 @@ export class DriverRepository
   async markTruckAsReturned(
     truckId: string,
     plantId: string,
-    driverId: string
+    driverId: string,
   ): Promise<MarkTruckReturnResult> {
     const driver = await this.model.findById(driverId);
     if (!driver) {
@@ -191,7 +198,7 @@ export class DriverRepository
     const truck = await this.getTruckRepo().markTruckAsReturned(
       driverId,
       truckId,
-      plantId
+      plantId,
     );
 
     const message = `Truck ${truck?.vehicleNumber} returned by driver ${driver.name}`;
@@ -214,13 +221,13 @@ export class DriverRepository
     return { driver, truck };
   }
   async fetchAllDriversByPlantId(
-    wastePlantId: string
+    wastePlantId: string,
   ): Promise<ReturnFetchAllDriversByPlantId> {
     const driverCounts = await this.model.aggregate([
       {
         $match: {
           wasteplantId: new Types.ObjectId(wastePlantId),
-          isDeleted: false
+          isDeleted: false,
         },
       },
       {

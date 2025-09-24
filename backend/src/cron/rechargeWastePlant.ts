@@ -47,7 +47,7 @@ cron.schedule("0 9 * * *", async () => {
 
     await WastePlantModel.findByIdAndUpdate(plant._id, {
       rechargeNotificationSent: true,
-      status: "Inactive"
+      status: "Inactive",
     });
   }
 });

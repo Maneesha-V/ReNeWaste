@@ -19,7 +19,7 @@ import { PaymentController as SuprAdminPaymentController } from "../../controlle
 import { UserController } from "../../controllers/user/userController";
 import { IUserController } from "../../controllers/user/interface/IUserController";
 import { IProfileController as IUserProfileController } from "../../controllers/user/interface/IProfileController";
-import { ProfileController as UserProfileController } from "../../controllers/user/profileController"; 
+import { ProfileController as UserProfileController } from "../../controllers/user/profileController";
 import { IResidentialController } from "../../controllers/user/interface/IResidentialController";
 import { ResidentialController } from "../../controllers/user/residentialController";
 import { ICommercialController } from "../../controllers/user/interface/ICommercialController";
@@ -116,7 +116,7 @@ import { NotificationService as UserNotificationService } from "../../services/u
 //wasteplant
 import { IAuthService as IPlantAuthService } from "../../services/wastePlant/interface/IAuthService";
 import { AuthService as PlantAuthService } from "../../services/wastePlant/authService";
-import { IChatService as IPlantChatService} from "../../services/wastePlant/interface/IChatService";
+import { IChatService as IPlantChatService } from "../../services/wastePlant/interface/IChatService";
 import { ChatService as PlantChatService } from "../../services/wastePlant/chatService";
 import { IDriverService as IPlantDriverService } from "../../services/wastePlant/interface/IDriverService";
 import { DriverService as PlantDriverService } from "../../services/wastePlant/driverService";
@@ -143,7 +143,7 @@ import { ProfileService as PlantProfileService } from "../../services/wastePlant
 
 //driver
 import { IAuthService as IDriverAuthService } from "../../services/driver/interface/IAuthService";
-import { AuthService as DriverAuthService  } from "../../services/driver/authService";
+import { AuthService as DriverAuthService } from "../../services/driver/authService";
 import { IChatService as IDriverChatService } from "../../services/driver/interface/IChatService";
 import { ChatService as DriverChatService } from "../../services/driver/chatService";
 import { IProfileService as IDriverProfileService } from "../../services/driver/interface/IProfileService";
@@ -153,7 +153,7 @@ import { PickupService as DriverPickupService } from "../../services/driver/pick
 import { ITruckService as IDriverTruckService } from "../../services/driver/interface/ITruckService";
 import { TruckService as DriverTruckService } from "../../services/driver/truckService";
 import { IMapService as IDriverMapService } from "../../services/driver/interface/IMapService";
-import { MapService as DriverMapService  } from "../../services/driver/mapService";
+import { MapService as DriverMapService } from "../../services/driver/mapService";
 import { INotificationService as IDriverNotificationService } from "../../services/driver/interface/INotificationService";
 import { NotificationService as DriverNotificationService } from "../../services/driver/notificationService";
 import { IDashboardService as IDriverDashboardService } from "../../services/driver/interface/IDashboardService";
@@ -174,7 +174,7 @@ import { IWastePlantRepository } from "../../repositories/wastePlant/interface/I
 import { WastePlantRepository } from "../../repositories/wastePlant/wastePlantRepository";
 import { ITruckRepository } from "../../repositories/truck/interface/ITruckRepository";
 import { TruckRepository } from "../../repositories/truck/truckRepository";
-import { IDriverRepository } from "../../repositories/driver/interface/IDriverRepository"; 
+import { IDriverRepository } from "../../repositories/driver/interface/IDriverRepository";
 import { DriverRepository } from "../../repositories/driver/driverRepository";
 import { IChatMsgRepository } from "../../repositories/chat/interface/IChatMsgRepository";
 import { ChatMsgRepository } from "../../repositories/chat/chatMsgRepository";
@@ -189,124 +189,279 @@ import { SubscriptionPlanRepository } from "../../repositories/subscriptionPlan/
 import { ISubscriptionPaymentRepository } from "../../repositories/subscriptionPayment/interface/ISubscriptionPaymentRepository";
 import { SubscriptionPaymentRepository } from "../../repositories/subscriptionPayment/subscriptionPaymentRepository";
 
-
 //Create the container
 const container = new Container();
 
 //--Bind Controllers--
 //superadmin
-container.bind<ISuprAdminAuthController>(TYPES.SuperAdminAuthController).to(SuprAdminAuthController);
-container.bind<ISuprAdminPlantController>(TYPES.SuperAdminPlantController).to(SuprAdminPlantController);
-container.bind<ISuprAdminDashBrdController>(TYPES.SuperAdminDashboardController).to(SuprAdminDashBrdController);
-container.bind<ISuprAdminNotificationController>(TYPES.SuperAdminNotificationController).to(SuprAdminNotificationController);
-container.bind<ISuprAdminSubscriptionController>(TYPES.SuperAdminSubscriptionController).to(SuprAdminSubscriptionController);
-container.bind<ISuprAdminPaymentController>(TYPES.SuperAdminPaymentController).to(SuprAdminPaymentController);
+container
+  .bind<ISuprAdminAuthController>(TYPES.SuperAdminAuthController)
+  .to(SuprAdminAuthController);
+container
+  .bind<ISuprAdminPlantController>(TYPES.SuperAdminPlantController)
+  .to(SuprAdminPlantController);
+container
+  .bind<ISuprAdminDashBrdController>(TYPES.SuperAdminDashboardController)
+  .to(SuprAdminDashBrdController);
+container
+  .bind<ISuprAdminNotificationController>(
+    TYPES.SuperAdminNotificationController,
+  )
+  .to(SuprAdminNotificationController);
+container
+  .bind<ISuprAdminSubscriptionController>(
+    TYPES.SuperAdminSubscriptionController,
+  )
+  .to(SuprAdminSubscriptionController);
+container
+  .bind<ISuprAdminPaymentController>(TYPES.SuperAdminPaymentController)
+  .to(SuprAdminPaymentController);
 //user
 container.bind<IUserController>(TYPES.UserAuthController).to(UserController);
-container.bind<IUserProfileController>(TYPES.UserProfileController).to(UserProfileController);
-container.bind<IResidentialController>(TYPES.ResidentialController).to(ResidentialController);
-container.bind<ICommercialController>(TYPES.CommercialController).to(CommercialController);
-container.bind<IUserPickupController>(TYPES.UserPickupController).to(UserPickupController);
-container.bind<IUserPaymentController>(TYPES.UserPaymentController).to(UserPaymentController);
-container.bind<IUserDropSpotController>(TYPES.UserDropSpotController).to(UserDropSpotController);
-container.bind<IUserNotificationController>(TYPES.UserNotificationController).to(UserNotificationController);
+container
+  .bind<IUserProfileController>(TYPES.UserProfileController)
+  .to(UserProfileController);
+container
+  .bind<IResidentialController>(TYPES.ResidentialController)
+  .to(ResidentialController);
+container
+  .bind<ICommercialController>(TYPES.CommercialController)
+  .to(CommercialController);
+container
+  .bind<IUserPickupController>(TYPES.UserPickupController)
+  .to(UserPickupController);
+container
+  .bind<IUserPaymentController>(TYPES.UserPaymentController)
+  .to(UserPaymentController);
+container
+  .bind<IUserDropSpotController>(TYPES.UserDropSpotController)
+  .to(UserDropSpotController);
+container
+  .bind<IUserNotificationController>(TYPES.UserNotificationController)
+  .to(UserNotificationController);
 
 //wasteplant
-container.bind<IPlantAuthController>(TYPES.PlantAuthController).to(PlantAuthController);
-container.bind<IPlantChatController>(TYPES.PlantChatController).to(PlantChatController);
-container.bind<IPlantDriverController>(TYPES.PlantDriverController).to(PlantDriverController);
-container.bind<IPlantDropSpotController>(TYPES.PlantDropSpotController).to(PlantDropSpotController);
-container.bind<IPlantPickupController>(TYPES.PlantPickupController).to(PlantPickupController);
-container.bind<IPlantTruckController>(TYPES.PlantTruckController).to(PlantTruckController);
-container.bind<IPlantUserController>(TYPES.PlantUserController).to(PlantUserController);
-container.bind<IPlantNotificationController>(TYPES.PlantNotificationController).to(PlantNotificationController);
-container.bind<IPlantSubscriptionController>(TYPES.PlantSubscriptionController).to(PlantSubscriptionController);
-container.bind<IPlantPaymentController>(TYPES.PlantPaymentController).to(PlantPaymentController);
-container.bind<IPlantDashboardController>(TYPES.PlantDashboardController).to(PlantDashboardController);
-container.bind<IPlantReportController>(TYPES.PlantReportController).to(PlantReportController);
-container.bind<IPlantProfileController>(TYPES.PlantProfileController).to(PlantProfileController);
+container
+  .bind<IPlantAuthController>(TYPES.PlantAuthController)
+  .to(PlantAuthController);
+container
+  .bind<IPlantChatController>(TYPES.PlantChatController)
+  .to(PlantChatController);
+container
+  .bind<IPlantDriverController>(TYPES.PlantDriverController)
+  .to(PlantDriverController);
+container
+  .bind<IPlantDropSpotController>(TYPES.PlantDropSpotController)
+  .to(PlantDropSpotController);
+container
+  .bind<IPlantPickupController>(TYPES.PlantPickupController)
+  .to(PlantPickupController);
+container
+  .bind<IPlantTruckController>(TYPES.PlantTruckController)
+  .to(PlantTruckController);
+container
+  .bind<IPlantUserController>(TYPES.PlantUserController)
+  .to(PlantUserController);
+container
+  .bind<IPlantNotificationController>(TYPES.PlantNotificationController)
+  .to(PlantNotificationController);
+container
+  .bind<IPlantSubscriptionController>(TYPES.PlantSubscriptionController)
+  .to(PlantSubscriptionController);
+container
+  .bind<IPlantPaymentController>(TYPES.PlantPaymentController)
+  .to(PlantPaymentController);
+container
+  .bind<IPlantDashboardController>(TYPES.PlantDashboardController)
+  .to(PlantDashboardController);
+container
+  .bind<IPlantReportController>(TYPES.PlantReportController)
+  .to(PlantReportController);
+container
+  .bind<IPlantProfileController>(TYPES.PlantProfileController)
+  .to(PlantProfileController);
 
 //driver
-container.bind<IDriverAuthController>(TYPES.DriverAuthController).to(DriverAuthController);
-container.bind<IDriverChatController>(TYPES.DriverChatController).to(DriverChatController);
-container.bind<IDriverProfileController>(TYPES.DriverProfileController).to(DriverProfileController);
-container.bind<IDriverPickupController>(TYPES.DriverPickupController).to(DriverPickupController);
-container.bind<IDriverTruckController>(TYPES.DriverTruckController).to(DriverTruckController);
-container.bind<IDriverMapController>(TYPES.DriverMapController).to(DriverMapController);
-container.bind<IDriverNotificationController>(TYPES.DriverNotificationController).to(DriverNotificationController);
-container.bind<IDriverDashboardController>(TYPES.DriverDashboardController).to(DriverDashboardController);
+container
+  .bind<IDriverAuthController>(TYPES.DriverAuthController)
+  .to(DriverAuthController);
+container
+  .bind<IDriverChatController>(TYPES.DriverChatController)
+  .to(DriverChatController);
+container
+  .bind<IDriverProfileController>(TYPES.DriverProfileController)
+  .to(DriverProfileController);
+container
+  .bind<IDriverPickupController>(TYPES.DriverPickupController)
+  .to(DriverPickupController);
+container
+  .bind<IDriverTruckController>(TYPES.DriverTruckController)
+  .to(DriverTruckController);
+container
+  .bind<IDriverMapController>(TYPES.DriverMapController)
+  .to(DriverMapController);
+container
+  .bind<IDriverNotificationController>(TYPES.DriverNotificationController)
+  .to(DriverNotificationController);
+container
+  .bind<IDriverDashboardController>(TYPES.DriverDashboardController)
+  .to(DriverDashboardController);
 
 //--Bind Services--
 
 //superadmin
-container.bind<ISuperAdminAuthService>(TYPES.SuperAdminAuthService).to(SuperAdminAuthService);
-container.bind<ISuprAdminPlantService>(TYPES.SuperAdminPlantService).to(SuprAdminPlantService);
-container.bind<ISuprAdminDashBrdService>(TYPES.SuperAdminDashboardService).to(SuprAdminDashBrdService);
-container.bind<ISuprAdminNotificationService>(TYPES.SuperAdminNotificationService).to(SuprAdminNotificationService);
-container.bind<ISuprAdminSubsciptionService>(TYPES.SuperAdminSubscriptionService).to(SuprAdminSubsciptionService);
-container.bind<ISuprAdminPaymentService>(TYPES.SuperAdminPaymentService).to(SuprAdminPaymentService);
+container
+  .bind<ISuperAdminAuthService>(TYPES.SuperAdminAuthService)
+  .to(SuperAdminAuthService);
+container
+  .bind<ISuprAdminPlantService>(TYPES.SuperAdminPlantService)
+  .to(SuprAdminPlantService);
+container
+  .bind<ISuprAdminDashBrdService>(TYPES.SuperAdminDashboardService)
+  .to(SuprAdminDashBrdService);
+container
+  .bind<ISuprAdminNotificationService>(TYPES.SuperAdminNotificationService)
+  .to(SuprAdminNotificationService);
+container
+  .bind<ISuprAdminSubsciptionService>(TYPES.SuperAdminSubscriptionService)
+  .to(SuprAdminSubsciptionService);
+container
+  .bind<ISuprAdminPaymentService>(TYPES.SuperAdminPaymentService)
+  .to(SuprAdminPaymentService);
 
-//user  
+//user
 container.bind<IUserAuthService>(TYPES.UserAuthService).to(UserAuthService);
-container.bind<IUserProfileService>(TYPES.UserProfileService).to(UserProfileService);
-container.bind<IResidentialService>(TYPES.ResidentialService).to(ResidentialService);
-container.bind<ICommercialService>(TYPES.CommercialService).to(CommercialService);
-container.bind<IUserPickupService>(TYPES.UserPickupService).to(UserPickupService);
-container.bind<IUserPaymentService>(TYPES.UserPaymentService).to(UserPaymentService);
-container.bind<IUserDropSpotService>(TYPES.UserDropSpotService).to(UserDropSpotService);
-container.bind<IUserNotificationService>(TYPES.UserNotificationService).to(UserNotificationService);
+container
+  .bind<IUserProfileService>(TYPES.UserProfileService)
+  .to(UserProfileService);
+container
+  .bind<IResidentialService>(TYPES.ResidentialService)
+  .to(ResidentialService);
+container
+  .bind<ICommercialService>(TYPES.CommercialService)
+  .to(CommercialService);
+container
+  .bind<IUserPickupService>(TYPES.UserPickupService)
+  .to(UserPickupService);
+container
+  .bind<IUserPaymentService>(TYPES.UserPaymentService)
+  .to(UserPaymentService);
+container
+  .bind<IUserDropSpotService>(TYPES.UserDropSpotService)
+  .to(UserDropSpotService);
+container
+  .bind<IUserNotificationService>(TYPES.UserNotificationService)
+  .to(UserNotificationService);
 
 //wasteplant
 container.bind<IPlantAuthService>(TYPES.PlantAuthService).to(PlantAuthService);
 container.bind<IPlantChatService>(TYPES.PlantChatService).to(PlantChatService);
-container.bind<IPlantDriverService>(TYPES.PlantDriverService).to(PlantDriverService);
-container.bind<IPlantDropSpotService>(TYPES.PlantDropSpotService).to(PlantDropSpotService);
-container.bind<IPlantPickupService>(TYPES.PlantPickupService).to(PlantPickupService);
-container.bind<IPlantTruckService>(TYPES.PlantTruckService).to(PlantTruckService);
+container
+  .bind<IPlantDriverService>(TYPES.PlantDriverService)
+  .to(PlantDriverService);
+container
+  .bind<IPlantDropSpotService>(TYPES.PlantDropSpotService)
+  .to(PlantDropSpotService);
+container
+  .bind<IPlantPickupService>(TYPES.PlantPickupService)
+  .to(PlantPickupService);
+container
+  .bind<IPlantTruckService>(TYPES.PlantTruckService)
+  .to(PlantTruckService);
 container.bind<IPlantUserService>(TYPES.PlantUserService).to(PlantUserService);
-container.bind<IPlantNotificationService>(TYPES.PlantNotificationService).to(PlantNotificationService);
-container.bind<IPlantSubscriptionService>(TYPES.PlantSubscriptionService).to(PlantSubscriptionService);
-container.bind<IPlantPaymentService>(TYPES.PlantPaymentService).to(PlantPaymentService);
-container.bind<IPlantDashboardService>(TYPES.PlantDashboardService).to(PlantDashboardService);
-container.bind<IPlantReportService>(TYPES.PlantReportService).to(PlantReportService);
-container.bind<IPlantProfileService>(TYPES.PlantProfileService).to(PlantProfileService);
+container
+  .bind<IPlantNotificationService>(TYPES.PlantNotificationService)
+  .to(PlantNotificationService);
+container
+  .bind<IPlantSubscriptionService>(TYPES.PlantSubscriptionService)
+  .to(PlantSubscriptionService);
+container
+  .bind<IPlantPaymentService>(TYPES.PlantPaymentService)
+  .to(PlantPaymentService);
+container
+  .bind<IPlantDashboardService>(TYPES.PlantDashboardService)
+  .to(PlantDashboardService);
+container
+  .bind<IPlantReportService>(TYPES.PlantReportService)
+  .to(PlantReportService);
+container
+  .bind<IPlantProfileService>(TYPES.PlantProfileService)
+  .to(PlantProfileService);
 
 //driver
-container.bind<IDriverAuthService>(TYPES.DriverAuthService).to(DriverAuthService);
-container.bind<IDriverChatService>(TYPES.DriverChatService).to(DriverChatService);
-container.bind<IDriverProfileService>(TYPES.DriverProfileService).to(DriverProfileService);
-container.bind<IDriverPickupService>(TYPES.DriverPickupService).to(DriverPickupService);
-container.bind<IDriverTruckService>(TYPES.DriverTruckService).to(DriverTruckService);
+container
+  .bind<IDriverAuthService>(TYPES.DriverAuthService)
+  .to(DriverAuthService);
+container
+  .bind<IDriverChatService>(TYPES.DriverChatService)
+  .to(DriverChatService);
+container
+  .bind<IDriverProfileService>(TYPES.DriverProfileService)
+  .to(DriverProfileService);
+container
+  .bind<IDriverPickupService>(TYPES.DriverPickupService)
+  .to(DriverPickupService);
+container
+  .bind<IDriverTruckService>(TYPES.DriverTruckService)
+  .to(DriverTruckService);
 container.bind<IDriverMapService>(TYPES.DriverMapService).to(DriverMapService);
-container.bind<IDriverNotificationService>(TYPES.DriverNotificationService).to(DriverNotificationService);
-container.bind<IDriverDashboardService>(TYPES.DriverDashboardService).to(DriverDashboardService);
+container
+  .bind<IDriverNotificationService>(TYPES.DriverNotificationService)
+  .to(DriverNotificationService);
+container
+  .bind<IDriverDashboardService>(TYPES.DriverDashboardService)
+  .to(DriverDashboardService);
 
 //--Bind Repositories--
-container.bind<ISuperAdminRepository>(TYPES.SuperAdminRepository).to(SuperAdminRepository);
+container
+  .bind<ISuperAdminRepository>(TYPES.SuperAdminRepository)
+  .to(SuperAdminRepository);
 container.bind<IUserRepository>(TYPES.UserRepository).to(UserRepository);
 container.bind<IOtpRepository>(TYPES.OtpRepository).to(OtpRepository);
 container.bind<IPickupRepository>(TYPES.PickupRepository).to(PickupRepository);
-container.bind<IDropSpotRepository>(TYPES.DropSpotRepository).to(DropSpotRepository);
-container.bind<IWastePlantRepository>(TYPES.WastePlantRepository).to(WastePlantRepository);
-container.bind<IChatMsgRepository>(TYPES.ChatMsgRepository).to(ChatMsgRepository);
-container.bind<IConversationRepository>(TYPES.ConversationRepository).to(ConversationRepository);
-container.bind<ITruckRepository>(TYPES.TruckRepository).to(TruckRepository).inSingletonScope();
-container.bind<IDriverRepository>(TYPES.DriverRepository).to(DriverRepository).inSingletonScope();
-container.bind<INotificationRepository>(TYPES.NotificationRepository).to(NotificationRepository);
-container.bind<IWasteCollectionRepository>(TYPES.WasteCollectionRepository).to(WasteCollectionRepository);
-container.bind<ISubscriptionPlanRepository>(TYPES.SubscriptionPlanRepository).to(SubscriptionPlanRepository);
-container.bind<ISubscriptionPaymentRepository>(TYPES.SubscriptionPaymentRepository).to(SubscriptionPaymentRepository);
+container
+  .bind<IDropSpotRepository>(TYPES.DropSpotRepository)
+  .to(DropSpotRepository);
+container
+  .bind<IWastePlantRepository>(TYPES.WastePlantRepository)
+  .to(WastePlantRepository);
+container
+  .bind<IChatMsgRepository>(TYPES.ChatMsgRepository)
+  .to(ChatMsgRepository);
+container
+  .bind<IConversationRepository>(TYPES.ConversationRepository)
+  .to(ConversationRepository);
+container
+  .bind<ITruckRepository>(TYPES.TruckRepository)
+  .to(TruckRepository)
+  .inSingletonScope();
+container
+  .bind<IDriverRepository>(TYPES.DriverRepository)
+  .to(DriverRepository)
+  .inSingletonScope();
+container
+  .bind<INotificationRepository>(TYPES.NotificationRepository)
+  .to(NotificationRepository);
+container
+  .bind<IWasteCollectionRepository>(TYPES.WasteCollectionRepository)
+  .to(WasteCollectionRepository);
+container
+  .bind<ISubscriptionPlanRepository>(TYPES.SubscriptionPlanRepository)
+  .to(SubscriptionPlanRepository);
+container
+  .bind<ISubscriptionPaymentRepository>(TYPES.SubscriptionPaymentRepository)
+  .to(SubscriptionPaymentRepository);
 
 // Bind factory for circular dep
-container.bind<() => IDriverRepository>(TYPES.DriverRepositoryFactory)
+container
+  .bind<() => IDriverRepository>(TYPES.DriverRepositoryFactory)
   .toFactory(() => {
-    return () => container.get<IDriverRepository>(TYPES.DriverRepository);  
+    return () => container.get<IDriverRepository>(TYPES.DriverRepository);
   });
 container
   .bind<() => ITruckRepository>(TYPES.TruckRepositoryFactory)
   .toFactory(() => {
     return () => container.get<ITruckRepository>(TYPES.TruckRepository);
-});
-
+  });
 
 export default container;

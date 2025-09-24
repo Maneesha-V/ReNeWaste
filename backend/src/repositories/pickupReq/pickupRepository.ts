@@ -15,9 +15,23 @@ import { inject, injectable } from "inversify";
 import TYPES from "../../config/inversify/types";
 import { IUserRepository } from "../user/interface/IUserRepository";
 import { IUserDocument } from "../../models/user/interfaces/userInterface";
-import { CheckExistingBusinessReq, CheckExistingResidReq, PickupDriverFilterParams, PickupStatus, PickupStatusByWasteType, PopulatedPIckupPlans, RevenueByWasteType, WasteType } from "../../dtos/pickupReq/pickupReqDTO";
+import {
+  CheckExistingBusinessReq,
+  CheckExistingResidReq,
+  PickupDriverFilterParams,
+  PickupStatus,
+  PickupStatusByWasteType,
+  PopulatedPIckupPlans,
+  RevenueByWasteType,
+  WasteType,
+} from "../../dtos/pickupReq/pickupReqDTO";
 import { PaginationInput } from "../../dtos/common/commonDTO";
-import { FetchPaymentPayload, FilterReport, PaginatedPaymentsResult, PickupFilterParams } from "../../dtos/wasteplant/WasteplantDTO";
+import {
+  FetchPaymentPayload,
+  FilterReport,
+  PaginatedPaymentsResult,
+  PickupFilterParams,
+} from "../../dtos/wasteplant/WasteplantDTO";
 
 @injectable()
 export class PickupRepository
@@ -26,7 +40,7 @@ export class PickupRepository
 {
   constructor(
     @inject(TYPES.UserRepository)
-    private _userRepository: IUserRepository
+    private _userRepository: IUserRepository,
   ) {
     super(PickupModel);
   }
@@ -46,7 +60,7 @@ export class PickupRepository
     return await newPickup.save();
   }
   async getPickupsByPlantId(
-    filters: PickupFilterParams
+    filters: PickupFilterParams,
   ): Promise<IPickupRequestDocument[]> {
     const { plantId, status, wasteType } = filters;
 
@@ -70,7 +84,7 @@ export class PickupRepository
         select: "name assignedZone",
       })
       .sort({ createdAt: -1 });
- console.log("pickups", pickups);
+    console.log("pickups", pickups);
     return pickups.map((pickup: any) => {
       const pickupObj = pickup.toObject();
 
@@ -80,7 +94,7 @@ export class PickupRepository
 
       const userAddress = pickup.userId?.addresses?.find(
         (address: any) =>
-          address._id.toString() === pickup.addressId?.toString()
+          address._id.toString() === pickup.addressId?.toString(),
       );
       console.log("userAddress", userAddress);
 
@@ -106,7 +120,7 @@ export class PickupRepository
       status: string;
       driverId: string;
       truckId: string;
-    }
+    },
   ) {
     const objectId = new Types.ObjectId(pickupReqId);
     const updated = await this.model
@@ -119,7 +133,7 @@ export class PickupRepository
             truckId: updateData.truckId,
           },
         },
-        { new: true }
+        { new: true },
       )
       .exec();
 
@@ -133,7 +147,7 @@ export class PickupRepository
       const updatedPickupRequest = await this.model.findByIdAndUpdate(
         pickupReqId,
         { $set: { status: "Cancelled" } },
-        { new: true }
+        { new: true },
       );
 
       if (!updatedPickupRequest) {
@@ -149,7 +163,7 @@ export class PickupRepository
     const updated = await this.model.findByIdAndUpdate(
       pickupReqId,
       updateData,
-      { new: true }
+      { new: true },
     );
 
     if (!updated) {
@@ -174,7 +188,7 @@ export class PickupRepository
     const enhancedPickups = pickups.map((pickup) => {
       const user = pickup.userId;
       const matchedAddress = user.addresses?.find(
-        (addr) => addr._id.toString() === pickup.addressId.toString()
+        (addr) => addr._id.toString() === pickup.addressId.toString(),
       );
 
       return {
@@ -186,7 +200,7 @@ export class PickupRepository
 
     return enhancedPickups;
   }
-    async findPickupByIdAndDriver(pickupReqId: string, driverId: string) {
+  async findPickupByIdAndDriver(pickupReqId: string, driverId: string) {
     const pickup = (await this.model
       .findOne({
         _id: pickupReqId,
@@ -195,17 +209,18 @@ export class PickupRepository
       .populate({
         path: "userId",
         select: "firstName lastName addresses",
-      }) as unknown as PopulatedPickup);
+      })) as unknown as PopulatedPickup;
 
-      
     // if (!pickup) return null;
-const userAddress = pickup.userId.addresses.map((add: Address) => add._id === pickup.addressId.toString());
-const userName = `${pickup.userId.firstName} ${pickup.userId.lastName}`
+    const userAddress = pickup.userId.addresses.map(
+      (add: Address) => add._id === pickup.addressId.toString(),
+    );
+    const userName = `${pickup.userId.firstName} ${pickup.userId.lastName}`;
 
     return {
       ...pickup.toObject(),
       userAddress,
-      userName
+      userName,
     };
   }
   // async findPickupByIdAndDriver(pickupReqId: string, driverId: string) {
@@ -241,7 +256,7 @@ const userName = `${pickup.userId.firstName} ${pickup.userId.lastName}`
     updateFields: {
       eta: { text: string; value: number };
       // trackingStatus: "Assigned";
-    }
+    },
   ) {
     const res = await this.model.findByIdAndUpdate(pickupReqId, {
       eta: updateFields.eta,
@@ -252,7 +267,7 @@ const userName = `${pickup.userId.firstName} ${pickup.userId.lastName}`
 
   async getPickupPlansByUserId(
     userId: string,
-    paginationData: PaginationInput
+    paginationData: PaginationInput,
   ): Promise<{ pickupPlans: PopulatedPIckupPlans[]; total: number }> {
     const { page, limit, search, filter } = paginationData;
     const searchRegex = new RegExp(search, "i");
@@ -270,7 +285,7 @@ const userName = `${pickup.userId.firstName} ${pickup.userId.lastName}`
         const searchDate = new Date(
           Number(year),
           Number(month) - 1,
-          Number(day)
+          Number(day),
         );
         const nextDay = new Date(searchDate);
         nextDay.setDate(nextDay.getDate() + 1);
@@ -294,11 +309,11 @@ const userName = `${pickup.userId.firstName} ${pickup.userId.lastName}`
     const [pickups, total] = await Promise.all([
       this.model
         // .find(query)
-         .find({
-        ...query,
-        addressId: { $exists: true, $ne: null }, 
-      })
-      .sort({originalPickupDate: 1})
+        .find({
+          ...query,
+          addressId: { $exists: true, $ne: null },
+        })
+        .sort({ originalPickupDate: 1 })
         .skip(skip)
         .limit(limit)
         .populate({
@@ -312,14 +327,14 @@ const userName = `${pickup.userId.firstName} ${pickup.userId.lastName}`
         .lean(),
       // this.model.countDocuments(query),
       this.model.countDocuments({
-      ...query,
-      addressId: { $exists: true, $ne: null },
-    }),
+        ...query,
+        addressId: { $exists: true, $ne: null },
+      }),
     ]);
-    console.log("pickups",pickups);
+    console.log("pickups", pickups);
     const user: IUserDocument = await this._userRepository.findById(
       userId,
-      true
+      true,
     );
 
     type TrackingStatus = "Pending" | "Scheduled" | "Completed" | "Cancelled";
@@ -341,24 +356,24 @@ const userName = `${pickup.userId.firstName} ${pickup.userId.lastName}`
       const bDate = new Date(b.rescheduledPickupDate || b.originalPickupDate);
 
       const aDateTime = new Date(
-        `${aDate.toISOString().split("T")[0]}T${a.pickupTime}:00Z`
+        `${aDate.toISOString().split("T")[0]}T${a.pickupTime}:00Z`,
       );
       const bDateTime = new Date(
-        `${bDate.toISOString().split("T")[0]}T${b.pickupTime}:00Z`
+        `${bDate.toISOString().split("T")[0]}T${b.pickupTime}:00Z`,
       );
 
       return aDateTime.getTime() - bDateTime.getTime();
     });
-    console.log("sortedPickups",sortedPickups);
-    
+    console.log("sortedPickups", sortedPickups);
+
     return {
       pickupPlans: sortedPickups.map((p) => {
         const matchedAddress = user?.addresses?.find(
-          (a) => a._id.toString() === p.addressId?.toString()
+          (a) => a._id.toString() === p.addressId?.toString(),
         );
         console.log("user.addresses", user?.addresses);
-console.log("pickup.addressId", p.addressId);
-console.log("matchedAddress",matchedAddress);
+        console.log("pickup.addressId", p.addressId);
+        console.log("matchedAddress", matchedAddress);
 
         if (!matchedAddress) return null;
         const address = matchedAddress
@@ -377,7 +392,7 @@ console.log("matchedAddress",matchedAddress);
                 phone: user.phone,
               }
             : null,
-           address: address,
+          address: address,
         };
       }) as PopulatedPIckupPlans[],
       total,
@@ -386,12 +401,12 @@ console.log("matchedAddress",matchedAddress);
 
   async updateTrackingStatus(
     pickupReqId: string,
-    trackingStatus: string
+    trackingStatus: string,
   ): Promise<IPickupRequestDocument> {
     const updatedPickup = await this.model.findByIdAndUpdate(
       pickupReqId,
       { trackingStatus },
-      { new: true }
+      { new: true },
     );
 
     if (!updatedPickup) {
@@ -404,13 +419,13 @@ console.log("matchedAddress",matchedAddress);
     const res = await this.model.findByIdAndUpdate(
       pickupReqId,
       { status },
-      { new: true }
+      { new: true },
     );
     return res;
   }
 
   async markPickupCompletedStatus(
-    pickupReqId: string
+    pickupReqId: string,
   ): Promise<IPickupRequestDocument | null> {
     const pickup = await this.model.findById(pickupReqId);
     console.log("pickup.....", pickup);
@@ -420,12 +435,12 @@ console.log("matchedAddress",matchedAddress);
     }
     if (pickup.trackingStatus !== "Completed") {
       throw new Error(
-        "Cannot mark pickup as completed until tracking is completed"
+        "Cannot mark pickup as completed until tracking is completed",
       );
     }
     if (pickup.payment.status !== "Paid") {
       throw new Error(
-        "Cannot mark pickup as completed until payment is completed"
+        "Cannot mark pickup as completed until payment is completed",
       );
     }
     pickup.status = "Completed";
@@ -457,7 +472,7 @@ console.log("matchedAddress",matchedAddress);
 
   async getAllPaymentsByUser(
     userId: string,
-    paginationData: PaginationInput
+    paginationData: PaginationInput,
   ): Promise<{ pickups: Partial<IPickupRequestDocument>[]; total: number }> {
     const { page, limit, search, filter } = paginationData;
     const searchRegex = new RegExp(search, "i");
@@ -484,7 +499,7 @@ console.log("matchedAddress",matchedAddress);
         const searchDate = new Date(
           Number(year),
           Number(month) - 1,
-          Number(day)
+          Number(day),
         );
         const nextDay = new Date(searchDate);
         nextDay.setDate(nextDay.getDate() + 1);
@@ -540,7 +555,7 @@ console.log("matchedAddress",matchedAddress);
     };
   }
   async fetchAllPickupsByPlantId(
-    plantId: string
+    plantId: string,
   ): Promise<PickupStatusByWasteType> {
     const pickupCounts = await this.model.aggregate([
       {
@@ -637,7 +652,7 @@ console.log("matchedAddress",matchedAddress);
   }
 
   async fetchAllPaymentsByPlantId(
-    data: FetchPaymentPayload
+    data: FetchPaymentPayload,
   ): Promise<PaginatedPaymentsResult> {
     const { plantId, page, limit, search } = data;
 
@@ -720,7 +735,7 @@ console.log("matchedAddress",matchedAddress);
       },
       { $sort: { "payment.paidAt": -1 } },
       { $skip: (page - 1) * limit },
-      { $limit: limit }
+      { $limit: limit },
     );
 
     // Get both data and count (filtered count)
@@ -791,7 +806,7 @@ console.log("matchedAddress",matchedAddress);
             "payment.refundRequested": true,
           },
         },
-        { new: true }
+        { new: true },
       );
 
       if (!updatedPickupRequest) {
@@ -806,7 +821,7 @@ console.log("matchedAddress",matchedAddress);
   async getPickupWithUserAndPlantId(
     plantId: string,
     userId: string,
-    pickupId: string
+    pickupId: string,
   ): Promise<IPickupRequestDocument | null> {
     const data = await this.model.findOne({
       pickupId,
@@ -816,7 +831,7 @@ console.log("matchedAddress",matchedAddress);
     return data;
   }
   async filterWasteReportsByPlantId(
-    data: FilterReport
+    data: FilterReport,
   ): Promise<IPickupRequestDocument[]> {
     const fromDate = new Date(`${data.from}T00:00:00.000Z`);
     const toDate = new Date(`${data.to}T23:59:59.999Z`);
@@ -874,16 +889,18 @@ console.log("matchedAddress",matchedAddress);
     };
   }
   async getMonthlyPickupPlansByUserId(
-    userId: string
+    userId: string,
   ): Promise<{ count: number }> {
     const now = new Date();
     const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-    const lastDayOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 
+    const lastDayOfMonth = new Date(
+      now.getFullYear(),
+      now.getMonth() + 1,
       0,
       23,
       59,
       59,
-      999
+      999,
     );
     const result = await this.model.aggregate([
       {
@@ -972,46 +989,74 @@ console.log("matchedAddress",matchedAddress);
     });
   }
   async checkExistingBusiness(data: CheckExistingBusinessReq) {
-    const { userId,frequency, businessName, wasteType } = data;
+    const { userId, frequency, businessName, wasteType } = data;
     const now = new Date();
     const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-    const endOfMonth = new Date(now.getFullYear(), now.getMonth()+1, 0);
-    const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(),0,0,0);
-    const endOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59);
+    const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+    const startOfDay = new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      now.getDate(),
+      0,
+      0,
+      0,
+    );
+    const endOfDay = new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      now.getDate(),
+      23,
+      59,
+      59,
+    );
 
     const existingMonthly = await this.model.findOne({
       userId,
       wasteType,
       businessName,
-      originalPickupDate: {$gte: startOfMonth, $lte: endOfMonth}
-    })
-    if(existingMonthly) {
+      originalPickupDate: { $gte: startOfMonth, $lte: endOfMonth },
+    });
+    if (existingMonthly) {
       return { type: "monthly", data: existingMonthly };
     }
-
-    const existingDaily  = await this.model.findOne({
-      userId,
-      wasteType,
-      createdAt: {$gte: startOfDay, $lte: endOfDay}
-    })
-    if(existingDaily){
-      return { type: "daily", data: existingDaily }
-    }
-    return null;
-  }
-  async checkExistingResid(data: CheckExistingResidReq){
-    const { wasteType, pickupDate, userId} = data;
-    const now = new Date();
-    const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0 ,0);
-    const endOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59);
 
     const existingDaily = await this.model.findOne({
       userId,
       wasteType,
-      createdAt: {$gte: startOfDay, $lte: endOfDay }
+      createdAt: { $gte: startOfDay, $lte: endOfDay },
     });
-    if(existingDaily){
-      return { type: "daily", data: existingDaily }
+    if (existingDaily) {
+      return { type: "daily", data: existingDaily };
+    }
+    return null;
+  }
+  async checkExistingResid(data: CheckExistingResidReq) {
+    const { wasteType, pickupDate, userId } = data;
+    const now = new Date();
+    const startOfDay = new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      now.getDate(),
+      0,
+      0,
+      0,
+    );
+    const endOfDay = new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      now.getDate(),
+      23,
+      59,
+      59,
+    );
+
+    const existingDaily = await this.model.findOne({
+      userId,
+      wasteType,
+      createdAt: { $gte: startOfDay, $lte: endOfDay },
+    });
+    if (existingDaily) {
+      return { type: "daily", data: existingDaily };
     }
     return null;
   }

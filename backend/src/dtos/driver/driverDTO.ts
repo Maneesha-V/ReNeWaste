@@ -4,33 +4,33 @@ import { BaseDTO } from "../base/BaseDTO";
 import { TruckDTO } from "../truck/truckDTO";
 
 export interface DriverDTO extends BaseDTO {
-    name: string;
-    email: string;
-    licenseNumber: string;
-    contact: string;
-    experience: number;
-    status: "Active" | "Inactive" | "Suspended";
-    licenseFront: string;
-    licenseBack: string;
-    role: "driver";
-    wasteplantId?: string;
-    assignedTruckId?: string;
-    assignedZone?: string;
-    hasRequestedTruck?: boolean;
-    category: "Residential" | "Commercial" | "Pending";
-    isDeleted?: boolean;
+  name: string;
+  email: string;
+  licenseNumber: string;
+  contact: string;
+  experience: number;
+  status: "Active" | "Inactive" | "Suspended";
+  licenseFront: string;
+  licenseBack: string;
+  role: "driver";
+  wasteplantId?: string;
+  assignedTruckId?: string;
+  assignedZone?: string;
+  hasRequestedTruck?: boolean;
+  category: "Residential" | "Commercial" | "Pending";
+  isDeleted?: boolean;
 }
 export type PaginatedDriversResult = {
   drivers: DriverDTO[];
   total: number;
-}
-export type ReturnTaluk= {
+};
+export type ReturnTaluk = {
   taluk: string;
-}
+};
 export type ReturnGetEditDriver = {
-  driver : DriverDTO;
-  taluk : string;
-}
+  driver: DriverDTO;
+  taluk: string;
+};
 
 export interface DriverDashboardSummary {
   driver: {
@@ -69,11 +69,11 @@ export interface DriverSupportInfo {
 export type LoginRequest = {
   email: string;
   password: string;
-}
+};
 export type LoginResponse = {
   driver: DriverDTO;
   token: string;
-}
+};
 export type MarkReturnProps = {
   truckId: string;
   plantId: string;
@@ -82,13 +82,13 @@ export type MarkReturnProps = {
 export type MarkTruckReturnResult = {
   driver: IDriverDocument;
   truck: ITruckDocument;
-}
+};
 export type MarkPickupCompletedResp = {
   pickupReqId: string;
   status: string;
-}
+};
 export type ReturnFetchAllDriversByPlantId = {
-    active: number;
-    inactive: number;
-    suspended: number;
-}
+  active: number;
+  inactive: number;
+  suspended: number;
+};

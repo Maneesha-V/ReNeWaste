@@ -12,12 +12,12 @@ import { AuthRequest } from "../../dtos/base/BaseDTO";
 export class UserController implements IUserController {
   constructor(
     @inject(TYPES.UserAuthService)
-    private _authService: IAuthService
+    private _authService: IAuthService,
   ) {}
   async refreshToken(
     req: Request,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ): Promise<void> {
     try {
       const refreshToken = req.cookies?.refreshToken;
@@ -26,7 +26,10 @@ export class UserController implements IUserController {
       if (!refreshToken) {
         // res.status(STATUS_CODES.UNAUTHORIZED).json({ error: MESSAGES.COMMON.ERROR.REFRESH_TOKEN });
         // return;
-        throw new ApiError(STATUS_CODES.UNAUTHORIZED, MESSAGES.COMMON.ERROR.REFRESH_TOKEN)
+        throw new ApiError(
+          STATUS_CODES.UNAUTHORIZED,
+          MESSAGES.COMMON.ERROR.REFRESH_TOKEN,
+        );
       }
       const { token } = await this._authService.verifyToken(refreshToken);
       res.status(STATUS_CODES.SUCCESS).json({ token });
@@ -46,9 +49,8 @@ export class UserController implements IUserController {
       }
       const { confirmPassword, ...userWithoutConfirm } = userData;
 
-      const { user, token } = await this._authService.signupUser(
-        userWithoutConfirm
-      );
+      const { user, token } =
+        await this._authService.signupUser(userWithoutConfirm);
       console.log("user", user);
 
       res.status(STATUS_CODES.CREATED).json({
@@ -67,7 +69,7 @@ export class UserController implements IUserController {
   async login(
     req: AuthRequest,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ): Promise<void> {
     try {
       const { email, password } = req.body;
@@ -88,13 +90,16 @@ export class UserController implements IUserController {
         path: "/api",
         maxAge: 7 * 24 * 60 * 60 * 1000,
       };
-      res.cookie("refreshToken", refreshToken, cookieOptions).status(STATUS_CODES.SUCCESS).json({
-        success: true,
-        message: MESSAGES.COMMON.SUCCESS.LOGIN,
-        role: user.role,
-        userId: user._id,
-        token,
-      });
+      res
+        .cookie("refreshToken", refreshToken, cookieOptions)
+        .status(STATUS_CODES.SUCCESS)
+        .json({
+          success: true,
+          message: MESSAGES.COMMON.SUCCESS.LOGIN,
+          role: user.role,
+          userId: user._id,
+          token,
+        });
     } catch (error) {
       console.error("err", error);
       next(error);
@@ -104,7 +109,7 @@ export class UserController implements IUserController {
   async logout(
     req: AuthRequest,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ): Promise<void> {
     try {
       const isProduction = process.env.NODE_ENV === "production";
@@ -129,7 +134,7 @@ export class UserController implements IUserController {
   async sendOtpForSignup(
     req: Request,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ): Promise<void> {
     try {
       console.log("otp-body", req.body);
@@ -139,7 +144,7 @@ export class UserController implements IUserController {
       if (!otpResponse) {
         throw new ApiError(
           STATUS_CODES.NOT_FOUND,
-          MESSAGES.COMMON.ERROR.OTP_SENT
+          MESSAGES.COMMON.ERROR.OTP_SENT,
         );
       }
 
@@ -155,7 +160,7 @@ export class UserController implements IUserController {
   async resendOtpForSignup(
     req: Request,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ): Promise<void> {
     console.log("body", req.body);
     try {
@@ -163,7 +168,7 @@ export class UserController implements IUserController {
       if (!email) {
         throw new ApiError(
           STATUS_CODES.NOT_FOUND,
-          MESSAGES.COMMON.ERROR.EMAIL_NOT_FOUND
+          MESSAGES.COMMON.ERROR.EMAIL_NOT_FOUND,
         );
       }
 
@@ -185,7 +190,7 @@ export class UserController implements IUserController {
   async verifyOtpForSignup(
     req: Request,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ): Promise<void> {
     try {
       const { email, otp } = req.body;
@@ -197,13 +202,13 @@ export class UserController implements IUserController {
         // return;
         throw new ApiError(
           STATUS_CODES.NOT_FOUND,
-          MESSAGES.COMMON.ERROR.EMAIL_OTP_REQUIRED
-        )
+          MESSAGES.COMMON.ERROR.EMAIL_OTP_REQUIRED,
+        );
       }
 
       const isValid = await this._authService.verifyOtpSignupService(
         email,
-        otp
+        otp,
       );
 
       if (isValid) {
@@ -223,7 +228,7 @@ export class UserController implements IUserController {
   async sendOtp(
     req: Request,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ): Promise<void> {
     try {
       console.log("otp-body", req.body);
@@ -242,7 +247,7 @@ export class UserController implements IUserController {
   async resendOtp(
     req: Request,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ): Promise<void> {
     console.log("body", req.body);
     try {
@@ -250,7 +255,7 @@ export class UserController implements IUserController {
       if (!email) {
         throw new ApiError(
           STATUS_CODES.NOT_FOUND,
-          MESSAGES.COMMON.ERROR.EMAIL_NOT_FOUND
+          MESSAGES.COMMON.ERROR.EMAIL_NOT_FOUND,
         );
       }
 
@@ -264,7 +269,7 @@ export class UserController implements IUserController {
       } else {
         throw new ApiError(
           STATUS_CODES.SERVER_ERROR,
-          MESSAGES.COMMON.ERROR.FAILED_OTP
+          MESSAGES.COMMON.ERROR.FAILED_OTP,
         );
       }
     } catch (error) {
@@ -274,7 +279,7 @@ export class UserController implements IUserController {
   async verifyOtp(
     req: Request,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ): Promise<void> {
     try {
       const { email, otp } = req.body;
@@ -292,7 +297,7 @@ export class UserController implements IUserController {
       if (!isValid) {
         throw new ApiError(
           STATUS_CODES.NOT_FOUND,
-          MESSAGES.COMMON.ERROR.INVALID_EXPIRED_OTP
+          MESSAGES.COMMON.ERROR.INVALID_EXPIRED_OTP,
         );
       }
 
@@ -307,7 +312,7 @@ export class UserController implements IUserController {
   async resetPassword(
     req: Request,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ): Promise<void> {
     try {
       console.log("body", req.body);
@@ -315,7 +320,7 @@ export class UserController implements IUserController {
       if (!email || !password) {
         throw new ApiError(
           STATUS_CODES.NOT_FOUND,
-          MESSAGES.COMMON.ERROR.EMAIL_PASSWORD_REQUIRED
+          MESSAGES.COMMON.ERROR.EMAIL_PASSWORD_REQUIRED,
         );
       }
       await this._authService.resetPasswordService(email, password);
@@ -332,7 +337,7 @@ export class UserController implements IUserController {
   async googleSignUp(
     req: Request,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ): Promise<void> {
     try {
       console.log("body", req.body);
@@ -340,7 +345,7 @@ export class UserController implements IUserController {
       if (!email || !uid) {
         throw new ApiError(
           STATUS_CODES.NOT_FOUND,
-          MESSAGES.COMMON.ERROR.EMAIL_UID_REQUIRED
+          MESSAGES.COMMON.ERROR.EMAIL_UID_REQUIRED,
         );
         // res.status(400).json({ message: "Email and UID are required" });
         // return;
@@ -362,7 +367,7 @@ export class UserController implements IUserController {
   async googleLogin(
     req: Request,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ): Promise<void> {
     try {
       console.log("body", req.body);
@@ -383,12 +388,15 @@ export class UserController implements IUserController {
         sameSite: "strict" as "strict",
         maxAge: 7 * 24 * 60 * 60 * 1000,
       };
-      res.cookie("refreshToken", refreshToken, cookieOptions).status(STATUS_CODES.SUCCESS).json({
-        success: true,
-        message: "Google signin successful",
-        role,
-        token,
-      });
+      res
+        .cookie("refreshToken", refreshToken, cookieOptions)
+        .status(STATUS_CODES.SUCCESS)
+        .json({
+          success: true,
+          message: "Google signin successful",
+          role,
+          token,
+        });
     } catch (error) {
       console.error("Google login error:", error);
       next(error);

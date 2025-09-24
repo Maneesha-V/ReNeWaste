@@ -11,12 +11,12 @@ import { AuthRequest } from "../../dtos/base/BaseDTO";
 export class SubscriptionController implements ISubscriptionController {
   constructor(
     @inject(TYPES.SuperAdminSubscriptionService)
-    private subscriptionService: ISubscriptionService
+    private subscriptionService: ISubscriptionService,
   ) {}
   async createSubscriptionPlan(
     req: AuthRequest,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ): Promise<void> {
     try {
       console.log(req.body);
@@ -24,7 +24,7 @@ export class SubscriptionController implements ISubscriptionController {
       if (!adminId) {
         throw new ApiError(
           STATUS_CODES.UNAUTHORIZED,
-          MESSAGES.COMMON.ERROR.UNAUTHORIZED
+          MESSAGES.COMMON.ERROR.UNAUTHORIZED,
         );
       }
 
@@ -33,12 +33,10 @@ export class SubscriptionController implements ISubscriptionController {
         await this.subscriptionService.createSubscriptionPlan(subptnPlanData);
       console.log("newSubptnPlan", newSubptnPlan);
 
-      res
-        .status(STATUS_CODES.CREATED)
-        .json({
-          success: true,
-          message: MESSAGES.SUPERADMIN.SUCCESS.SUBSCRIPTION_CREATED,
-        });
+      res.status(STATUS_CODES.CREATED).json({
+        success: true,
+        message: MESSAGES.SUPERADMIN.SUCCESS.SUBSCRIPTION_CREATED,
+      });
     } catch (error) {
       console.log("err", error);
       next(error);
@@ -47,7 +45,7 @@ export class SubscriptionController implements ISubscriptionController {
   async fetchSubscriptionPlans(
     req: AuthRequest,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ): Promise<void> {
     try {
       console.log(req.query);
@@ -56,7 +54,7 @@ export class SubscriptionController implements ISubscriptionController {
       const page = parseInt(req.query.page as string) || 1;
       let limit = Math.min(
         parseInt(req.query.limit as string) || DEFAULT_LIMIT,
-        MAX_LIMIT
+        MAX_LIMIT,
       );
       const search = (req.query.search as string) || "";
 
@@ -82,7 +80,7 @@ export class SubscriptionController implements ISubscriptionController {
   async deleteSubscriptionPlan(
     req: AuthRequest,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ): Promise<void> {
     try {
       console.log("body", req.body);
@@ -90,7 +88,7 @@ export class SubscriptionController implements ISubscriptionController {
       if (!id) {
         throw new ApiError(
           STATUS_CODES.BAD_REQUEST,
-          MESSAGES.COMMON.ERROR.ID_REQUIRED
+          MESSAGES.COMMON.ERROR.ID_REQUIRED,
         );
       }
       const plan = await this.subscriptionService.deleteSubscriptionPlan(id);
@@ -107,14 +105,14 @@ export class SubscriptionController implements ISubscriptionController {
   async getSubscriptionPlanById(
     req: AuthRequest,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ): Promise<void> {
     try {
       const { id } = req.params;
       if (!id) {
         throw new ApiError(
           STATUS_CODES.BAD_REQUEST,
-          MESSAGES.COMMON.ERROR.ID_REQUIRED
+          MESSAGES.COMMON.ERROR.ID_REQUIRED,
         );
       }
       const subscriptionPlan =
@@ -130,7 +128,7 @@ export class SubscriptionController implements ISubscriptionController {
   async updateSubscriptionPlanById(
     req: AuthRequest,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ): Promise<void> {
     try {
       const { id } = req.params;
@@ -138,7 +136,7 @@ export class SubscriptionController implements ISubscriptionController {
       if (!id) {
         throw new ApiError(
           STATUS_CODES.BAD_REQUEST,
-          MESSAGES.COMMON.ERROR.ID_REQUIRED
+          MESSAGES.COMMON.ERROR.ID_REQUIRED,
         );
       }
       const updatedData = req.body;

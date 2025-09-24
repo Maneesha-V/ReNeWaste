@@ -3,7 +3,7 @@ import connectDB from "./config/db";
 import cors from "cors";
 import dotenv from "dotenv";
 import morgan from "morgan";
-import cookieParser from 'cookie-parser';
+import cookieParser from "cookie-parser";
 import http from "http";
 import { Server } from "socket.io";
 import "reflect-metadata";
@@ -32,10 +32,12 @@ const PORT = Number(process.env.PORT) || 3000;
 connectDB();
 
 // CORS for Express REST API
-app.use(cors({
-  origin: "http://localhost:5173", 
-  credentials: true, 
-})); 
+app.use(
+  cors({
+    origin: "http://localhost:5173",
+    credentials: true,
+  }),
+);
 // CORS for Socket.IO
 const io = new Server(server, {
   cors: {
@@ -50,14 +52,14 @@ globalThis.io = io;
 // Socket.IO connection
 io.on("connection", (socket) => {
   console.log("🟢 New client connected:", socket.id);
-  socketHandler(socket, io); 
+  socketHandler(socket, io);
 
   socket.on("disconnect", () => {
     console.log("🔴 Client disconnected:", socket.id);
   });
 });
 
-// app.use(bodyParser.json()); 
+// app.use(bodyParser.json());
 // app.use(bodyParser.urlencoded({ extended: true }));
 
 app.use(express.json());
@@ -81,5 +83,3 @@ app.use(errorHandler);
 server.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
-
-

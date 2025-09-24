@@ -16,14 +16,14 @@ export const DropSpotSchema: Schema<IDropSpotDocument> = new Schema(
     },
     coordinates: {
       lat: { type: Number, required: true },
-      lng: { type: Number, required: true }
+      lng: { type: Number, required: true },
     },
     isDeleted: {
       type: Boolean,
-      default: false
+      default: false,
     },
   },
   {
     timestamps: true,
-  }
+  },
 );

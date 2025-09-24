@@ -1,11 +1,12 @@
-import { IWastePlantRepository } from '../repositories/wastePlant/interface/IWastePlantRepository';
+import { IWastePlantRepository } from "../repositories/wastePlant/interface/IWastePlantRepository";
 
-export async function checkForDuplicateWastePlant(data: {
-  email: string;
-  licenseNumber: string;
-  plantName: string;
-},
-repository: IWastePlantRepository
+export async function checkForDuplicateWastePlant(
+  data: {
+    email: string;
+    licenseNumber: string;
+    plantName: string;
+  },
+  repository: IWastePlantRepository,
 ): Promise<void> {
   const { email, licenseNumber, plantName } = data;
 

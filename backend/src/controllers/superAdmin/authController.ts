@@ -11,12 +11,12 @@ import { ApiError } from "../../utils/ApiError";
 export class AuthController implements IAuthController {
   constructor(
     @inject(TYPES.SuperAdminAuthService)
-    private _authService: ISuperAdminAuthService
+    private _authService: ISuperAdminAuthService,
   ) {}
   async refreshToken(
     req: Request,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ): Promise<void> {
     try {
       const refreshToken = req.cookies?.refreshToken;
@@ -27,7 +27,7 @@ export class AuthController implements IAuthController {
         // return;
         throw new ApiError(
           STATUS_CODES.UNAUTHORIZED,
-          MESSAGES.COMMON.ERROR.REFRESH_TOKEN
+          MESSAGES.COMMON.ERROR.REFRESH_TOKEN,
         );
       }
       const { token } = await this._authService.verifyToken(refreshToken);
@@ -41,7 +41,7 @@ export class AuthController implements IAuthController {
   async superAdminLogin(
     req: Request,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ): Promise<void> {
     try {
       const { email, password } = req.body;
@@ -54,7 +54,7 @@ export class AuthController implements IAuthController {
         // return;
         throw new ApiError(
           STATUS_CODES.UNAUTHORIZED,
-          MESSAGES.COMMON.ERROR.INVALID_CREDENTIALS
+          MESSAGES.COMMON.ERROR.INVALID_CREDENTIALS,
         );
       }
       console.log("admin", admin);
@@ -93,14 +93,14 @@ export class AuthController implements IAuthController {
   async superAdminSignup(
     req: Request,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ): Promise<void> {
     try {
       const { username, email, password } = req.body;
       if (!username || !email || !password) {
         throw new ApiError(
           STATUS_CODES.BAD_REQUEST,
-          MESSAGES.COMMON.ERROR.MISSING_FIELDS
+          MESSAGES.COMMON.ERROR.MISSING_FIELDS,
         );
       }
       const created = await this._authService.adminSignupService({
@@ -126,7 +126,7 @@ export class AuthController implements IAuthController {
   async superAdminLogout(
     req: Request,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ): Promise<void> {
     try {
       const isProduction = process.env.NODE_ENV === "production";
@@ -149,7 +149,7 @@ export class AuthController implements IAuthController {
   async sendOtp(
     req: Request,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ): Promise<void> {
     try {
       console.log("otp-body", req.body);
@@ -173,7 +173,7 @@ export class AuthController implements IAuthController {
   async resendOtp(
     req: Request,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ): Promise<void> {
     console.log("body", req.body);
     try {
@@ -181,7 +181,7 @@ export class AuthController implements IAuthController {
       if (!email) {
         throw new ApiError(
           STATUS_CODES.NOT_FOUND,
-          MESSAGES.COMMON.ERROR.EMAIL_NOT_FOUND
+          MESSAGES.COMMON.ERROR.EMAIL_NOT_FOUND,
         );
       }
 
@@ -202,7 +202,7 @@ export class AuthController implements IAuthController {
   async verifyOtp(
     req: Request,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ): Promise<void> {
     try {
       const { email, otp } = req.body;
@@ -210,7 +210,7 @@ export class AuthController implements IAuthController {
       if (!email || !otp) {
         throw new ApiError(
           STATUS_CODES.NOT_FOUND,
-          MESSAGES.COMMON.ERROR.EMAIL_OTP_REQUIRED
+          MESSAGES.COMMON.ERROR.EMAIL_OTP_REQUIRED,
         );
       }
 
@@ -233,7 +233,7 @@ export class AuthController implements IAuthController {
   async resetPassword(
     req: Request,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ): Promise<void> {
     try {
       console.log("body", req.body);
@@ -241,7 +241,7 @@ export class AuthController implements IAuthController {
       if (!email || !password) {
         throw new ApiError(
           STATUS_CODES.NOT_FOUND,
-          MESSAGES.COMMON.ERROR.EMAIL_PASSWORD_REQUIRED
+          MESSAGES.COMMON.ERROR.EMAIL_PASSWORD_REQUIRED,
         );
       }
       await this._authService.resetPasswordService(email, password);

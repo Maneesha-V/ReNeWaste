@@ -41,18 +41,18 @@ export const userSchema: Schema<IUserDocument> = new Schema(
     googleId: {
       type: String,
       unique: true,
-      sparse: true,  
+      sparse: true,
     },
     addresses: [AddressSchema],
     wasteplantId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'WastePlant',
-      default: null
+      ref: "WastePlant",
+      default: null,
     },
     isBlocked: {
       type: Boolean,
       default: false,
-    }
+    },
   },
-  { timestamps: true }
+  { timestamps: true },
 );

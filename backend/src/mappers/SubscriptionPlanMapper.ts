@@ -18,8 +18,8 @@ export class SubscriptionPlanMapper {
     };
   }
   static mapSubscptnPlansDTO(
-  docs: ISubscriptionPlanDocument[]
-): SubsptnPlansDTO[] {
-  return docs.map(doc => this.mapSubscptnPlanDTO(doc));
-}
+    docs: ISubscriptionPlanDocument[],
+  ): SubsptnPlansDTO[] {
+    return docs.map((doc) => this.mapSubscptnPlanDTO(doc));
+  }
 }

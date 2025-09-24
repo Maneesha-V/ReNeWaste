@@ -13,9 +13,13 @@ import { AuthRequest } from "../../dtos/base/BaseDTO";
 export class TruckController implements ITruckController {
   constructor(
     @inject(TYPES.PlantTruckService)
-    private truckService: ITruckService
+    private truckService: ITruckService,
   ) {}
-  async addTruck(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
+  async addTruck(
+    req: AuthRequest,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> {
     try {
       const plantId = req.user?.id;
       console.log("plantId", plantId);
@@ -30,27 +34,30 @@ export class TruckController implements ITruckController {
 
       const newTruck = await this.truckService.addTruck(truckData);
       console.log("✅ Inserted Truck:", newTruck);
-      if(newTruck){
-      res.status(STATUS_CODES.CREATED).json({
-        success: true,
-        message: MESSAGES.WASTEPLANT.SUCCESS.CRETAE_TRUCK,
-      });
+      if (newTruck) {
+        res.status(STATUS_CODES.CREATED).json({
+          success: true,
+          message: MESSAGES.WASTEPLANT.SUCCESS.CRETAE_TRUCK,
+        });
       }
-
     } catch (error) {
       console.error("err", error);
       next(error);
     }
   }
 
-  async fetchTrucks(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
+  async fetchTrucks(
+    req: AuthRequest,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> {
     try {
       const plantId = req.user?.id;
 
       if (!plantId) {
-       throw new ApiError(
+        throw new ApiError(
           STATUS_CODES.UNAUTHORIZED,
-          MESSAGES.COMMON.ERROR.UNAUTHORIZED
+          MESSAGES.COMMON.ERROR.UNAUTHORIZED,
         );
       }
       const page = parseInt(req.query.page as string) || 1;
@@ -61,7 +68,7 @@ export class TruckController implements ITruckController {
         plantId,
         page,
         limit,
-        search
+        search,
       );
       console.log("trucks", trucks);
 
@@ -76,14 +83,18 @@ export class TruckController implements ITruckController {
       next(error);
     }
   }
-  async fetchAvailableTrucks(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
+  async fetchAvailableTrucks(
+    req: AuthRequest,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> {
     try {
       const plantId = req.user?.id;
 
       if (!plantId) {
-     throw new ApiError(
+        throw new ApiError(
           STATUS_CODES.UNAUTHORIZED,
-          MESSAGES.COMMON.ERROR.UNAUTHORIZED
+          MESSAGES.COMMON.ERROR.UNAUTHORIZED,
         );
       }
       const { driverId } = req.query;
@@ -93,7 +104,8 @@ export class TruckController implements ITruckController {
       }
 
       const trucks = await this.truckService.getAvailableTrucksService(
-        driverId, plantId
+        driverId,
+        plantId,
       );
       console.log("trucks", trucks);
       res.status(STATUS_CODES.SUCCESS).json({
@@ -106,14 +118,18 @@ export class TruckController implements ITruckController {
       next(error);
     }
   }
-  async getTruckById(req: Request, res: Response, next: NextFunction): Promise<void> {
+  async getTruckById(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> {
     try {
       const { truckId } = req.params;
       const truck = await this.truckService.getTruckByIdService(truckId);
       if (!truck) {
-       throw new ApiError(
+        throw new ApiError(
           STATUS_CODES.BAD_REQUEST,
-          MESSAGES.COMMON.ERROR.ID_REQUIRED
+          MESSAGES.COMMON.ERROR.ID_REQUIRED,
         );
       }
 
@@ -124,13 +140,17 @@ export class TruckController implements ITruckController {
     }
   }
 
-  async updateTruck(req: Request, res: Response, next: NextFunction): Promise<void> {
+  async updateTruck(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> {
     try {
       const { truckId } = req.params;
       if (!truckId) {
         throw new ApiError(
           STATUS_CODES.BAD_REQUEST,
-          MESSAGES.COMMON.ERROR.ID_REQUIRED
+          MESSAGES.COMMON.ERROR.ID_REQUIRED,
         );
       }
       const updatedData = req.body;
@@ -140,7 +160,7 @@ export class TruckController implements ITruckController {
       }
       const updatedTruck = await this.truckService.updateTruckByIdService(
         truckId,
-        updatedData
+        updatedData,
       );
 
       if (!updatedTruck) {
@@ -158,24 +178,29 @@ export class TruckController implements ITruckController {
     }
   }
 
-  async deleteTruckById(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
+  async deleteTruckById(
+    req: AuthRequest,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> {
     try {
       const { truckId } = req.params;
-       if (!truckId) {
-       throw new ApiError(
+      if (!truckId) {
+        throw new ApiError(
           STATUS_CODES.BAD_REQUEST,
-          MESSAGES.COMMON.ERROR.ID_REQUIRED
+          MESSAGES.COMMON.ERROR.ID_REQUIRED,
         );
       }
-      const updatedTruck = await this.truckService.deleteTruckByIdService(truckId);
-  
-      console.log("updatedTruck",updatedTruck);
-      
-      res.status(STATUS_CODES.SUCCESS).json({ 
+      const updatedTruck =
+        await this.truckService.deleteTruckByIdService(truckId);
+
+      console.log("updatedTruck", updatedTruck);
+
+      res.status(STATUS_CODES.SUCCESS).json({
         success: true,
         updatedTruck,
-        message: MESSAGES.WASTEPLANT.SUCCESS.TRUCK_DELETE
-       });
+        message: MESSAGES.WASTEPLANT.SUCCESS.TRUCK_DELETE,
+      });
     } catch (error) {
       console.error("Error in deleting truck:", error);
       next(error);
@@ -184,19 +209,18 @@ export class TruckController implements ITruckController {
   async getAvailableTruckReqsts(
     req: AuthRequest,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ): Promise<void> {
     try {
       const plantId = req.user?.id;
       if (!plantId) {
         throw new ApiError(
           STATUS_CODES.UNAUTHORIZED,
-          MESSAGES.COMMON.ERROR.UNAUTHORIZED
+          MESSAGES.COMMON.ERROR.UNAUTHORIZED,
         );
       }
-      const pendingTruckReqsts = await this.truckService.pendingTruckReqsts(
-        plantId
-      );
+      const pendingTruckReqsts =
+        await this.truckService.pendingTruckReqsts(plantId);
       console.log("pendingTruckReqsts", pendingTruckReqsts);
 
       res.status(STATUS_CODES.SUCCESS).json({
@@ -210,18 +234,21 @@ export class TruckController implements ITruckController {
     }
   }
 
-  async getTrucksForDriver(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
+  async getTrucksForDriver(
+    req: AuthRequest,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> {
     try {
       const plantId = req.user?.id;
       if (!plantId) {
-       throw new ApiError(
+        throw new ApiError(
           STATUS_CODES.UNAUTHORIZED,
-          MESSAGES.COMMON.ERROR.UNAUTHORIZED
+          MESSAGES.COMMON.ERROR.UNAUTHORIZED,
         );
       }
-      const availableTrucks = await this.truckService.availableTrucksForDriver(
-        plantId
-      );
+      const availableTrucks =
+        await this.truckService.availableTrucksForDriver(plantId);
       console.log("availableTrucks", availableTrucks);
 
       res.status(STATUS_CODES.SUCCESS).json({
@@ -234,7 +261,11 @@ export class TruckController implements ITruckController {
       next(error);
     }
   }
-  async assignTruckToDriver(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
+  async assignTruckToDriver(
+    req: AuthRequest,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> {
     try {
       const plantId = req.user?.id;
       const { driverId, truckId, prevTruckId } = req.body;
@@ -242,10 +273,10 @@ export class TruckController implements ITruckController {
       console.log(req.body);
 
       if (!plantId || !driverId || !truckId || !prevTruckId) {
-       throw new ApiError(
-                 STATUS_CODES.UNAUTHORIZED,
-                 MESSAGES.COMMON.ERROR.MISSING_FIELDS
-               );
+        throw new ApiError(
+          STATUS_CODES.UNAUTHORIZED,
+          MESSAGES.COMMON.ERROR.MISSING_FIELDS,
+        );
       }
 
       const updatedRequests =
@@ -253,7 +284,7 @@ export class TruckController implements ITruckController {
           plantId,
           driverId,
           truckId,
-          prevTruckId
+          prevTruckId,
         );
       console.log("updatedRequest", updatedRequests);
 

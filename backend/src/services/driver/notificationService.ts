@@ -10,15 +10,17 @@ export class NotificationService implements INotificationService {
     @inject(TYPES.NotificationRepository)
     private notificationRepository: INotificationRepository,
   ) {}
- async getNotifications(driverId: string) {
-    const notifications = await this.notificationRepository.findByReceiverId(driverId );
+  async getNotifications(driverId: string) {
+    const notifications =
+      await this.notificationRepository.findByReceiverId(driverId);
     if (!notifications) {
-          throw new Error("Notification not found.");
-        }
-        return NotificationMapper.mapNotificationsDTO(notifications);
+      throw new Error("Notification not found.");
+    }
+    return NotificationMapper.mapNotificationsDTO(notifications);
   }
   async markNotificationAsRead(notifId: string) {
-    const notification = await this.notificationRepository.markAsReadById(notifId);
+    const notification =
+      await this.notificationRepository.markAsReadById(notifId);
     if (!notification) {
       throw new Error("Notification not found.");
     }

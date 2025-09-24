@@ -10,9 +10,16 @@ import { IWastePlantRepository } from "../../repositories/wastePlant/interface/I
 import { IUserRepository } from "../../repositories/user/interface/IUserRepository";
 import { ISubscriptionPlanRepository } from "../../repositories/subscriptionPlan/interface/ISubscriptionPlanRepository";
 import { setDriver } from "mongoose";
-import { ApprovePickupDTO, PickupFilterParams, ReschedulePickupDTO } from "../../dtos/wasteplant/WasteplantDTO";
+import {
+  ApprovePickupDTO,
+  PickupFilterParams,
+  ReschedulePickupDTO,
+} from "../../dtos/wasteplant/WasteplantDTO";
 import { PickupRequestMapper } from "../../mappers/PIckupReqMapper";
-import { PickupReqDTO, PickupReqGetDTO } from "../../dtos/pickupReq/pickupReqDTO";
+import {
+  PickupReqDTO,
+  PickupReqGetDTO,
+} from "../../dtos/pickupReq/pickupReqDTO";
 import { DriverMapper } from "../../mappers/DriverMapper";
 
 @injectable()
@@ -31,27 +38,25 @@ export class PickupService implements IPickupService {
     @inject(TYPES.UserRepository)
     private userRepository: IUserRepository,
     @inject(TYPES.SubscriptionPlanRepository)
-    private subscriptionplanRepository: ISubscriptionPlanRepository
+    private subscriptionplanRepository: ISubscriptionPlanRepository,
   ) {}
   async getPickupRequestService(
-    filters: PickupFilterParams
+    filters: PickupFilterParams,
   ): Promise<PickupReqGetDTO[]> {
-    const pickups =  await this.pickupRepository.getPickupsByPlantId(filters);
-    console.log("pickups-pickups",pickups);
-    
+    const pickups = await this.pickupRepository.getPickupsByPlantId(filters);
+    console.log("pickups-pickups", pickups);
+
     return PickupRequestMapper.mapPickupReqsGetDTO(pickups);
   }
 
   async approvePickupService(data: ApprovePickupDTO) {
     const { plantId, pickupReqId, status, driverId, assignedTruckId } = data;
-    const totalUserCount = await this.userRepository.fetchAllUsersByPlantId(
-      plantId
-    );
+    const totalUserCount =
+      await this.userRepository.fetchAllUsersByPlantId(plantId);
     console.log("totalUserCount", totalUserCount);
 
-    const existingPlant = await this.wastePlantRepository.getWastePlantById(
-      plantId
-    );
+    const existingPlant =
+      await this.wastePlantRepository.getWastePlantById(plantId);
     console.log("existingPlant", existingPlant);
     if (!existingPlant) {
       throw new Error("Plant not found.");
@@ -59,14 +64,14 @@ export class PickupService implements IPickupService {
     if (existingPlant.status === "Active") {
       const purchasedPlan =
         await this.subscriptionplanRepository.checkPlanNameExist(
-          existingPlant.subscriptionPlan!
+          existingPlant.subscriptionPlan!,
         );
       if (!purchasedPlan) {
         throw new Error("Subscription plan not found.");
       }
       if (totalUserCount >= purchasedPlan?.userLimit) {
         throw new Error(
-          `You can't approve this request bcoz your plan user limit is ${purchasedPlan?.userLimit}.`
+          `You can't approve this request bcoz your plan user limit is ${purchasedPlan?.userLimit}.`,
         );
       }
     }
@@ -90,12 +95,12 @@ export class PickupService implements IPickupService {
 
     if (!driver || !truck) throw new Error("Driver or Truck or User not found");
     const plant = await this.wastePlantRepository.getWastePlantById(
-      driver.wasteplantId!.toString()
+      driver.wasteplantId!.toString(),
     );
 
     if (!plant || String(plant._id) !== String(updatedPickup.wasteplantId)) {
       throw new Error(
-        "Driver's plant does not match pickup's plant. Skipping notification."
+        "Driver's plant does not match pickup's plant. Skipping notification.",
       );
     }
 
@@ -139,40 +144,39 @@ export class PickupService implements IPickupService {
   async cancelPickupRequest(
     plantId: string,
     pickupReqId: string,
-    reason: string
+    reason: string,
   ) {
-      const updatedPickupRequest =
-        await this.pickupRepository.updatePickupRequest(pickupReqId);
+    const updatedPickupRequest =
+      await this.pickupRepository.updatePickupRequest(pickupReqId);
 
-      const io = globalThis.io;
+    const io = globalThis.io;
 
-      const userId = updatedPickupRequest.userId.toString();
-      const userMessage = `Your pickup ID ${updatedPickupRequest.pickupId} is cancelled.${reason}`;
-      const userNotification =
-        await this.notificationRepository.createNotification({
-          receiverId: userId,
-          receiverType: "user",
-          senderId: plantId,
-          senderType: "wasteplant",
-          message: userMessage,
-          type: "pickup_cancelled",
-        });
-      console.log("userNotification", userNotification);
+    const userId = updatedPickupRequest.userId.toString();
+    const userMessage = `Your pickup ID ${updatedPickupRequest.pickupId} is cancelled.${reason}`;
+    const userNotification =
+      await this.notificationRepository.createNotification({
+        receiverId: userId,
+        receiverType: "user",
+        senderId: plantId,
+        senderType: "wasteplant",
+        message: userMessage,
+        type: "pickup_cancelled",
+      });
+    console.log("userNotification", userNotification);
 
-      if (io) {
-        io.to(`${userId}`).emit("newNotification", userNotification);
-      }
+    if (io) {
+      io.to(`${userId}`).emit("newNotification", userNotification);
+    }
 
-      return PickupRequestMapper.mapPickupReqDTO(updatedPickupRequest);
+    return PickupRequestMapper.mapPickupReqDTO(updatedPickupRequest);
   }
   async reschedulePickup(
     wasteplantId: string,
     pickupReqId: string,
-    data: ReschedulePickupDTO
+    data: ReschedulePickupDTO,
   ) {
-    const existingPickup = await this.pickupRepository.getPickupById(
-      pickupReqId
-    );
+    const existingPickup =
+      await this.pickupRepository.getPickupById(pickupReqId);
 
     if (!existingPickup) {
       throw new Error("Pickup request not found");
@@ -182,7 +186,7 @@ export class PickupService implements IPickupService {
     }
     const driver = await this.driverRepository.updateDriverAssignedZone(
       data.driverId,
-      data.assignedZone
+      data.assignedZone,
     );
 
     if (!driver) {
@@ -201,18 +205,17 @@ export class PickupService implements IPickupService {
         rescheduledPickupDate: data.rescheduledPickupDate,
         pickupTime: data.pickupTime,
         status: data.status,
-      }
+      },
     );
     if (!updatedPickup) {
       throw new Error("Failed to reschedule pickup");
     }
-    const plant = await this.wastePlantRepository.getWastePlantById(
-      wasteplantId
-    );
+    const plant =
+      await this.wastePlantRepository.getWastePlantById(wasteplantId);
 
     if (!plant || String(plant._id) !== String(updatedPickup.wasteplantId)) {
       throw new Error(
-        "Driver's plant does not match pickup's plant. Skipping notification."
+        "Driver's plant does not match pickup's plant. Skipping notification.",
       );
     }
     const io = globalThis.io;
@@ -252,7 +255,10 @@ export class PickupService implements IPickupService {
     return PickupRequestMapper.mapPickupReqDTO(updatedPickup);
   }
   async getAvailableDriverService(location: string, plantId: string) {
-    const drivers = await this.driverRepository.getDriversByLocation(location, plantId);
+    const drivers = await this.driverRepository.getDriversByLocation(
+      location,
+      plantId,
+    );
     return DriverMapper.mapDriversDTO(drivers);
   }
 }

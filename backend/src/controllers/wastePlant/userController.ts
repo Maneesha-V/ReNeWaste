@@ -11,16 +11,20 @@ import { AuthRequest } from "../../dtos/base/BaseDTO";
 export class UserController implements IUserController {
   constructor(
     @inject(TYPES.PlantUserService)
-    private _userService: IUserService
+    private _userService: IUserService,
   ) {}
-  async fetchUsers(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
+  async fetchUsers(
+    req: AuthRequest,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> {
     try {
       const wasteplantId = req.user?.id;
       if (!wasteplantId) {
         throw new ApiError(
-                 STATUS_CODES.UNAUTHORIZED,
-                 MESSAGES.COMMON.ERROR.UNAUTHORIZED
-               );
+          STATUS_CODES.UNAUTHORIZED,
+          MESSAGES.COMMON.ERROR.UNAUTHORIZED,
+        );
       }
       const page = parseInt(req.query.page as string) || 1;
       const limit = parseInt(req.query.limit as string) || 5;
@@ -30,7 +34,7 @@ export class UserController implements IUserController {
         wasteplantId,
         page,
         limit,
-        search
+        search,
       );
 
       res.status(STATUS_CODES.SUCCESS).json({
@@ -45,7 +49,11 @@ export class UserController implements IUserController {
     }
   }
 
-  async userBlockStatus(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
+  async userBlockStatus(
+    req: AuthRequest,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> {
     try {
       const userId = req.params.userId;
       const { isBlocked } = req.body;
@@ -54,25 +62,27 @@ export class UserController implements IUserController {
 
       if (!wasteplantId) {
         throw new ApiError(
-                 STATUS_CODES.UNAUTHORIZED,
-                 MESSAGES.COMMON.ERROR.UNAUTHORIZED
-               );
+          STATUS_CODES.UNAUTHORIZED,
+          MESSAGES.COMMON.ERROR.UNAUTHORIZED,
+        );
       }
       if (typeof isBlocked !== "boolean") {
-         throw new ApiError(STATUS_CODES.BAD_REQUEST, MESSAGES.COMMON.ERROR.INVALID_BLOCK)
+        throw new ApiError(
+          STATUS_CODES.BAD_REQUEST,
+          MESSAGES.COMMON.ERROR.INVALID_BLOCK,
+        );
       }
       const updatedUser = await this._userService.userBlockStatusService(
         wasteplantId,
         userId,
-        isBlocked
+        isBlocked,
       );
       console.log("updatedUser ", updatedUser);
-
 
       res.json({
         success: true,
         message: MESSAGES.COMMON.SUCCESS.BLOCK_UPDATE,
-        updatedUser
+        updatedUser,
       });
     } catch (error) {
       console.error("err", error);

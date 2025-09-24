@@ -12,12 +12,12 @@ import { AuthRequest } from "../../dtos/base/BaseDTO";
 export class AuthController implements IAuthController {
   constructor(
     @inject(TYPES.DriverAuthService)
-    private authService: IAuthService
+    private authService: IAuthService,
   ) {}
   async refreshToken(
     req: AuthRequest,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ): Promise<void> {
     try {
       const refreshToken = req.cookies?.refreshToken;
@@ -26,7 +26,7 @@ export class AuthController implements IAuthController {
       if (!refreshToken) {
         throw new ApiError(
           STATUS_CODES.UNAUTHORIZED,
-          MESSAGES.COMMON.ERROR.REFRESH_TOKEN
+          MESSAGES.COMMON.ERROR.REFRESH_TOKEN,
         );
       }
       const { token } = await this.authService.verifyToken(refreshToken);
@@ -39,7 +39,7 @@ export class AuthController implements IAuthController {
   async driverLogin(
     req: Request,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ): Promise<void> {
     try {
       console.log("body", req.body);
@@ -82,7 +82,7 @@ export class AuthController implements IAuthController {
   async driverLogout(
     req: Request,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ): Promise<void> {
     try {
       const isProduction = process.env.NODE_ENV === "production";
@@ -105,7 +105,7 @@ export class AuthController implements IAuthController {
   async sendOtp(
     req: Request,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ): Promise<void> {
     try {
       console.log("otp-body-driver", req.body);
@@ -130,7 +130,7 @@ export class AuthController implements IAuthController {
   async resendOtp(
     req: Request,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ): Promise<void> {
     console.log("body", req.body);
     try {
@@ -138,7 +138,7 @@ export class AuthController implements IAuthController {
       if (!email) {
         throw new ApiError(
           STATUS_CODES.NOT_FOUND,
-          MESSAGES.COMMON.ERROR.EMAIL_NOT_FOUND
+          MESSAGES.COMMON.ERROR.EMAIL_NOT_FOUND,
         );
       }
 
@@ -150,7 +150,7 @@ export class AuthController implements IAuthController {
       } else {
         throw new ApiError(
           STATUS_CODES.SERVER_ERROR,
-          MESSAGES.COMMON.ERROR.FAILED_OTP
+          MESSAGES.COMMON.ERROR.FAILED_OTP,
         );
       }
     } catch (error) {
@@ -160,7 +160,7 @@ export class AuthController implements IAuthController {
   async verifyOtp(
     req: Request,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ): Promise<void> {
     try {
       const { email, otp } = req.body;
@@ -168,7 +168,7 @@ export class AuthController implements IAuthController {
       if (!email || !otp) {
         throw new ApiError(
           STATUS_CODES.NOT_FOUND,
-          MESSAGES.COMMON.ERROR.EMAIL_OTP_REQUIRED
+          MESSAGES.COMMON.ERROR.EMAIL_OTP_REQUIRED,
         );
       }
 
@@ -177,7 +177,7 @@ export class AuthController implements IAuthController {
       if (!isValid) {
         throw new ApiError(
           STATUS_CODES.NOT_FOUND,
-          MESSAGES.COMMON.ERROR.INVALID_EXPIRED_OTP
+          MESSAGES.COMMON.ERROR.INVALID_EXPIRED_OTP,
         );
       }
 
@@ -192,7 +192,7 @@ export class AuthController implements IAuthController {
   async resetPassword(
     req: Request,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ): Promise<void> {
     try {
       console.log("body", req.body);
@@ -200,7 +200,7 @@ export class AuthController implements IAuthController {
       if (!email || !password) {
         throw new ApiError(
           STATUS_CODES.NOT_FOUND,
-          MESSAGES.COMMON.ERROR.EMAIL_PASSWORD_REQUIRED
+          MESSAGES.COMMON.ERROR.EMAIL_PASSWORD_REQUIRED,
         );
       }
       await this.authService.resetPasswordService(email, password);

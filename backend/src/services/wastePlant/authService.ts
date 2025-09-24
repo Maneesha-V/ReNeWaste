@@ -14,7 +14,7 @@ import { LoginRequest } from "../../dtos/user/userDTO";
 export class AuthService implements IAuthService {
   constructor(
     @inject(TYPES.WastePlantRepository)
-    private wastePlantRepository: IWastePlantRepository
+    private wastePlantRepository: IWastePlantRepository,
   ) {}
   async verifyToken(token: string): Promise<{ token: string }> {
     try {
@@ -24,7 +24,7 @@ export class AuthService implements IAuthService {
       };
       console.log("Refresh token payload:", decoded);
       const wastePlant = await this.wastePlantRepository.getWastePlantById(
-        decoded.userId
+        decoded.userId,
       );
       console.log("wastePlant", wastePlant);
 
@@ -35,7 +35,7 @@ export class AuthService implements IAuthService {
       const accessToken = jwt.sign(
         { userId: wastePlant._id, role: wastePlant.role },
         process.env.JWT_SECRET!,
-        { expiresIn: "15min" }
+        { expiresIn: "15min" },
       );
       return { token: accessToken };
     } catch (error) {
@@ -43,13 +43,9 @@ export class AuthService implements IAuthService {
       throw new Error("Invalid or expired refresh token");
     }
   }
-  async loginWastePlant({
-    email,
-    password,
-  }: LoginRequest) {
-    const wastePlant = await this.wastePlantRepository.findWastePlantByEmail(
-      email
-    );
+  async loginWastePlant({ email, password }: LoginRequest) {
+    const wastePlant =
+      await this.wastePlantRepository.findWastePlantByEmail(email);
 
     if (
       !wastePlant ||
@@ -57,7 +53,7 @@ export class AuthService implements IAuthService {
     ) {
       throw new Error("Invalid email or password.");
     }
-   
+
     if (wastePlant?.isBlocked) {
       throw new Error("Your account has been blocked by the superadmin.");
     }
@@ -68,9 +64,8 @@ export class AuthService implements IAuthService {
     return { wastePlant: WastePlantMapper.mapWastePlantDTO(wastePlant), token };
   }
   async sendOtpService(email: string) {
-    const wastePlant = await this.wastePlantRepository.findWastePlantByEmail(
-      email
-    );
+    const wastePlant =
+      await this.wastePlantRepository.findWastePlantByEmail(email);
     if (!wastePlant) {
       throw new Error("Wasteplant not found.");
     }
@@ -80,14 +75,13 @@ export class AuthService implements IAuthService {
     await sendEmail(
       email,
       "Your OTP Code",
-      `Your OTP code is: ${otp}. It will expire in 30s.`
+      `Your OTP code is: ${otp}. It will expire in 30s.`,
     );
     return otp;
   }
   async resendOtpService(email: string) {
-    const wastePlant = await this.wastePlantRepository.findWastePlantByEmail(
-      email
-    );
+    const wastePlant =
+      await this.wastePlantRepository.findWastePlantByEmail(email);
     if (!wastePlant) {
       throw new Error("User not found.");
     }
@@ -97,7 +91,7 @@ export class AuthService implements IAuthService {
     await sendEmail(
       email,
       "Your Resend OTP Code",
-      `Your Resend OTP code is: ${otp}. It will expire in 30s.`
+      `Your Resend OTP code is: ${otp}. It will expire in 30s.`,
     );
     return otp;
   }
@@ -118,16 +112,15 @@ export class AuthService implements IAuthService {
   }
   async resetPasswordService(
     email: string,
-    newPassword: string
+    newPassword: string,
   ): Promise<void> {
-    const wastePlant = await this.wastePlantRepository.findWastePlantByEmail(
-      email
-    );
+    const wastePlant =
+      await this.wastePlantRepository.findWastePlantByEmail(email);
     if (!wastePlant) throw new Error("User not found");
     const hashedPassword = await bcrypt.hash(newPassword, 10);
     await this.wastePlantRepository.updateWastePlantPassword(
       email,
-      hashedPassword
+      hashedPassword,
     );
   }
 }

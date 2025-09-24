@@ -15,9 +15,7 @@ export class NotificationMapper {
       createdAt: doc.createdAt,
     };
   }
-  static mapNotificationsDTO(
-      docs: INotificationDocument[]
-    ): NotificationDTO[] {
-      return docs.map((doc) => this.mapNotificationDTO(doc));
-    }
+  static mapNotificationsDTO(docs: INotificationDocument[]): NotificationDTO[] {
+    return docs.map((doc) => this.mapNotificationDTO(doc));
+  }
 }

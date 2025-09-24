@@ -1,9 +1,14 @@
-import { PopulatedPlan, PopulatedWasteplant, SubscriptionPaymentDTO, SubscriptionPaymentHisDTO } from "../dtos/subscription/subscptnPaymentDTO";
+import {
+  PopulatedPlan,
+  PopulatedWasteplant,
+  SubscriptionPaymentDTO,
+  SubscriptionPaymentHisDTO,
+} from "../dtos/subscription/subscptnPaymentDTO";
 import { ISubscriptionPaymentDocument } from "../models/subsptnPayment/interface/subsptnPaymentInterface";
 
 export class SubscriptionPaymentMapper {
   static mapSubscptnPaymentDTO(
-    doc: ISubscriptionPaymentDocument
+    doc: ISubscriptionPaymentDocument,
   ): SubscriptionPaymentDTO {
     return {
       _id: doc._id.toString(),
@@ -25,10 +30,12 @@ export class SubscriptionPaymentMapper {
       updatedAt: doc.updatedAt ?? null,
     };
   }
- static mapPopulatedPaymentHis(doc: ISubscriptionPaymentDocument): SubscriptionPaymentHisDTO {
+  static mapPopulatedPaymentHis(
+    doc: ISubscriptionPaymentDocument,
+  ): SubscriptionPaymentHisDTO {
     return {
       _id: doc._id.toString(),
-  wasteplantId:
+      wasteplantId:
         typeof doc.wasteplantId === "object" && "plantName" in doc.wasteplantId
           ? {
               _id: (doc.wasteplantId as any)._id.toString(),
@@ -37,7 +44,7 @@ export class SubscriptionPaymentMapper {
             }
           : { _id: "", plantName: "", ownerName: "" },
 
-        planId:
+      planId:
         typeof doc.planId === "object" && "planName" in doc.planId
           ? {
               _id: (doc.planId as any)._id.toString(),
@@ -62,7 +69,7 @@ export class SubscriptionPaymentMapper {
     };
   }
   static mapPopulatedList(
-    docs: ISubscriptionPaymentDocument[]
+    docs: ISubscriptionPaymentDocument[],
   ): SubscriptionPaymentHisDTO[] {
     return docs.map((doc) => this.mapPopulatedPaymentHis(doc));
   }

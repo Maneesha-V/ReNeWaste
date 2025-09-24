@@ -14,12 +14,12 @@ export class SubscriptionController implements ISubscriptionController {
     @inject(TYPES.PlantSubscriptionService)
     private _subscriptionService: ISubscriptionService,
     @inject(TYPES.PlantPaymentService)
-     private _paymentService: IPaymentService
+    private _paymentService: IPaymentService,
   ) {}
   async fetchSubscriptionPlan(
     req: AuthRequest,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ): Promise<void> {
     try {
       const plantId = req.user?.id;
@@ -27,21 +27,21 @@ export class SubscriptionController implements ISubscriptionController {
       if (!plantId) {
         throw new ApiError(
           STATUS_CODES.UNAUTHORIZED,
-          MESSAGES.COMMON.ERROR.UNAUTHORIZED
+          MESSAGES.COMMON.ERROR.UNAUTHORIZED,
         );
       }
 
       const selectedPlan =
         await this._subscriptionService.fetchSubscriptionPlan(plantId);
       console.log("selectedPlan", selectedPlan);
-      const subPaymentHistory = 
-      await this._paymentService.fetchSubscriptionPayments(plantId);
-  console.log("subPaymentHistory", subPaymentHistory);
+      const subPaymentHistory =
+        await this._paymentService.fetchSubscriptionPayments(plantId);
+      console.log("subPaymentHistory", subPaymentHistory);
       res.status(STATUS_CODES.SUCCESS).json({
         success: true,
         message: MESSAGES.WASTEPLANT.SUCCESS.SUBSCRIPTION_PLAN,
         selectedPlan,
-        subPaymentHistory
+        subPaymentHistory,
       });
     } catch (error) {
       console.error("err", error);
@@ -51,7 +51,7 @@ export class SubscriptionController implements ISubscriptionController {
   async fetchSubscriptionPlans(
     req: AuthRequest,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ): Promise<void> {
     try {
       const plantId = req.user?.id;
@@ -59,7 +59,7 @@ export class SubscriptionController implements ISubscriptionController {
       if (!plantId) {
         throw new ApiError(
           STATUS_CODES.UNAUTHORIZED,
-          MESSAGES.WASTEPLANT.ERROR.ID_REQUIRED
+          MESSAGES.WASTEPLANT.ERROR.ID_REQUIRED,
         );
       }
 
@@ -77,37 +77,37 @@ export class SubscriptionController implements ISubscriptionController {
       next(error);
     }
   }
-   async cancelSubcptReason(
-      req: AuthRequest,
-      res: Response,
-      next: NextFunction
-    ): Promise<void> {
-      try {
-        const { subPayId } = req.params;
-        const { reason } = req.body;
-        const plantId = req.user?.id;
-        if (!plantId) {
-          throw new ApiError(
-            STATUS_CODES.UNAUTHORIZED,
-            MESSAGES.COMMON.ERROR.UNAUTHORIZED
-          );
-        }
-        console.log({ subPayId, plantId, reason });
-  
-        const payment = await this._subscriptionService.cancelSubcptReason(
-          plantId,
-          subPayId,
-          reason
+  async cancelSubcptReason(
+    req: AuthRequest,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> {
+    try {
+      const { subPayId } = req.params;
+      const { reason } = req.body;
+      const plantId = req.user?.id;
+      if (!plantId) {
+        throw new ApiError(
+          STATUS_CODES.UNAUTHORIZED,
+          MESSAGES.COMMON.ERROR.UNAUTHORIZED,
         );
-        console.log("payment", payment);
-  
-        res.status(STATUS_CODES.SUCCESS).json({
-          message: MESSAGES.WASTEPLANT.SUCCESS.SUBSCRIPTION_CANCEL,
-          payment,
-        });
-      } catch (error) {
-        console.error("error", error);
-        next(error);
       }
+      console.log({ subPayId, plantId, reason });
+
+      const payment = await this._subscriptionService.cancelSubcptReason(
+        plantId,
+        subPayId,
+        reason,
+      );
+      console.log("payment", payment);
+
+      res.status(STATUS_CODES.SUCCESS).json({
+        message: MESSAGES.WASTEPLANT.SUCCESS.SUBSCRIPTION_CANCEL,
+        payment,
+      });
+    } catch (error) {
+      console.error("error", error);
+      next(error);
     }
+  }
 }

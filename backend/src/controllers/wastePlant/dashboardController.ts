@@ -11,25 +11,24 @@ import { AuthRequest } from "../../dtos/base/BaseDTO";
 export class DashboardController implements IDashboardController {
   constructor(
     @inject(TYPES.PlantDashboardService)
-    private _dashboardService: IDashboardService
+    private _dashboardService: IDashboardService,
   ) {}
   async fetchDashboardData(
     req: AuthRequest,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ): Promise<void> {
     try {
       const plantId = req.user?.id;
       if (!plantId) {
         throw new ApiError(
           STATUS_CODES.UNAUTHORIZED,
-          MESSAGES.COMMON.ERROR.UNAUTHORIZED
+          MESSAGES.COMMON.ERROR.UNAUTHORIZED,
         );
       }
 
-      const dashboardData = await this._dashboardService.getDashboardData(
-        plantId
-      );
+      const dashboardData =
+        await this._dashboardService.getDashboardData(plantId);
       console.log("dashboardData", dashboardData);
 
       res.status(STATUS_CODES.SUCCESS).json({

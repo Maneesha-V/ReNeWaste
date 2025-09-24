@@ -1,16 +1,25 @@
 import mongoose from "mongoose";
 import { DropSpotModel } from "../../models/dropSpots/dropSpotModel";
-import { IDropSpot, IDropSpotDocument } from "../../models/dropSpots/interfaces/dropSpotInterface";
+import {
+  IDropSpot,
+  IDropSpotDocument,
+} from "../../models/dropSpots/interfaces/dropSpotInterface";
 import { IDropSpotRepository } from "./interface/IDropSpotRepository";
 import BaseRepository from "../baseRepository/baseRepository";
 import { injectable } from "inversify";
-import { PaginatedDropSpotsRepoRes, UpdateDataDropSpot } from "../../dtos/dropspots/dropSpotDTO";
+import {
+  PaginatedDropSpotsRepoRes,
+  UpdateDataDropSpot,
+} from "../../dtos/dropspots/dropSpotDTO";
 
 @injectable()
-export class DropSpotRepository extends BaseRepository<IDropSpotDocument>  implements IDropSpotRepository {
+export class DropSpotRepository
+  extends BaseRepository<IDropSpotDocument>
+  implements IDropSpotRepository
+{
   constructor() {
     super(DropSpotModel);
-  } 
+  }
   async createDropSpot(payload: IDropSpot) {
     const created = new this.model(payload);
     return await created.save();
@@ -19,7 +28,7 @@ export class DropSpotRepository extends BaseRepository<IDropSpotDocument>  imple
     wasteplantId: string,
     page: number,
     limit: number,
-    search: string
+    search: string,
   ): Promise<PaginatedDropSpotsRepoRes> {
     const query = {
       wasteplantId,
@@ -34,7 +43,8 @@ export class DropSpotRepository extends BaseRepository<IDropSpotDocument>  imple
     };
     const skip = (page - 1) * limit;
 
-    const dropspots = await this.model.find(query)
+    const dropspots = await this.model
+      .find(query)
       .skip(skip)
       .limit(limit)
       .sort({ createdAt: -1 });
@@ -42,7 +52,6 @@ export class DropSpotRepository extends BaseRepository<IDropSpotDocument>  imple
     const total = await this.model.countDocuments(query);
 
     return { dropspots, total };
-
   }
   async getDropSpotsByLocationAndWasteplant({
     location,
@@ -66,7 +75,7 @@ export class DropSpotRepository extends BaseRepository<IDropSpotDocument>  imple
   async findDropSpotById(dropSpotId: string, wasteplantId: string) {
     return await this.model.findOne({
       _id: new mongoose.Types.ObjectId(dropSpotId),
-      wasteplantId
+      wasteplantId,
     });
   }
   async deleteDropSpotById(dropSpotId: string, wasteplantId: string) {
@@ -82,5 +91,3 @@ export class DropSpotRepository extends BaseRepository<IDropSpotDocument>  imple
     });
   }
 }
-
-

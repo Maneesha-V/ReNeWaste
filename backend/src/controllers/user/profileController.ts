@@ -11,12 +11,12 @@ import { MESSAGES, STATUS_CODES } from "../../utils/constantUtils";
 export class ProfileController implements IProfileController {
   constructor(
     @inject(TYPES.UserProfileService)
-    private profileService: IProfileService
+    private profileService: IProfileService,
   ) {}
   async getProfile(
     req: AuthRequest,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ): Promise<void> {
     try {
       const userId = req.user?.id;
@@ -24,7 +24,7 @@ export class ProfileController implements IProfileController {
       if (!userId) {
         throw new ApiError(
           STATUS_CODES.UNAUTHORIZED,
-          MESSAGES.COMMON.ERROR.UNAUTHORIZED
+          MESSAGES.COMMON.ERROR.UNAUTHORIZED,
         );
       }
       const user = await this.profileService.getUserProfile(userId);
@@ -45,7 +45,7 @@ export class ProfileController implements IProfileController {
   async getEditProfile(
     req: AuthRequest,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ): Promise<void> {
     try {
       const userId = req.user?.id;
@@ -53,7 +53,7 @@ export class ProfileController implements IProfileController {
       if (!userId) {
         throw new ApiError(
           STATUS_CODES.UNAUTHORIZED,
-          MESSAGES.COMMON.ERROR.UNAUTHORIZED
+          MESSAGES.COMMON.ERROR.UNAUTHORIZED,
         );
       }
       const user = await this.profileService.getUserProfile(userId);
@@ -73,14 +73,14 @@ export class ProfileController implements IProfileController {
   async updateUserProfileHandler(
     req: AuthRequest,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ): Promise<void> {
     try {
       const userId = req.user?.id;
       if (!userId) {
         throw new ApiError(
           STATUS_CODES.UNAUTHORIZED,
-          MESSAGES.COMMON.ERROR.UNAUTHORIZED
+          MESSAGES.COMMON.ERROR.UNAUTHORIZED,
         );
       }
       const updatedData = req.body;
@@ -88,7 +88,7 @@ export class ProfileController implements IProfileController {
 
       const updatedUser = await this.profileService.updateUserProfile(
         userId,
-        updatedData
+        updatedData,
       );
 
       if (updatedUser) {
@@ -100,7 +100,6 @@ export class ProfileController implements IProfileController {
           .status(STATUS_CODES.SERVER_ERROR)
           .json({ message: MESSAGES.USER.ERROR.PROFILE_UPDATE });
       }
-
     } catch (error) {
       console.error("Error updating profile:", error);
       next(error);

@@ -5,16 +5,16 @@ export interface IPickupController {
   getPickupPlans(
     req: AuthRequest,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ): Promise<void>;
   cancelPickupPlan(
     req: AuthRequest,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ): Promise<void>;
   cancelPickupReason(
     req: AuthRequest,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ): Promise<void>;
 }

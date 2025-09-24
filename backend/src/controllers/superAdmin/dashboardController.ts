@@ -10,12 +10,12 @@ import { AuthRequest } from "../../dtos/base/BaseDTO";
 export class DashboardController implements IDashboardController {
   constructor(
     @inject(TYPES.SuperAdminDashboardService)
-    private _dashboardService: IDashboardService
+    private _dashboardService: IDashboardService,
   ) {}
   async fetchSuperAdminDashboard(
     req: AuthRequest,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ): Promise<void> {
     try {
       const adminId = req.user?.id;

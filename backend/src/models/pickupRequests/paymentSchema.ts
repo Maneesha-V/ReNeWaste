@@ -5,7 +5,7 @@ export const PaymentSchema: Schema<IPaymentDocument> = new Schema(
   {
     status: {
       type: String,
-      enum: ["Pending","InProgress", "Paid", "Failed"],
+      enum: ["Pending", "InProgress", "Paid", "Failed"],
       default: "Pending",
     },
     method: {
@@ -38,7 +38,7 @@ export const PaymentSchema: Schema<IPaymentDocument> = new Schema(
     },
     refundStatus: {
       type: String,
-      enum: ["Pending","Processing","Refunded", "Rejected", null],
+      enum: ["Pending", "Processing", "Refunded", "Rejected", null],
       default: null,
     },
     refundAt: {
@@ -52,8 +52,7 @@ export const PaymentSchema: Schema<IPaymentDocument> = new Schema(
     inProgressExpiresAt: {
       type: Date,
       default: null,
-    }
-
+    },
   },
-  { _id: false } 
+  { _id: false },
 );

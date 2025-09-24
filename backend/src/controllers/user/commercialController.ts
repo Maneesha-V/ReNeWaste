@@ -12,19 +12,19 @@ import { AuthRequest } from "../../dtos/base/BaseDTO";
 export class CommercialController implements ICommercialController {
   constructor(
     @inject(TYPES.CommercialService)
-    private commercialService: ICommercialService
+    private commercialService: ICommercialService,
   ) {}
   async getCommercial(
     req: AuthRequest,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ): Promise<void> {
     try {
       const userId = req.user?.id;
       if (!userId) {
         throw new ApiError(
           STATUS_CODES.UNAUTHORIZED,
-          MESSAGES.COMMON.ERROR.UNAUTHORIZED
+          MESSAGES.COMMON.ERROR.UNAUTHORIZED,
         );
       }
       const user = await this.commercialService.getCommercialService(userId);
@@ -40,21 +40,21 @@ export class CommercialController implements ICommercialController {
   async checkServiceAvailable(
     req: AuthRequest,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ): Promise<void> {
     try {
       const userId = req.user?.id;
       if (!userId) {
         throw new ApiError(
           STATUS_CODES.UNAUTHORIZED,
-          MESSAGES.COMMON.ERROR.UNAUTHORIZED
+          MESSAGES.COMMON.ERROR.UNAUTHORIZED,
         );
       }
       const { service, wasteplantId } = req.body;
 
       const success = await this.commercialService.availableWasteService(
         service,
-        wasteplantId
+        wasteplantId,
       );
 
       if (success) {
@@ -71,14 +71,14 @@ export class CommercialController implements ICommercialController {
   async updateCommercialPickup(
     req: AuthRequest,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ): Promise<void> {
     try {
       const userId = req.user?.id;
       if (!userId) {
         throw new ApiError(
           STATUS_CODES.UNAUTHORIZED,
-          MESSAGES.COMMON.ERROR.UNAUTHORIZED
+          MESSAGES.COMMON.ERROR.UNAUTHORIZED,
         );
       }
       console.log(req.body);
@@ -88,13 +88,13 @@ export class CommercialController implements ICommercialController {
       const formattedDate = moment(
         pickupDateString,
         "MM-DD-YYYY",
-        true
+        true,
       ).toDate();
 
       if (isNaN(formattedDate.getTime())) {
         throw new ApiError(
           STATUS_CODES.BAD_REQUEST,
-          MESSAGES.USER.ERROR.PICKUP_DATE
+          MESSAGES.USER.ERROR.PICKUP_DATE,
         );
       }
       updatedData.pickupDate = formattedDate;
@@ -102,7 +102,7 @@ export class CommercialController implements ICommercialController {
       const success =
         await this.commercialService.updateCommercialPickupService(
           userId,
-          updatedData
+          updatedData,
         );
 
       if (success) {

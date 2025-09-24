@@ -19,7 +19,7 @@ export class DashboardService implements IDashboardService {
     @inject(TYPES.PickupRepository)
     private pickupRepository: IPickupRepository,
     @inject(TYPES.WasteCollectionRepository)
-    private wasteCollectionRepository: IWasteCollectionRepository
+    private wasteCollectionRepository: IWasteCollectionRepository,
   ) {}
 
   async getDashboardData(plantId: string) {
@@ -27,31 +27,34 @@ export class DashboardService implements IDashboardService {
     // const trucks = this.truckRepository.fetchAllTrucksByPlantId(plantId);
     // const totalPickups = this.pickupRepository.fetchAllPickupsByPlantId(plantId);
     // const totalWaste = this.wasteCollectionRepository.totalWasteAmount(plantId);
-// drivers, trucks, pickups, revenue, waste 
-  const [revenue, drivers, trucks, pickupStatus, totalWaste] = await Promise.all([
+    // drivers, trucks, pickups, revenue, waste
+    const [revenue, drivers, trucks, pickupStatus, totalWaste] =
+      await Promise.all([
         this.pickupRepository.totalRevenueByPlantId(plantId),
         this.driverRepository.fetchAllDriversByPlantId(plantId),
         this.truckRepository.fetchAllTrucksByPlantId(plantId),
         this.pickupRepository.fetchAllPickupsByPlantId(plantId),
-        this.wasteCollectionRepository.totalWasteAmount(plantId)
-    ]);
+        this.wasteCollectionRepository.totalWasteAmount(plantId),
+      ]);
 
-    const totalActivePickups = pickupStatus.Residential.Active + pickupStatus.Commercial.Active;
-    const totalCompletedPickups = pickupStatus.Residential.Completed + pickupStatus.Commercial.Completed;
+    const totalActivePickups =
+      pickupStatus.Residential.Active + pickupStatus.Commercial.Active;
+    const totalCompletedPickups =
+      pickupStatus.Residential.Completed + pickupStatus.Commercial.Completed;
 
     return {
-        summary: {
-            totalDrivers: drivers,
-            totalTrucks: trucks,
-            totalActivePickups,
-            totalCompletedPickups,
-            totalWasteCollected: totalWaste,
-            totalRevenue: revenue.totalRevenue
-        },
-        pickupStatus, 
-        drivers,
-        trucks,
-        revenue
+      summary: {
+        totalDrivers: drivers,
+        totalTrucks: trucks,
+        totalActivePickups,
+        totalCompletedPickups,
+        totalWasteCollected: totalWaste,
+        totalRevenue: revenue.totalRevenue,
+      },
+      pickupStatus,
+      drivers,
+      trucks,
+      revenue,
     };
   }
 }

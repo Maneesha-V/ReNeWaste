@@ -15,6 +15,6 @@ export class ChatMessageMapper {
     };
   }
   static mapChatMessagesDTO(docs: IChatMessageDocument[]): ChatMessageDTO[] {
-    return docs.map(doc => this.mapChatMessageDTO(doc))
+    return docs.map((doc) => this.mapChatMessageDTO(doc));
   }
 }

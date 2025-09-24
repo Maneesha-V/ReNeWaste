@@ -12,8 +12,8 @@ export class DropSpotService implements IDropSpotService {
     @inject(TYPES.UserRepository)
     private userRepository: IUserRepository,
     @inject(TYPES.DropSpotRepository)
-    private dropSpotRepository: IDropSpotRepository
-  ){}
+    private dropSpotRepository: IDropSpotRepository,
+  ) {}
   async getAllNearDropSpots(userId: string): Promise<DropSpotDTO[]> {
     const user = await this.userRepository.findUserById(userId);
 
@@ -28,16 +28,16 @@ export class DropSpotService implements IDropSpotService {
     if (!wasteplantId) {
       throw new Error("User's wasteplantId is missing");
     }
-    const dropspots =  await this.dropSpotRepository.getDropSpotsByLocationAndWasteplant({
-      location,
-      district,
-      state,
-      wasteplantId,
-    });
-    if(!dropspots){
+    const dropspots =
+      await this.dropSpotRepository.getDropSpotsByLocationAndWasteplant({
+        location,
+        district,
+        state,
+        wasteplantId,
+      });
+    if (!dropspots) {
       throw new Error("Drop spots not found.");
     }
     return DropSpotMapper.mapDropSpotsDTO(dropspots);
   }
 }
-

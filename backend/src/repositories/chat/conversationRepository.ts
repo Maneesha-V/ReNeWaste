@@ -28,7 +28,7 @@ export class ConversationRepository
     senderId: string,
     senderRole: ParticipantRole,
     receiverId: string,
-    receiverRole: ParticipantRole
+    receiverRole: ParticipantRole,
   ) {
     const conversation = await this.model.create({
       participants: [

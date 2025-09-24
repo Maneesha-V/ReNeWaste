@@ -17,11 +17,11 @@ export interface DropSpotDTO extends BaseDTO {
 export type PaginatedDropSpotsResult = {
   dropspots: DropSpotDTO[];
   total: number;
-}
+};
 export type PaginatedDropSpotsRepoRes = {
   dropspots: IDropSpotDocument[];
   total: number;
-}
+};
 export type UpdateDataDropSpot = {
   dropSpotName: string;
   addressLine: string;
@@ -29,7 +29,7 @@ export type UpdateDataDropSpot = {
   pincode: string;
   district: string;
   state: string;
-}
+};
 export type DropSpotDataReq = {
   dropSpotName: string;
   addressLine: string;
@@ -42,4 +42,4 @@ export type DropSpotDataReq = {
     lat: number;
     lng: number;
   };
-}
+};

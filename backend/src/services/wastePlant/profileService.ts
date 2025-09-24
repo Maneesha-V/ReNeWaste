@@ -9,20 +9,25 @@ import { WastePlantMapper } from "../../mappers/WastePlantMapper";
 export class ProfileService implements IProfileService {
   constructor(
     @inject(TYPES.WastePlantRepository)
-    private wastePlantRepository: IWastePlantRepository
-  ){}
+    private wastePlantRepository: IWastePlantRepository,
+  ) {}
   async getPlantProfile(plantId: string) {
-    const wasteplant = await this.wastePlantRepository.getWastePlantById(plantId);
+    const wasteplant =
+      await this.wastePlantRepository.getWastePlantById(plantId);
     if (!wasteplant) throw new Error("Wasteplant not found");
     return WastePlantMapper.mapWastePlantDTO(wasteplant);
   }
-  async updatePlantProfile(plantId: string, updatedData: IWastePlant ) {
-    const wasteplant = await this.wastePlantRepository.getWastePlantById(plantId);
+  async updatePlantProfile(plantId: string, updatedData: IWastePlant) {
+    const wasteplant =
+      await this.wastePlantRepository.getWastePlantById(plantId);
     if (!wasteplant) throw new Error("Plant not found");
 
-    const updated = await this.wastePlantRepository.updateWastePlantById(plantId, updatedData);
-    if(!updated){
-      throw new Error("Plant can't update.")
+    const updated = await this.wastePlantRepository.updateWastePlantById(
+      plantId,
+      updatedData,
+    );
+    if (!updated) {
+      throw new Error("Plant can't update.");
     }
     return WastePlantMapper.mapWastePlantDTO(updated);
   }

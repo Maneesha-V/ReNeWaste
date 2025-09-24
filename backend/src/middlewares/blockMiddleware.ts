@@ -7,7 +7,7 @@ import { AuthRequest } from "../dtos/base/BaseDTO";
 export const checkNotBlocked = async (
   req: AuthRequest,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ): Promise<void> => {
   const id = req.user?.id;
   const role = req.user?.role;

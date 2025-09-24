@@ -11,19 +11,19 @@ injectable();
 export class DropSpotController implements IDropSpotController {
   constructor(
     @inject(TYPES.UserDropSpotService)
-    private dropSpotService: IDropSpotService
+    private dropSpotService: IDropSpotService,
   ) {}
   async fetchAllNearDropSpots(
     req: AuthRequest,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ): Promise<void> {
     try {
       const userId = req.user?.id;
       if (!userId) {
         throw new ApiError(
           STATUS_CODES.UNAUTHORIZED,
-          MESSAGES.COMMON.ERROR.UNAUTHORIZED
+          MESSAGES.COMMON.ERROR.UNAUTHORIZED,
         );
       }
       const dropspots = await this.dropSpotService.getAllNearDropSpots(userId);

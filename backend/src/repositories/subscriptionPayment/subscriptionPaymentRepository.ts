@@ -12,7 +12,10 @@ import {
   UpdateRefundStatusReq,
 } from "../../dtos/subscription/subscptnPaymentDTO";
 import { SubscriptionPaymentMapper } from "../../mappers/SubscriptionPaymentMapper";
-import { PaymentUpdate, UpdateSubscptnPayload } from "../../dtos/pickupReq/paymentDTO";
+import {
+  PaymentUpdate,
+  UpdateSubscptnPayload,
+} from "../../dtos/pickupReq/paymentDTO";
 
 @injectable()
 export class SubscriptionPaymentRepository
@@ -23,7 +26,7 @@ export class SubscriptionPaymentRepository
     super(SubscriptionPaymentModel);
   }
   async createSubscriptionPayment(
-    data: CreateSubsptnPaymentPayload
+    data: CreateSubsptnPaymentPayload,
   ): Promise<ISubscriptionPaymentDocument> {
     const { plantId, planId, amount, paymentDetails } = data;
     const newPayment = new this.model({
@@ -48,7 +51,7 @@ export class SubscriptionPaymentRepository
       },
       {
         new: true,
-      }
+      },
     );
 
     if (!updatedPayment) {
@@ -58,19 +61,19 @@ export class SubscriptionPaymentRepository
     return updatedPayment;
   }
   async findSubscriptionPayments(
-    plantId: string
+    plantId: string,
   ): Promise<ISubscriptionPaymentDocument[] | null> {
     return await this.model
-    .find({ wasteplantId: plantId})
-    .populate({ path: "wasteplantId", select: "plantName ownerName" }) 
-    .populate({ path: "planId", select: "planName billingCycle" }); 
+      .find({ wasteplantId: plantId })
+      .populate({ path: "wasteplantId", select: "plantName ownerName" })
+      .populate({ path: "planId", select: "planName billingCycle" });
   }
   async findSubscriptionPaymentById(id: string) {
     return await this.model.findById(id);
   }
   async updateSubscriptionPaymentById(
     id: string,
-    paymentUpdate: PaymentUpdate
+    paymentUpdate: PaymentUpdate,
   ): Promise<ISubscriptionPaymentDocument> {
     const updatedData = await this.model.findByIdAndUpdate(
       {
@@ -79,7 +82,7 @@ export class SubscriptionPaymentRepository
       {
         $set: paymentUpdate,
       },
-      { new: true }
+      { new: true },
     );
     if (!updatedData) {
       throw new Error("Subscription payment not found for update.");
@@ -91,7 +94,7 @@ export class SubscriptionPaymentRepository
   }
 
   async getAllSubscptnPayments(
-    data: PaginationInput
+    data: PaginationInput,
   ): Promise<SubscriptionPaymentHisResult> {
     const { page, limit, search } = data;
     const skip = (page - 1) * limit;
@@ -164,7 +167,7 @@ export class SubscriptionPaymentRepository
           refundRequested: 1,
           refundStatus: 1,
           refundAt: 1,
-          inProgressExpiresAt: 1
+          inProgressExpiresAt: 1,
         },
       },
     ];
@@ -209,15 +212,17 @@ export class SubscriptionPaymentRepository
     }
     return null;
   }
-  async findPlantSubscriptionPayment(plantId: string){
+  async findPlantSubscriptionPayment(plantId: string) {
     const now = new Date();
     return await this.model.findOne({
       wasteplantId: plantId,
       // status: {$or: ["Paid","Pending"]},
       // expiredAt : {$gt: now}
-    })
+    });
   }
-  async updateSubptnPaymentStatus(subPayId: string): Promise<ISubscriptionPaymentDocument>{
+  async updateSubptnPaymentStatus(
+    subPayId: string,
+  ): Promise<ISubscriptionPaymentDocument> {
     const updatedSubptnRequest = await this.model.findByIdAndUpdate(
       subPayId,
       {
@@ -225,7 +230,7 @@ export class SubscriptionPaymentRepository
           refundRequested: true,
         },
       },
-      { new: true }
+      { new: true },
     );
 
     if (!updatedSubptnRequest) {
@@ -233,7 +238,9 @@ export class SubscriptionPaymentRepository
     }
     return updatedSubptnRequest;
   }
-  async updateRefundStatusPayment(data: UpdateRefundStatusReq): Promise<ISubscriptionPaymentDocument>{
+  async updateRefundStatusPayment(
+    data: UpdateRefundStatusReq,
+  ): Promise<ISubscriptionPaymentDocument> {
     const { subPayId, refundStatus } = data;
     const payment = await this.model.findByIdAndUpdate(
       subPayId,
@@ -242,11 +249,11 @@ export class SubscriptionPaymentRepository
           refundStatus: refundStatus,
         },
       },
-      { new: true }
+      { new: true },
     );
-    if(!payment){
-      throw new Error("Payment not found.")
-    };
+    if (!payment) {
+      throw new Error("Payment not found.");
+    }
     return payment;
   }
 }

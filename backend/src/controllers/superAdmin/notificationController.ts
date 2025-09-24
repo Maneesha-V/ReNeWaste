@@ -11,24 +11,23 @@ import { MESSAGES, STATUS_CODES } from "../../utils/constantUtils";
 export class NotificationController implements INotificationController {
   constructor(
     @inject(TYPES.SuperAdminNotificationService)
-    private notificationService: INotificationService
+    private notificationService: INotificationService,
   ) {}
   async fetchNotifications(
     req: AuthRequest,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ): Promise<void> {
     try {
       const adminId = req.user?.id;
       if (!adminId) {
         throw new ApiError(
           STATUS_CODES.UNAUTHORIZED,
-          MESSAGES.COMMON.ERROR.UNAUTHORIZED
+          MESSAGES.COMMON.ERROR.UNAUTHORIZED,
         );
       }
-      const notifications = await this.notificationService.getNotifications(
-        adminId
-      );
+      const notifications =
+        await this.notificationService.getNotifications(adminId);
 
       res.status(STATUS_CODES.SUCCESS).json({ notifications: notifications });
     } catch (error) {
@@ -39,7 +38,7 @@ export class NotificationController implements INotificationController {
   async markReadNotification(
     req: AuthRequest,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ): Promise<void> {
     try {
       const { notifId } = req.params;
@@ -47,7 +46,7 @@ export class NotificationController implements INotificationController {
       if (!adminId) {
         throw new ApiError(
           STATUS_CODES.UNAUTHORIZED,
-          MESSAGES.COMMON.ERROR.UNAUTHORIZED
+          MESSAGES.COMMON.ERROR.UNAUTHORIZED,
         );
       }
       const updatedNotification =

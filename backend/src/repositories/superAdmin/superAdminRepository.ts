@@ -8,11 +8,16 @@ import { ISuperAdminRepository } from "./interface/ISuperAdminRepository";
 import BaseRepository from "../baseRepository/baseRepository";
 
 @injectable()
-export class SuperAdminRepository extends BaseRepository<ISuperAdminDocument> implements ISuperAdminRepository {
+export class SuperAdminRepository
+  extends BaseRepository<ISuperAdminDocument>
+  implements ISuperAdminRepository
+{
   constructor() {
     super(SuperAdminModel);
   }
-  async getSuperAdminById(adminId: string): Promise<ISuperAdminDocument | null> {
+  async getSuperAdminById(
+    adminId: string,
+  ): Promise<ISuperAdminDocument | null> {
     return this.model.findById(adminId).exec();
   }
 
@@ -20,7 +25,9 @@ export class SuperAdminRepository extends BaseRepository<ISuperAdminDocument> im
     return this.model.findOne({ email }).exec();
   }
 
-  async findAdminByUsername(username: string): Promise<ISuperAdminDocument | null> {
+  async findAdminByUsername(
+    username: string,
+  ): Promise<ISuperAdminDocument | null> {
     return this.model.findOne({ username }).exec();
   }
 
@@ -29,16 +36,18 @@ export class SuperAdminRepository extends BaseRepository<ISuperAdminDocument> im
     return admin.save();
   }
 
-  async updateAdminPassword(email: string, hashedPassword: string): Promise<boolean> {
+  async updateAdminPassword(
+    email: string,
+    hashedPassword: string,
+  ): Promise<boolean> {
     await this.model.findOneAndUpdate(
       { email },
       { $set: { password: hashedPassword } },
-      { new: true, runValidators: false }
+      { new: true, runValidators: false },
     );
     return true;
   }
   async findAdminByRole(role: string): Promise<ISuperAdminDocument | null> {
-    return await this.model.findOne({role})
+    return await this.model.findOne({ role });
   }
 }
-

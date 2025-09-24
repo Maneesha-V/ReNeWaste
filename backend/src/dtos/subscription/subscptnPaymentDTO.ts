@@ -28,7 +28,7 @@ export interface SubscriptionPaymentDTO extends BaseDTO {
   expiredAt: Date | null;
   refundRequested: boolean;
   refundStatus: SubcrptnRefundStatus;
-  razorpayRefundId: string | null,
+  razorpayRefundId: string | null;
   refundAt: Date | null;
   createdAt: Date | null;
   updatedAt: Date | null;
@@ -115,12 +115,12 @@ export type SubsptnPlanData = {
 
 export type updateSubscptnData = {
   id: string;
-  data: Partial<SubsptnPlanData>; 
+  data: Partial<SubsptnPlanData>;
 };
 export type CreateSubsptnPaymentPayload = {
-  plantId: string,
-  planId: string,
-  amount: number,
+  plantId: string;
+  planId: string;
+  amount: number;
   paymentDetails: {
     method: string;
     status: string;
@@ -132,5 +132,5 @@ export type CreateSubsptnPaymentPayload = {
     refundStatus: string | null;
     refundAt: Date | null;
     inProgressExpiresAt: Date | null;
-  }
-}
+  };
+};

@@ -22,7 +22,7 @@ export class SubscriptionService implements ISubscriptionService {
     @inject(TYPES.SubscriptionPaymentRepository)
     private _subscriptionPaymentRepository: ISubscriptionPaymentRepository,
     @inject(TYPES.SuperAdminRepository)
-    private superAdminRepository: ISuperAdminRepository
+    private superAdminRepository: ISuperAdminRepository,
   ) {}
   async fetchSubscriptionPlan(plantId: string): Promise<ReturnFetchSubptnPlan> {
     const plant = await this._wastePlantRepository.getWastePlantById(plantId);
@@ -33,14 +33,14 @@ export class SubscriptionService implements ISubscriptionService {
     console.log("plant", plant);
     const subPlanPaymentData =
       await this._subscriptionPaymentRepository.findPlantSubscriptionPayment(
-        plant._id.toString()
+        plant._id.toString(),
       );
     if (!subPlanPaymentData) {
       throw new Error("No such subscription payment found.");
     }
     const registeredPlan =
       await this._subscriptionRepository.getSubscriptionPlanById(
-        subPlanPaymentData.planId.toString()
+        subPlanPaymentData.planId.toString(),
       );
     if (!registeredPlan) {
       throw new Error("No such subscription plan found.");
@@ -74,29 +74,33 @@ export class SubscriptionService implements ISubscriptionService {
   async cancelSubcptReason(
     plantId: string,
     subPayId: string,
-    reason: string
+    reason: string,
   ): Promise<SubscriptionPaymentDTO> {
     const plant = await this._wastePlantRepository.getWastePlantById(plantId);
-    if(!plant){
-      throw new Error("Plant not found.")
+    if (!plant) {
+      throw new Error("Plant not found.");
     }
     const admin = await this.superAdminRepository.findAdminByRole("superadmin");
     if (!admin) {
       throw new Error("Superadmin not found.");
     }
     const updatedSubcptnRequest =
-      await this._subscriptionPaymentRepository.updateSubptnPaymentStatus(subPayId);
-        const adminMessage = `Plant: ${plant.plantName} is requested with refund-${reason}-
+      await this._subscriptionPaymentRepository.updateSubptnPaymentStatus(
+        subPayId,
+      );
+    const adminMessage = `Plant: ${plant.plantName} is requested with refund-${reason}-
         SubPaymentId-${updatedSubcptnRequest._id.toString()}`;
-          const adminId = admin._id.toString();
-          await sendNotification({
-            receiverId: adminId,
-            receiverType: admin.role,
-            senderId: plantId,
-            senderType: "wasteplant",
-            message: adminMessage,
-            type: "subscriptn-refund-req",
-          });
-          return SubscriptionPaymentMapper.mapSubscptnPaymentDTO(updatedSubcptnRequest);
+    const adminId = admin._id.toString();
+    await sendNotification({
+      receiverId: adminId,
+      receiverType: admin.role,
+      senderId: plantId,
+      senderType: "wasteplant",
+      message: adminMessage,
+      type: "subscriptn-refund-req",
+    });
+    return SubscriptionPaymentMapper.mapSubscptnPaymentDTO(
+      updatedSubcptnRequest,
+    );
   }
 }

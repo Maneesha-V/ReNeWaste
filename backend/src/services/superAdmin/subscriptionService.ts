@@ -14,7 +14,7 @@ import { PaginationInput } from "../../dtos/common/commonDTO";
 export class SubscriptionService implements ISubscriptionService {
   constructor(
     @inject(TYPES.SubscriptionPlanRepository)
-    private subscriptionRepository: ISubscriptionPlanRepository
+    private subscriptionRepository: ISubscriptionPlanRepository,
   ) {}
   async createSubscriptionPlan(data: SubsptnPlansDTO) {
     const existingPlanName =
@@ -22,13 +22,12 @@ export class SubscriptionService implements ISubscriptionService {
     if (existingPlanName) {
       throw new Error("Plan name already exists.");
     }
-    const updated = await this.subscriptionRepository.createSubscriptionPlan(
-      data
-    );
+    const updated =
+      await this.subscriptionRepository.createSubscriptionPlan(data);
     return !!updated;
   }
   async fetchSubscriptionPlans(
-    data: PaginationInput
+    data: PaginationInput,
   ): Promise<FetchSubscriptionPlansResp> {
     const { subscriptionPlans, total } =
       await this.subscriptionRepository.getAllSubscriptionPlans(data);
@@ -64,7 +63,7 @@ export class SubscriptionService implements ISubscriptionService {
     }
     if (data.planName && data.planName !== existingPlan.planName) {
       const duplicate = await this.subscriptionRepository.checkPlanNameExist(
-        data.planName
+        data.planName,
       );
       if (duplicate) {
         throw new Error("Plan name already exists.");

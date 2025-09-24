@@ -8,7 +8,7 @@ export interface IParticipant {
 }
 
 export interface IConversation extends Document {
-  participants: [IParticipant, IParticipant]; 
+  participants: [IParticipant, IParticipant];
   createdAt: Date;
   updatedAt: Date;
 }

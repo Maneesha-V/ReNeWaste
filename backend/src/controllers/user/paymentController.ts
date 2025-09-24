@@ -12,12 +12,12 @@ import { AuthRequest } from "../../dtos/base/BaseDTO";
 export class PaymentController implements IPaymentController {
   constructor(
     @inject(TYPES.UserPaymentService)
-    private _paymentService: IPaymentService
+    private _paymentService: IPaymentService,
   ) {}
   async createPaymentOrder(
     req: AuthRequest,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ): Promise<void> {
     try {
       const userId = req.user?.id;
@@ -27,7 +27,7 @@ export class PaymentController implements IPaymentController {
       if (!userId) {
         throw new ApiError(
           STATUS_CODES.UNAUTHORIZED,
-          MESSAGES.COMMON.ERROR.UNAUTHORIZED
+          MESSAGES.COMMON.ERROR.UNAUTHORIZED,
         );
       }
       const paymentOrder = await this._paymentService.createPaymentOrderService(
@@ -35,13 +35,13 @@ export class PaymentController implements IPaymentController {
           amount,
           pickupReqId,
           userId,
-        }
+        },
       );
       console.log("paymentOrder", paymentOrder);
       if (!paymentOrder) {
         throw new ApiError(
           STATUS_CODES.BAD_REQUEST,
-          MESSAGES.COMMON.ERROR.CREATE_PAYMENT_FAIL
+          MESSAGES.COMMON.ERROR.CREATE_PAYMENT_FAIL,
         );
       }
       res.status(STATUS_CODES.CREATED).json(paymentOrder);
@@ -53,7 +53,7 @@ export class PaymentController implements IPaymentController {
   async verifyPayment(
     req: AuthRequest,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ): Promise<void> {
     try {
       console.log("body", req.body);
@@ -69,7 +69,7 @@ export class PaymentController implements IPaymentController {
       if (!userId) {
         throw new ApiError(
           STATUS_CODES.UNAUTHORIZED,
-          MESSAGES.COMMON.ERROR.UNAUTHORIZED
+          MESSAGES.COMMON.ERROR.UNAUTHORIZED,
         );
       }
       const updatedPayment = await this._paymentService.verifyPaymentService({
@@ -83,7 +83,7 @@ export class PaymentController implements IPaymentController {
       if (!updatedPayment) {
         throw new ApiError(
           STATUS_CODES.BAD_REQUEST,
-          MESSAGES.COMMON.ERROR.VERIFY_PAYMENT_FAIL
+          MESSAGES.COMMON.ERROR.VERIFY_PAYMENT_FAIL,
         );
       }
       console.log("updatedPayment", updatedPayment);
@@ -101,7 +101,7 @@ export class PaymentController implements IPaymentController {
   async getAllPayments(
     req: AuthRequest,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ): Promise<void> {
     try {
       const userId = req.user?.id;
@@ -109,7 +109,7 @@ export class PaymentController implements IPaymentController {
       if (!userId) {
         throw new ApiError(
           STATUS_CODES.UNAUTHORIZED,
-          MESSAGES.COMMON.ERROR.UNAUTHORIZED
+          MESSAGES.COMMON.ERROR.UNAUTHORIZED,
         );
       }
       const DEFAULT_LIMIT = 5;
@@ -117,7 +117,7 @@ export class PaymentController implements IPaymentController {
       const page = parseInt(req.query.page as string) || 1;
       let limit = Math.min(
         parseInt(req.query.limit as string) || DEFAULT_LIMIT,
-        MAX_LIMIT
+        MAX_LIMIT,
       );
       const search = (req.query.search as string) || "";
       const filter = (req.query.filter as string) || "All";
@@ -131,12 +131,12 @@ export class PaymentController implements IPaymentController {
 
       const { payments, total } = await this._paymentService.getAllPayments(
         userId,
-        paginationData
+        paginationData,
       );
       if (!payments) {
         throw new ApiError(
           STATUS_CODES.NOT_FOUND,
-          MESSAGES.COMMON.ERROR.FETCH_PAYMENT_FAIL
+          MESSAGES.COMMON.ERROR.FETCH_PAYMENT_FAIL,
         );
       }
       console.log("payments", payments);
@@ -150,7 +150,7 @@ export class PaymentController implements IPaymentController {
   async rePayment(
     req: AuthRequest,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ): Promise<void> {
     try {
       console.log("bbbb", req.body);
@@ -160,7 +160,7 @@ export class PaymentController implements IPaymentController {
       if (!userId) {
         throw new ApiError(
           STATUS_CODES.UNAUTHORIZED,
-          MESSAGES.COMMON.ERROR.UNAUTHORIZED
+          MESSAGES.COMMON.ERROR.UNAUTHORIZED,
         );
       }
       const { pickupReqId, amount } = req.body;
@@ -168,7 +168,7 @@ export class PaymentController implements IPaymentController {
       const repaymentOrder = await this._paymentService.rePaymentService(
         userId,
         pickupReqId,
-        amount
+        amount,
       );
       console.log("repaymentOrder", repaymentOrder);
 

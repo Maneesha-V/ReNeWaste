@@ -28,7 +28,7 @@ export class WastePlantService implements IWastePlantService {
     @inject(TYPES.SubscriptionPaymentRepository)
     private _subscriptionPaymentRepository: ISubscriptionPaymentRepository,
     @inject(TYPES.PickupRepository)
-    private _pickupReqRepository: IPickupRepository
+    private _pickupReqRepository: IPickupRepository,
   ) {}
   async addWastePlant(data: IWastePlant) {
     await checkForDuplicateWastePlant(
@@ -37,7 +37,7 @@ export class WastePlantService implements IWastePlantService {
         licenseNumber: data.licenseNumber,
         plantName: data.plantName,
       },
-      this._wastePlantRepository
+      this._wastePlantRepository,
     );
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(data.password, salt);
@@ -49,9 +49,7 @@ export class WastePlantService implements IWastePlantService {
       autoSubscribeAt: new Date(now.getTime() + 5 * 60 * 1000),
       subscribeNotificationSent: false,
     };
-    const plant = await this._wastePlantRepository.createWastePlant(
-      newData
-    );
+    const plant = await this._wastePlantRepository.createWastePlant(newData);
     if (!plant) {
       throw new Error("Failed to create waste plant");
     }
@@ -60,7 +58,7 @@ export class WastePlantService implements IWastePlantService {
   }
 
   async getAllWastePlants(
-    data: PaginationInput
+    data: PaginationInput,
   ): Promise<PaginatedReturnAdminWastePlants> {
     const plantData = await this._wastePlantRepository.getAllWastePlants(data);
     if (!plantData) {
@@ -100,26 +98,26 @@ export class WastePlantService implements IWastePlantService {
         const startOfToday = new Date(
           now.getFullYear(),
           now.getMonth(),
-          now.getDate()
+          now.getDate(),
         );
         const startOfExpiry = new Date(
           expiredAt.getFullYear(),
           expiredAt.getMonth(),
-          expiredAt.getDate()
+          expiredAt.getDate(),
         );
 
         const daysLeft = Math.max(
           0,
           Math.floor(
             (startOfExpiry.getTime() - startOfToday.getTime()) /
-              (1000 * 60 * 60 * 24)
-          )
+              (1000 * 60 * 60 * 24),
+          ),
         );
 
         if (daysLeft === 0 && plant.status !== "Inactive") {
           await this._wastePlantRepository.updatePlantStatus(
             plantIdStr,
-            "Inactive"
+            "Inactive",
           );
           plant.status = "Inactive";
           dto.status = "Inactive";
@@ -147,18 +145,21 @@ export class WastePlantService implements IWastePlantService {
     };
   }
   async getWastePlantByIdService(id: string): Promise<WasteplantDTO> {
-      const plant =  await this._wastePlantRepository.getWastePlantById(id);
-      if(!plant){
-        throw new Error("Plant not found.")
-      }
-      return WastePlantMapper.mapWastePlantDTO(plant);
+    const plant = await this._wastePlantRepository.getWastePlantById(id);
+    if (!plant) {
+      throw new Error("Plant not found.");
+    }
+    return WastePlantMapper.mapWastePlantDTO(plant);
   }
   async updateWastePlantByIdService(
     id: string,
-    data: IWastePlant
+    data: IWastePlant,
   ): Promise<boolean> {
-      const updated =  await this._wastePlantRepository.updateWastePlantById(id, data);
-      return !!updated;
+    const updated = await this._wastePlantRepository.updateWastePlantById(
+      id,
+      data,
+    );
+    return !!updated;
   }
   async deleteWastePlantByIdService(id: string): Promise<ReturnDeleteWP> {
     const plant = await this._wastePlantRepository.deleteWastePlantById(id);
@@ -168,17 +169,18 @@ export class WastePlantService implements IWastePlantService {
     return { plantId: plant._id.toString() };
   }
 
-  async plantBlockStatus(plantId: string, isBlocked: boolean): Promise<WasteplantDTO> {
-    const wasteplant = await this._wastePlantRepository.getWastePlantById(
-      plantId
-    );
+  async plantBlockStatus(
+    plantId: string,
+    isBlocked: boolean,
+  ): Promise<WasteplantDTO> {
+    const wasteplant =
+      await this._wastePlantRepository.getWastePlantById(plantId);
     if (!wasteplant) {
       throw new Error("Plant not found.");
     }
     wasteplant.isBlocked = isBlocked;
-    const pickupReqsts = await this._pickupReqRepository.getAllPickupsByStatus(
-      plantId
-    );
+    const pickupReqsts =
+      await this._pickupReqRepository.getAllPickupsByStatus(plantId);
     console.log("pickupReqsts", pickupReqsts);
 
     const distinctUserIds = [

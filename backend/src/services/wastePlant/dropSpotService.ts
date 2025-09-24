@@ -5,23 +5,26 @@ import { inject, injectable } from "inversify";
 import TYPES from "../../config/inversify/types";
 import { IDropSpotRepository } from "../../repositories/dropSpot/interface/IDropSpotRepository";
 import { DropSpotMapper } from "../../mappers/DropSpotMapper";
-import { DropSpotDTO, PaginatedDropSpotsResult, UpdateDataDropSpot } from "../../dtos/dropspots/dropSpotDTO";
+import {
+  DropSpotDTO,
+  PaginatedDropSpotsResult,
+  UpdateDataDropSpot,
+} from "../../dtos/dropspots/dropSpotDTO";
 
 @injectable()
 export class DropSpotService implements IDropSpotService {
   constructor(
     @inject(TYPES.DropSpotRepository)
-    private dropSpotRepository: IDropSpotRepository
+    private dropSpotRepository: IDropSpotRepository,
   ) {}
   async createDropSpotService(payload: IDropSpot) {
-    console.log("payload",payload);
-    
+    console.log("payload", payload);
+
     const fullAddress = `${payload.addressLine}, ${payload.location}, ${payload.district}, ${payload.state}, ${payload.pincode}`;
     const apiKey = process.env.GOOGLE_MAPS_API_KEY;
     const geoBaseUrl = process.env.GOOGLE_MAPS_GEOCODE_URL;
-    const encodedAddress = encodeURIComponent(fullAddress)
+    const encodedAddress = encodeURIComponent(fullAddress);
     try {
-      
       const geocodeUrl = `${geoBaseUrl}?address=${encodedAddress}&key=${apiKey}`;
 
       const response = await axios.get(geocodeUrl);
@@ -52,43 +55,47 @@ export class DropSpotService implements IDropSpotService {
     wasteplantId: string,
     page: number,
     limit: number,
-    search: string
+    search: string,
   ): Promise<PaginatedDropSpotsResult> {
-    const {dropspots, total} =  await this.dropSpotRepository.getDropSpotsByWastePlantId(
-      wasteplantId,
-      page,
-      limit,
-      search
-    );
-    if(!dropspots){
-      throw new Error("Dropspots not found.")
+    const { dropspots, total } =
+      await this.dropSpotRepository.getDropSpotsByWastePlantId(
+        wasteplantId,
+        page,
+        limit,
+        search,
+      );
+    if (!dropspots) {
+      throw new Error("Dropspots not found.");
     }
-    return { 
-      dropspots: DropSpotMapper.mapDropSpotsDTO(dropspots), 
-      total
-    }
+    return {
+      dropspots: DropSpotMapper.mapDropSpotsDTO(dropspots),
+      total,
+    };
   }
   async getDropSpotByIdService(
     dropSpotId: string,
-    wasteplantId: string
+    wasteplantId: string,
   ): Promise<DropSpotDTO> {
-    const dropSpot = await this.dropSpotRepository.findDropSpotById(dropSpotId, wasteplantId);
+    const dropSpot = await this.dropSpotRepository.findDropSpotById(
+      dropSpotId,
+      wasteplantId,
+    );
     if (!dropSpot) {
-      throw new Error("Dropspot not found.")
+      throw new Error("Dropspot not found.");
     }
-    return DropSpotMapper.mapDropSpotDTO(dropSpot)
+    return DropSpotMapper.mapDropSpotDTO(dropSpot);
   }
 
   async deleteDropSpotByIdService(
     dropSpotId: string,
-    wasteplantId: string
+    wasteplantId: string,
   ): Promise<DropSpotDTO> {
     const dropSpot = await this.dropSpotRepository.deleteDropSpotById(
       dropSpotId,
-      wasteplantId
+      wasteplantId,
     );
     if (!dropSpot) {
-      throw new Error("Dropspot not found.")
+      throw new Error("Dropspot not found.");
     }
     return DropSpotMapper.mapDropSpotDTO(dropSpot);
   }
@@ -96,19 +103,22 @@ export class DropSpotService implements IDropSpotService {
   async updateDropSpotService(
     wasteplantId: string,
     dropSpotId: string,
-    updateData: UpdateDataDropSpot
+    updateData: UpdateDataDropSpot,
   ) {
-    const dropSpot = await this.dropSpotRepository.findDropSpotById(dropSpotId, wasteplantId);
+    const dropSpot = await this.dropSpotRepository.findDropSpotById(
+      dropSpotId,
+      wasteplantId,
+    );
     if (!dropSpot) {
-      throw new Error("Dropspot not found.")
+      throw new Error("Dropspot not found.");
     }
 
     const updatedDropSpot = await this.dropSpotRepository.updateDropSpot(
       dropSpotId,
-      updateData
+      updateData,
     );
-    if(!updatedDropSpot){
-      throw new Error("Dropspot updation failed.")
+    if (!updatedDropSpot) {
+      throw new Error("Dropspot updation failed.");
     }
     return DropSpotMapper.mapDropSpotDTO(updatedDropSpot);
   }

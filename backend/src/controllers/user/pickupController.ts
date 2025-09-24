@@ -12,12 +12,12 @@ import { AuthRequest } from "../../dtos/base/BaseDTO";
 export class PickupController implements IPickupController {
   constructor(
     @inject(TYPES.UserPickupService)
-    private _pickupService: IPickupService
+    private _pickupService: IPickupService,
   ) {}
   async getPickupPlans(
     req: AuthRequest,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ): Promise<void> {
     try {
       console.log("query", req.query);
@@ -26,7 +26,7 @@ export class PickupController implements IPickupController {
       if (!userId) {
         throw new ApiError(
           STATUS_CODES.UNAUTHORIZED,
-          MESSAGES.COMMON.ERROR.UNAUTHORIZED
+          MESSAGES.COMMON.ERROR.UNAUTHORIZED,
         );
       }
       const DEFAULT_LIMIT = 5;
@@ -34,7 +34,7 @@ export class PickupController implements IPickupController {
       const page = parseInt(req.query.page as string) || 1;
       let limit = Math.min(
         parseInt(req.query.limit as string) || DEFAULT_LIMIT,
-        MAX_LIMIT
+        MAX_LIMIT,
       );
       const search = (req.query.search as string) || "";
       const filter = (req.query.filter as string) || "All";
@@ -48,10 +48,10 @@ export class PickupController implements IPickupController {
 
       const { pickups, total } = await this._pickupService.getPickupPlanService(
         userId,
-        paginationData
+        paginationData,
       );
-      console.log("pickups",pickups);
-      
+      console.log("pickups", pickups);
+
       res.status(STATUS_CODES.SUCCESS).json({ pickups, total });
     } catch (error) {
       console.error("err", error);
@@ -61,7 +61,7 @@ export class PickupController implements IPickupController {
   async cancelPickupPlan(
     req: AuthRequest,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ): Promise<void> {
     try {
       const userId = req.user?.id;
@@ -70,15 +70,20 @@ export class PickupController implements IPickupController {
       if (!userId) {
         throw new ApiError(
           STATUS_CODES.UNAUTHORIZED,
-          MESSAGES.COMMON.ERROR.UNAUTHORIZED
+          MESSAGES.COMMON.ERROR.UNAUTHORIZED,
         );
       }
 
-      const success = await this._pickupService.cancelPickupPlanService(pickupReqId);
-      if(success){
-        res.status(STATUS_CODES.SUCCESS).json({ message: MESSAGES.USER.SUCCESS.PICKUP_CANCEL });
+      const success =
+        await this._pickupService.cancelPickupPlanService(pickupReqId);
+      if (success) {
+        res
+          .status(STATUS_CODES.SUCCESS)
+          .json({ message: MESSAGES.USER.SUCCESS.PICKUP_CANCEL });
       } else {
-        res.status(STATUS_CODES.SERVER_ERROR).json({ message: MESSAGES.USER.ERROR.PICKUP_CANCEL });
+        res
+          .status(STATUS_CODES.SERVER_ERROR)
+          .json({ message: MESSAGES.USER.ERROR.PICKUP_CANCEL });
       }
     } catch (error) {
       console.error("error", error);
@@ -89,7 +94,7 @@ export class PickupController implements IPickupController {
   async cancelPickupReason(
     req: AuthRequest,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ): Promise<void> {
     try {
       const { pickupReqId } = req.params;
@@ -98,7 +103,7 @@ export class PickupController implements IPickupController {
       if (!userId) {
         throw new ApiError(
           STATUS_CODES.UNAUTHORIZED,
-          MESSAGES.COMMON.ERROR.UNAUTHORIZED
+          MESSAGES.COMMON.ERROR.UNAUTHORIZED,
         );
       }
       console.log({ pickupReqId, userId, reason });

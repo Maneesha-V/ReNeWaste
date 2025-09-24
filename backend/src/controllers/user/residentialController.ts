@@ -12,12 +12,12 @@ import { AuthRequest } from "../../dtos/base/BaseDTO";
 export class ResidentialController implements IResidentialController {
   constructor(
     @inject(TYPES.ResidentialService)
-    private residentialService: IResidentialService
+    private residentialService: IResidentialService,
   ) {}
   async getResidential(
     req: AuthRequest,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ): Promise<void> {
     try {
       const userId = req.user?.id;
@@ -25,13 +25,15 @@ export class ResidentialController implements IResidentialController {
       if (!userId) {
         throw new ApiError(
           STATUS_CODES.UNAUTHORIZED,
-          MESSAGES.COMMON.ERROR.UNAUTHORIZED
+          MESSAGES.COMMON.ERROR.UNAUTHORIZED,
         );
       }
       const user = await this.residentialService.getResidentialService(userId);
       console.log("user", user);
 
-      res.status(STATUS_CODES.SUCCESS).json({ user, message: MESSAGES.USER.SUCCESS.RESIDENTIAL_PICKUP });
+      res
+        .status(STATUS_CODES.SUCCESS)
+        .json({ user, message: MESSAGES.USER.SUCCESS.RESIDENTIAL_PICKUP });
     } catch (error) {
       next(error);
     }
@@ -39,7 +41,7 @@ export class ResidentialController implements IResidentialController {
   async updateResidentialPickup(
     req: AuthRequest,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ): Promise<void> {
     try {
       const userId = req.user?.id;
@@ -47,7 +49,7 @@ export class ResidentialController implements IResidentialController {
       if (!userId) {
         throw new ApiError(
           STATUS_CODES.UNAUTHORIZED,
-          MESSAGES.COMMON.ERROR.UNAUTHORIZED
+          MESSAGES.COMMON.ERROR.UNAUTHORIZED,
         );
       }
       const updatedData = req.body;
@@ -57,26 +59,30 @@ export class ResidentialController implements IResidentialController {
       const formattedDate = moment(
         pickupDateString,
         "MM-DD-YYYY",
-        true
+        true,
       ).toDate();
       if (isNaN(formattedDate.getTime())) {
-         throw new ApiError(
+        throw new ApiError(
           STATUS_CODES.BAD_REQUEST,
-          MESSAGES.USER.ERROR.PICKUP_DATE
+          MESSAGES.USER.ERROR.PICKUP_DATE,
         );
       }
 
       updatedData.pickupDate = formattedDate;
-      const success = await this.residentialService.updateResidentialPickupService(
-        userId,
-        updatedData
-      );
-      if(success){
-        res.status(STATUS_CODES.SUCCESS).json({ message: MESSAGES.USER.SUCCESS.PICKUP_CREATED });
+      const success =
+        await this.residentialService.updateResidentialPickupService(
+          userId,
+          updatedData,
+        );
+      if (success) {
+        res
+          .status(STATUS_CODES.SUCCESS)
+          .json({ message: MESSAGES.USER.SUCCESS.PICKUP_CREATED });
       } else {
-        res.status(STATUS_CODES.SERVER_ERROR).json({ message: MESSAGES.USER.ERROR.PICKUP_CREATED });
+        res
+          .status(STATUS_CODES.SERVER_ERROR)
+          .json({ message: MESSAGES.USER.ERROR.PICKUP_CREATED });
       }
-
     } catch (error) {
       console.error("Error in updation:", error);
       next(error);

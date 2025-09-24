@@ -20,28 +20,28 @@ export class WastePlantRepository
 {
   constructor(
     @inject(TYPES.OtpRepository)
-    private otpRepository: IOtpRepository
+    private otpRepository: IOtpRepository,
   ) {
     super(WastePlantModel);
   }
   async createWastePlant(data: IWastePlant): Promise<IWastePlantDocument> {
-      const wastePlant = new this.model(data);
-      console.log("wastePlantData", wastePlant);
-      return await wastePlant.save();
+    const wastePlant = new this.model(data);
+    console.log("wastePlantData", wastePlant);
+    return await wastePlant.save();
   }
 
   async findWastePlantByEmail(
-    email: string
+    email: string,
   ): Promise<IWastePlantDocument | null> {
     return await this.model.findOne({ email });
   }
   async findWastePlantByLicense(
-    licenseNumber: string
+    licenseNumber: string,
   ): Promise<IWastePlant | null> {
     return await this.model.findOne({ licenseNumber });
   }
-  async findWastePlantByTaluk(taluk: string): Promise<string  | null> {
-    const plant = await this.model.findOne({ taluk }, {_id: 1});
+  async findWastePlantByTaluk(taluk: string): Promise<string | null> {
+    const plant = await this.model.findOne({ taluk }, { _id: 1 });
     return plant ? plant._id.toString() : null;
   }
   async findWastePlantByName(plantName: string): Promise<IWastePlant | null> {
@@ -84,7 +84,7 @@ export class WastePlantRepository
   }
   async updateWastePlantById(
     id: string,
-    data: Partial<IWastePlant>
+    data: Partial<IWastePlant>,
   ): Promise<IWastePlantDocument | null> {
     return await this.model.findByIdAndUpdate(id, data, { new: true });
   }
@@ -102,12 +102,12 @@ export class WastePlantRepository
   }
   async updateWastePlantPassword(
     email: string,
-    hashedPassword: string
+    hashedPassword: string,
   ): Promise<void> {
     await this.model.findOneAndUpdate(
       { email },
       { $set: { password: hashedPassword } },
-      { new: true, runValidators: false }
+      { new: true, runValidators: false },
     );
   }
   async findByPincode(pincode: string): Promise<void> {
@@ -119,7 +119,7 @@ export class WastePlantRepository
     const updatedPlant = await this.model.findByIdAndUpdate(
       id,
       { isDeleted: true, status: "Inactive" },
-      { new: true }
+      { new: true },
     );
     if (!updatedPlant) {
       throw new Error("Plant not found");

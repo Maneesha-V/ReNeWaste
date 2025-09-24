@@ -14,15 +14,22 @@ import { inject, injectable } from "inversify";
 import TYPES from "../../config/inversify/types";
 import { IUserRepository } from "../../repositories/user/interface/IUserRepository";
 import { UserMapper } from "../../mappers/UserMapper";
-import { GoogleLoginReq, GoogleLoginResp, GoogleSignUpReq, GoogleSignUpResp, LoginRequest, LoginResponse, SignupResponse } from "../../dtos/user/userDTO";
-
+import {
+  GoogleLoginReq,
+  GoogleLoginResp,
+  GoogleSignUpReq,
+  GoogleSignUpResp,
+  LoginRequest,
+  LoginResponse,
+  SignupResponse,
+} from "../../dtos/user/userDTO";
 
 @injectable()
 export class AuthService implements IAuthService {
   constructor(
     @inject(TYPES.UserRepository)
-    private _userRepository: IUserRepository
-  ){}
+    private _userRepository: IUserRepository,
+  ) {}
   async verifyToken(token: string): Promise<{ token: string }> {
     try {
       const decoded = jwt.verify(token, process.env.JWT_REFRESH_SECRET!) as {
@@ -37,7 +44,7 @@ export class AuthService implements IAuthService {
       const accessToken = jwt.sign(
         { userId: user._id, role: user.role },
         process.env.JWT_SECRET!,
-        { expiresIn: "15min" }
+        { expiresIn: "15min" },
       );
       return { token: accessToken };
     } catch (error) {
@@ -45,7 +52,9 @@ export class AuthService implements IAuthService {
     }
   }
   async signupUser(userData: IUser): Promise<SignupResponse> {
-    const existingUser = await this._userRepository.findUserByEmail(userData.email);
+    const existingUser = await this._userRepository.findUserByEmail(
+      userData.email,
+    );
     if (existingUser) {
       throw new Error("Email already exists. Please use a different email.");
     }
@@ -63,7 +72,8 @@ export class AuthService implements IAuthService {
     if (userData.googleId) {
       newUserData.googleId = userData.googleId;
     }
-    const newUser: IUserDocument = await this._userRepository.createUser(newUserData);
+    const newUser: IUserDocument =
+      await this._userRepository.createUser(newUserData);
     const token = generateToken({
       userId: newUser._id.toString(),
       role: newUser.role,
@@ -97,7 +107,7 @@ export class AuthService implements IAuthService {
     await sendEmail(
       email,
       "Your OTP Code",
-      `Your OTP code is: ${otp}. It will expire in 30s.`
+      `Your OTP code is: ${otp}. It will expire in 30s.`,
     );
     return true;
   }
@@ -112,7 +122,7 @@ export class AuthService implements IAuthService {
     await sendEmail(
       email,
       "Your Resend OTP Code",
-      `Your Resend OTP code is: ${otp}. It will expire in 30s.`
+      `Your Resend OTP code is: ${otp}. It will expire in 30s.`,
     );
     return true;
   }
@@ -142,7 +152,7 @@ export class AuthService implements IAuthService {
     await sendEmail(
       email,
       "Your OTP Code",
-      `Your OTP code is: ${otp}. It will expire in 30s.`
+      `Your OTP code is: ${otp}. It will expire in 30s.`,
     );
   }
   async resendOtpService(email: string): Promise<boolean> {
@@ -156,7 +166,7 @@ export class AuthService implements IAuthService {
     await sendEmail(
       email,
       "Your Resend OTP Code",
-      `Your Resend OTP code is: ${otp}. It will expire in 30s.`
+      `Your Resend OTP code is: ${otp}. It will expire in 30s.`,
     );
     return true;
   }
@@ -177,7 +187,7 @@ export class AuthService implements IAuthService {
   }
   async resetPasswordService(
     email: string,
-    newPassword: string
+    newPassword: string,
   ): Promise<void> {
     const user = await this._userRepository.findUserByEmail(email);
     if (!user) throw new Error("User not found");
@@ -185,13 +195,11 @@ export class AuthService implements IAuthService {
     await this._userRepository.updateUserPassword(email, hashedPassword);
   }
 
-  async googleSignUpService(
-  {
-      email,
+  async googleSignUpService({
+    email,
     displayName,
-    uid
-  } : GoogleSignUpReq
-  ): Promise<GoogleSignUpResp> {
+    uid,
+  }: GoogleSignUpReq): Promise<GoogleSignUpResp> {
     let user = await this._userRepository.findUserByEmail(email);
     if (!user) {
       user = await this._userRepository.createUser({
@@ -218,7 +226,10 @@ export class AuthService implements IAuthService {
     email,
     googleId,
   }: GoogleLoginReq): Promise<GoogleLoginResp> {
-    const user = await this._userRepository.findUserByEmailGoogleId(email, googleId);
+    const user = await this._userRepository.findUserByEmailGoogleId(
+      email,
+      googleId,
+    );
     if (!user) {
       throw new Error("User could not be created or found");
     }
@@ -235,4 +246,3 @@ export class AuthService implements IAuthService {
     return { role: user.role, token, userId: user._id.toString() };
   }
 }
-

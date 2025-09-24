@@ -21,14 +21,14 @@ export class PaymentService implements IPaymentService {
     @inject(TYPES.SubscriptionPaymentRepository)
     private _subscriptionPaymentRepository: ISubscriptionPaymentRepository,
     @inject(TYPES.WastePlantRepository)
-    private _wastePlantRepository: IWastePlantRepository
+    private _wastePlantRepository: IWastePlantRepository,
   ) {
     const key_id = process.env.RAZORPAY_KEY_ID!;
     const key_secret = process.env.RAZORPAY_KEY_SECRET!;
 
     if (!key_id || !key_secret) {
       throw new Error(
-        "Razorpay API keys are not defined in environment variables"
+        "Razorpay API keys are not defined in environment variables",
       );
     }
 
@@ -38,7 +38,7 @@ export class PaymentService implements IPaymentService {
     });
   }
   async fetchPayments(
-    data: PaginationInput
+    data: PaginationInput,
   ): Promise<SubscriptionPaymentHisResult> {
     const paymentHisData =
       await this._subscriptionPaymentRepository.getAllSubscptnPayments(data);
@@ -49,12 +49,12 @@ export class PaymentService implements IPaymentService {
     return paymentHisData;
   }
   async updateRefundStatusPayment(
-    data: UpdateRefundStatusReq
+    data: UpdateRefundStatusReq,
   ): Promise<SubscriptionPaymentDTO> {
     const { subPayId, refundStatus, adminId } = data;
     const payment =
       await this._subscriptionPaymentRepository.findSubscriptionPaymentById(
-        subPayId
+        subPayId,
       );
     if (!payment) {
       throw new Error("Payment not found");
@@ -64,20 +64,20 @@ export class PaymentService implements IPaymentService {
       new Date(payment.inProgressExpiresAt) > new Date()
     ) {
       const expireTime = new Date(
-        payment.inProgressExpiresAt
+        payment.inProgressExpiresAt,
       ).toLocaleTimeString("en-IN", {
         hour: "2-digit",
         minute: "2-digit",
         hour12: true,
       });
       throw new Error(
-        `Refund is already being processed. Try again after ${expireTime}.`
+        `Refund is already being processed. Try again after ${expireTime}.`,
       );
     }
     payment.refundStatus = refundStatus;
 
     const plant = await this._wastePlantRepository.getWastePlantById(
-      payment.wasteplantId.toString()
+      payment.wasteplantId.toString(),
     );
     if (!plant) throw new Error("Plant not found.");
     let plantMessage = "";
@@ -125,21 +125,20 @@ export class PaymentService implements IPaymentService {
     await payment.save();
 
     return SubscriptionPaymentMapper.mapSubscptnPaymentDTO(payment);
-
   }
   async refundPayment(
-    data: UpdateRefundStatusReq
+    data: UpdateRefundStatusReq,
   ): Promise<SubscriptionPaymentDTO> {
     const { subPayId, refundStatus, adminId } = data;
     const payment =
       await this._subscriptionPaymentRepository.findSubscriptionPaymentById(
-        subPayId
+        subPayId,
       );
     if (!payment) {
       throw new Error("Payment not found");
     }
     const plant = await this._wastePlantRepository.getWastePlantById(
-      payment.wasteplantId.toString()
+      payment.wasteplantId.toString(),
     );
     if (!plant) throw new Error("Plant not found.");
 
@@ -147,12 +146,12 @@ export class PaymentService implements IPaymentService {
       payment.inProgressExpiresAt = new Date(Date.now() + 5 * 60 * 1000);
       if (!payment.razorpayPaymentId) {
         throw new Error(
-          "Razorpay Payment ID is missing, refund cannot be processed."
+          "Razorpay Payment ID is missing, refund cannot be processed.",
         );
       }
       try {
         const paymentDetails = await this.razorpay.payments.fetch(
-          payment.razorpayPaymentId
+          payment.razorpayPaymentId,
         );
         console.log("paymentDetails", paymentDetails);
         if (paymentDetails.status !== "captured") {
@@ -164,7 +163,7 @@ export class PaymentService implements IPaymentService {
             {
               amount: paymentDetails.amount,
               speed: "normal",
-            }
+            },
           );
 
           payment.razorpayRefundId = refund.id;

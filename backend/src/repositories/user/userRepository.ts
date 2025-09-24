@@ -19,7 +19,7 @@ export class UserRepository
 {
   constructor(
     @inject(TYPES.OtpRepository)
-    private otpRepository: IOtpRepository
+    private otpRepository: IOtpRepository,
   ) {
     super(UserModel);
   }
@@ -34,7 +34,7 @@ export class UserRepository
 
   async findUserByEmailGoogleId(
     email: string,
-    googleId: string
+    googleId: string,
   ): Promise<IUserDocument | null> {
     return await this.model.findOne({ email, googleId }).exec();
   }
@@ -44,7 +44,7 @@ export class UserRepository
   }
   async updateUserProfileById(
     userId: string,
-    updatedData: UserDTO
+    updatedData: UserDTO,
   ): Promise<IUserDocument | null> {
     return await this.model.findByIdAndUpdate(userId, updatedData, {
       new: true,
@@ -52,7 +52,7 @@ export class UserRepository
   }
   async updatePartialProfileById(
     userId: string,
-    updatedData: Partial<IUser>
+    updatedData: Partial<IUser>,
   ): Promise<IUserDocument | null> {
     console.log("updatedData", updatedData);
 
@@ -85,18 +85,18 @@ export class UserRepository
   }
   async updateUserPassword(
     email: string,
-    hashedPassword: string
+    hashedPassword: string,
   ): Promise<void> {
     await this.model.findOneAndUpdate(
       { email },
       { $set: { password: hashedPassword } },
-      { new: true, runValidators: false }
+      { new: true, runValidators: false },
     );
   }
   async updateAddressByIdLatLng(
     addressId: string,
     latitude: number,
-    longitude: number
+    longitude: number,
   ): Promise<IUserDocument> {
     const updatedUser = await this.model.findOneAndUpdate(
       { "addresses._id": addressId },
@@ -109,7 +109,7 @@ export class UserRepository
       {
         new: true,
         projection: { addresses: 1 },
-      }
+      },
     );
 
     if (!updatedUser) {
@@ -122,7 +122,7 @@ export class UserRepository
     userId: string,
     addressId: string,
     latitude: number,
-    longitude: number
+    longitude: number,
   ): Promise<IUser | null> {
     return await this.model.findOneAndUpdate(
       {
@@ -135,7 +135,7 @@ export class UserRepository
           "addresses.$.longitude": longitude,
         },
       },
-      { new: true, projection: { addresses: 1 } }
+      { new: true, projection: { addresses: 1 } },
     );
   }
 
@@ -143,7 +143,7 @@ export class UserRepository
     wasteplantId: string,
     page: number,
     limit: number,
-    search: string
+    search: string,
   ): Promise<PaginatedUsersResult> {
     const searchTerms = search.trim().split(" ").filter(Boolean);
 

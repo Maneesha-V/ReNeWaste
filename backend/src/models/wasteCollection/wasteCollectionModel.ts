@@ -4,5 +4,5 @@ import { wasteCollectionSchema } from "./wasteCollectionSchema";
 
 export const WasteCollectionModel = model<IWasteCollectionDocument>(
   "WasteCollection",
-  wasteCollectionSchema
+  wasteCollectionSchema,
 );

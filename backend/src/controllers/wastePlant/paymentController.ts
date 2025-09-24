@@ -11,12 +11,12 @@ import { AuthRequest } from "../../dtos/base/BaseDTO";
 export class PaymentController implements IPaymentController {
   constructor(
     @inject(TYPES.PlantPaymentService)
-    private _paymentService: IPaymentService
+    private _paymentService: IPaymentService,
   ) {}
   async fetchPayments(
     req: AuthRequest,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ): Promise<void> {
     try {
       const plantId = req.user?.id;
@@ -24,7 +24,7 @@ export class PaymentController implements IPaymentController {
       if (!plantId) {
         throw new ApiError(
           STATUS_CODES.UNAUTHORIZED,
-          MESSAGES.COMMON.ERROR.UNAUTHORIZED
+          MESSAGES.COMMON.ERROR.UNAUTHORIZED,
         );
       }
       const page = parseInt(req.query.page as string) || 1;
@@ -53,7 +53,7 @@ export class PaymentController implements IPaymentController {
   async createPaymentOrder(
     req: AuthRequest,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ): Promise<void> {
     try {
       const plantId = req.user?.id;
@@ -64,7 +64,7 @@ export class PaymentController implements IPaymentController {
       if (!plantId || !planId) {
         throw new ApiError(
           STATUS_CODES.UNAUTHORIZED,
-          MESSAGES.COMMON.ERROR.MISSING_FIELDS
+          MESSAGES.COMMON.ERROR.MISSING_FIELDS,
         );
       }
       const paymentOrder = await this._paymentService.createPaymentOrder({
@@ -82,7 +82,7 @@ export class PaymentController implements IPaymentController {
   async verifyPayment(
     req: AuthRequest,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ): Promise<void> {
     try {
       const paymentDetails = req.body.paymentData;
@@ -90,7 +90,7 @@ export class PaymentController implements IPaymentController {
       if (!plantId) {
         throw new ApiError(
           STATUS_CODES.UNAUTHORIZED,
-          MESSAGES.COMMON.ERROR.UNAUTHORIZED
+          MESSAGES.COMMON.ERROR.UNAUTHORIZED,
         );
       }
       const updatePayment = await this._paymentService.verifyPaymentService({
@@ -111,7 +111,7 @@ export class PaymentController implements IPaymentController {
   async fetchSubscriptionPayments(
     req: AuthRequest,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ): Promise<void> {
     try {
       const plantId = req.user?.id;
@@ -120,12 +120,11 @@ export class PaymentController implements IPaymentController {
       if (!plantId) {
         throw new ApiError(
           STATUS_CODES.UNAUTHORIZED,
-          MESSAGES.COMMON.ERROR.UNAUTHORIZED
+          MESSAGES.COMMON.ERROR.UNAUTHORIZED,
         );
       }
-      const payments = await this._paymentService.fetchSubscriptionPayments(
-        plantId
-      );
+      const payments =
+        await this._paymentService.fetchSubscriptionPayments(plantId);
       console.log("payments", payments);
 
       res.status(STATUS_CODES.SUCCESS).json({ success: true, payments });
@@ -138,7 +137,7 @@ export class PaymentController implements IPaymentController {
   async retrySubscriptionPayment(
     req: AuthRequest,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ): Promise<void> {
     try {
       const plantId = req.user?.id;
@@ -147,13 +146,17 @@ export class PaymentController implements IPaymentController {
       if (!plantId) {
         throw new ApiError(
           STATUS_CODES.UNAUTHORIZED,
-          MESSAGES.COMMON.ERROR.UNAUTHORIZED
+          MESSAGES.COMMON.ERROR.UNAUTHORIZED,
         );
       }
 
-      const repaymentOrder = await this._paymentService.retrySubscriptionPayment(
-        { plantId, planId, amount, subPaymtId }
-      );
+      const repaymentOrder =
+        await this._paymentService.retrySubscriptionPayment({
+          plantId,
+          planId,
+          amount,
+          subPaymtId,
+        });
       console.log("repaymentOrder", repaymentOrder);
 
       res.status(STATUS_CODES.SUCCESS).json({
@@ -169,7 +172,7 @@ export class PaymentController implements IPaymentController {
   async updateRefundStatusPayment(
     req: AuthRequest,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ): Promise<void> {
     try {
       const plantId = req.user?.id;
@@ -177,7 +180,7 @@ export class PaymentController implements IPaymentController {
       if (!plantId) {
         throw new ApiError(
           STATUS_CODES.UNAUTHORIZED,
-          MESSAGES.COMMON.ERROR.UNAUTHORIZED
+          MESSAGES.COMMON.ERROR.UNAUTHORIZED,
         );
       }
       console.log("body", req.body);
@@ -188,20 +191,21 @@ export class PaymentController implements IPaymentController {
       if (!allowedStatuses.includes(statusUpdateData.status)) {
         throw new ApiError(
           STATUS_CODES.BAD_REQUEST,
-          MESSAGES.COMMON.ERROR.INVALID_REFUND_STATUS
+          MESSAGES.COMMON.ERROR.INVALID_REFUND_STATUS,
         );
       }
 
-      const statusUpdate = await this._paymentService.updateRefundStatusPayment({
-        plantId,
-        statusUpdateData,
-      });
+      const statusUpdate = await this._paymentService.updateRefundStatusPayment(
+        {
+          plantId,
+          statusUpdateData,
+        },
+      );
       console.log("statusUpdate", statusUpdate);
       res.status(STATUS_CODES.SUCCESS).json({
         message: MESSAGES.COMMON.SUCCESS.REFUND_UPDTAE_SUCCESS,
         statusUpdate,
       });
-
     } catch (error) {
       console.error("err", error);
       next(error);
@@ -210,7 +214,7 @@ export class PaymentController implements IPaymentController {
   async refundPayment(
     req: AuthRequest,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ): Promise<void> {
     try {
       const plantId = req.user?.id;
@@ -218,7 +222,7 @@ export class PaymentController implements IPaymentController {
       if (!plantId) {
         throw new ApiError(
           STATUS_CODES.UNAUTHORIZED,
-          MESSAGES.COMMON.ERROR.UNAUTHORIZED
+          MESSAGES.COMMON.ERROR.UNAUTHORIZED,
         );
       }
       console.log("body", req.body);
@@ -227,7 +231,7 @@ export class PaymentController implements IPaymentController {
 
       const updatedData = await this._paymentService.refundPayment(
         plantId,
-        refundData
+        refundData,
       );
       console.log("updatedData", updatedData);
 

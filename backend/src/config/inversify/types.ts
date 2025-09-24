@@ -1,14 +1,18 @@
 const TYPES = {
-//--controllers--
-//superadmin
+  //--controllers--
+  //superadmin
   SuperAdminAuthController: Symbol.for("SuperAdminAuthController"),
   SuperAdminPlantController: Symbol.for("SuperAdminPlantController"),
   SuperAdminDashboardController: Symbol.for("SuperAdminDashboardController"),
-  SuperAdminNotificationController: Symbol.for("SuperAdminNotificationController"),
-  SuperAdminSubscriptionController: Symbol.for("SuperAdminSubscriptionController"),
+  SuperAdminNotificationController: Symbol.for(
+    "SuperAdminNotificationController",
+  ),
+  SuperAdminSubscriptionController: Symbol.for(
+    "SuperAdminSubscriptionController",
+  ),
   SuperAdminPaymentController: Symbol.for("SuperAdminPaymentController"),
-  
-//user
+
+  //user
   UserAuthController: Symbol.for("UserAuthController"),
   UserProfileController: Symbol.for("UserProfileController"),
   ResidentialController: Symbol.for("ResidentialController"),
@@ -18,7 +22,7 @@ const TYPES = {
   UserDropSpotController: Symbol.for("UserDropSpotController"),
   UserNotificationController: Symbol.for("UserNotificationController"),
 
-//wasteplant
+  //wasteplant
   PlantAuthController: Symbol.for("PlantAuthController"),
   PlantChatController: Symbol.for("PlantChatController"),
   PlantDriverController: Symbol.for("PlantDriverController"),
@@ -33,7 +37,7 @@ const TYPES = {
   PlantReportController: Symbol.for("PlantReportController"),
   PlantProfileController: Symbol.for("PlantProfileController"),
 
-//driver
+  //driver
   DriverAuthController: Symbol.for("DriverAuthController"),
   DriverChatController: Symbol.for("DriverChatController"),
   DriverMapController: Symbol.for("DriverMapController"),
@@ -43,9 +47,9 @@ const TYPES = {
   DriverNotificationController: Symbol.for("DriverNotificationController"),
   DriverDashboardController: Symbol.for("DriverDashboardController"),
 
-//--services--
+  //--services--
 
-//superadmin
+  //superadmin
   SuperAdminAuthService: Symbol.for("SuperAdminAuthService"),
   SuperAdminPlantService: Symbol.for("SuperAdminPlantService"),
   SuperAdminDashboardService: Symbol.for("SuperAdminDashboardService"),
@@ -53,7 +57,7 @@ const TYPES = {
   SuperAdminSubscriptionService: Symbol.for("SuperAdminSubscriptionService"),
   SuperAdminPaymentService: Symbol.for("SuperAdminPaymentService"),
 
-//user
+  //user
   UserAuthService: Symbol.for("UserAuthService"),
   UserProfileService: Symbol.for("UserProfileService"),
   ResidentialService: Symbol.for("ResidentialService"),
@@ -63,7 +67,7 @@ const TYPES = {
   UserDropSpotService: Symbol.for("UserDropSpotService"),
   UserNotificationService: Symbol.for("UserNotificationService"),
 
-//wasteplant
+  //wasteplant
   PlantAuthService: Symbol.for("PlantAuthService"),
   PlantChatService: Symbol.for("PlantChatService"),
   PlantDriverService: Symbol.for("PlantDriverService"),
@@ -77,8 +81,8 @@ const TYPES = {
   PlantDashboardService: Symbol.for("PlantDashboardService"),
   PlantReportService: Symbol.for("PlantReportService"),
   PlantProfileService: Symbol.for("PlantProfileService"),
-  
-//driver
+
+  //driver
   DriverAuthService: Symbol.for("DriverAuthService"),
   DriverChatService: Symbol.for("DriverChatService"),
   DriverMapService: Symbol.for("DriverMapService"),
@@ -88,7 +92,7 @@ const TYPES = {
   DriverNotificationService: Symbol.for("DriverNotificationService"),
   DriverDashboardService: Symbol.for("DriverDashboardService"),
 
-//--repositories--
+  //--repositories--
   SuperAdminRepository: Symbol.for("SuperAdminRepository"),
   UserRepository: Symbol.for("UserRepository"),
   OtpRepository: Symbol.for("OtpRepository"),
@@ -103,11 +107,10 @@ const TYPES = {
   WasteCollectionRepository: Symbol.for("WasteCollectionRepository"),
   SubscriptionPlanRepository: Symbol.for("SubscriptionPlanRepository"),
   SubscriptionPaymentRepository: Symbol.for("SubscriptionPaymentRepository"),
-  
+
   //-factories--
   DriverRepositoryFactory: Symbol.for("DriverRepositoryFactory"),
-  TruckRepositoryFactory: Symbol.for("TruckRepositoryFactory"), 
-
+  TruckRepositoryFactory: Symbol.for("TruckRepositoryFactory"),
 };
 
 export default TYPES;

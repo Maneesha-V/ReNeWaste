@@ -10,21 +10,19 @@ import { NotificationDTO } from "../../dtos/notification/notificationDTO";
 export class NotificationService implements INotificationService {
   constructor(
     @inject(TYPES.NotificationRepository)
-    private notificationRepository: INotificationRepository
+    private notificationRepository: INotificationRepository,
   ) {}
   async getNotifications(adminId: string) {
-    const notifications = await this.notificationRepository.findByReceiverId(
-      adminId
-    );
+    const notifications =
+      await this.notificationRepository.findByReceiverId(adminId);
     if (!notifications) {
       throw new Error("Notification not found.");
     }
     return NotificationMapper.mapNotificationsDTO(notifications);
   }
   async markNotificationAsRead(notifId: string): Promise<NotificationDTO> {
-    const notification = await this.notificationRepository.markAsReadById(
-      notifId
-    );
+    const notification =
+      await this.notificationRepository.markAsReadById(notifId);
     if (!notification) {
       throw new Error("Notification not found.");
     }

@@ -2,6 +2,6 @@ import { IChatMessageDocument } from "../../../models/chat/interfaces/chatMessag
 
 export interface IChatMsgRepository {
   findChatMsgByConversationId(
-    conversationId: string
+    conversationId: string,
   ): Promise<IChatMessageDocument[]>;
 }

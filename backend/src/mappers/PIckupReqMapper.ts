@@ -40,7 +40,7 @@ export class PickupRequestMapper {
   }
   static mapGetPickupReqDTO(doc: IPickupRequestExtDocument): PickupReqGetDTO {
     const primaryAddress = doc.userId?.addresses?.find(
-      (addr) => addr._id.toString() === doc.addressId.toString()
+      (addr) => addr._id.toString() === doc.addressId.toString(),
     );
 
     return {
@@ -99,7 +99,7 @@ export class PickupRequestMapper {
     };
   }
   static toSummaryDTO(
-    doc: Partial<IPickupRequestDocument>
+    doc: Partial<IPickupRequestDocument>,
   ): PickupPaymentSummaryDTO {
     return {
       _id: doc._id?.toString() ?? "",
@@ -201,10 +201,10 @@ export class PickupRequestMapper {
   }
 
   static mapPickupReqsGetDTO(
-    docs: (IPickupRequestDocument | IPickupRequestExtDocument)[]
+    docs: (IPickupRequestDocument | IPickupRequestExtDocument)[],
   ): PickupReqGetDTO[] {
     return docs.map((doc) =>
-      this.mapGetPickupReqDTO(doc as IPickupRequestExtDocument)
+      this.mapGetPickupReqDTO(doc as IPickupRequestExtDocument),
     );
   }
 }

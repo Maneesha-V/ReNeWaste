@@ -27,12 +27,28 @@ export const NotificationSchema: Schema<INotificationDocument> = new Schema(
     },
     type: {
       type: String,
-      enum: [ "truck_returned", "general", 
-        "pickup_scheduled","pickup_requested", "pickup_approved","pickup_rescheduled","pickup_cancelled",
-        "pickup_refund-req","pickup_refund-pending","pickup_refund-processing","pickup_refund-completed",
-        "subscribe_reminder","subscribe_recharged","renew_reminder","recharge_reminder",
-        "subscriptn-refund-req","subscriptn-refund-pending","subscriptn-refund-processing","subscriptn-refund-completed",
-      "subscriptn-refund-rejected"],
+      enum: [
+        "truck_returned",
+        "general",
+        "pickup_scheduled",
+        "pickup_requested",
+        "pickup_approved",
+        "pickup_rescheduled",
+        "pickup_cancelled",
+        "pickup_refund-req",
+        "pickup_refund-pending",
+        "pickup_refund-processing",
+        "pickup_refund-completed",
+        "subscribe_reminder",
+        "subscribe_recharged",
+        "renew_reminder",
+        "recharge_reminder",
+        "subscriptn-refund-req",
+        "subscriptn-refund-pending",
+        "subscriptn-refund-processing",
+        "subscriptn-refund-completed",
+        "subscriptn-refund-rejected",
+      ],
       default: "general",
     },
     isRead: {
@@ -46,5 +62,5 @@ export const NotificationSchema: Schema<INotificationDocument> = new Schema(
   },
   {
     timestamps: true,
-  }
+  },
 );

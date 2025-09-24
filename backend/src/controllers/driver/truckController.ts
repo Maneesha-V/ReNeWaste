@@ -11,12 +11,12 @@ import { AuthRequest } from "../../dtos/base/BaseDTO";
 export class TruckController implements ITruckController {
   constructor(
     @inject(TYPES.DriverTruckService)
-    private truckService: ITruckService
+    private truckService: ITruckService,
   ) {}
   async fetchTruckForDriver(
     req: AuthRequest,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ): Promise<void> {
     try {
       const driverId = req.user?.id;
@@ -24,14 +24,14 @@ export class TruckController implements ITruckController {
       if (!driverId) {
         throw new ApiError(
           STATUS_CODES.UNAUTHORIZED,
-          MESSAGES.COMMON.ERROR.UNAUTHORIZED
+          MESSAGES.COMMON.ERROR.UNAUTHORIZED,
         );
       }
       const { wasteplantId } = req.params;
 
       const assignedTruck = await this.truckService.getTruckForDriver(
         driverId,
-        wasteplantId
+        wasteplantId,
       );
       console.log("assignedTruck", assignedTruck);
 
@@ -47,7 +47,7 @@ export class TruckController implements ITruckController {
   async requestTruckForDriver(
     req: AuthRequest,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ): Promise<void> {
     try {
       const driverId = req.user?.id;
@@ -55,7 +55,7 @@ export class TruckController implements ITruckController {
       if (!driverId) {
         throw new ApiError(
           STATUS_CODES.UNAUTHORIZED,
-          MESSAGES.COMMON.ERROR.UNAUTHORIZED
+          MESSAGES.COMMON.ERROR.UNAUTHORIZED,
         );
       }
       const requestedDriver = await this.truckService.requestTruck(driverId);
@@ -72,7 +72,7 @@ export class TruckController implements ITruckController {
   async markTruckReturn(
     req: AuthRequest,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ): Promise<void> {
     try {
       const { truckId, plantId } = req.body;
@@ -81,7 +81,7 @@ export class TruckController implements ITruckController {
       if (!truckId || !plantId || !driverId) {
         throw new ApiError(
           STATUS_CODES.NOT_FOUND,
-          MESSAGES.COMMON.ERROR.MISSING_FIELDS
+          MESSAGES.COMMON.ERROR.MISSING_FIELDS,
         );
       }
 

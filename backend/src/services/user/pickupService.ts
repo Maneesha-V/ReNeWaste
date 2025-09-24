@@ -4,7 +4,11 @@ import TYPES from "../../config/inversify/types";
 import { IPickupRepository } from "../../repositories/pickupReq/interface/IPickupRepository";
 import { INotificationRepository } from "../../repositories/notification/interface/INotifcationRepository";
 import { PickupRequestMapper } from "../../mappers/PIckupReqMapper";
-import { cancelPickupReasonData, PaymentDTO, PickupPlansDTO } from "../../dtos/pickupReq/pickupReqDTO";
+import {
+  cancelPickupReasonData,
+  PaymentDTO,
+  PickupPlansDTO,
+} from "../../dtos/pickupReq/pickupReqDTO";
 import { PaginationInput } from "../../dtos/common/commonDTO";
 
 @injectable()
@@ -13,18 +17,18 @@ export class PickupService implements IPickupService {
     @inject(TYPES.PickupRepository)
     private _pickupRepository: IPickupRepository,
     @inject(TYPES.NotificationRepository)
-    private _notificationRepository: INotificationRepository
+    private _notificationRepository: INotificationRepository,
   ) {}
   async getPickupPlanService(
     userId: string,
-    paginationData: PaginationInput
+    paginationData: PaginationInput,
   ): Promise<{ pickups: PickupPlansDTO[]; total: number }> {
     const { pickupPlans, total } =
       await this._pickupRepository.getPickupPlansByUserId(
         userId,
-        paginationData
+        paginationData,
       );
-// console.log("pickupPlans",pickupPlans);
+    // console.log("pickupPlans",pickupPlans);
 
     if (!pickupPlans || pickupPlans.length === 0) {
       throw new Error("No pickup plans found");
@@ -34,7 +38,6 @@ export class PickupService implements IPickupService {
       pickups: PickupRequestMapper.mapToPickupPlansDTO(pickupPlans),
       total,
     };
-
   }
   async cancelPickupPlanService(pickupReqId: string): Promise<boolean> {
     const pickup = await this._pickupRepository.getPickupById(pickupReqId);
@@ -48,11 +51,13 @@ export class PickupService implements IPickupService {
 
     const updated = await this._pickupRepository.updatePickupStatus(
       pickupReqId,
-      "Cancelled"
+      "Cancelled",
     );
     return !!updated;
   }
-  async cancelPickupReasonRequest(data: cancelPickupReasonData): Promise<PaymentDTO> {
+  async cancelPickupReasonRequest(
+    data: cancelPickupReasonData,
+  ): Promise<PaymentDTO> {
     const updatedPickupRequest =
       await this._pickupRepository.updatePaymentStatus(data.pickupReqId);
     if (!updatedPickupRequest) throw new Error("Pickup not updated.");
@@ -80,6 +85,5 @@ export class PickupService implements IPickupService {
     }
 
     return PickupRequestMapper.mapPayment(updatedPickupRequest?.payment);
-    
   }
 }

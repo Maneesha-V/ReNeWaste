@@ -18,9 +18,14 @@ export interface VerifyPaymentReq extends CreatePaymentReq {
 }
 export interface VerifyPaymentResp {
   pickupReqId: string;
-  payment: PaymentDTO
+  payment: PaymentDTO;
 }
-export type RefundStatus = "Pending" | "Processing" | "Refunded" | "Rejected" | null;
+export type RefundStatus =
+  | "Pending"
+  | "Processing"
+  | "Refunded"
+  | "Rejected"
+  | null;
 
 export interface StatusUpdateReq {
   pickupReqId: string;
@@ -28,27 +33,27 @@ export interface StatusUpdateReq {
 }
 export interface UpdateStatusReq {
   plantId: string;
-  statusUpdateData :StatusUpdateReq
+  statusUpdateData: StatusUpdateReq;
 }
 export interface RefundStatusUpdateResp {
-  _id: string; 
+  _id: string;
   refundStatus: RefundStatus;
   inProgressExpiresAt: Date | null;
 }
 export type PaymentUpdate = {
-      status: string;
-      razorpayOrderId: string | null;
-      razorpayPaymentId: string | null;
-      razorpaySignature: string | null;
-      amount: number;
-      paidAt: Date| null;
-      method?: string;
-      refundRequested?: boolean,
-      refundStatus?: string| null,
-      refundAt?: Date| null
-    };
+  status: string;
+  razorpayOrderId: string | null;
+  razorpayPaymentId: string | null;
+  razorpaySignature: string | null;
+  amount: number;
+  paidAt: Date | null;
+  method?: string;
+  refundRequested?: boolean;
+  refundStatus?: string | null;
+  refundAt?: Date | null;
+};
 export type UpdateSubscptnPayload = {
-    planId: string;
-    paymentUpdate: PaymentUpdate;
-    plantId: string;
-}
+  planId: string;
+  paymentUpdate: PaymentUpdate;
+  plantId: string;
+};

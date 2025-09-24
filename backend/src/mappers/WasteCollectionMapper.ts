@@ -2,7 +2,9 @@ import { WasteCollectionDTO } from "../dtos/wasteCollection/wasteCollectionDTO";
 import { IWasteCollectionDocument } from "../models/wasteCollection/interfaces/wasteCollectionInterface";
 
 export class WasteCollectionMapper {
-  static mapWasteCollectionDTO(doc: IWasteCollectionDocument): WasteCollectionDTO {
+  static mapWasteCollectionDTO(
+    doc: IWasteCollectionDocument,
+  ): WasteCollectionDTO {
     return {
       _id: doc._id.toString(),
       driverId: doc.driverId.toString(),
@@ -14,7 +16,9 @@ export class WasteCollectionMapper {
       returnedAt: doc.returnedAt ?? null,
     };
   }
-  static mapWasteCollectionsDTO(docs: IWasteCollectionDocument[]): WasteCollectionDTO[] {
+  static mapWasteCollectionsDTO(
+    docs: IWasteCollectionDocument[],
+  ): WasteCollectionDTO[] {
     return docs.map((doc) => this.mapWasteCollectionDTO(doc));
   }
 }

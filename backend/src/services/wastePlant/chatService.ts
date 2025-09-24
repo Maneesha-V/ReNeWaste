@@ -12,18 +12,18 @@ export class ChatService implements IChatService {
     @inject(TYPES.ChatMsgRepository)
     private chatMsgRepository: IChatMsgRepository,
     @inject(TYPES.ConversationRepository)
-    private convestnRepository: IConversationRepository
+    private convestnRepository: IConversationRepository,
   ) {}
   async getOrCreateConversationId(
     senderId: string,
     senderRole: ParticipantRole,
     receiverId: string,
-    receiverRole: ParticipantRole
+    receiverRole: ParticipantRole,
   ): Promise<string> {
     let conversation =
       await this.convestnRepository.findConversationByParticipants(
         senderId,
-        receiverId
+        receiverId,
       );
 
     if (!conversation) {
@@ -31,16 +31,15 @@ export class ChatService implements IChatService {
         senderId,
         senderRole,
         receiverId,
-        receiverRole
+        receiverRole,
       );
     }
 
     return conversation._id.toString();
   }
   async getChatMessageService(conversationId: string) {
-    const chatMessages = await this.chatMsgRepository.findChatMsgByConversationId(
-      conversationId
-    );
+    const chatMessages =
+      await this.chatMsgRepository.findChatMsgByConversationId(conversationId);
     return ChatMessageMapper.mapChatMessagesDTO(chatMessages);
   }
 }

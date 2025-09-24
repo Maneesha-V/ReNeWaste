@@ -11,12 +11,12 @@ import { AuthRequest } from "../../dtos/base/BaseDTO";
 export class ChatController implements IChatController {
   constructor(
     @inject(TYPES.PlantChatService)
-    private _chatService: IChatService
+    private _chatService: IChatService,
   ) {}
   async getConversationId(
     req: AuthRequest,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ): Promise<void> {
     try {
       console.log(req.body);
@@ -25,7 +25,7 @@ export class ChatController implements IChatController {
       if (!senderId || !receiverId || !senderRole || !receiverRole) {
         throw new ApiError(
           STATUS_CODES.NOT_FOUND,
-          MESSAGES.COMMON.ERROR.MISSING_FIELDS
+          MESSAGES.COMMON.ERROR.MISSING_FIELDS,
         );
       }
 
@@ -33,7 +33,7 @@ export class ChatController implements IChatController {
         senderId,
         senderRole,
         receiverId,
-        receiverRole
+        receiverRole,
       );
       console.log("conversationId", conversationId);
 
@@ -49,7 +49,7 @@ export class ChatController implements IChatController {
   async getChatMessages(
     req: AuthRequest,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ): Promise<void> {
     try {
       console.log(req.body);
@@ -59,12 +59,11 @@ export class ChatController implements IChatController {
       if (!conversationId) {
         throw new ApiError(
           STATUS_CODES.NOT_FOUND,
-          MESSAGES.COMMON.ERROR.ID_REQUIRED
+          MESSAGES.COMMON.ERROR.ID_REQUIRED,
         );
       }
-      const messages = await this._chatService.getChatMessageService(
-        conversationId
-      );
+      const messages =
+        await this._chatService.getChatMessageService(conversationId);
       console.log("messages", messages);
 
       res.status(STATUS_CODES.SUCCESS).json({ messages });

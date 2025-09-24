@@ -10,7 +10,7 @@ cron.schedule("* * * * *", async () => {
     const plantsToUnblock = await WastePlantModel.find({
       isBlocked: true,
       autoUnblockAt: { $lte: now },
-      unblockNotificationSent: { $ne: true }
+      unblockNotificationSent: { $ne: true },
     });
 
     for (const plant of plantsToUnblock) {

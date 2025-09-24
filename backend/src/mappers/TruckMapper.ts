@@ -69,10 +69,10 @@ export class TruckMapper {
     };
   }
   static mapAvailableTrucksDTO(
-    docs: (ITruckDocument | ITruckExtDocument)[]
+    docs: (ITruckDocument | ITruckExtDocument)[],
   ): TruckAvailbleDTO[] {
     return docs.map((doc) =>
-      this.mapAvailableTruckDTO(doc as ITruckExtDocument)
+      this.mapAvailableTruckDTO(doc as ITruckExtDocument),
     );
   }
 }

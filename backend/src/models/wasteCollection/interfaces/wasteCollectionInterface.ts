@@ -10,5 +10,5 @@ export interface IWasteCollection extends Document {
   returnedAt: Date;
 }
 export interface IWasteCollectionDocument extends IWasteCollection, Document {
-    _id: Types.ObjectId;
+  _id: Types.ObjectId;
 }

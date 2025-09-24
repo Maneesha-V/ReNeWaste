@@ -14,7 +14,7 @@ export class ResidentialService implements IResidentialService {
     @inject(TYPES.UserRepository)
     private userRepository: IUserRepository,
     @inject(TYPES.PickupRepository)
-    private pickupRepository: IPickupRepository
+    private pickupRepository: IPickupRepository,
   ) {}
   async getResidentialService(userId: string): Promise<UserDTO> {
     const user = await this.userRepository.findUserById(userId);
@@ -24,27 +24,29 @@ export class ResidentialService implements IResidentialService {
 
   async updateResidentialPickupService(
     userId: string,
-    updatedData: UpdatedResidentialData
+    updatedData: UpdatedResidentialData,
   ): Promise<boolean> {
-    const { wasteType, pickupDate} = updatedData;
-    const existing = await this.pickupRepository.checkExistingResid({userId,wasteType,pickupDate});
+    const { wasteType, pickupDate } = updatedData;
+    const existing = await this.pickupRepository.checkExistingResid({
+      userId,
+      wasteType,
+      pickupDate,
+    });
     if (existing?.type === "daily") {
-    throw new Error("You can only request one residential pickup per day.");
-  }
-   const pickupCount =
-      await this.pickupRepository.getMonthlyPickupPlansByUserId(
-        userId
-      );
+      throw new Error("You can only request one residential pickup per day.");
+    }
+    const pickupCount =
+      await this.pickupRepository.getMonthlyPickupPlansByUserId(userId);
 
     if (pickupCount.count >= 4) {
       throw new Error("Monthly residential pickup limit exceeded (max 4).");
     }
     const user = await this.userRepository.findUserById(userId);
     if (!user) throw new Error("User not found");
-   
+
     const updatedUser = await this.userRepository.updatePartialProfileById(
       userId,
-      updatedData
+      updatedData,
     );
     if (!updatedUser) throw new Error("User update failed");
     let addressIdToUse: Types.ObjectId;
@@ -74,7 +76,6 @@ export class ResidentialService implements IResidentialService {
     };
 
     const created = await this.pickupRepository.createPickup(newPickuData);
-    return !!created
+    return !!created;
   }
-
 }

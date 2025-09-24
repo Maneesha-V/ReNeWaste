@@ -12,7 +12,7 @@ export class ProfileService implements IProfileService {
     @inject(TYPES.UserRepository)
     private userRepository: IUserRepository,
     @inject(TYPES.WastePlantRepository)
-    private wastePlantRepository: IWastePlantRepository
+    private wastePlantRepository: IWastePlantRepository,
   ) {}
   async getUserProfile(userId: string): Promise<UserDTO> {
     const user = await this.userRepository.findUserById(userId);
@@ -22,7 +22,7 @@ export class ProfileService implements IProfileService {
 
   async updateUserProfile(
     userId: string,
-    updatedData: UserDTO
+    updatedData: UserDTO,
   ): Promise<boolean> {
     const user = await this.userRepository.findUserById(userId);
     if (!user) throw new Error("User not found");
@@ -41,7 +41,7 @@ export class ProfileService implements IProfileService {
     // }
     const updated = await this.userRepository.updateUserProfileById(
       userId,
-      updatedData
+      updatedData,
     );
     return !!updated;
   }

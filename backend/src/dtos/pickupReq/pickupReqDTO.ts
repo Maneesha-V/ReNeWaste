@@ -1,7 +1,11 @@
 import { Types } from "mongoose";
 import { IDriverDocument } from "../../models/driver/interfaces/driverInterface";
 import { IPayment } from "../../models/pickupRequests/interfaces/paymentInterface";
-import { Address, IPickupRequest, IPickupRequestDocument } from "../../models/pickupRequests/interfaces/pickupInterface";
+import {
+  Address,
+  IPickupRequest,
+  IPickupRequestDocument,
+} from "../../models/pickupRequests/interfaces/pickupInterface";
 import { ITruckDocument } from "../../models/truck/interfaces/truckInterface";
 import { IUserDocument } from "../../models/user/interfaces/userInterface";
 import { BaseDTO } from "../base/BaseDTO";
@@ -73,7 +77,7 @@ export interface IPickupRequestExtDocument
 }
 
 export interface PickupReqGetDTO extends BaseDTO {
-   userId: {
+  userId: {
     _id: string;
     firstName: string;
     lastName: string;
@@ -92,7 +96,7 @@ export interface PickupReqGetDTO extends BaseDTO {
   frequency?: string;
   parentRequestId?: string;
   status: string;
-  trackingStatus?:string | null;
+  trackingStatus?: string | null;
   eta?: {
     text: string | null;
     value: number | null;
@@ -128,13 +132,14 @@ export interface PickupPaymentSummaryDTO {
     amount: number;
     method: string;
     paidAt: Date | null;
-    refundStatus: "Pending" | "Processing" | "Refunded" | "Rejected" | null; 
+    refundStatus: "Pending" | "Processing" | "Refunded" | "Rejected" | null;
     razorpayOrderId: string | null;
     refundRequested: boolean;
     refundAt: Date | null;
   };
 }
-export interface PopulatedPIckupPlans extends Omit<IPickupRequestDocument, 'driverId' | 'truckId' | '__v' > {
+export interface PopulatedPIckupPlans
+  extends Omit<IPickupRequestDocument, "driverId" | "truckId" | "__v"> {
   // user: IUserDocument;
   user: {
     firstName: string;
@@ -198,24 +203,24 @@ export type RevenueByWasteType = {
   totalRevenue: number;
 };
 export type PickupDriverFilterParams = {
-    wasteType?: string;
-    driverId: string;
-  }
-  export type CheckExistingBusinessReq = {
-    userId: string;
-    frequency: string;
-    businessName: string; 
-    wasteType: string;
-  }
-  export type CheckExistingBusinessResp = {
-    type: string;
-    data: IPickupRequestDocument;
-  }
-  export type CheckExistingResidReq = {
-  userId: string; 
+  wasteType?: string;
+  driverId: string;
+};
+export type CheckExistingBusinessReq = {
+  userId: string;
+  frequency: string;
+  businessName: string;
+  wasteType: string;
+};
+export type CheckExistingBusinessResp = {
+  type: string;
+  data: IPickupRequestDocument;
+};
+export type CheckExistingResidReq = {
+  userId: string;
   wasteType: string;
   pickupDate: string;
-}
+};
 export type cancelPickupReasonData = {
   userId: string;
   pickupReqId: string;

@@ -15,26 +15,40 @@ export class TruckService implements ITruckService {
     @inject(TYPES.TruckRepository)
     private truckRepository: ITruckRepository,
     @inject(TYPES.DriverRepository)
-    private driverRepository: IDriverRepository
+    private driverRepository: IDriverRepository,
   ) {}
-  async getTruckForDriver(driverId: string, wasteplantId: string): Promise<TruckAvailbleDTO[]> {
-    const result = await this.truckRepository.getAssignedAvailableTrucks(driverId, wasteplantId);
-    if(!result){
-      throw new Error("Can't found trucks.")
+  async getTruckForDriver(
+    driverId: string,
+    wasteplantId: string,
+  ): Promise<TruckAvailbleDTO[]> {
+    const result = await this.truckRepository.getAssignedAvailableTrucks(
+      driverId,
+      wasteplantId,
+    );
+    if (!result) {
+      throw new Error("Can't found trucks.");
     }
     return TruckMapper.mapAvailableTrucksDTO(result);
   }
   async requestTruck(driverId: string) {
     const driver = await this.truckRepository.reqTruckToWastePlant(driverId);
-    if(!driver){
-      throw new Error("Driver not found.")
+    if (!driver) {
+      throw new Error("Driver not found.");
     }
-    return DriverMapper.mapDriverDTO(driver)
+    return DriverMapper.mapDriverDTO(driver);
   }
-  async markTruckReturnService({ truckId, plantId, driverId }: MarkReturnProps) {
-    const {driver, truck} =  await this.driverRepository.markTruckAsReturned(truckId, plantId, driverId);
-    if(!driver || !truck){
-      throw new Error("Driver or truck not found")
+  async markTruckReturnService({
+    truckId,
+    plantId,
+    driverId,
+  }: MarkReturnProps) {
+    const { driver, truck } = await this.driverRepository.markTruckAsReturned(
+      truckId,
+      plantId,
+      driverId,
+    );
+    if (!driver || !truck) {
+      throw new Error("Driver or truck not found");
     }
     return true;
   }

@@ -11,12 +11,12 @@ import { AuthRequest } from "../../dtos/base/BaseDTO";
 export class DropSpotController implements IDropSpotController {
   constructor(
     @inject(TYPES.PlantDropSpotService)
-    private dropspotService: IDropSpotService
+    private dropspotService: IDropSpotService,
   ) {}
   async createDropSpot(
     req: AuthRequest,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ): Promise<void> {
     try {
       console.log(req.body);
@@ -24,7 +24,7 @@ export class DropSpotController implements IDropSpotController {
       if (!wasteplantId) {
         throw new ApiError(
           STATUS_CODES.UNAUTHORIZED,
-          MESSAGES.COMMON.ERROR.UNAUTHORIZED
+          MESSAGES.COMMON.ERROR.UNAUTHORIZED,
         );
       }
 
@@ -33,9 +33,8 @@ export class DropSpotController implements IDropSpotController {
         wasteplantId,
       };
 
-      const success = await this.dropspotService.createDropSpotService(
-        payloadWithPlant
-      );
+      const success =
+        await this.dropspotService.createDropSpotService(payloadWithPlant);
 
       if (success) {
         res.status(STATUS_CODES.SUCCESS).json({
@@ -56,7 +55,7 @@ export class DropSpotController implements IDropSpotController {
   async fetchDropSpots(
     req: AuthRequest,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ): Promise<void> {
     try {
       console.log(req.query);
@@ -65,7 +64,7 @@ export class DropSpotController implements IDropSpotController {
       if (!wasteplantId) {
         throw new ApiError(
           STATUS_CODES.UNAUTHORIZED,
-          MESSAGES.COMMON.ERROR.UNAUTHORIZED
+          MESSAGES.COMMON.ERROR.UNAUTHORIZED,
         );
       }
       const page = parseInt(req.query.page as string) || 1;
@@ -75,7 +74,7 @@ export class DropSpotController implements IDropSpotController {
         wasteplantId,
         page,
         limit,
-        search
+        search,
       );
       console.log("dropspots", dropspots);
 
@@ -93,7 +92,7 @@ export class DropSpotController implements IDropSpotController {
   async fetchDropSpotById(
     req: AuthRequest,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ): Promise<void> {
     try {
       const { dropSpotId } = req.params;
@@ -101,13 +100,13 @@ export class DropSpotController implements IDropSpotController {
       if (!wasteplantId) {
         throw new ApiError(
           STATUS_CODES.UNAUTHORIZED,
-          MESSAGES.COMMON.ERROR.UNAUTHORIZED
+          MESSAGES.COMMON.ERROR.UNAUTHORIZED,
         );
       }
       const selectedDropSpot =
         await this.dropspotService.getDropSpotByIdService(
           dropSpotId,
-          wasteplantId
+          wasteplantId,
         );
 
       console.log("selectedDropSpot", selectedDropSpot);
@@ -122,7 +121,7 @@ export class DropSpotController implements IDropSpotController {
   async deleteDropSpotById(
     req: AuthRequest,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ): Promise<void> {
     try {
       const { dropSpotId } = req.params;
@@ -130,21 +129,19 @@ export class DropSpotController implements IDropSpotController {
       if (!wasteplantId) {
         throw new ApiError(
           STATUS_CODES.UNAUTHORIZED,
-          MESSAGES.COMMON.ERROR.UNAUTHORIZED
+          MESSAGES.COMMON.ERROR.UNAUTHORIZED,
         );
       }
       const dropspot = await this.dropspotService.deleteDropSpotByIdService(
         dropSpotId,
-        wasteplantId
+        wasteplantId,
       );
       console.log("result-delete", dropspot);
 
-      res
-        .status(STATUS_CODES.SUCCESS)
-        .json({ 
-          message: MESSAGES.WASTEPLANT.SUCCESS.DROP_SPOT_DELETE,
-          dropspot
-       });
+      res.status(STATUS_CODES.SUCCESS).json({
+        message: MESSAGES.WASTEPLANT.SUCCESS.DROP_SPOT_DELETE,
+        dropspot,
+      });
     } catch (error) {
       console.error("Error in deleting dropspot:", error);
       next(error);
@@ -154,7 +151,7 @@ export class DropSpotController implements IDropSpotController {
   async updateDropSpot(
     req: AuthRequest,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ): Promise<void> {
     try {
       const { dropSpotId } = req.params;
@@ -163,7 +160,7 @@ export class DropSpotController implements IDropSpotController {
       if (!wasteplantId) {
         throw new ApiError(
           STATUS_CODES.UNAUTHORIZED,
-          MESSAGES.COMMON.ERROR.UNAUTHORIZED
+          MESSAGES.COMMON.ERROR.UNAUTHORIZED,
         );
       }
 
@@ -172,7 +169,7 @@ export class DropSpotController implements IDropSpotController {
       const updatedDropSpot = await this.dropspotService.updateDropSpotService(
         wasteplantId,
         dropSpotId,
-        updateData
+        updateData,
       );
 
       res.status(STATUS_CODES.SUCCESS).json({

@@ -1,12 +1,18 @@
 import { PaginationInput } from "../../../dtos/common/commonDTO";
-import { PaginatedReturnAdminWastePlants, ReturnDeleteWP, WasteplantDTO } from "../../../dtos/wasteplant/WasteplantDTO";
+import {
+  PaginatedReturnAdminWastePlants,
+  ReturnDeleteWP,
+  WasteplantDTO,
+} from "../../../dtos/wasteplant/WasteplantDTO";
 import { IWastePlant } from "../../../models/wastePlant/interfaces/wastePlantInterface";
 
 export interface IWastePlantService {
-    addWastePlant(data: IWastePlant): Promise<boolean>;
-    getAllWastePlants(data: PaginationInput): Promise<PaginatedReturnAdminWastePlants>;
-    getWastePlantByIdService(id: string): Promise<WasteplantDTO>;
-    updateWastePlantByIdService(id: string,data: IWastePlant): Promise<boolean>;
-    deleteWastePlantByIdService(id: string): Promise<ReturnDeleteWP>;
-    plantBlockStatus(plantId: string, isBlocked: boolean): Promise<WasteplantDTO>;
-  }
+  addWastePlant(data: IWastePlant): Promise<boolean>;
+  getAllWastePlants(
+    data: PaginationInput,
+  ): Promise<PaginatedReturnAdminWastePlants>;
+  getWastePlantByIdService(id: string): Promise<WasteplantDTO>;
+  updateWastePlantByIdService(id: string, data: IWastePlant): Promise<boolean>;
+  deleteWastePlantByIdService(id: string): Promise<ReturnDeleteWP>;
+  plantBlockStatus(plantId: string, isBlocked: boolean): Promise<WasteplantDTO>;
+}

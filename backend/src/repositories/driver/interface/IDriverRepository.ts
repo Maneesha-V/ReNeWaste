@@ -1,4 +1,8 @@
-import { MarkTruckReturnResult, PaginatedDriversResult, ReturnFetchAllDriversByPlantId } from "../../../dtos/driver/driverDTO";
+import {
+  MarkTruckReturnResult,
+  PaginatedDriversResult,
+  ReturnFetchAllDriversByPlantId,
+} from "../../../dtos/driver/driverDTO";
 import {
   IDriver,
   IDriverDocument,
@@ -13,36 +17,41 @@ export interface IDriverRepository {
     plantId: string,
     page: number,
     limit: number,
-    search: string
+    search: string,
   ): Promise<PaginatedDriversResult>;
   updateDriverPassword(email: string, hashedPassword: string): Promise<void>;
   getDriverById(driverId: string): Promise<IDriverDocument | null>;
-  updateDriverById(driverId: string, data: any): Promise<IDriverDocument | null>;
+  updateDriverById(
+    driverId: string,
+    data: any,
+  ): Promise<IDriverDocument | null>;
   deleteDriverById(driverId: string): Promise<IDriverDocument>;
   fetchDriversByPlantId(wastePlantId: string): Promise<IDriverDocument[]>;
   updateDriverTruck(
     driverId: string,
-    assignedTruckId: string
+    assignedTruckId: string,
   ): Promise<IDriverDocument | null>;
   updateDriverAssignedZone(
     driverId: string,
-    assignedZone: string
+    assignedZone: string,
   ): Promise<IDriverDocument | null>;
   getDriversByLocation(
     location: string,
-    plantId: string
+    plantId: string,
   ): Promise<IDriverDocument[]>;
   updateDriverByPlantAndId(
     driverId: string,
     plantId: string,
-    updateData: Partial<IDriver>
+    updateData: Partial<IDriver>,
   ): Promise<IDriver | null>;
   countAll(): Promise<number>;
-    markTruckAsReturned(
+  markTruckAsReturned(
     truckId: string,
     plantId: string,
-    driverId: string
+    driverId: string,
   ): Promise<MarkTruckReturnResult>;
-  fetchAllDriversByPlantId(wastePlantId: string): Promise<ReturnFetchAllDriversByPlantId>;
+  fetchAllDriversByPlantId(
+    wastePlantId: string,
+  ): Promise<ReturnFetchAllDriversByPlantId>;
   getTotalDrivers(): Promise<number>;
 }

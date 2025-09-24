@@ -18,40 +18,50 @@ export class CommercialService implements ICommercialService {
     @inject(TYPES.WastePlantRepository)
     private wastePlantRepository: IWastePlantRepository,
     @inject(TYPES.PickupRepository)
-    private pickupRepository: IPickupRepository
+    private pickupRepository: IPickupRepository,
   ) {}
   async getCommercialService(userId: string): Promise<UserDTO> {
     const user = await this.userRepository.findUserById(userId);
     if (!user) throw new Error("User not found");
-    return UserMapper.mapUserDTO(user);;
+    return UserMapper.mapUserDTO(user);
   }
   async availableWasteService(
     service: string,
-    wasteplantId: string
+    wasteplantId: string,
   ): Promise<boolean> {
-    const wasteplant = await this.wastePlantRepository.getWastePlantById(
-      wasteplantId
-    );
+    const wasteplant =
+      await this.wastePlantRepository.getWastePlantById(wasteplantId);
     if (!wasteplant || !Array.isArray(wasteplant.services)) return false;
 
     return wasteplant.services.includes(service);
   }
-  async updateCommercialPickupService(userId: string, updatedData: UpdatedCommercialDataDTO):
-  Promise<boolean> {
-    const {frequency, businessName, wasteType } = updatedData
-    const existing = await this.pickupRepository.checkExistingBusiness({userId,frequency, businessName, wasteType})
-      if (existing?.type === "monthly") {
-    throw new Error("You already submitted a pickup for this business this month.");
-  }
-     if (existing?.type === "daily") {
-    throw new Error("You can only submit one commercial pickup request per day.");
-  }
+  async updateCommercialPickupService(
+    userId: string,
+    updatedData: UpdatedCommercialDataDTO,
+  ): Promise<boolean> {
+    const { frequency, businessName, wasteType } = updatedData;
+    const existing = await this.pickupRepository.checkExistingBusiness({
+      userId,
+      frequency,
+      businessName,
+      wasteType,
+    });
+    if (existing?.type === "monthly") {
+      throw new Error(
+        "You already submitted a pickup for this business this month.",
+      );
+    }
+    if (existing?.type === "daily") {
+      throw new Error(
+        "You can only submit one commercial pickup request per day.",
+      );
+    }
     const user = await this.userRepository.findUserById(userId);
     if (!user) throw new Error("User not found");
 
     const updatedUser = await this.userRepository.updatePartialProfileById(
       userId,
-      updatedData
+      updatedData,
     );
     if (!updatedUser) throw new Error("User update failed");
     let addressIdToUse: Types.ObjectId;

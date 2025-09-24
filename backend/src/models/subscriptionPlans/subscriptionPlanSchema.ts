@@ -44,10 +44,10 @@ export const SubscriptionPlanSchema = new Schema<ISubscriptionPlanDocument>(
       min: 0,
     },
     status: {
-        type: String,
-        enum: ["Active", "Inactive"],
-        default: "Active",
-      },
+      type: String,
+      enum: ["Active", "Inactive"],
+      default: "Active",
+    },
     isDeleted: {
       type: Boolean,
       default: false,
@@ -55,6 +55,5 @@ export const SubscriptionPlanSchema = new Schema<ISubscriptionPlanDocument>(
   },
   {
     timestamps: { createdAt: true, updatedAt: false },
-  }
+  },
 );
-

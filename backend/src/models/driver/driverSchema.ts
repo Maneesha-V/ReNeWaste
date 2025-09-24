@@ -19,7 +19,7 @@ export const driverSchema: Schema<IDriverDocument> = new Schema({
     type: String,
     enum: ["driver", "user", "superadmin", "wasteplant"],
     default: "driver",
-    required: true
+    required: true,
   },
   wasteplantId: {
     type: mongoose.Schema.Types.ObjectId,
@@ -34,17 +34,17 @@ export const driverSchema: Schema<IDriverDocument> = new Schema({
   assignedZone: { type: String },
   hasRequestedTruck: {
     type: Boolean,
-    default: false, 
+    default: false,
   },
   category: {
     type: String,
-    enum: ["Residential","Commercial","Pending"],
+    enum: ["Residential", "Commercial", "Pending"],
     default: "Pending",
-    required: true
+    required: true,
   },
   isDeleted: {
-      type: Boolean,
-      default: false
+    type: Boolean,
+    default: false,
   },
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },

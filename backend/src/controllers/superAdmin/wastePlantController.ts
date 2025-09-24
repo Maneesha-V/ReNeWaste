@@ -22,12 +22,12 @@ export class WastePlantController implements IWastePlantController {
     @inject(TYPES.SuperAdminPlantService)
     private _wastePlantService: IWastePlantService,
     @inject(TYPES.SuperAdminSubscriptionService)
-    private subscriptionService: ISubscriptionService
+    private subscriptionService: ISubscriptionService,
   ) {}
   async getAddWastePlant(
     req: Request,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ): Promise<void> {
     try {
       const subscriptionPlans =
@@ -46,7 +46,7 @@ export class WastePlantController implements IWastePlantController {
   async addWastePlant(
     req: Request,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ): Promise<void> {
     try {
       console.log("file", req.file);
@@ -54,13 +54,13 @@ export class WastePlantController implements IWastePlantController {
       if (!req.file) {
         throw new ApiError(
           STATUS_CODES.NOT_FOUND,
-          MESSAGES.WASTEPLANT.ERROR.DOCUMENT_REQUIRED
+          MESSAGES.WASTEPLANT.ERROR.DOCUMENT_REQUIRED,
         );
       }
       if (req.file.mimetype !== "application/pdf") {
         throw new ApiError(
           STATUS_CODES.NOT_FOUND,
-          MESSAGES.WASTEPLANT.ERROR.PDF_FILES_REQUIRED
+          MESSAGES.WASTEPLANT.ERROR.PDF_FILES_REQUIRED,
         );
       }
 
@@ -78,7 +78,7 @@ export class WastePlantController implements IWastePlantController {
               } else {
                 reject(error);
               }
-            }
+            },
           );
           streamifier.createReadStream(req.file!.buffer).pipe(stream);
         });
@@ -93,7 +93,7 @@ export class WastePlantController implements IWastePlantController {
 
       if (Array.isArray(rawServices)) {
         services = rawServices.flatMap((s) =>
-          typeof s === "string" ? s.split(",").map((item) => item.trim()) : []
+          typeof s === "string" ? s.split(",").map((item) => item.trim()) : [],
         );
       } else if (typeof rawServices === "string") {
         services = rawServices.split(",").map((item) => item.trim());
@@ -110,9 +110,8 @@ export class WastePlantController implements IWastePlantController {
         cloudinaryPublicId: publicId,
       } as IWastePlant;
 
-      const newWastePlant = await this._wastePlantService.addWastePlant(
-        wastePlantData
-      );
+      const newWastePlant =
+        await this._wastePlantService.addWastePlant(wastePlantData);
       console.log("✅ Inserted Waste Plant:", newWastePlant);
       res.status(STATUS_CODES.CREATED).json({
         success: true,
@@ -126,7 +125,7 @@ export class WastePlantController implements IWastePlantController {
   async viewLicenseDocument(
     req: Request,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ): Promise<void> {
     try {
       const publicId = req.params.publicId;
@@ -149,7 +148,7 @@ export class WastePlantController implements IWastePlantController {
   async fetchPostOffices(
     req: Request,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ): Promise<void> {
     const { pincode } = req.params;
     console.log("pincode", pincode);
@@ -158,8 +157,8 @@ export class WastePlantController implements IWastePlantController {
       const response = await axios.get<IndiaPostAPIResponse[]>(
         `https://api.postalpincode.in/pincode/${pincode}`,
         {
-          maxRedirects: 5, 
-        }
+          maxRedirects: 5,
+        },
       );
 
       const result = response.data[0];
@@ -168,17 +167,17 @@ export class WastePlantController implements IWastePlantController {
       if (result.Status !== "Success" || !result.PostOffice) {
         throw new ApiError(
           STATUS_CODES.NOT_FOUND,
-          MESSAGES.COMMON.ERROR.POST_OFFICE_ERROR
+          MESSAGES.COMMON.ERROR.POST_OFFICE_ERROR,
         );
       }
       console.log("postOffices", result.PostOffice);
       const isMalappuram = result.PostOffice.some(
-        (po: PostOfficeEntry) => po.District.toLowerCase() === "malappuram"
+        (po: PostOfficeEntry) => po.District.toLowerCase() === "malappuram",
       );
       if (!isMalappuram) {
         throw new ApiError(
           STATUS_CODES.FORBIDDEN,
-          MESSAGES.COMMON.ERROR.PINCODE_ALLOW_ERROR
+          MESSAGES.COMMON.ERROR.PINCODE_ALLOW_ERROR,
         );
       }
       const postOffices = result.PostOffice.map((po: PostOfficeEntry) => ({
@@ -195,7 +194,7 @@ export class WastePlantController implements IWastePlantController {
   async fetchWastePlants(
     req: AuthRequest,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ): Promise<void> {
     try {
       console.log(req.query);
@@ -204,7 +203,7 @@ export class WastePlantController implements IWastePlantController {
       const page = parseInt(req.query.page as string) || 1;
       let limit = Math.min(
         parseInt(req.query.limit as string) || DEFAULT_LIMIT,
-        MAX_LIMIT
+        MAX_LIMIT,
       );
       const search = (req.query.search as string) || "";
 
@@ -243,19 +242,18 @@ export class WastePlantController implements IWastePlantController {
   async getWastePlantById(
     req: Request,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ): Promise<void> {
     try {
       const { id } = req.params;
       if (!id) {
         throw new ApiError(
           STATUS_CODES.BAD_REQUEST,
-          MESSAGES.COMMON.ERROR.ID_REQUIRED
+          MESSAGES.COMMON.ERROR.ID_REQUIRED,
         );
       }
-      const wastePlant = await this._wastePlantService.getWastePlantByIdService(
-        id
-      );
+      const wastePlant =
+        await this._wastePlantService.getWastePlantByIdService(id);
       console.log("wastePlant", wastePlant);
 
       res.status(STATUS_CODES.SUCCESS).json({
@@ -270,7 +268,7 @@ export class WastePlantController implements IWastePlantController {
   async updateWastePlant(
     req: Request,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ): Promise<void> {
     try {
       const { id } = req.params;
@@ -278,7 +276,7 @@ export class WastePlantController implements IWastePlantController {
       if (!id) {
         throw new ApiError(
           STATUS_CODES.UNAUTHORIZED,
-          MESSAGES.COMMON.ERROR.UNAUTHORIZED
+          MESSAGES.COMMON.ERROR.UNAUTHORIZED,
         );
       }
       const updatedData = req.body;
@@ -286,7 +284,7 @@ export class WastePlantController implements IWastePlantController {
         if (req.file.mimetype !== "application/pdf") {
           throw new ApiError(
             STATUS_CODES.BAD_REQUEST,
-            MESSAGES.WASTEPLANT.ERROR.PDF_FILES_REQUIRED
+            MESSAGES.WASTEPLANT.ERROR.PDF_FILES_REQUIRED,
           );
         }
         const uploadFromBuffer = (): Promise<any> => {
@@ -303,7 +301,7 @@ export class WastePlantController implements IWastePlantController {
                 } else {
                   reject(error);
                 }
-              }
+              },
             );
             streamifier.createReadStream(req.file!.buffer).pipe(stream);
           });
@@ -320,7 +318,7 @@ export class WastePlantController implements IWastePlantController {
 
       if (Array.isArray(rawServices)) {
         updatedData.services = rawServices.flatMap((s) =>
-          typeof s === "string" ? s.split(",").map((item) => item.trim()) : []
+          typeof s === "string" ? s.split(",").map((item) => item.trim()) : [],
         );
       } else if (typeof rawServices === "string") {
         updatedData.services = rawServices
@@ -330,7 +328,7 @@ export class WastePlantController implements IWastePlantController {
       const updatedWastePlant =
         await this._wastePlantService.updateWastePlantByIdService(
           id,
-          updatedData
+          updatedData,
         );
       console.log("wastePlant", updatedWastePlant);
       if (!updatedWastePlant) {
@@ -350,14 +348,14 @@ export class WastePlantController implements IWastePlantController {
   async deleteWastePlantById(
     req: Request,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ): Promise<void> {
     try {
       const { id } = req.params;
       if (!id) {
         throw new ApiError(
           STATUS_CODES.BAD_REQUEST,
-          MESSAGES.COMMON.ERROR.ID_REQUIRED
+          MESSAGES.COMMON.ERROR.ID_REQUIRED,
         );
       }
       const updatedPlant =
@@ -366,7 +364,7 @@ export class WastePlantController implements IWastePlantController {
       if (!updatedPlant) {
         throw new ApiError(
           STATUS_CODES.NOT_FOUND,
-          MESSAGES.WASTEPLANT.ERROR.NOT_FOUND
+          MESSAGES.WASTEPLANT.ERROR.NOT_FOUND,
         );
       }
 
@@ -408,7 +406,7 @@ export class WastePlantController implements IWastePlantController {
   async plantBlockStatus(
     req: AuthRequest,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ): Promise<void> {
     try {
       const plantId = req.params.plantId;
@@ -419,12 +417,12 @@ export class WastePlantController implements IWastePlantController {
       if (typeof isBlocked !== "boolean") {
         throw new ApiError(
           STATUS_CODES.BAD_REQUEST,
-          MESSAGES.COMMON.ERROR.INVALID_BLOCK
+          MESSAGES.COMMON.ERROR.INVALID_BLOCK,
         );
       }
       const wasteplant = await this._wastePlantService.plantBlockStatus(
         plantId,
-        isBlocked
+        isBlocked,
       );
       res
         .status(STATUS_CODES.SUCCESS)

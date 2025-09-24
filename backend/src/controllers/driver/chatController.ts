@@ -11,25 +11,29 @@ import { AuthRequest } from "../../dtos/base/BaseDTO";
 export class ChatController implements IChatController {
   constructor(
     @inject(TYPES.DriverChatService)
-    private chatService: IChatService
-  ){}
-  async getConversationId(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
+    private chatService: IChatService,
+  ) {}
+  async getConversationId(
+    req: AuthRequest,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> {
     try {
       console.log(req.body);
 
       const { senderId, receiverId, senderRole, receiverRole } = req.body;
       if (!senderId || !receiverId || !senderRole || !receiverRole) {
-       throw new ApiError(
-                 STATUS_CODES.NOT_FOUND,
-                 MESSAGES.COMMON.ERROR.MISSING_FIELDS
-               );
+        throw new ApiError(
+          STATUS_CODES.NOT_FOUND,
+          MESSAGES.COMMON.ERROR.MISSING_FIELDS,
+        );
       }
 
       const conversationId = await this.chatService.getOrCreateConversationId(
         senderId,
         senderRole,
         receiverId,
-        receiverRole
+        receiverRole,
       );
       console.log("conversationId", conversationId);
 
@@ -42,26 +46,30 @@ export class ChatController implements IChatController {
       next(error);
     }
   }
-  async getChatMessages(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
-      try {
-        console.log(req.body);
-        
-        const { conversationId } = req.body;
-    
-        if (!conversationId) {
-         throw new ApiError(
-          STATUS_CODES.NOT_FOUND,
-          MESSAGES.COMMON.ERROR.ID_REQUIRED
-        );
-        }
-        const messages = await this.chatService.getChatMessageService(conversationId);
-        console.log("messages",messages);
-        
-        res.status(STATUS_CODES.SUCCESS).json({ messages });
-      } catch (error) {
-        console.error("Error fetching messages:", error);
-        next(error);
-      }
-    }
-}
+  async getChatMessages(
+    req: AuthRequest,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> {
+    try {
+      console.log(req.body);
 
+      const { conversationId } = req.body;
+
+      if (!conversationId) {
+        throw new ApiError(
+          STATUS_CODES.NOT_FOUND,
+          MESSAGES.COMMON.ERROR.ID_REQUIRED,
+        );
+      }
+      const messages =
+        await this.chatService.getChatMessageService(conversationId);
+      console.log("messages", messages);
+
+      res.status(STATUS_CODES.SUCCESS).json({ messages });
+    } catch (error) {
+      console.error("Error fetching messages:", error);
+      next(error);
+    }
+  }
+}

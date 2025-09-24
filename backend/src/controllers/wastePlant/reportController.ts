@@ -11,21 +11,25 @@ import { AuthRequest } from "../../dtos/base/BaseDTO";
 export class ReportController implements IReportController {
   constructor(
     @inject(TYPES.PlantReportService)
-    private reportService: IReportService
+    private reportService: IReportService,
   ) {}
-  async getWasteReports(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
+  async getWasteReports(
+    req: AuthRequest,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> {
     try {
       const plantId = req.user?.id;
 
       if (!plantId) {
         throw new ApiError(
-                 STATUS_CODES.UNAUTHORIZED,
-                 MESSAGES.COMMON.ERROR.UNAUTHORIZED
-               );
+          STATUS_CODES.UNAUTHORIZED,
+          MESSAGES.COMMON.ERROR.UNAUTHORIZED,
+        );
       }
       const wasteReports = await this.reportService.getWasteReports(plantId);
-      console.log("wasteReports",wasteReports);
-      
+      console.log("wasteReports", wasteReports);
+
       res.status(STATUS_CODES.SUCCESS).json({
         success: true,
         message: MESSAGES.WASTEPLANT.SUCCESS.FETCH_WASTE_REPORT,
@@ -36,7 +40,11 @@ export class ReportController implements IReportController {
       next(error);
     }
   }
-  async filterWasteReports(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
+  async filterWasteReports(
+    req: AuthRequest,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> {
     try {
       const { from, to } = req.params;
       const plantId = req.user?.id;
@@ -45,7 +53,7 @@ export class ReportController implements IReportController {
       if (!plantId) {
         throw new ApiError(
           STATUS_CODES.UNAUTHORIZED,
-          MESSAGES.COMMON.ERROR.UNAUTHORIZED
+          MESSAGES.COMMON.ERROR.UNAUTHORIZED,
         );
       }
       const reports = await this.reportService.filterWasteReports({

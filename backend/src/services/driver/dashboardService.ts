@@ -4,7 +4,10 @@ import { IDriverRepository } from "../../repositories/driver/interface/IDriverRe
 import { IDashboardService } from "./interface/IDashboardService";
 import { ITruckRepository } from "../../repositories/truck/interface/ITruckRepository";
 import { IPickupRepository } from "../../repositories/pickupReq/interface/IPickupRepository";
-import { DriverDashboardResponse, DriverSupportInfo } from "../../dtos/driver/driverDTO";
+import {
+  DriverDashboardResponse,
+  DriverSupportInfo,
+} from "../../dtos/driver/driverDTO";
 import { IWastePlantRepository } from "../../repositories/wastePlant/interface/IWastePlantRepository";
 
 @injectable()
@@ -17,10 +20,10 @@ export class DashboardService implements IDashboardService {
     @inject(TYPES.PickupRepository)
     private pickupRepository: IPickupRepository,
     @inject(TYPES.WastePlantRepository)
-    private wastePlantRepository: IWastePlantRepository
+    private wastePlantRepository: IWastePlantRepository,
   ) {}
   async fetchDriverDashboard(
-    driverId: string
+    driverId: string,
   ): Promise<DriverDashboardResponse> {
     const driver = await this.driverRepository.getDriverById(driverId);
     if (!driver) {
@@ -35,7 +38,7 @@ export class DashboardService implements IDashboardService {
     let truckData = null;
     if (driver.assignedTruckId) {
       const truck = await this.truckRepository.getTruckById(
-        driver.assignedTruckId.toString()
+        driver.assignedTruckId.toString(),
       );
       if (truck) {
         truckData = {
@@ -64,7 +67,7 @@ export class DashboardService implements IDashboardService {
     let plantData = null;
     if (driver) {
       const wasteplant = await this.wastePlantRepository.getWastePlantById(
-        driver.wasteplantId!.toString()
+        driver.wasteplantId!.toString(),
       );
       if (wasteplant) {
         plantData = {

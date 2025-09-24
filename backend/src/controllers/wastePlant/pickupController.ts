@@ -11,12 +11,12 @@ import { AuthRequest } from "../../dtos/base/BaseDTO";
 export class PickupController implements IPickupController {
   constructor(
     @inject(TYPES.PlantPickupService)
-    private _pickupService: IPickupService
+    private _pickupService: IPickupService,
   ) {}
   async getPickupRequests(
     req: AuthRequest,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ): Promise<void> {
     try {
       const { status, wasteType } = req.query;
@@ -41,7 +41,7 @@ export class PickupController implements IPickupController {
   async approvePickup(
     req: AuthRequest,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ): Promise<void> {
     try {
       const { status, driverId, assignedTruckId } = req.body;
@@ -51,7 +51,7 @@ export class PickupController implements IPickupController {
       if (!plantId || !status || !driverId || !assignedTruckId) {
         throw new ApiError(
           STATUS_CODES.UNAUTHORIZED,
-          MESSAGES.COMMON.ERROR.MISSING_FIELDS
+          MESSAGES.COMMON.ERROR.MISSING_FIELDS,
         );
       }
 
@@ -75,7 +75,7 @@ export class PickupController implements IPickupController {
   async cancelPickup(
     req: AuthRequest,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ): Promise<void> {
     try {
       const { pickupReqId } = req.params;
@@ -84,13 +84,13 @@ export class PickupController implements IPickupController {
       if (!plantId) {
         throw new ApiError(
           STATUS_CODES.UNAUTHORIZED,
-          MESSAGES.COMMON.ERROR.UNAUTHORIZED
+          MESSAGES.COMMON.ERROR.UNAUTHORIZED,
         );
       }
       const result = await this._pickupService.cancelPickupRequest(
         plantId,
         pickupReqId,
-        reason
+        reason,
       );
 
       res.status(STATUS_CODES.SUCCESS).json({
@@ -105,14 +105,14 @@ export class PickupController implements IPickupController {
   async reschedulePickup(
     req: AuthRequest,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ): Promise<void> {
     try {
       const wasteplantId = req.user?.id;
       if (!wasteplantId) {
         throw new ApiError(
           STATUS_CODES.UNAUTHORIZED,
-          MESSAGES.COMMON.ERROR.UNAUTHORIZED
+          MESSAGES.COMMON.ERROR.UNAUTHORIZED,
         );
       }
       const { pickupReqId } = req.params;
@@ -121,7 +121,7 @@ export class PickupController implements IPickupController {
       const updatedPickup = await this._pickupService.reschedulePickup(
         wasteplantId,
         pickupReqId,
-        rescheduleData
+        rescheduleData,
       );
       console.log("updatedPickup", updatedPickup);
 
@@ -138,7 +138,7 @@ export class PickupController implements IPickupController {
   async fetchDriversByPlace(
     req: AuthRequest,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ): Promise<void> {
     try {
       const location = req.query.location as string;
@@ -147,18 +147,18 @@ export class PickupController implements IPickupController {
       if (!location) {
         throw new ApiError(
           STATUS_CODES.BAD_REQUEST,
-          MESSAGES.COMMON.ERROR.LOCATION_REQUIRED
+          MESSAGES.COMMON.ERROR.LOCATION_REQUIRED,
         );
       }
       if (!plantId) {
         throw new ApiError(
           STATUS_CODES.UNAUTHORIZED,
-          MESSAGES.COMMON.ERROR.UNAUTHORIZED
+          MESSAGES.COMMON.ERROR.UNAUTHORIZED,
         );
       }
       const drivers = await this._pickupService.getAvailableDriverService(
         location,
-        plantId
+        plantId,
       );
       console.log("drivers", drivers);
 

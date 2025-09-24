@@ -1,20 +1,35 @@
-import { RefundStatusUpdateResp, UpdateStatusReq } from "../../../dtos/pickupReq/paymentDTO";
+import {
+  RefundStatusUpdateResp,
+  UpdateStatusReq,
+} from "../../../dtos/pickupReq/paymentDTO";
 import { PickupReqDTO } from "../../../dtos/pickupReq/pickupReqDTO";
-import { RetrySubPaymntReq, RetrySubPaymntRes } from "../../../dtos/subscription/subscptnPaymentDTO";
-import { FetchPaymentPayload, PaginatedPaymentsResult, RefundDataReq, ReturnSubcptnPaymentResult, ReurnSubcptnCreatePaymt, SubCreatePaymtPayload, VerifyPaymtReq, VerifyPaymtResp } from "../../../dtos/wasteplant/WasteplantDTO";
+import {
+  RetrySubPaymntReq,
+  RetrySubPaymntRes,
+} from "../../../dtos/subscription/subscptnPaymentDTO";
+import {
+  FetchPaymentPayload,
+  PaginatedPaymentsResult,
+  RefundDataReq,
+  ReturnSubcptnPaymentResult,
+  ReurnSubcptnCreatePaymt,
+  SubCreatePaymtPayload,
+  VerifyPaymtReq,
+  VerifyPaymtResp,
+} from "../../../dtos/wasteplant/WasteplantDTO";
 
 export interface IPaymentService {
-  fetchPayments(data: FetchPaymentPayload): Promise<PaginatedPaymentsResult>
+  fetchPayments(data: FetchPaymentPayload): Promise<PaginatedPaymentsResult>;
   createPaymentOrder(
-    data: SubCreatePaymtPayload
+    data: SubCreatePaymtPayload,
   ): Promise<ReurnSubcptnCreatePaymt>;
-  verifyPaymentService(
-    data: VerifyPaymtReq
-  ): Promise<VerifyPaymtResp>;
+  verifyPaymentService(data: VerifyPaymtReq): Promise<VerifyPaymtResp>;
   fetchSubscriptionPayments(
-    plantId: string
+    plantId: string,
   ): Promise<ReturnSubcptnPaymentResult>;
   retrySubscriptionPayment(data: RetrySubPaymntReq): Promise<RetrySubPaymntRes>;
-  updateRefundStatusPayment(data: UpdateStatusReq): Promise<RefundStatusUpdateResp>;
+  updateRefundStatusPayment(
+    data: UpdateStatusReq,
+  ): Promise<RefundStatusUpdateResp>;
   refundPayment(plantId: string, data: RefundDataReq): Promise<PickupReqDTO>;
 }

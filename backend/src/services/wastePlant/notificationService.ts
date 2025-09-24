@@ -16,11 +16,12 @@ export class NotificationService implements INotificationService {
     @inject(TYPES.WasteCollectionRepository)
     private wasteCollectionRepository: IWasteCollectionRepository,
     @inject(TYPES.PickupRepository)
-    private pickupRepository: IPickupRepository
+    private pickupRepository: IPickupRepository,
   ) {}
 
   async getNotifications(wasteplantId: string) {
-    const notifications =  await this.notificationRepository.findByReceiverId(wasteplantId);
+    const notifications =
+      await this.notificationRepository.findByReceiverId(wasteplantId);
     if (!notifications) {
       throw new Error("Notification not found.");
     }
@@ -28,11 +29,10 @@ export class NotificationService implements INotificationService {
   }
   async markNotificationAsRead(
     notifId: string,
-    plantId: string
+    plantId: string,
   ): Promise<NotificationDTO> {
-    const notification = await this.notificationRepository.markAsReadById(
-      notifId
-    );
+    const notification =
+      await this.notificationRepository.markAsReadById(notifId);
     if (!notification || !notification.message) {
       throw new Error("Notification not found.");
     }
@@ -46,14 +46,14 @@ export class NotificationService implements INotificationService {
       const pickupReq = await this.pickupRepository.getPickupWithUserAndPlantId(
         plantId,
         notification.senderId.toString(),
-        pickupId
+        pickupId,
       );
       if (!pickupReq) {
         throw new Error("PickupRequest not found.");
       }
       pickupReq.payment.refundStatus = "Pending";
       await pickupReq.save();
-      
+
       const io = globalThis.io;
 
       const userId = pickupReq.userId.toString();

@@ -17,7 +17,6 @@ cron.schedule("0 9 * * *", async () => {
     throw new Error("No superadmin found");
   }
   for (const plant of plants) {
-
     await sendNotification({
       receiverId: plant._id.toString(),
       receiverType: plant.role,
@@ -30,6 +29,5 @@ cron.schedule("0 9 * * *", async () => {
     await WastePlantModel.findByIdAndUpdate(plant._id, {
       subscribeNotificationSent: true,
     });
-
   }
 });

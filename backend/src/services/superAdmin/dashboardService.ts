@@ -23,11 +23,12 @@ export class DashboardService implements IDashboardService {
     @inject(TYPES.WasteCollectionRepository)
     private _wasteCollectionRepository: IWasteCollectionRepository,
     @inject(TYPES.PickupRepository)
-    private _pickupRepository: IPickupRepository
-    
+    private _pickupRepository: IPickupRepository,
   ) {}
-  async fetchSuperAdminDashboard(adminId: string): Promise<SuperAdminDashboardData> {
-       const admin = await this._superAdminRepository.getSuperAdminById(adminId);
+  async fetchSuperAdminDashboard(
+    adminId: string,
+  ): Promise<SuperAdminDashboardData> {
+    const admin = await this._superAdminRepository.getSuperAdminById(adminId);
     if (!admin) {
       throw new Error("Admin not found.");
     }
@@ -39,16 +40,24 @@ export class DashboardService implements IDashboardService {
     const totalPlants = await this._wastePlantRepository.getTotalWastePlants();
     const totalTrucks = await this._truckRepository.getTotalTrucks();
     const totalDrivers = await this._driverRepository.getTotalDrivers();
-    const totalWasteCollected = await this._wasteCollectionRepository.getTotalWasteCollected();
-    const monthlyRevenue = await this._pickupRepository.totalRevenueByMonth()
-    console.log({adminData,totalPlants,totalTrucks,totalDrivers,totalWasteCollected,monthlyRevenue});
-     return {
-    adminData,
-    totalPlants,
-    totalTrucks,
-    totalDrivers,
-    totalWasteCollected,
-    monthlyRevenue,
-  };
+    const totalWasteCollected =
+      await this._wasteCollectionRepository.getTotalWasteCollected();
+    const monthlyRevenue = await this._pickupRepository.totalRevenueByMonth();
+    console.log({
+      adminData,
+      totalPlants,
+      totalTrucks,
+      totalDrivers,
+      totalWasteCollected,
+      monthlyRevenue,
+    });
+    return {
+      adminData,
+      totalPlants,
+      totalTrucks,
+      totalDrivers,
+      totalWasteCollected,
+      monthlyRevenue,
+    };
   }
 }

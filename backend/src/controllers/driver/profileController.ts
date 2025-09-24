@@ -11,19 +11,19 @@ import { AuthRequest } from "../../dtos/base/BaseDTO";
 export class ProfileController implements IProfileController {
   constructor(
     @inject(TYPES.DriverProfileService)
-    private profileService: IProfileService
+    private profileService: IProfileService,
   ) {}
   async getProfile(
     req: AuthRequest,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ): Promise<void> {
     try {
       const driverId = req.user?.id;
       if (!driverId) {
         throw new ApiError(
           STATUS_CODES.UNAUTHORIZED,
-          MESSAGES.COMMON.ERROR.UNAUTHORIZED
+          MESSAGES.COMMON.ERROR.UNAUTHORIZED,
         );
       }
       const driver = await this.profileService.getDriverProfile(driverId);
@@ -35,7 +35,7 @@ export class ProfileController implements IProfileController {
   async updateProfile(
     req: AuthRequest,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ): Promise<void> {
     try {
       const driverId = req.user?.id;
@@ -43,17 +43,17 @@ export class ProfileController implements IProfileController {
       if (!driverId) {
         throw new ApiError(
           STATUS_CODES.UNAUTHORIZED,
-          MESSAGES.COMMON.ERROR.UNAUTHORIZED
+          MESSAGES.COMMON.ERROR.UNAUTHORIZED,
         );
       }
       const updatedDriver = await this.profileService.updateDriverProfile(
         driverId,
-        updatedData
+        updatedData,
       );
-      res.status(STATUS_CODES.SUCCESS).json({ 
+      res.status(STATUS_CODES.SUCCESS).json({
         updatedDriver,
-        message: MESSAGES.DRIVER.SUCCESS.UPDATE_DRIVER
-       });
+        message: MESSAGES.DRIVER.SUCCESS.UPDATE_DRIVER,
+      });
     } catch (error) {
       next(error);
     }
@@ -61,7 +61,7 @@ export class ProfileController implements IProfileController {
   async getDriversByWastePlant(
     req: Request,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ): Promise<void> {
     try {
       const wastePlantId = req.query.wastePlantId as string;
@@ -69,12 +69,11 @@ export class ProfileController implements IProfileController {
       if (!wastePlantId) {
         throw new ApiError(
           STATUS_CODES.UNAUTHORIZED,
-          MESSAGES.COMMON.ERROR.UNAUTHORIZED
+          MESSAGES.COMMON.ERROR.UNAUTHORIZED,
         );
       }
-      const drivers = await this.profileService.fetchDriversService(
-        wastePlantId
-      );
+      const drivers =
+        await this.profileService.fetchDriversService(wastePlantId);
 
       res.status(STATUS_CODES.SUCCESS).json({ drivers });
     } catch (error) {

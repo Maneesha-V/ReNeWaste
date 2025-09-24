@@ -19,7 +19,14 @@ import {
   SubCreatePaymtReq,
   SubCreatePaymtResp,
 } from "../../dtos/subscription/subscptnPaymentDTO";
-import { FetchPaymentPayload, PaginatedPaymentsResult, RefundDataReq, ReturnSubcptnPaymentResult, VerifyPaymtReq, VerifyPaymtResp } from "../../dtos/wasteplant/WasteplantDTO";
+import {
+  FetchPaymentPayload,
+  PaginatedPaymentsResult,
+  RefundDataReq,
+  ReturnSubcptnPaymentResult,
+  VerifyPaymtReq,
+  VerifyPaymtResp,
+} from "../../dtos/wasteplant/WasteplantDTO";
 import { sendNotification } from "../../utils/notificationUtils";
 import { SubscriptionPaymentMapper } from "../../mappers/SubscriptionPaymentMapper";
 import { PickupRequestMapper } from "../../mappers/PIckupReqMapper";
@@ -39,14 +46,14 @@ export class PaymentService implements IPaymentService {
     @inject(TYPES.NotificationRepository)
     private notificationRepository: INotificationRepository,
     @inject(TYPES.SuperAdminRepository)
-    private superAdminRepository: ISuperAdminRepository
+    private superAdminRepository: ISuperAdminRepository,
   ) {
     const key_id = process.env.RAZORPAY_KEY_ID!;
     const key_secret = process.env.RAZORPAY_KEY_SECRET!;
 
     if (!key_id || !key_secret) {
       throw new Error(
-        "Razorpay API keys are not defined in environment variables"
+        "Razorpay API keys are not defined in environment variables",
       );
     }
 
@@ -56,18 +63,16 @@ export class PaymentService implements IPaymentService {
     });
   }
   async fetchPayments(
-    data: FetchPaymentPayload
+    data: FetchPaymentPayload,
   ): Promise<PaginatedPaymentsResult> {
     return await this.pickupRepository.fetchAllPaymentsByPlantId(data);
   }
 
   async createPaymentOrder(
-    data: SubCreatePaymtReq
+    data: SubCreatePaymtReq,
   ): Promise<SubCreatePaymtResp> {
-  
     const { plantId, planId } = data;
-    const plant = await this.wastePlantRepository.getWastePlantById(plantId)
- 
+    const plant = await this.wastePlantRepository.getWastePlantById(plantId);
 
     if (!plant) {
       throw new Error("Plant not found.");
@@ -76,14 +81,14 @@ export class PaymentService implements IPaymentService {
     //   throw new Error("Subscription plan not found.");
     // }
     const existingPlan = await this.subscriptionRepository.checkPlanNameExist(
-      plant.subscriptionPlan!
+      plant.subscriptionPlan!,
     );
     if (!existingPlan || existingPlan.status !== "Active") {
       throw new Error("This subscription plan is not active.");
     }
     const existingInProgressPayment =
       await this.subscriptionPaymentRepository.findLatestInProgressPayment(
-        plantId
+        plantId,
       );
 
     const now = new Date();
@@ -106,10 +111,10 @@ export class PaymentService implements IPaymentService {
         (existingInProgressPayment.inProgressExpiresAt.getTime() -
           now.getTime()) /
           1000 /
-          60
+          60,
       );
       throw new Error(
-        `A payment is already in progress. Please try again after ${remainingMinutes} minutes.`
+        `A payment is already in progress. Please try again after ${remainingMinutes} minutes.`,
       );
     }
 
@@ -151,9 +156,7 @@ export class PaymentService implements IPaymentService {
     };
   }
 
-  async verifyPaymentService(
-    data: VerifyPaymtReq
-  ): Promise<VerifyPaymtResp> {
+  async verifyPaymentService(data: VerifyPaymtReq): Promise<VerifyPaymtResp> {
     const { paymentData, plantId } = data;
     console.log("paymentData", paymentData);
 
@@ -185,7 +188,7 @@ export class PaymentService implements IPaymentService {
       amount: paymentData.amount,
       paidAt,
       expiredAt,
-      inProgressExpiresAt: null
+      inProgressExpiresAt: null,
     };
 
     const updatedPayment =
@@ -198,7 +201,9 @@ export class PaymentService implements IPaymentService {
     if (!plant) {
       throw new Error("Plant not found to update status to Active.");
     }
-    const plan = await this.subscriptionRepository.getSubscriptionPlanById(paymentData.planId);
+    const plan = await this.subscriptionRepository.getSubscriptionPlanById(
+      paymentData.planId,
+    );
     if (!plan) {
       throw new Error("Plan not exist.");
     }
@@ -225,11 +230,11 @@ export class PaymentService implements IPaymentService {
 
     return {
       subPayId: updatedPayment._id.toString(),
-      expiredAt: updatedPayment.expiredAt
+      expiredAt: updatedPayment.expiredAt,
     };
   }
   async fetchSubscriptionPayments(
-    plantId: string
+    plantId: string,
   ): Promise<ReturnSubcptnPaymentResult> {
     const plant = await this.wastePlantRepository.getWastePlantById(plantId);
     if (!plant) {
@@ -239,14 +244,14 @@ export class PaymentService implements IPaymentService {
       throw new Error("Subscription plan not found for this plant.");
     }
     const subptnPlanData = await this.subscriptionRepository.checkPlanNameExist(
-      plant?.subscriptionPlan
+      plant?.subscriptionPlan,
     );
     if (!subptnPlanData || !subptnPlanData._id) {
       throw new Error("Subscription plan not exist.");
     }
     const paymentData =
       await this.subscriptionPaymentRepository.findSubscriptionPayments(
-        plantId
+        plantId,
       );
     if (!paymentData) {
       throw new Error("Subscription paymnets not found.");
@@ -274,17 +279,19 @@ export class PaymentService implements IPaymentService {
       }
     }
 
-    return { 
-      paymentData: SubscriptionPaymentMapper.mapPopulatedList(paymentData ?? []), 
+    return {
+      paymentData: SubscriptionPaymentMapper.mapPopulatedList(
+        paymentData ?? [],
+      ),
     };
   }
   async retrySubscriptionPayment(
-    data: RetrySubPaymntReq
+    data: RetrySubPaymntReq,
   ): Promise<RetrySubPaymntRes> {
     const { plantId, planId, amount, subPaymtId } = data;
     const subptnPaymentData =
       await this.subscriptionPaymentRepository.findSubscriptionPaymentById(
-        subPaymtId
+        subPaymtId,
       );
     if (!subptnPaymentData) {
       throw new Error("Payment not found.");
@@ -305,10 +312,10 @@ export class PaymentService implements IPaymentService {
     ) {
       const waitTime = Math.ceil(
         (subptnPaymentData.inProgressExpiresAt.getTime() - now.getTime()) /
-          60000
+          60000,
       );
       throw new Error(
-        `Another payment is in progress. Try again in ${waitTime} minutes.`
+        `Another payment is in progress. Try again in ${waitTime} minutes.`,
       );
     }
 
@@ -331,7 +338,7 @@ export class PaymentService implements IPaymentService {
     const updatedData =
       await this.subscriptionPaymentRepository.updateSubscriptionPaymentById(
         subptnPaymentData._id.toString(),
-        paymentUpdate
+        paymentUpdate,
       );
     if (!updatedData.razorpayOrderId || !updatedData.planId) {
       throw new Error("Can't update payment");
@@ -347,7 +354,7 @@ export class PaymentService implements IPaymentService {
     };
   }
   async updateRefundStatusPayment(
-    data: UpdateStatusReq
+    data: UpdateStatusReq,
   ): Promise<RefundStatusUpdateResp> {
     const { plantId, statusUpdateData } = data;
     const { pickupReqId, status } = statusUpdateData;
@@ -373,16 +380,16 @@ export class PaymentService implements IPaymentService {
           hour: "2-digit",
           minute: "2-digit",
           hour12: true,
-        }
+        },
       );
       throw new Error(
-        `Refund is already being processed. Try again after ${expireTime}.`
+        `Refund is already being processed. Try again after ${expireTime}.`,
       );
     }
     pickupReq.payment.refundStatus = status;
     if (status === "Processing") {
       pickupReq.payment.inProgressExpiresAt = new Date(
-        Date.now() + 5 * 60 * 1000
+        Date.now() + 5 * 60 * 1000,
       );
     } else {
       pickupReq.payment.inProgressExpiresAt = null;
@@ -417,7 +424,7 @@ export class PaymentService implements IPaymentService {
   }
   async refundPayment(plantId: string, data: RefundDataReq) {
     const pickupReq = await this.pickupRepository.getPickupById(
-      data.pickupReqId
+      data.pickupReqId,
     );
     console.log("pickupReq", pickupReq);
 
@@ -433,7 +440,7 @@ export class PaymentService implements IPaymentService {
 
     try {
       const paymentDetails = await this.razorpay.payments.fetch(
-        data.razorpayPaymentId
+        data.razorpayPaymentId,
       );
       console.log("paymentDetails", paymentDetails);
       if (paymentDetails.status !== "captured") {
@@ -445,7 +452,7 @@ export class PaymentService implements IPaymentService {
           {
             amount: paymentDetails.amount,
             speed: "normal",
-          }
+          },
         );
 
         pickupReq.payment.razorpayRefundId = refund.id;

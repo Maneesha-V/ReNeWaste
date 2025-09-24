@@ -12,16 +12,16 @@ export interface SubsptnPlansDTO extends BaseDTO {
   userLimit?: number;
   status?: string;
   isDeleted?: boolean;
-};
+}
 export type updateSubscptnReq = {
   id: string;
-  data: Partial<SubsptnPlansDTO>; 
+  data: Partial<SubsptnPlansDTO>;
 };
 export type PaginatedSubsptnPlansResult = {
   subscriptionPlans: ISubscriptionPlanDocument[];
   total: number;
-}
+};
 export type FetchSubscriptionPlansResp = {
   subscriptionPlans: SubsptnPlansDTO[];
   total: number;
-}
+};

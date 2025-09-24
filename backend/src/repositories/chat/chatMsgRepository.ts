@@ -13,7 +13,7 @@ export class ChatMsgRepository
     super(ChatMessageModel);
   }
   async findChatMsgByConversationId(
-    conversationId: string
+    conversationId: string,
   ): Promise<IChatMessageDocument[]> {
     return await this.model.find({ conversationId }).sort({
       createdAt: 1,

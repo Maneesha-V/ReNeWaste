@@ -1,8 +1,13 @@
 import mongoose, { Document, Types } from "mongoose";
 
 export type PaymentStatus = "Pending" | "InProgress" | "Paid" | "Failed";
-export type RefundStatus = "Pending" | "Processing" | "Refunded" | "Rejected" | null;
-export interface ISubscriptionPayment  {
+export type RefundStatus =
+  | "Pending"
+  | "Processing"
+  | "Refunded"
+  | "Rejected"
+  | null;
+export interface ISubscriptionPayment {
   wasteplantId: mongoose.Types.ObjectId;
   planId: mongoose.Types.ObjectId;
   status: PaymentStatus;

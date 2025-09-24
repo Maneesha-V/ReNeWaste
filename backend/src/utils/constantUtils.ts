@@ -14,7 +14,7 @@ export const MESSAGES = {
       LOGOUT: "Logged out Successfully",
       PROFILE_UPDATED: "Your profile is updated successfully",
       PASSWORD_CHANGED: "Password changed successfully",
-      REFUND_UPDTAE_SUCCESS : "Update refund status successfully.",
+      REFUND_UPDTAE_SUCCESS: "Update refund status successfully.",
       REFUND_SUCCESS: "Refund process success.",
       RETRY_ORDER_PAY_SUCCESS: "Retry payment order suceess.",
       SIGNUP: "Signup successfully.",
@@ -22,8 +22,8 @@ export const MESSAGES = {
       SEND_NOTIFICATION: "Send notification successfully.",
       BLOCK_UPDATE: "Block status updated successfully.",
       PICKUP_APPROVE: "Pickup approved successfully.",
-      PICKUP_CANCEL:"Pickup request canceled successfully.",
-      PICKUP_RESCHEDULE:"Pickup rescheduled successfully.",
+      PICKUP_CANCEL: "Pickup request canceled successfully.",
+      PICKUP_RESCHEDULE: "Pickup rescheduled successfully.",
     },
     ERROR: {
       FETCH_PAYMENT_FAIL: "Fetch payments failed.",
@@ -61,14 +61,15 @@ export const MESSAGES = {
       JWT_SECRET_MISSING: "JWT token is not configured",
       NO_TOKEN: "Token not found",
       POST_OFFICE_ERROR: "No post offices found for this PIN code.",
-      PINCODE_ALLOW_ERROR: "Only pincodes from Malappuram district are allowed.",
+      PINCODE_ALLOW_ERROR:
+        "Only pincodes from Malappuram district are allowed.",
       INVALID_ROLE: "Invalid user role.",
       OTP_SENT: "Failed to send OTP.",
       RESENT_OTP: "Failed to resend OTP.",
       REFRESH_TOKEN: "No refresh token provided.",
       SIGNUP: "Signup failed.",
       INVALID_REFUND_STATUS: "Invalid refund status.",
-      LOCATION_REQUIRED: "Location is required."
+      LOCATION_REQUIRED: "Location is required.",
     },
   },
   WASTEPLANT: {
@@ -93,7 +94,7 @@ export const MESSAGES = {
       ASSIGN_TRUCK_DRIVER: "Assign truck to driver successfully.",
       FETCH_USER: "Fetch users successfully.",
       FETCH_WASTE_REPORT: "Fetch waste reports successfully.",
-      FETCH_FILTER_WASTE_REPORT: "Fetch filter waste reports successfully."
+      FETCH_FILTER_WASTE_REPORT: "Fetch filter waste reports successfully.",
     },
     ERROR: {
       ID_REQUIRED: "Plant ID is required.",
@@ -115,12 +116,11 @@ export const MESSAGES = {
       TRUCK_REQ_SENT: "Truck request sent successfully.",
       MARK_RETURN_TRUCK: "Truck marked as returned.",
       MARK_PICKUP_COMPLETED: "Marked pickup as completed.",
-
     },
     ERROR: {
       IMG_ERRROR: "Both license front and back images are required.",
       LAT_LONG_REQUIRED: "Latitude and longitude are required.",
-      STATUS_REQUIRED: "TrackingStatus is required."
+      STATUS_REQUIRED: "TrackingStatus is required.",
     },
   },
   USER: {
@@ -131,7 +131,7 @@ export const MESSAGES = {
       PICKUP_UPDATED: "Pickup updated successfully.",
       PICKUP_CREATED: "Pickup created successfully.",
       FETCH_DROPSPOTS: "Fetch dropspots successfully.",
-      PROFILE_UPDATE: "Profile updated successfully."
+      PROFILE_UPDATE: "Profile updated successfully.",
     },
     ERROR: {
       NOT_FOUND: "User not found.",
@@ -142,7 +142,7 @@ export const MESSAGES = {
       PICKUP_CREATED: "Failed to create pickup.",
       FETCH_PROFILE: "Failed to fetch Profile.",
       FETCH_EDIT_PROFILE: "Failed to fetch edit profile.",
-      PROFILE_UPDATE: "Failed to update profile."
+      PROFILE_UPDATE: "Failed to update profile.",
     },
   },
 
@@ -155,7 +155,7 @@ export const MESSAGES = {
       SUBSCRIPTION_DELETED: "Subscription deleted successfully",
       PAYMENT_HISTORY: "Fetch payment history successfully",
       SUBSCRIPTION_PLANS: "Fetch subscription plans successfully.",
-      ADD_WASTEPLANT: "Fetch add wasteplant succesfully."
+      ADD_WASTEPLANT: "Fetch add wasteplant succesfully.",
     },
     ERROR: {
       FAILED_DOC_VERIFY: "Document verification failed",

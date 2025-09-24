@@ -5,9 +5,11 @@ import BaseRepository from "../baseRepository/baseRepository";
 import { IOtpRepository } from "./interface/IOtpRepository";
 import { OtpRecord } from "../../dtos/user/otpDTO";
 
-
 @injectable()
-export class OtpRepository extends BaseRepository<IOtpDocument> implements IOtpRepository {
+export class OtpRepository
+  extends BaseRepository<IOtpDocument>
+  implements IOtpRepository
+{
   constructor() {
     super(OTPModel);
   }
@@ -20,7 +22,7 @@ export class OtpRepository extends BaseRepository<IOtpDocument> implements IOtpR
     await this.model.findOneAndUpdate(
       { email },
       { otp, createdAt: new Date() },
-      { new: true, upsert: true }
+      { new: true, upsert: true },
     );
   }
 

@@ -39,5 +39,5 @@ export const wasteCollectionSchema: Schema<IWasteCollectionDocument> =
     },
     {
       timestamps: true,
-    }
+    },
   );

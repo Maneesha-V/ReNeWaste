@@ -1,7 +1,11 @@
 import { Response } from "express";
 import { AxiosError } from "axios";
 
-export function handleControllerError(error: unknown, res: Response, status: number): void {
+export function handleControllerError(
+  error: unknown,
+  res: Response,
+  status: number,
+): void {
   if (isAxiosError(error)) {
     console.error("Axios Error:", error.message);
     res.status(status).json({ message: error.message });

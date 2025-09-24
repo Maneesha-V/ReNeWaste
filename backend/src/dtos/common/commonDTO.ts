@@ -1,13 +1,13 @@
 export interface PaginationInput {
-    page: number,
-    limit: number,
-    search: string,
-    filter?: string
-    minCapacity?: number,
-    maxCapacity?: number,
+  page: number;
+  limit: number;
+  search: string;
+  filter?: string;
+  minCapacity?: number;
+  maxCapacity?: number;
 }
 export interface SendOtpResponse {
-    message: string; 
+  message: string;
 }
 export type DashboardDataResp = {
   summary: {

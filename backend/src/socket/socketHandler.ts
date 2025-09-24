@@ -6,7 +6,6 @@ import { WastePlantModel } from "../models/wastePlant/wastePlantModel";
 import { SuperAdminModel } from "../models/superAdmin/superAdminModel";
 import { ChatMessage } from "../dtos/chatMessage/chatMessageDTO";
 
-
 async function findRoleById(id: string): Promise<string | null> {
   const [driver, user, wasteplant, superadmin] = await Promise.all([
     DriverModel.findById(id).select("_id").lean(),
@@ -62,11 +61,11 @@ export default function socketHandler(socket: Socket, io: Server) {
     socket.join(pickupReqId);
     console.log(`Socket ${socket.id} joined pickup room: ${pickupReqId}`);
   });
-socket.on("joinNotificationRoom", (plantId: string) => {
-  // const roomName = `notif_${plantId}`;
-  socket.join(plantId);
-  console.log(`Socket ${socket.id} joined notification room: ${plantId}`);
-});
+  socket.on("joinNotificationRoom", (plantId: string) => {
+    // const roomName = `notif_${plantId}`;
+    socket.join(plantId);
+    console.log(`Socket ${socket.id} joined notification room: ${plantId}`);
+  });
 
   // Real-time location update from driver
   socket.on("driverLocationUpdate", ({ pickupReqId, latitude, longitude }) => {

@@ -21,5 +21,5 @@ export interface IDriver {
   updatedAt: Date;
 }
 export interface IDriverDocument extends IDriver, Document {
-    _id: Types.ObjectId;
-  }
+  _id: Types.ObjectId;
+}

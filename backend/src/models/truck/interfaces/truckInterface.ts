@@ -14,5 +14,5 @@ export interface ITruck {
   updatedAt: Date;
 }
 export interface ITruckDocument extends ITruck, Document {
-    _id: Types.ObjectId;
-  }
+  _id: Types.ObjectId;
+}

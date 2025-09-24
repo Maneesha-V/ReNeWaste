@@ -10,7 +10,9 @@ const imageStorage = multer.diskStorage({
 
 const imageFileFilter = (req: any, file: Express.Multer.File, cb: any) => {
   const allowedTypes = /jpeg|jpg|png|jfif/;
-  const extValid = allowedTypes.test(path.extname(file.originalname).toLowerCase());
+  const extValid = allowedTypes.test(
+    path.extname(file.originalname).toLowerCase(),
+  );
   const mimeValid = allowedTypes.test(file.mimetype);
 
   if (extValid && mimeValid) {

@@ -10,34 +10,41 @@ import TYPES from "../../config/inversify/types";
 import { ISuperAdminRepository } from "../../repositories/superAdmin/interface/ISuperAdminRepository";
 import { IUserRepository } from "../../repositories/user/interface/IUserRepository";
 import { SuperAdminMapper } from "../../mappers/SuperAdminMapper";
-import { SuperAdminLoginRequest, SuperAdminLoginResponse, SuperAdminSignupRequest } from "../../dtos/superadmin/superadminDTO";
-
+import {
+  SuperAdminLoginRequest,
+  SuperAdminLoginResponse,
+  SuperAdminSignupRequest,
+} from "../../dtos/superadmin/superadminDTO";
 
 @injectable()
 export class SuperAdminAuthService implements ISuperAdminAuthService {
-    constructor(
+  constructor(
     @inject(TYPES.SuperAdminRepository)
     private superAdminRepository: ISuperAdminRepository,
 
     @inject(TYPES.UserRepository)
-    private userRepository: IUserRepository
+    private userRepository: IUserRepository,
   ) {}
   async verifyToken(token: string) {
     try {
-      const decoded = jwt.verify(token, process.env.JWT_REFRESH_SECRET!) as { userId: string, role:string };
-      const admin = await this.superAdminRepository.getSuperAdminById(decoded.userId);
+      const decoded = jwt.verify(token, process.env.JWT_REFRESH_SECRET!) as {
+        userId: string;
+        role: string;
+      };
+      const admin = await this.superAdminRepository.getSuperAdminById(
+        decoded.userId,
+      );
       if (!admin) {
         throw new Error("Admin not found");
       }
-  
+
       const accessToken = jwt.sign(
         // { userId: admin._id, role: admin.role },
         { userId: decoded.userId, role: decoded.role },
         process.env.JWT_SECRET!,
-        { expiresIn: "15min" }
+        { expiresIn: "15min" },
       );
-      return {  token: accessToken};
-
+      return { token: accessToken };
     } catch (error) {
       throw new Error("Invalid or expired refresh token");
     }
@@ -60,7 +67,10 @@ export class SuperAdminAuthService implements ISuperAdminAuthService {
       throw new Error("Invalid email or password.");
     }
 
-    const token = generateToken({userId:admin._id.toString(),role:admin.role});
+    const token = generateToken({
+      userId: admin._id.toString(),
+      role: admin.role,
+    });
     return { admin: SuperAdminMapper.mapSuperAdminDTO(admin), token };
   }
   async adminSignupService({
@@ -68,13 +78,13 @@ export class SuperAdminAuthService implements ISuperAdminAuthService {
     email,
     password,
   }: SuperAdminSignupRequest): Promise<boolean> {
-    const existingAdmin = await this.superAdminRepository.findAdminByEmail(email);
+    const existingAdmin =
+      await this.superAdminRepository.findAdminByEmail(email);
     if (existingAdmin) {
       throw new Error("Email already exists. Please use a different email.");
     }
-    const existingUsername = await this.superAdminRepository.findAdminByUsername(
-      username
-    );
+    const existingUsername =
+      await this.superAdminRepository.findAdminByUsername(username);
     if (existingUsername) {
       throw new Error("Username already exists.");
     }
@@ -90,8 +100,8 @@ export class SuperAdminAuthService implements ISuperAdminAuthService {
       });
     // const token = generateToken({userId:newAdmin._id.toString(),role:newAdmin.role});
     // return { admin: SuperAdminMapper.mapSuperAdminDTO(newAdmin), token };
-    if(!newAdmin){
-      throw new Error("Admin not created.")
+    if (!newAdmin) {
+      throw new Error("Admin not created.");
     }
     return true;
   }
@@ -106,7 +116,7 @@ export class SuperAdminAuthService implements ISuperAdminAuthService {
     await sendEmail(
       email,
       "Your OTP Code",
-      `Your OTP code is: ${otp}. It will expire in 30s.`
+      `Your OTP code is: ${otp}. It will expire in 30s.`,
     );
     return true;
   }
@@ -121,7 +131,7 @@ export class SuperAdminAuthService implements ISuperAdminAuthService {
     await sendEmail(
       email,
       "Your Resend OTP Code",
-      `Your Resend OTP code is: ${otp}. It will expire in 30s.`
+      `Your Resend OTP code is: ${otp}. It will expire in 30s.`,
     );
     return true;
   }
@@ -142,14 +152,15 @@ export class SuperAdminAuthService implements ISuperAdminAuthService {
   }
   async resetPasswordService(
     email: string,
-    newPassword: string
+    newPassword: string,
   ): Promise<boolean> {
     const superAdmin = await this.superAdminRepository.findAdminByEmail(email);
     if (!superAdmin) throw new Error("Superadmin not found");
     const hashedPassword = await bcrypt.hash(newPassword, 10);
-    const updated =await this.superAdminRepository.updateAdminPassword(email, hashedPassword);
+    const updated = await this.superAdminRepository.updateAdminPassword(
+      email,
+      hashedPassword,
+    );
     return !!updated;
   }
 }
-
-

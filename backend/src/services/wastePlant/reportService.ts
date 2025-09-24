@@ -14,20 +14,26 @@ export class ReportService implements IReportService {
     @inject(TYPES.PickupRepository)
     private pickupRepository: IPickupRepository,
     @inject(TYPES.WasteCollectionRepository)
-    private wasteCollectionRepository: IWasteCollectionRepository
+    private wasteCollectionRepository: IWasteCollectionRepository,
   ) {}
   async getWasteReports(plantId: string) {
-    const wastereports = await this.wasteCollectionRepository.fetchWasteCollectionReportsByPlantId(plantId);
-    if(!wastereports){
-      throw new Error("Waste report not found.")
+    const wastereports =
+      await this.wasteCollectionRepository.fetchWasteCollectionReportsByPlantId(
+        plantId,
+      );
+    if (!wastereports) {
+      throw new Error("Waste report not found.");
     }
     return WasteCollectionMapper.mapWasteCollectionsDTO(wastereports);
   }
-  async filterWasteReports(data: FilterReport){
+  async filterWasteReports(data: FilterReport) {
     const { plantId, from, to } = data;
-    const wastereports =  await this.wasteCollectionRepository.filterWasteCollectionReportsByPlantId(data);
-    if(!wastereports){
-      throw new Error("Waste report not found.")
+    const wastereports =
+      await this.wasteCollectionRepository.filterWasteCollectionReportsByPlantId(
+        data,
+      );
+    if (!wastereports) {
+      throw new Error("Waste report not found.");
     }
     return WasteCollectionMapper.mapWasteCollectionsDTO(wastereports);
   }

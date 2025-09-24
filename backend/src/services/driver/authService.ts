@@ -13,34 +13,34 @@ import { DriverMapper } from "../../mappers/DriverMapper";
 
 @injectable()
 export class AuthService implements IAuthService {
-    private driverRepository: IDriverRepository;
+  private driverRepository: IDriverRepository;
 
   constructor(
     @inject(TYPES.UserRepository)
     private userRepository: IUserRepository,
     @inject(TYPES.DriverRepositoryFactory)
-    getDriverRepo: () => IDriverRepository
+    getDriverRepo: () => IDriverRepository,
   ) {
-    this.driverRepository = getDriverRepo(); 
+    this.driverRepository = getDriverRepo();
   }
   async verifyToken(token: string): Promise<{ token: string }> {
-      const decoded = jwt.verify(token, process.env.JWT_REFRESH_SECRET!) as {
-        userId: string;
-        role: string;
-      };
-      const driver = await this.driverRepository.getDriverById(decoded.userId);
+    const decoded = jwt.verify(token, process.env.JWT_REFRESH_SECRET!) as {
+      userId: string;
+      role: string;
+    };
+    const driver = await this.driverRepository.getDriverById(decoded.userId);
 
-      if (!driver) {
-        throw new Error("Driver not found");
-      }
-     
-      const accessToken = jwt.sign(
-        { userId: driver._id, role: driver.role },
-        process.env.JWT_SECRET!,
-        { expiresIn: "15min" }
-      );
+    if (!driver) {
+      throw new Error("Driver not found");
+    }
 
-      return { token: accessToken };
+    const accessToken = jwt.sign(
+      { userId: driver._id, role: driver.role },
+      process.env.JWT_SECRET!,
+      { expiresIn: "15min" },
+    );
+
+    return { token: accessToken };
   }
   async loginDriver({ email, password }: LoginRequest): Promise<LoginResponse> {
     const driver = await this.driverRepository.findDriverByEmail(email);
@@ -52,9 +52,9 @@ export class AuthService implements IAuthService {
       userId: driver._id.toString(),
       role: driver.role,
     });
-    return { 
-      driver: DriverMapper.mapDriverDTO(driver), 
-      token 
+    return {
+      driver: DriverMapper.mapDriverDTO(driver),
+      token,
     };
   }
   async sendOtpService(email: string) {
@@ -68,7 +68,7 @@ export class AuthService implements IAuthService {
     await sendEmail(
       email,
       "Your OTP Code",
-      `Your OTP code is: ${otp}. It will expire in 30s.`
+      `Your OTP code is: ${otp}. It will expire in 30s.`,
     );
     return otp;
   }
@@ -83,7 +83,7 @@ export class AuthService implements IAuthService {
     await sendEmail(
       email,
       "Your Resend OTP Code",
-      `Your Resend OTP code is: ${otp}. It will expire in 30s.`
+      `Your Resend OTP code is: ${otp}. It will expire in 30s.`,
     );
     return otp;
   }
@@ -104,7 +104,7 @@ export class AuthService implements IAuthService {
   }
   async resetPasswordService(
     email: string,
-    newPassword: string
+    newPassword: string,
   ): Promise<void> {
     const driver = await this.driverRepository.findDriverByEmail(email);
     if (!driver) throw new Error("Driver not found");
@@ -112,4 +112,3 @@ export class AuthService implements IAuthService {
     await this.driverRepository.updateDriverPassword(email, hashedPassword);
   }
 }
-

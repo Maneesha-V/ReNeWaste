@@ -19,7 +19,7 @@ export interface WasteplantDTO extends BaseDTO {
   licenseNumber?: string;
   capacity?: number;
   status?: string;
-  subscriptionPlan?: string; 
+  subscriptionPlan?: string;
   role: Role;
   services?: string[];
   licenseDocumentPath: string;
@@ -68,7 +68,7 @@ export interface IWastePlant {
 export type LoginWPResponse = {
   wastePlant: WasteplantDTO;
   token: string;
-}
+};
 export interface IndiaPostAPIResponse {
   Status: string;
   PostOffice: PostOfficeEntry[] | null;
@@ -86,7 +86,7 @@ export interface PostOfficeEntry {
 export type PaginatedWPlantResult = {
   wasteplants: IWastePlantDocument[];
   total: number;
-}
+};
 export interface PaginatedWastePlantResult {
   wasteplants: WasteplantDTO[];
   total: number;
@@ -98,7 +98,7 @@ export interface ReturnAdminWastePlant {
     expiredAt?: Date;
     daysLeft?: number;
   } | null;
-};
+}
 export interface PaginatedReturnAdminWastePlants {
   total: number;
   wasteplants: ReturnAdminWastePlant[];
@@ -107,21 +107,21 @@ export type ReturnDeleteWP = {
   plantId: string;
 };
 export type PaymentData = {
-     razorpay_order_id: string;
-      razorpay_payment_id: string;
-      razorpay_signature: string;
-      planId: string;
-      amount: number;
-      billingCycle: string;
-}
+  razorpay_order_id: string;
+  razorpay_payment_id: string;
+  razorpay_signature: string;
+  planId: string;
+  amount: number;
+  billingCycle: string;
+};
 export type VerifyPaymtReq = {
-    paymentData: PaymentData;
-    plantId: string;
-}
+  paymentData: PaymentData;
+  plantId: string;
+};
 export type VerifyPaymtResp = {
   subPayId: string;
-  expiredAt: Date | null
-}
+  expiredAt: Date | null;
+};
 export type plantDataType = {
   createdAt: Date;
   status: string;
@@ -136,74 +136,74 @@ export type ReturnFetchSubptnPlan = {
 };
 
 export type ReturnSubcptnPaymentResult = {
-  paymentData: SubscriptionPaymentHisDTO[]; 
-}
+  paymentData: SubscriptionPaymentHisDTO[];
+};
 export type RefundDataReq = {
-  pickupReqId: string;  
+  pickupReqId: string;
   amount: number;
   razorpayPaymentId: string;
-}
+};
 export type FetchPaymentPayload = {
-  plantId: string
+  plantId: string;
   page: number;
   limit: number;
   search: string;
-}
+};
 export type PaginatedPaymentsResult = {
   payments: PaymentRecord[];
   total: number;
-}
+};
 export type PlanData = {
   planName: string;
   plantName: string;
   ownerName: string;
-}
+};
 
 export type RetryPaymntPayload = {
-    plantId: string;
-    planId: string;
-    amount: number;
-    subPaymtId: string;
-}
+  plantId: string;
+  planId: string;
+  amount: number;
+  subPaymtId: string;
+};
 export type ReturnRetryPaymntPayload = {
-    orderId: string;
-    amount: number;
-    currency: string;
-    planId: string;
-    expires: string;
-}
+  orderId: string;
+  amount: number;
+  currency: string;
+  planId: string;
+  expires: string;
+};
 export type SubCreatePaymtPayload = {
-      planId: string;
-      plantId: string;
-}
+  planId: string;
+  plantId: string;
+};
 export type ReurnSubcptnCreatePaymt = {
-    orderId: string;
-    amount: number;
-    currency: string;
-    subscriptionPaymentId: string;
-}
+  orderId: string;
+  amount: number;
+  currency: string;
+  subscriptionPaymentId: string;
+};
 export type FilterReport = {
-    from: string;
-    to: string;
-    plantId: string;
-}
-  export type PickupFilterParams = {
-    status?: string;
-    wasteType?: string;
-    plantId: string;
-  }
-  export type ApprovePickupDTO = {
+  from: string;
+  to: string;
+  plantId: string;
+};
+export type PickupFilterParams = {
+  status?: string;
+  wasteType?: string;
+  plantId: string;
+};
+export type ApprovePickupDTO = {
   plantId: string;
   pickupReqId: string;
   status: string;
   driverId: string;
   assignedTruckId: string;
-}
+};
 
 export type ReschedulePickupDTO = {
   driverId: string;
   assignedZone: string;
-  rescheduledPickupDate: string; 
+  rescheduledPickupDate: string;
   pickupTime: string;
   status: string;
-}
+};

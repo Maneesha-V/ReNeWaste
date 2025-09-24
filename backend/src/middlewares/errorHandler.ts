@@ -6,10 +6,12 @@ export const errorHandler: ErrorRequestHandler = (
   err: unknown,
   req: Request,
   res: Response,
-  next: NextFunction
-): void  => {
+  next: NextFunction,
+): void => {
   if (isAxiosError(err)) {
-    res.status(502).json({ message: "External API error", detail: err.message });
+    res
+      .status(502)
+      .json({ message: "External API error", detail: err.message });
     return;
   }
 

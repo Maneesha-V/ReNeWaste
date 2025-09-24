@@ -1,6 +1,6 @@
 import { NotificationDTO } from "../../../dtos/notification/notificationDTO";
 
 export interface INotificationService {
-    getNotifications(userId: string) : Promise<NotificationDTO[]>;
-    markNotificationAsRead(notifId: string): Promise<NotificationDTO>;
+  getNotifications(userId: string): Promise<NotificationDTO[]>;
+  markNotificationAsRead(notifId: string): Promise<NotificationDTO>;
 }

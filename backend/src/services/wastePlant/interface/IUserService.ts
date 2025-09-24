@@ -5,12 +5,12 @@ export interface IUserService {
     wasteplantId: string,
     page: number,
     limit: number,
-    search: string
+    search: string,
   ): Promise<PaginatedResult>;
 
   userBlockStatusService(
     wasteplantId: string,
     userId: string,
-    isBlocked: boolean
+    isBlocked: boolean,
   ): Promise<UserDTO>;
 }

@@ -11,26 +11,25 @@ import { AuthRequest } from "../../dtos/base/BaseDTO";
 export class NotificationController implements INotificationController {
   constructor(
     @inject(TYPES.PlantNotificationService)
-    private _notificationService: INotificationService
+    private _notificationService: INotificationService,
   ) {}
 
   async fetchNotifications(
     req: AuthRequest,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ): Promise<void> {
     try {
       const wasteplantId = req.user?.id;
       if (!wasteplantId) {
         throw new ApiError(
           STATUS_CODES.UNAUTHORIZED,
-          MESSAGES.COMMON.ERROR.UNAUTHORIZED
+          MESSAGES.COMMON.ERROR.UNAUTHORIZED,
         );
       }
-      const notifications = await this._notificationService.getNotifications(
-        wasteplantId
-      );
-      res.status(STATUS_CODES.SUCCESS).json({notifications: notifications});
+      const notifications =
+        await this._notificationService.getNotifications(wasteplantId);
+      res.status(STATUS_CODES.SUCCESS).json({ notifications: notifications });
     } catch (error) {
       console.error("Error fetching notifications:", error);
       next(error);
@@ -39,7 +38,7 @@ export class NotificationController implements INotificationController {
   async markReadNotification(
     req: AuthRequest,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ): Promise<void> {
     try {
       const { notifId } = req.params;
@@ -47,13 +46,18 @@ export class NotificationController implements INotificationController {
       if (!plantId) {
         throw new ApiError(
           STATUS_CODES.UNAUTHORIZED,
-          MESSAGES.COMMON.ERROR.UNAUTHORIZED
+          MESSAGES.COMMON.ERROR.UNAUTHORIZED,
         );
       }
       const updatedNotification =
-        await this._notificationService.markNotificationAsRead(notifId, plantId);
+        await this._notificationService.markNotificationAsRead(
+          notifId,
+          plantId,
+        );
 
-      res.status(STATUS_CODES.SUCCESS).json({updatedNotification: updatedNotification});
+      res
+        .status(STATUS_CODES.SUCCESS)
+        .json({ updatedNotification: updatedNotification });
     } catch (error) {
       next(error);
     }
@@ -61,7 +65,7 @@ export class NotificationController implements INotificationController {
   async saveWasteMeasurement(
     req: AuthRequest,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ): Promise<void> {
     try {
       console.log("body", req.body);
@@ -70,7 +74,7 @@ export class NotificationController implements INotificationController {
       if (!wasteplantId) {
         throw new ApiError(
           STATUS_CODES.UNAUTHORIZED,
-          MESSAGES.COMMON.ERROR.UNAUTHORIZED
+          MESSAGES.COMMON.ERROR.UNAUTHORIZED,
         );
       }
 
@@ -79,7 +83,7 @@ export class NotificationController implements INotificationController {
       if (!notificationId || !weight) {
         throw new ApiError(
           STATUS_CODES.NOT_FOUND,
-          MESSAGES.COMMON.ERROR.MISSING_FIELDS
+          MESSAGES.COMMON.ERROR.MISSING_FIELDS,
         );
       }
 

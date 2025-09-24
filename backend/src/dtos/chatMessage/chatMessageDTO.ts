@@ -15,4 +15,4 @@ export type ChatMessage = {
   receiverId: string;
   text: string;
   conversationId: string;
-}
+};
