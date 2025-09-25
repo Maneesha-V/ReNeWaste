@@ -1,11 +1,9 @@
 import { axiosDriver } from "../../config/axiosClients";
 import { FetchEtaReq, UpdateAddressLatLngReq, UpdateTrackingStatusReq } from "../../types/driver/driverTypes";
 
-export const getDriverPickups = async (
-  wasteType: string
-) => {
+export const getDriverPickups = async () => {
   const response = await axiosDriver.get(
-    `/alloted-pickups?wasteType=${wasteType}`
+    `/alloted-pickups`
   );
   return response.data;
 };

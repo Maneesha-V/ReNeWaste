@@ -10,7 +10,7 @@ export class ChatMessageMapper {
       receiverId: doc.receiverId.toString() ?? "",
       receiverRole: doc.receiverRole,
       text: doc.text ?? "",
-      conversationId: doc.conversationId ?? "",
+      conversationId: doc.conversationId.toString() ?? "",
       createdAt: doc.createdAt,
     };
   }

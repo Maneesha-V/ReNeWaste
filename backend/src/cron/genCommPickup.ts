@@ -7,6 +7,11 @@ import container from "../config/inversify/container";
 // Runs every night at midnight
 cron.schedule("0 0 * * *", async () => {
   const pickupRepo = container.get<IPickupRepository>(TYPES.PickupRepository);
+  // await PickupModel.deleteMany({
+  //   wasteType: "Commercial",
+  //   frequency: { $in: ["Daily", "Weekly", "Monthly"] },
+  //   parentRequestId: null,
+  // })
   const recurringPickups = await PickupModel.find({
     wasteType: "Commercial",
     frequency: { $in: ["Daily", "Weekly", "Monthly"] },
@@ -18,20 +23,22 @@ cron.schedule("0 0 * * *", async () => {
     switch (pickup.frequency) {
       case "Daily":
         nextDate.setDate(nextDate.getDate() + 1);
-        pickup.originalPickupDate = nextDate;
         break;
       case "Weekly":
         nextDate.setDate(nextDate.getDate() + 7);
-        pickup.originalPickupDate = nextDate;
         break;
       case "Monthly":
         nextDate.setMonth(nextDate.getMonth() + 1);
-        pickup.originalPickupDate = nextDate;
         break;
       default:
         continue;
     }
-    pickup.parentRequestId = pickup._id;
-    await pickupRepo.createPickup(pickup.toObject());
+
+    const parentId = pickup._id;
+
+    const {_id, ...newPickup} = pickup.toObject();
+    newPickup.originalPickupDate = nextDate;
+    newPickup.parentRequestId = parentId;
+    await pickupRepo.createPickup(newPickup);
   }
 });

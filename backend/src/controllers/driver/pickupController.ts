@@ -20,12 +20,14 @@ export class PickupController implements IPickupController {
   ): Promise<void> {
     try {
       console.log("query", req.query);
-      const { wasteType } = req.query;
+      // const { wasteType } = req.query;
       const driverId = req.user?.id;
       const pickups = await this.pickupService.getPickupRequestService({
-        wasteType: wasteType as string,
+        // wasteType: wasteType as string,
         driverId: driverId as string,
       });
+      console.log("pickups",pickups);
+      
       res.status(STATUS_CODES.SUCCESS).json({
         success: true,
         pickups,

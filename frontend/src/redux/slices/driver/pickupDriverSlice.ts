@@ -41,13 +41,14 @@ const initialState: PickupState = {
 };
 export const fetchDriverPickups = createAsyncThunk<
   FetchDriverPickupsResp,
-  FetchDriverPickupsReq,
+  void,
+  // FetchDriverPickupsReq,
   { rejectValue: { message: string } }
 >(
   "driverPickups/fetchDriverPickups",
-  async ({ wasteType }: FetchDriverPickupsReq, { rejectWithValue }) => {
+  async (_, { rejectWithValue }) => {
     try {
-      const response = await getDriverPickups(wasteType);
+      const response = await getDriverPickups();
       console.log("response", response);
 
       return response;

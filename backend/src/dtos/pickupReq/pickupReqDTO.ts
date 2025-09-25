@@ -74,6 +74,13 @@ export interface IPickupRequestExtDocument
     number: string;
     capacity: number;
   } | null;
+
+  // wasteplantId?: {
+  //   _id: Types.ObjectId;
+  //   businessName: string;
+  //   frequency: string;
+  //   service: string;
+  // } | null;
 }
 
 export interface PickupReqGetDTO extends BaseDTO {
@@ -203,7 +210,7 @@ export type RevenueByWasteType = {
   totalRevenue: number;
 };
 export type PickupDriverFilterParams = {
-  wasteType?: string;
+  // wasteType?: string;
   driverId: string;
 };
 export type CheckExistingBusinessReq = {

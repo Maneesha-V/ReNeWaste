@@ -22,8 +22,8 @@ const ReschedulePickupModal = ({
 }: ReschedulePickupModalProps) => {
   const [form] = Form.useForm();
   const dispatch = useAppDispatch();
-  const { driver } = useSelector((state: RootState) => state.wastePlantPickup);
-  const [filteredDrivers, setFilteredDrivers] = useState<any[]>([]);
+  const { drivers } = useSelector((state: RootState) => state.wastePlantPickup);
+  const [filteredDrivers, setFilteredDrivers] = useState<DriverDTO[]>([]);
 
   useEffect(() => {
     if (pickup && visible) {
@@ -37,14 +37,14 @@ const ReschedulePickupModal = ({
     }
   }, [pickup, visible, form]);
   useEffect(() => {
-    if (visible && pickup?.wasteplantId) {
-      dispatch(fetchDriversByPlace(pickup?.assignedZone));
+    if (visible && pickup) {
+      dispatch(fetchDriversByPlace(pickup?.location));
     }
-  }, [visible, pickup?.wasteplantId, pickup?.assignedZone, dispatch]);
+  }, [visible, pickup, pickup?.location, dispatch]);
 
-  useEffect(() => {
-    setFilteredDrivers(driver ?? []);
-  }, [driver]);
+  useEffect(() => { 
+    setFilteredDrivers(drivers ?? []);
+  }, [drivers]);
 
   console.log("filteredDrivers", filteredDrivers);
   console.log("pickup:", pickup);
@@ -54,12 +54,12 @@ const ReschedulePickupModal = ({
     const value = e.target.value;
     form.setFieldsValue({ assignedZone: value });
     if (!pickup?.wasteType) return;
-    const filtered = driver.filter(
-      (d: DriverDTO) =>
+    const filtered = Array.isArray(drivers) ? drivers.filter(
+      (d: DriverDTO) => 
         d.assignedZone?.toLowerCase() === value.toLowerCase() &&
         d.category?.toLowerCase() === pickup.wasteType?.toLowerCase()
-    );
-
+    )
+    : [];
     setFilteredDrivers(filtered);
   };
 
@@ -170,7 +170,7 @@ const ReschedulePickupModal = ({
           rules={[{ required: true, message: "Please assign a driver" }]}
         >
           <Select placeholder="Select a driver">
-            {filteredDrivers.map((d: any) => (
+            {filteredDrivers.map((d: DriverDTO) => (
               <Select.Option key={d._id} value={d._id}>
                 {d.name}
               </Select.Option>

@@ -27,7 +27,7 @@ export class PickupController implements IPickupController {
         wasteType: wasteType as string,
         plantId: plantId as string,
       });
-
+       console.log("pickups", pickups);
       res.status(STATUS_CODES.SUCCESS).json({
         success: true,
         pickups,

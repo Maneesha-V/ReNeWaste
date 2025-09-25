@@ -3,6 +3,7 @@ import { IChatMessageDocument } from "../../models/chat/interfaces/chatMessageIn
 import { IChatMsgRepository } from "./interface/IChatMsgRepository";
 import { injectable } from "inversify";
 import BaseRepository from "../baseRepository/baseRepository";
+import mongoose, { Types } from "mongoose";
 
 @injectable()
 export class ChatMsgRepository

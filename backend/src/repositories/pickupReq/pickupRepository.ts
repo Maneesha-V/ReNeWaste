@@ -32,6 +32,7 @@ import {
   PaginatedPaymentsResult,
   PickupFilterParams,
 } from "../../dtos/wasteplant/WasteplantDTO";
+import { IDriverRepository } from "../driver/interface/IDriverRepository";
 
 @injectable()
 export class PickupRepository
@@ -41,6 +42,8 @@ export class PickupRepository
   constructor(
     @inject(TYPES.UserRepository)
     private _userRepository: IUserRepository,
+    @inject(TYPES.DriverRepository)
+    private _driverRepository: IDriverRepository,
   ) {
     super(PickupModel);
   }
@@ -173,11 +176,16 @@ export class PickupRepository
     return updated;
   }
   async getPickupsByDriverId(filters: PickupDriverFilterParams) {
-    const { driverId, wasteType } = filters;
+    const { driverId } = filters;
+    const driver = await this._driverRepository.getDriverById(driverId);
+    if (!driver) {
+      throw new Error("Driver not found");
+    }
+
     const pickups = (await this.model
       .find({
         driverId: driverId,
-        wasteType: wasteType,
+        wasteType: driver.category,
         status: { $in: ["Scheduled", "Rescheduled"] },
       })
       .populate({

@@ -14,7 +14,7 @@ import { DriverDTO } from "../../../types/driver/driverTypes";
 interface PickupState {
   pickups: PickupReqDTO[] | [];
   pickup: PickupReqDTO | {};
-  driver: DriverDTO[] | [];
+  drivers: DriverDTO[] | [];
   loading: boolean;
   message: string | null;
   error: string | null;
@@ -24,7 +24,7 @@ interface PickupState {
 const initialState: PickupState = {
   pickups: [],
   pickup: {},
-  driver: [],
+  drivers: [],
   loading: false,
   message: null,
   error: null,
@@ -183,7 +183,7 @@ const wastePlantPickupSlice = createSlice({
       })
       .addCase(fetchDriversByPlace.fulfilled, (state, action) => {
         state.loading = false;
-        state.driver = action.payload.drivers;
+        state.drivers = action.payload.drivers;
       })
       .addCase(fetchDriversByPlace.rejected, (state, action) => {
         state.loading = false;

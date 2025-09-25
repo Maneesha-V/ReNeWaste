@@ -6,7 +6,7 @@ export interface IChatMessage extends Document {
   receiverId: mongoose.Types.ObjectId;
   receiverRole: "driver" | "user" | "wasteplant" | "superadmin";
   text: string;
-  conversationId: string;
+  conversationId: mongoose.Types.ObjectId;
   createdAt: Date;
 }
 export interface IChatMessageDocument extends IChatMessage, Document {

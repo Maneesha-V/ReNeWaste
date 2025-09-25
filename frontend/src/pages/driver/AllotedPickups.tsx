@@ -23,11 +23,11 @@ const AllotedPickups = () => {
     (state: RootState) => state.driverPickups
   );
 
-  console.log("category", driverCategory);
+  // console.log("category", driverCategory);
 
   useEffect(() => {
-    dispatch(fetchDriverPickups({wasteType: driverCategory}));
-  }, [driverCategory, dispatch]);
+    dispatch(fetchDriverPickups());
+  }, [dispatch]);
   console.log("pickups", pickups);
 
   const handleMarkAsCompleted = async (pickupReqId: string) => {
@@ -40,9 +40,18 @@ const AllotedPickups = () => {
     }
   };
 
-  const filteredPickups = pickups?.filter(
-    (item: PickupPlansResp) =>
-      item.wasteType === driverCategory && item.payment?.refundRequested === false
+  // const filteredPickups = pickups?.filter(
+  //   (item: PickupPlansResp) => 
+  //     item.payment?.refundRequested === false
+  // );
+    const filteredPickups = pickups?.filter(
+    (item: PickupPlansResp) => {
+      if(!item.payment){
+        return true;
+      }
+      return item.payment.refundRequested === false;
+    }
+      
   );
 
   return (

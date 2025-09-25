@@ -32,7 +32,7 @@ const AssignDriverModal = ({
 }: AssignDriverModalProps) => {
   const dispatch = useAppDispatch();
   const [selectedDriver, setSelectedDriver] = useState<string | null>(null);
-  const { driver } = useSelector((state: RootState) => state.wastePlantPickup);
+  const { drivers } = useSelector((state: RootState) => state.wastePlantPickup);
   const { trucks } = useSelector((state: RootState) => state.wastePlantTruck);
   const [form] = Form.useForm();
 
@@ -40,7 +40,7 @@ const AssignDriverModal = ({
   console.log("selectedDriver",selectedDriver);
 
   console.log("trucks", trucks);
-  console.log("drivers", driver);
+  console.log("drivers", drivers);
   console.log("pickup", pickup);
   useEffect(() => {
 
@@ -55,8 +55,8 @@ const AssignDriverModal = ({
     }
   }, [trucks, form]);
 
-  const filteredDrivers = Array.isArray(driver)
-    ? driver.filter((d: DriverDTO) => {
+  const filteredDrivers = Array.isArray(drivers)
+    ? drivers.filter((d: DriverDTO) => {
         return (
           d.assignedZone === pickup?.location &&
           d.category?.toLowerCase() === pickup?.wasteType?.toLowerCase()
@@ -158,7 +158,7 @@ const AssignDriverModal = ({
               dispatch(fetchAvailableTrucks(value));
             }}
           >
-            {filteredDrivers.map((driver: any) => (
+            {filteredDrivers.map((driver: DriverDTO) => (
               <Select.Option key={driver._id} value={driver._id}>
                 {driver.name}
               </Select.Option>
@@ -172,7 +172,7 @@ const AssignDriverModal = ({
           rules={[{ required: true, message: "Please select a truck" }]}
         >
           <Select placeholder="Select Truck">
-            {filteredTrucks.map((truck: any) => (
+            {filteredTrucks.map((truck: TruckDTO) => (
               <Select.Option key={truck._id} value={truck._id}>
                 {truck.name}
               </Select.Option>

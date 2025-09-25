@@ -28,7 +28,7 @@ export const chatMessageSchema: Schema<IChatMessageDocument> = new Schema(
       required: true,
     },
     conversationId: {
-      type: String,
+      type: mongoose.Schema.Types.ObjectId,
       required: true,
       index: true,
     },
