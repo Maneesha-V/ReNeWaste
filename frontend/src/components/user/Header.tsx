@@ -168,11 +168,17 @@ const Header = () => {
           >
             Commercial
           </button>
-          <button
-            onClick={() => handleNavigation("/about-us")}
+          {/* <button
+            onClick={() => handleNavigation("/wallet")}
             className="block w-full py-2 text-left hover:text-green-600"
           >
-            About Us
+            Wallet
+          </button> */}
+          <button
+            onClick={() => handleNavigation("/wallet")}
+            className="block w-full py-2 text-left hover:text-green-600"
+          >
+            My Wallet
           </button>
         </div>
       )}
@@ -197,11 +203,17 @@ const Header = () => {
         >
           Commercial
         </button>
+        {/* <button
+            onClick={() => handleNavigation("/wallet")}
+            className="block w-full py-2 text-left hover:text-green-600"
+          >
+            Wallet
+        </button> */}
         <button
-          onClick={() => handleNavigation("/about-us")}
+          onClick={() => handleNavigation("/wallet")}
           className="text-gray-700 hover:text-green-600"
         >
-          About Us
+          My Wallet
         </button>
       </div>
       {showNotificationPanel && (
