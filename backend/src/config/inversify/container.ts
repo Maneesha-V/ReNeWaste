@@ -32,6 +32,8 @@ import { IDropSpotController as IUserDropSpotController } from "../../controller
 import { DropSpotController as UserDropSpotController } from "../../controllers/user/dropSpotController";
 import { INotificationController as IUserNotificationController } from "../../controllers/user/interface/INotificationController";
 import { NotificationController as UserNotificationController } from "../../controllers/user/notificationController";
+import { IWalletController as IUserWalletController } from "../../controllers/user/interface/IWalletController";
+import { WalletController as UserWalletController } from "../../controllers/user/walletController";
 
 //wasteplant
 import { AuthController as PlantAuthController } from "../../controllers/wastePlant/authController";
@@ -112,6 +114,8 @@ import { IDropSpotService as IUserDropSpotService } from "../../services/user/in
 import { DropSpotService as UserDropSpotService } from "../../services/user/dropSpotService";
 import { INotificationService as IUserNotificationService } from "../../services/user/interface/INotificationService";
 import { NotificationService as UserNotificationService } from "../../services/user/notificationService";
+import { IWalletService as IUserWalletService } from "../../services/user/interface/IWalletService";
+import { WalletService as UserWalletService } from "../../services/user/walletService";
 
 //wasteplant
 import { IAuthService as IPlantAuthService } from "../../services/wastePlant/interface/IAuthService";
@@ -188,6 +192,8 @@ import { ISubscriptionPlanRepository } from "../../repositories/subscriptionPlan
 import { SubscriptionPlanRepository } from "../../repositories/subscriptionPlan/subscriptionPlanRepository";
 import { ISubscriptionPaymentRepository } from "../../repositories/subscriptionPayment/interface/ISubscriptionPaymentRepository";
 import { SubscriptionPaymentRepository } from "../../repositories/subscriptionPayment/subscriptionPaymentRepository";
+import { IWalletRepository } from "../../repositories/wallet/interface/IWalletRepository";
+import { WalletRepository } from "../../repositories/wallet/walletRepository";
 
 //Create the container
 const container = new Container();
@@ -239,6 +245,9 @@ container
 container
   .bind<IUserNotificationController>(TYPES.UserNotificationController)
   .to(UserNotificationController);
+container
+  .bind<IUserWalletController>(TYPES.UserWalletController)
+  .to(UserWalletController);
 
 //wasteplant
 container
@@ -352,6 +361,9 @@ container
 container
   .bind<IUserNotificationService>(TYPES.UserNotificationService)
   .to(UserNotificationService);
+container
+  .bind<IUserWalletService>(TYPES.UserWalletService)
+  .to(UserWalletService);
 
 //wasteplant
 container.bind<IPlantAuthService>(TYPES.PlantAuthService).to(PlantAuthService);
@@ -451,6 +463,9 @@ container
 container
   .bind<ISubscriptionPaymentRepository>(TYPES.SubscriptionPaymentRepository)
   .to(SubscriptionPaymentRepository);
+container
+  .bind<IWalletRepository>(TYPES.WalletRepository)
+  .to(WalletRepository);
 
 // Bind factory for circular dep
 container

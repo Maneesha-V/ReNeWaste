@@ -17,7 +17,7 @@ export const checkWastePlantNotBlocked = async (
   }
 
   const user = await UserModel.findById(userId);
-  console.log("user34", user);
+
   if (!user || !user.wasteplantId) {
     res
       .status(STATUS_CODES.FORBIDDEN)

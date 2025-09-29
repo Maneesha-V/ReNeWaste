@@ -2,6 +2,7 @@ import { ReactNode } from "react";
 import { PickupCancelData } from "../pickupReq/pickupTypes";
 import { SubcptnPaymtPayload } from "../subscription/subscriptionTypes";
 import { MeasureDataPayload } from "../wasteCollections/wasteCollectionTypes";
+import { AddMoneyReq } from "../wallet/walletTypes";
 
 export type AdminHeaderProps = {
   collapsed: boolean;
@@ -122,3 +123,8 @@ export type SidebarWastePlantProps = {
   children?: ReactNode;
   isNotifOpen: boolean;
 };
+export type AddModalProps = {
+  isOpen: boolean;
+  onClose: () => void;
+  onSubmit: (data: AddMoneyReq) => void;
+}

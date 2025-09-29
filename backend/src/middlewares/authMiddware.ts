@@ -1,6 +1,5 @@
 import { Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
-import { UserModel } from "../models/user/userModel";
 import mongoose from "mongoose";
 import { SuperAdminModel } from "../models/superAdmin/superAdminModel";
 import { DriverModel } from "../models/driver/driverModel";
@@ -25,14 +24,8 @@ export const authenticateUser = async (
     };
     console.log("Decoded Token:", decoded);
     req.user = { id: decoded.userId, role: decoded.role };
-    // const user = await UserModel.findById(new mongoose.Types.ObjectId(decoded.userId)).select("-password");
-
-    // if (!user) return res.status(404).json({ error: "User not found" });
-
-    // req.user = { id: user._id.toString(), role: user.role };
     next();
   } catch (err) {
-    // res.status(401).json({ error: "Invalid token" });
     next(new ApiError(401, "Invalid token"));
   }
 };

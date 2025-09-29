@@ -14,6 +14,7 @@ export interface IUser {
   addresses: Types.DocumentArray<IAddressDocument>;
   wasteplantId?: mongoose.Types.ObjectId;
   isBlocked: boolean;
+  wallet?: mongoose.Types.ObjectId;
 }
 
 export interface IUserDocument extends IUser, Document {

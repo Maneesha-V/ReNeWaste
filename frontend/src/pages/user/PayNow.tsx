@@ -15,13 +15,12 @@ import {
 import { toast } from "react-toastify";
 import Swal from "sweetalert2";
 import { PayNowProps } from "../../types/common/modalTypes";
+import { RazorpayResponse } from "../../types/pickupReq/paymentTypes";
 
 const PayNow = ({ onClose }: PayNowProps) => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
 
-  // const pickup = useSelector((state: RootState) => state.userPayment.pickup);
-  // const amount = useSelector((state: RootState) => state.userPayment.amount);
  const { paymentOrder, error, pickup, amount } = useSelector(
     (state: RootState) => state.userPayment
   );
@@ -90,7 +89,7 @@ useEffect(() => {
         name: "Renewaste",
         description: "Payment for pickup request",
         order_id: paymentOrder.orderId,
-        handler: function (response: any) {
+        handler: function (response: RazorpayResponse) {
           console.log("response", response);
 
           const { razorpay_order_id, razorpay_payment_id, razorpay_signature } =

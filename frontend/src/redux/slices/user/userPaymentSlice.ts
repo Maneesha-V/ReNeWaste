@@ -57,9 +57,6 @@ export const createPaymentOrder = createAsyncThunk<
       return response;
     } catch (err) {
       console.error("err", err);
-      // return rejectWithValue(
-      //   error.response?.data || "Failed to create payment"
-      // );
       const msg = getAxiosErrorMessage(err);
       return rejectWithValue({ error: msg });
     }

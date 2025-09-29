@@ -68,20 +68,7 @@ export class PaymentService implements IPaymentService {
       },
       payment_capture: true,
     });
-    // pickupRequest.payment = {
-    //   amount,
-    //   method: "Razorpay",
-    //   status: "InProgress",
-    //   razorpayOrderId: order.id,
-    //   razorpayPaymentId: null,
-    //   razorpaySignature: null,
-    //   paidAt: null,
-    //   refundRequested: false,
-    //   refundStatus: null,
-    //   refundAt: null,
-    //   razorpayRefundId: null,
-    //   inProgressExpiresAt: new Date(now.getTime() + 5 * 60 * 1000),
-    // };
+    
     pickupRequest.payment = {
       ...pickupRequest.payment,
       amount,

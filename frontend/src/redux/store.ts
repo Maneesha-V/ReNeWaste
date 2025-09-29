@@ -37,6 +37,8 @@ import userProfileReducer from "../redux/slices/user/userProfileSlice";
 import userPaymentReducer from "../redux/slices/user/userPaymentSlice";
 import userDropSpotReducer from "../redux/slices/user/dropSpotSlice";
 import userNotificationsReducer from "../redux/slices/user/userNotificationSlice";
+import userWalletReducer from "../redux/slices/user/userWalletSlice";
+import userRatingReducer from "../redux/slices/user/userRatingSlice";
 
 export const store = configureStore({
     reducer : {
@@ -48,6 +50,8 @@ export const store = configureStore({
         userPayment: userPaymentReducer,
         userDropSpot: userDropSpotReducer,
         userNotifications: userNotificationsReducer,
+        userWallet: userWalletReducer,
+        userRating: userRatingReducer,
         superadmin: superadminReducer,
         superAdminWastePlant: superAdminWastePlantReducer,
         superAdminSubscriptionPlan: superAdminSubscriptionPlanReducer,

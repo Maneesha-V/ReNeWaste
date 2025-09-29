@@ -13,6 +13,7 @@ import container from "../config/inversify/container";
 import TYPES from "../config/inversify/types";
 import { NotificationController } from "../controllers/user/notificationController";
 import { checkWastePlantNotBlocked } from "../middlewares/checkWastePlantNotBlocked";
+import { WalletController } from "../controllers/user/walletController";
 
 const router: Router = Router();
 
@@ -33,6 +34,9 @@ const dropSpotCtrl = container.get<DropSpotController>(
 );
 const notificationCtrl = container.get<NotificationController>(
   TYPES.UserNotificationController,
+);
+const walletCtrl = container.get<WalletController>(
+  TYPES.UserWalletController
 );
 
 router.get("/refresh-token", userCtrl.refreshToken.bind(userCtrl));
@@ -160,5 +164,32 @@ router.patch(
   checkWastePlantNotBlocked,
   pickupCtrl.cancelPickupReason.bind(pickupCtrl),
 );
-
+router.get(
+  "/wallet",
+  authenticateUser as RequestHandler,
+  checkNotBlocked,
+  checkWastePlantNotBlocked,
+  walletCtrl.getWallet.bind(walletCtrl),  
+);
+router.post(
+  "/wallet/create-order",
+  authenticateUser as RequestHandler,
+  checkNotBlocked,
+  checkWastePlantNotBlocked,
+  walletCtrl.createAddMoneyOrder.bind(walletCtrl),
+);
+router.post(
+  "/wallet/verify-payment",
+  authenticateUser as RequestHandler,
+  checkNotBlocked,
+  checkWastePlantNotBlocked,
+  walletCtrl.verifyWalletAddPayment.bind(walletCtrl),
+);
+router.post(
+  "/wallet/retry",
+  authenticateUser as RequestHandler,
+  checkNotBlocked,
+  checkWastePlantNotBlocked,
+  walletCtrl.retryWalletAddPayment.bind(walletCtrl), 
+);
 export default router;

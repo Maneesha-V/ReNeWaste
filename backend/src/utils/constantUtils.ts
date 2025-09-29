@@ -24,6 +24,7 @@ export const MESSAGES = {
       PICKUP_APPROVE: "Pickup approved successfully.",
       PICKUP_CANCEL: "Pickup request canceled successfully.",
       PICKUP_RESCHEDULE: "Pickup rescheduled successfully.",
+      ADD_TO_WALLET: "has been credited to your wallet."
     },
     ERROR: {
       FETCH_PAYMENT_FAIL: "Fetch payments failed.",

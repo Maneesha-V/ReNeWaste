@@ -21,6 +21,7 @@ const TYPES = {
   UserPaymentController: Symbol.for("UserPaymentController"),
   UserDropSpotController: Symbol.for("UserDropSpotController"),
   UserNotificationController: Symbol.for("UserNotificationController"),
+  UserWalletController: Symbol.for("UserWalletController"),
 
   //wasteplant
   PlantAuthController: Symbol.for("PlantAuthController"),
@@ -66,6 +67,7 @@ const TYPES = {
   UserPaymentService: Symbol.for("UserPaymentService"),
   UserDropSpotService: Symbol.for("UserDropSpotService"),
   UserNotificationService: Symbol.for("UserNotificationService"),
+  UserWalletService: Symbol.for("UserWalletService"),
 
   //wasteplant
   PlantAuthService: Symbol.for("PlantAuthService"),
@@ -107,7 +109,8 @@ const TYPES = {
   WasteCollectionRepository: Symbol.for("WasteCollectionRepository"),
   SubscriptionPlanRepository: Symbol.for("SubscriptionPlanRepository"),
   SubscriptionPaymentRepository: Symbol.for("SubscriptionPaymentRepository"),
-
+  WalletRepository: Symbol.for("WalletRepository"),
+  
   //-factories--
   DriverRepositoryFactory: Symbol.for("DriverRepositoryFactory"),
   TruckRepositoryFactory: Symbol.for("TruckRepositoryFactory"),

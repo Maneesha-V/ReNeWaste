@@ -5,7 +5,7 @@ import { IPickupRepository } from "../repositories/pickupReq/interface/IPickupRe
 import container from "../config/inversify/container";
 
 // Runs every night at midnight
-cron.schedule("0 0 * * *", async () => {
+cron.schedule("0 12 * * *", async () => {
   const pickupRepo = container.get<IPickupRepository>(TYPES.PickupRepository);
   // await PickupModel.deleteMany({
   //   wasteType: "Commercial",

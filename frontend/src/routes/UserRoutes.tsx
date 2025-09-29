@@ -15,6 +15,7 @@ import Payments from "../pages/user/Payments";
 import DropSpotMap from "../pages/user/DropSpotMap";
 import Blocked from "../pages/user/Blocked";
 import ServicesUnavailable from "../pages/user/ServicesUnavailable";
+import MyWallet from "../pages/user/MyWallet";
 
 const UserRoutes = () => {
   return (
@@ -36,6 +37,7 @@ const UserRoutes = () => {
         <Route path="/pickup-plans" element={<PickupPlans />} />     
         <Route path="/payment-history" element={<Payments />} />
         <Route path="/drop-spots" element={<DropSpotMap/>} />
+        <Route path="/wallet" element={<MyWallet />} />
       </Route>
 
       <Route path="/services-unavailable" element={<ServicesUnavailable />} />
