@@ -142,6 +142,7 @@ export type RefundDataReq = {
   pickupReqId: string;
   amount: number;
   razorpayPaymentId: string;
+  walletOrderId?: string | null;
 };
 export type FetchPaymentPayload = {
   plantId: string;

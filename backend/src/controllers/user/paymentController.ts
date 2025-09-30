@@ -21,9 +21,9 @@ export class PaymentController implements IPaymentController {
   ): Promise<void> {
     try {
       const userId = req.user?.id;
-      const { amount, pickupReqId } = req.body.paymentData;
+      const { amount, pickupReqId, method } = req.body.paymentData;
       console.log("user", userId);
-      console.log("amount", amount, pickupReqId);
+      console.log("amount", amount, pickupReqId, method);
       if (!userId) {
         throw new ApiError(
           STATUS_CODES.UNAUTHORIZED,
@@ -35,6 +35,7 @@ export class PaymentController implements IPaymentController {
           amount,
           pickupReqId,
           userId,
+          method
         },
       );
       console.log("paymentOrder", paymentOrder);
@@ -178,6 +179,32 @@ export class PaymentController implements IPaymentController {
         repaymentOrder,
       });
     } catch (error) {
+      next(error);
+    }
+  }
+  async verifyWalletPickupPayment(
+    req: AuthRequest,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> {
+    try{
+    console.log("body", req.body);
+     const userId = req.user?.id;
+      if (!userId) {
+        throw new ApiError(
+          STATUS_CODES.UNAUTHORIZED,
+          MESSAGES.COMMON.ERROR.UNAUTHORIZED,
+        );
+      }
+      const walletPickupPayResp = await this._paymentService.verifyWalletPickupPayment(userId,req.body.paymentData);
+
+      console.log("walletPickupPayResp",walletPickupPayResp);
+      
+       res.status(STATUS_CODES.SUCCESS).json({
+        message: MESSAGES.COMMON.SUCCESS.WALLET_PAYMENT_SUCCESS,
+        walletPickupPayResp,
+      });
+    } catch(error){
       next(error);
     }
   }

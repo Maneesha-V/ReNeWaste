@@ -126,6 +126,8 @@ export interface PaymentDTO {
   refundAt: Date | null;
   razorpayRefundId: string | null;
   inProgressExpiresAt: Date | null;
+  walletOrderId?: string | null;
+  walletRefundId?: string | null;
 }
 export interface PickupPaymentSummaryDTO {
   _id: string;
@@ -143,6 +145,8 @@ export interface PickupPaymentSummaryDTO {
     razorpayOrderId: string | null;
     refundRequested: boolean;
     refundAt: Date | null;
+    walletOrderId?: string | null;
+    walletRefundId?: string | null;
   };
 }
 export interface PopulatedPIckupPlans
@@ -246,6 +250,7 @@ export type PaymentRecord = {
     refundStatus?: "Pending" | "Processing" | "Refunded" | "Rejected" | null;
     refundAt?: Date;
     inProgressExpiresAt: Date;
+    walletOrderId?: string | null;
   };
   driverName?: string;
   userName?: string;

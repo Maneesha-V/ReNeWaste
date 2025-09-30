@@ -82,7 +82,7 @@ const MyWallet = () => {
               .catch((err) => {
                 Swal.fire({
                   icon: "error",
-                  title: "Payment Failed",
+                  title: "Wallet Payment Failed",
                   text:
                     err?.error ||
                     "Payment verification failed. Please try again.",

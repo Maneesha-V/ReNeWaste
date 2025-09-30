@@ -121,6 +121,13 @@ router.post(
   checkNotBlocked,
   paymentCtrl.verifyPayment.bind(paymentCtrl),
 );
+router.post(
+  "/payment/wallet/verify",
+  authenticateUser as RequestHandler,
+  checkNotBlocked,
+  checkWastePlantNotBlocked,
+  paymentCtrl.verifyWalletPickupPayment.bind(paymentCtrl),  
+)
 router.get(
   "/payments",
   authenticateUser as RequestHandler,
@@ -192,4 +199,5 @@ router.post(
   checkWastePlantNotBlocked,
   walletCtrl.retryWalletAddPayment.bind(walletCtrl), 
 );
+
 export default router;

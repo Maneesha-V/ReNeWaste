@@ -1,6 +1,6 @@
 import { axiosUser } from "../../config/axiosClients";
 import { PaginationPayload } from "../../types/common/commonTypes";
-import { CreatePaymentPayload, RepaymentOrderResponse, ReturnGetAllPayments, VerifyPaymentPayload, VerifyPaymentResponse } from "../../types/pickupReq/paymentTypes";
+import { CreatePaymentPayload, RepaymentOrderResponse, ReturnGetAllPayments, VerifyPaymentPayload, VerifyPaymentResponse, VerifyWalletPaymentReq } from "../../types/pickupReq/paymentTypes";
 
 export const createPaymentOrderService = async (paymentData: CreatePaymentPayload) => {
   const response = await axiosUser.post(`/payment/create-order`,{ paymentData });
@@ -26,3 +26,9 @@ export const repayService = async (pickupReqId: string, amount: number): Promise
   
   return response.data.repaymentOrder;
 };
+export const verifyWalletPaymentService = async(paymentData: VerifyWalletPaymentReq) => {
+  const response = await axiosUser.post("/payment/wallet/verify",{
+    paymentData
+  });
+  return response.data;
+}

@@ -29,12 +29,15 @@ export type PickupReqPayment = {
   refundAt: Date | null;
   razorpayRefundId: string | null;
   inProgressExpiresAt: Date | null;
+  walletOrderId?: string | null;
 }
 export type VerifyPaymentPayload = RazorpayResponse & {
   pickupReqId: string;
   amount: number;
 };
-export type CreatePaymentPayload = Pick<VerifyPaymentPayload,"pickupReqId" | "amount">
+export type CreatePaymentPayload = Pick<VerifyPaymentPayload,"pickupReqId" | "amount"> & {
+  method: string;
+};
 export type CreatePaymentResponse =  Pick<RepaymentOrderResponse, "amount" | "currency" | "orderId" | "pickupReqId">;
 
 
@@ -66,6 +69,7 @@ export type PaymentSummary = {
     refundRequested: boolean;
     refundAt: string | null;
     inProgressExpiresAt: string | null;
+    walletOrderId?: string | null;
   };
 }
 export type UpdateStatusPayload= { 
@@ -74,17 +78,25 @@ export type UpdateStatusPayload= {
 }
 export interface RefundStatusUpdateResp {
   message: string;
-  statusUpdate: {
   _id: string; 
   refundStatus: RefundStatus;
   inProgressExpiresAt: Date | null;
-  }
 }
 export type RefundPaymntPayload = {
   pickupReqId: string; 
   amount: number;
   razorpayPaymentId: string;
+  walletOrderId?: string | null;
 };
 export type RefundPaymntResp = MsgSuccessResp & {
   updatedData : PickupReqDTO
+}
+export type VerifyWalletPaymentReq = {
+pickupReqId: string;
+        amount: number;
+        method: string;
+}
+export type VerifyWalletPaymentResp = {
+ message: string;
+ walletPickupPayResp: PickupReqPayment;
 }

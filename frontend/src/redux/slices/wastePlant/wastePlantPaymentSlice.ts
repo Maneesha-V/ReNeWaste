@@ -159,7 +159,7 @@ RefundPaymntPayload,
 >(
   "wastePlantPayments/triggerPickupRefund",
   async (
-    { pickupReqId, amount, razorpayPaymentId }: RefundPaymntPayload,
+    { pickupReqId, amount, razorpayPaymentId, walletOrderId }: RefundPaymntPayload,
     { rejectWithValue }
   ) => {
     try {
@@ -167,6 +167,7 @@ RefundPaymntPayload,
         pickupReqId,
         amount,
         razorpayPaymentId,
+        walletOrderId
       });
       return response;
     } catch (err) {
@@ -260,9 +261,11 @@ const wastePlantPaymentSlice = createSlice({
         state.error = null;
       })
       .addCase(updateRefundStatus.fulfilled, (state, action) => {
+        console.log("action",action.payload);
+        
         state.loading = false;
         state.payments = state.payments.filter((p: any) => {
-          const {_id, refundStatus, inProgressExpiresAt } = action.payload.statusUpdate;
+          const {_id, refundStatus, inProgressExpiresAt } = action.payload;
           if (p._id === _id) {
             p.refundStatus = refundStatus;
             p.inProgressExpiresAt = inProgressExpiresAt;

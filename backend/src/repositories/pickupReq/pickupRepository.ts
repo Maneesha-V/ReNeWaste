@@ -730,6 +730,7 @@ export class PickupRepository
           "payment.refundRequested": 1,
           "payment.refundAt": 1,
           "payment.inProgressExpiresAt": 1,
+          "payment.walletOrderId": 1,
           driverName: "$driver.name",
           userName: { $concat: ["$user.firstName", " ", "$user.lastName"] },
           dueDate: {

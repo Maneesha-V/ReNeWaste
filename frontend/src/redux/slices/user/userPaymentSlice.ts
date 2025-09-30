@@ -4,6 +4,7 @@ import {
   getAllPaymentsService,
   repayService,
   verifyPaymentService,
+  verifyWalletPaymentService,
 } from "../../../services/user/paymentService";
 import {
   CreatePaymentPayload,
@@ -12,6 +13,8 @@ import {
   ReturnGetAllPayments,
   VerifyPaymentPayload,
   VerifyPaymentResponse,
+  VerifyWalletPaymentReq,
+  VerifyWalletPaymentResp,
 } from "../../../types/pickupReq/paymentTypes";
 import { RepaymentOrderResponse } from "../../../types/pickupReq/paymentTypes";
 import { getAxiosErrorMessage } from "../../../utils/handleAxiosError";
@@ -80,6 +83,21 @@ export const verifyPayment = createAsyncThunk<
   }
 });
 
+export const verifyWalletPayment = createAsyncThunk<
+  VerifyWalletPaymentResp,
+  VerifyWalletPaymentReq,
+  { rejectValue: { error: string } }
+>("userPayment/verifyWalletPayment", async (paymentData, { rejectWithValue }) => {
+  try {
+    const response = await verifyWalletPaymentService(paymentData);
+    console.log("response", response);
+
+    return response;
+  } catch (err) {
+    const msg = getAxiosErrorMessage(err);
+    return rejectWithValue({ error: msg });
+  }
+});
 export const getAllPayments = createAsyncThunk<
   ReturnGetAllPayments,
   PaginationPayload,

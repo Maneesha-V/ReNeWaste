@@ -4,6 +4,7 @@ import {
   CreatePaymentResp,
   VerifyPaymentReq,
   VerifyPaymentResp,
+  VerifyWalletPickupPaymentReq,
 } from "../../../dtos/pickupReq/paymentDTO";
 import { PickupPaymentSummaryDTO } from "../../../dtos/pickupReq/pickupReqDTO";
 import {
@@ -32,4 +33,5 @@ export interface IPaymentService {
     pickupReqId: string;
     expiresAt: string;
   }>;
+  verifyWalletPickupPayment( userId: string, paymentData: VerifyWalletPickupPaymentReq): Promise<VerifyPaymentResp>
 }

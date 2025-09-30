@@ -105,6 +105,7 @@ export class PickupRequestMapper {
       refundAt: payment?.refundAt ?? null,
       razorpayRefundId: payment?.razorpayRefundId ?? null,
       inProgressExpiresAt: payment?.inProgressExpiresAt ?? null,
+      walletOrderId: payment?.walletOrderId ?? null,
     };
   }
   static toSummaryDTO(
@@ -126,6 +127,8 @@ export class PickupRequestMapper {
         razorpayOrderId: doc.payment?.razorpayOrderId ?? null,
         refundRequested: doc.payment?.refundRequested ?? false,
         refundAt: doc.payment?.refundAt ?? null,
+        walletOrderId: doc.payment?.walletOrderId ?? null,
+        walletRefundId: doc.payment?.walletRefundId ?? null,
       },
     };
   }

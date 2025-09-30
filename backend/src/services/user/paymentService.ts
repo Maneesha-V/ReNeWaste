@@ -9,10 +9,16 @@ import {
   CreatePaymentResp,
   VerifyPaymentReq,
   VerifyPaymentResp,
+  VerifyWalletPickupPaymentReq,
 } from "../../dtos/pickupReq/paymentDTO";
-import { PickupPaymentSummaryDTO } from "../../dtos/pickupReq/pickupReqDTO";
+import {
+  PaymentDTO,
+  PickupPaymentSummaryDTO,
+} from "../../dtos/pickupReq/pickupReqDTO";
 import { PickupRequestMapper } from "../../mappers/PIckupReqMapper";
 import { PaginationInput } from "../../dtos/common/commonDTO";
+import { IWalletRepository } from "../../repositories/wallet/interface/IWalletRepository";
+import { IPickupRequestDocument } from "../../models/pickupRequests/interfaces/pickupInterface";
 
 @injectable()
 export class PaymentService implements IPaymentService {
@@ -20,13 +26,15 @@ export class PaymentService implements IPaymentService {
   constructor(
     @inject(TYPES.PickupRepository)
     private _pickupRepository: IPickupRepository,
+    @inject(TYPES.WalletRepository)
+    private _walletRepository: IWalletRepository
   ) {
     const key_id = process.env.RAZORPAY_KEY_ID!;
     const key_secret = process.env.RAZORPAY_KEY_SECRET!;
 
     if (!key_id || !key_secret) {
       throw new Error(
-        "Razorpay API keys are not defined in environment variables",
+        "Razorpay API keys are not defined in environment variables"
       );
     }
 
@@ -36,13 +44,13 @@ export class PaymentService implements IPaymentService {
     });
   }
   async createPaymentOrderService(
-    data: CreatePaymentReq,
+    data: CreatePaymentReq
   ): Promise<CreatePaymentResp> {
-    const { pickupReqId, userId, amount } = data;
+    const { pickupReqId, userId, amount, method } = data;
     const pickupRequest =
       await this._pickupRepository.getPickupByUserIdAndPickupReqId(
         pickupReqId,
-        userId,
+        userId
       );
     console.log("pickupRequest ", pickupRequest);
     if (!pickupRequest) {
@@ -53,7 +61,7 @@ export class PaymentService implements IPaymentService {
     const payment = pickupRequest.payment;
     if (payment?.inProgressExpiresAt && payment?.inProgressExpiresAt > now) {
       throw new Error(
-        "A payment is already in progress. Please wait a few minutes before retrying.",
+        "A payment is already in progress. Please wait a few minutes before retrying."
       );
     }
     const order = await this.razorpay.orders.create({
@@ -68,11 +76,11 @@ export class PaymentService implements IPaymentService {
       },
       payment_capture: true,
     });
-    
+
     pickupRequest.payment = {
       ...pickupRequest.payment,
       amount,
-      method: "Razorpay",
+      method,
       status: "Pending",
       razorpayOrderId: order.id,
       razorpayPaymentId: null,
@@ -92,7 +100,7 @@ export class PaymentService implements IPaymentService {
   }
 
   async verifyPaymentService(
-    data: VerifyPaymentReq,
+    data: VerifyPaymentReq
   ): Promise<VerifyPaymentResp> {
     console.log("data", data);
 
@@ -116,7 +124,7 @@ export class PaymentService implements IPaymentService {
     const pickupRequest =
       await this._pickupRepository.getPickupByUserIdAndPickupReqId(
         pickupReqId,
-        userId,
+        userId
       );
 
     if (!pickupRequest) {
@@ -145,7 +153,7 @@ export class PaymentService implements IPaymentService {
 
   async getAllPayments(
     userId: string,
-    paginationData: PaginationInput,
+    paginationData: PaginationInput
   ): Promise<{ payments: PickupPaymentSummaryDTO[]; total: number }> {
     const { pickups, total } =
       await this._pickupRepository.getAllPaymentsByUser(userId, paginationData);
@@ -157,7 +165,7 @@ export class PaymentService implements IPaymentService {
     const pickupRequest =
       await this._pickupRepository.getPickupByUserIdAndPickupReqId(
         pickupReqId,
-        userId,
+        userId
       );
     console.log("pickupRequest ", pickupRequest);
     if (!pickupRequest) {
@@ -183,7 +191,7 @@ export class PaymentService implements IPaymentService {
       payment.inProgressExpiresAt > now
     ) {
       throw new Error(
-        "A payment is already in progress. Please wait a few minutes before retrying.",
+        "A payment is already in progress. Please wait a few minutes before retrying."
       );
     }
     const expiresIn = 5 * 60 * 1000;
@@ -207,5 +215,72 @@ export class PaymentService implements IPaymentService {
       pickupReqId,
       expiresAt: payment.inProgressExpiresAt?.toISOString(),
     };
+  }
+  async verifyWalletPickupPayment(
+    userId: string,
+    paymentData: VerifyWalletPickupPaymentReq
+  ): Promise<VerifyPaymentResp> {
+    const { pickupReqId, amount, method } = paymentData;
+    const pickupRequest =
+      await this._pickupRepository.getPickupByUserIdAndPickupReqId(
+        pickupReqId,
+        userId
+      );
+
+    if (!pickupRequest) {
+      throw new Error("Pickup request not found for this user.");
+    }
+    if (!pickupRequest.payment) {
+      pickupRequest.payment = {
+        status: "Pending",
+        method,
+        amount,
+        paidAt: null,
+        inProgressExpiresAt: null,
+        razorpayOrderId: null,
+        razorpayPaymentId: null,
+        razorpaySignature: null,
+        refundRequested: false,
+        refundStatus: null,
+        refundAt: null,
+        razorpayRefundId: null,
+        walletOrderId: null,
+        walletRefundId: null,
+      };
+    }
+
+    const now = new Date();
+
+    const payment = pickupRequest.payment;
+
+    if (payment.inProgressExpiresAt && payment.inProgressExpiresAt > now) {
+      throw new Error(
+        "A payment is already in progress. Please wait a few minutes before retrying."
+      );
+    }
+   
+    const wallet = await this._walletRepository.findWalletByUserId(userId);
+    if (!wallet) {
+      throw new Error("Wallet not found for this user.");
+    }
+    if (wallet.balance < amount) {
+      throw new Error("Insufficient wallet balance.");
+    }
+    wallet.balance -= amount;
+    await wallet.save();
+const walletOrderId = `wallet_${pickupRequest.pickupId}_${Date.now()
+  .toString()
+  .slice(-6)}`;
+console.log("walletOrderId",walletOrderId);
+
+    payment.status = "Paid";
+    payment.method = method;
+    payment.paidAt = new Date();
+    payment.inProgressExpiresAt = new Date(now.getTime() + 5 * 60 * 1000);
+    payment.walletOrderId = walletOrderId;
+    await pickupRequest.save();
+    
+    pickupRequest.markModified("payment");
+    return PickupRequestMapper.toPaymentDTO(pickupRequest);
   }
 }

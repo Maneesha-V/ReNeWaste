@@ -18,4 +18,5 @@ export interface IPaymentController {
     next: NextFunction,
   ): Promise<void>;
   rePayment(req: AuthRequest, res: Response, next: NextFunction): Promise<void>;
+  verifyWalletPickupPayment(req: AuthRequest, res: Response, next: NextFunction): Promise<void>;
 }

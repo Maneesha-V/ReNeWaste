@@ -108,6 +108,7 @@ export type WastePlantFormData = {
     refundStatus?: string;
     refundAt?: Date;
     inProgressExpiresAt: Date;
+    walletOrderId?: string | null;
   };
   driverName?: string;
   userName?: string;

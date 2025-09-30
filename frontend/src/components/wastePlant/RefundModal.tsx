@@ -38,7 +38,7 @@ const RefundModal: React.FC<RefundModalProps> = ({
   const status = record?.payment?.refundStatus;
   const currentStepIndex =
     status === "Rejected"
-      ? 2 // Show rejection on 3rd step
+      ? 2 
       : ["Pending", "Processing", "Refunded"].indexOf(status);
 
   return (

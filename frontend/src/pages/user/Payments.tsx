@@ -189,17 +189,16 @@ const Payments = () => {
                 </div>
 
                 <div className="text-gray-700">
-                  <p>
+                  {/* <p>
                     <strong>Order ID:</strong>{" "}
                     {payment?.payment?.razorpayOrderId}
-                  </p>
-                  {/* {payment?.payment?.razorpayPaymentId && (
-                    <p>
-                      <strong>Payment ID:</strong>{" "}
-                      {payment.payment.razorpayPaymentId}
-                    </p>
-                  )} */}
-
+                  </p> */}
+ {(payment?.payment?.walletOrderId || payment?.payment?.razorpayOrderId) && (
+    <p>
+      <strong>Order ID:</strong>{" "}
+      {payment?.payment?.walletOrderId || payment?.payment?.razorpayOrderId}
+    </p>
+  )}
                   <p>
                     <strong>Pickup ID:</strong> {payment.pickupId}
                   </p>
@@ -221,6 +220,9 @@ const Payments = () => {
                       )}
                     </>
                   )}
+                   <p>
+                    <strong>Payment Method:</strong> {payment?.payment?.method}
+                  </p>
                 </div>
 
                 {(() => {

@@ -53,6 +53,14 @@ export const PaymentSchema: Schema<IPaymentDocument> = new Schema(
       type: Date,
       default: null,
     },
+    walletOrderId: {
+      type: String,
+      default: null,    
+    },
+    walletRefundId: {
+      type: String,
+      default: null,
+    }
   },
   { _id: false },
 );

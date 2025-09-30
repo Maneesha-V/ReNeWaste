@@ -13,6 +13,8 @@ export interface IPayment {
   refundAt: Date | null;
   razorpayRefundId: string | null;
   inProgressExpiresAt: Date | null;
+  walletOrderId?: string | null;
+  walletRefundId: string | null;
 }
 export interface IPaymentDocument extends IPayment, Document {
   _id: Types.ObjectId;

@@ -106,6 +106,8 @@ const Payments = () => {
 
   const handleRefund = async () => {
     if (!selectedRecord) return;
+    console.log("selectedRecord",selectedRecord);
+    
     console.log("Trigger actual refund for:", selectedRecord);
     const result = await Swal.fire({
       title: "Are you sure?",
@@ -124,6 +126,7 @@ const Payments = () => {
             pickupReqId: selectedRecord._id,
             amount: selectedRecord.payment.amount,
             razorpayPaymentId: selectedRecord.payment.razorpayPaymentId,
+            walletOrderId: selectedRecord.payment.walletOrderId,
           })
         ).unwrap();
 
