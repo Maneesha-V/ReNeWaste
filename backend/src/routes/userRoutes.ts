@@ -14,6 +14,7 @@ import TYPES from "../config/inversify/types";
 import { NotificationController } from "../controllers/user/notificationController";
 import { checkWastePlantNotBlocked } from "../middlewares/checkWastePlantNotBlocked";
 import { WalletController } from "../controllers/user/walletController";
+import { RatingController } from "../controllers/user/ratingController";
 
 const router: Router = Router();
 
@@ -37,6 +38,9 @@ const notificationCtrl = container.get<NotificationController>(
 );
 const walletCtrl = container.get<WalletController>(
   TYPES.UserWalletController
+);
+const ratingCtrl = container.get<RatingController>(
+  TYPES.UserRatingController
 );
 
 router.get("/refresh-token", userCtrl.refreshToken.bind(userCtrl));
@@ -199,5 +203,12 @@ router.post(
   checkWastePlantNotBlocked,
   walletCtrl.retryWalletAddPayment.bind(walletCtrl), 
 );
+router.post(
+  "/add/rating",
+  authenticateUser as RequestHandler,
+  checkNotBlocked,
+  checkWastePlantNotBlocked,
+  ratingCtrl.addUserRating.bind(ratingCtrl), 
+)
 
 export default router;

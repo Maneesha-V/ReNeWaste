@@ -34,6 +34,8 @@ import { INotificationController as IUserNotificationController } from "../../co
 import { NotificationController as UserNotificationController } from "../../controllers/user/notificationController";
 import { IWalletController as IUserWalletController } from "../../controllers/user/interface/IWalletController";
 import { WalletController as UserWalletController } from "../../controllers/user/walletController";
+import { IRatingController as IUserRatingController } from "../../controllers/user/interface/IRatingController";
+import { RatingController as UserRatingController } from "../../controllers/user/ratingController";
 
 //wasteplant
 import { AuthController as PlantAuthController } from "../../controllers/wastePlant/authController";
@@ -116,6 +118,8 @@ import { INotificationService as IUserNotificationService } from "../../services
 import { NotificationService as UserNotificationService } from "../../services/user/notificationService";
 import { IWalletService as IUserWalletService } from "../../services/user/interface/IWalletService";
 import { WalletService as UserWalletService } from "../../services/user/walletService";
+import { IRatingService as IUserRatingService } from "../../services/user/interface/IRatingService";
+import { RatingService as UserRatingService } from "../../services/user/ratingService";
 
 //wasteplant
 import { IAuthService as IPlantAuthService } from "../../services/wastePlant/interface/IAuthService";
@@ -194,6 +198,8 @@ import { ISubscriptionPaymentRepository } from "../../repositories/subscriptionP
 import { SubscriptionPaymentRepository } from "../../repositories/subscriptionPayment/subscriptionPaymentRepository";
 import { IWalletRepository } from "../../repositories/wallet/interface/IWalletRepository";
 import { WalletRepository } from "../../repositories/wallet/walletRepository";
+import { IRatingRepository } from "../../repositories/rating/interface/IRatingRepository";
+import { RatingRepository } from "../../repositories/rating/ratingRepository";
 
 //Create the container
 const container = new Container();
@@ -248,6 +254,10 @@ container
 container
   .bind<IUserWalletController>(TYPES.UserWalletController)
   .to(UserWalletController);
+container
+  .bind<IUserRatingController>(TYPES.UserRatingController)
+  .to(UserRatingController);
+
 
 //wasteplant
 container
@@ -364,6 +374,9 @@ container
 container
   .bind<IUserWalletService>(TYPES.UserWalletService)
   .to(UserWalletService);
+container
+  .bind<IUserRatingService>(TYPES.UserRatingService)
+  .to(UserRatingService);
 
 //wasteplant
 container.bind<IPlantAuthService>(TYPES.PlantAuthService).to(PlantAuthService);
@@ -466,6 +479,9 @@ container
 container
   .bind<IWalletRepository>(TYPES.WalletRepository)
   .to(WalletRepository);
+container
+  .bind<IRatingRepository>(TYPES.RatingRepository)
+  .to(RatingRepository);
 
 // Bind factory for circular dep
 container

@@ -8,17 +8,20 @@ import {
     FaPhone,
     FaMapMarkerAlt,
   } from "react-icons/fa";
-  import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import UserRating from "../common/UserRating";
   
   const Footer = () => {
     const navigate = useNavigate();
-  
+
     const handleNavigation = (path: string) => {
       navigate(path);
     };
   
     return (
       <footer className="w-full">
+         {/* ⭐ User Rating Section */}
+        <UserRating />
         <div className="bg-green-700 text-white py-8">
           <div className="container mx-auto px-4">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">

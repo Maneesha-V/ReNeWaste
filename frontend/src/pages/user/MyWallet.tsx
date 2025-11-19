@@ -272,19 +272,23 @@ const MyWallet = () => {
                           ? `+ ₹${txn.amount}`
                           : `- ₹${Math.abs(txn.amount)}`}
                       </td>
-                      <td
-                        className={`p-3 border-b ${
-                          txn.status === "Paid"
-                            ? "text-green-500"
-                            : txn.status === "Pending"
-                            ? "text-yellow-500"
-                            : txn.status === "InProgress"
-                            ? "text-orange-500"
-                            : "text-red-500"
-                        }`}
-                      >
-                        {txn.status}
-                      </td>
+                      {(txn.refundStatus || txn.status) && (
+                        <td
+                          className={`p-3 border-b ${
+                            txn.refundStatus === "Refunded" ||
+                            txn.status === "Paid"
+                              ? "text-green-500"
+                              : txn.status === "Pending"
+                              ? "text-yellow-500"
+                              : txn.status === "InProgress"
+                              ? "text-orange-500"
+                              : "text-red-500"
+                          }`}
+                        >
+                          {txn.refundStatus ? txn.refundStatus : txn.status}
+                        </td>
+                      )}
+
                       <td className="p-3 border-b">
                         {txn.status === "InProgress" && (
                           <button
