@@ -64,6 +64,8 @@ import { ReportController as PlantReportController } from "../../controllers/was
 import { IReportController as IPlantReportController } from "../../controllers/wastePlant/interface/IReportController";
 import { IProfileController as IPlantProfileController } from "../../controllers/wastePlant/interface/IProfileController";
 import { ProfileController as PlantProfileController } from "../../controllers/wastePlant/profileController";
+import { IWalletController as IPlantWalletController } from "../../controllers/wastePlant/interface/IWalletController";
+import { WalletController as PlantWalletController } from "../../controllers/wastePlant/walletController";
 
 //driver
 import { IAuthController as IDriverAuthController } from "../../controllers/driver/interface/IAuthController";
@@ -82,6 +84,8 @@ import { INotificationController as IDriverNotificationController } from "../../
 import { NotificationController as DriverNotificationController } from "../../controllers/driver/notificationController";
 import { IDashboardController as IDriverDashboardController } from "../../controllers/driver/interface/IDashboardController";
 import { DashboardController as DriverDashboardController } from "../../controllers/driver/dashboardController";
+import { IWalletController as IDriverWalletController } from "../../controllers/driver/interface/IWalletController";
+import { WalletController as DriverWalletController } from "../../controllers/driver/walletController";
 
 //-- Services & their interfaces --
 
@@ -148,6 +152,8 @@ import { IReportService as IPlantReportService } from "../../services/wastePlant
 import { ReportService as PlantReportService } from "../../services/wastePlant/reportService";
 import { IProfileService as IPlantProfileService } from "../../services/wastePlant/interface/IProfileService";
 import { ProfileService as PlantProfileService } from "../../services/wastePlant/profileService";
+import { IWalletService as IPlantWalletService } from "../../services/wastePlant/interface/IWalletService";
+import { WalletService as PlantWalletService } from "../../services/wastePlant/walletService";
 
 //driver
 import { IAuthService as IDriverAuthService } from "../../services/driver/interface/IAuthService";
@@ -166,6 +172,8 @@ import { INotificationService as IDriverNotificationService } from "../../servic
 import { NotificationService as DriverNotificationService } from "../../services/driver/notificationService";
 import { IDashboardService as IDriverDashboardService } from "../../services/driver/interface/IDashboardService";
 import { DashboardService as DriverDashboardService } from "../../services/driver/dashboardService";
+import { IWalletService as IDriverWalletService } from "../../services/driver/interface/IWalletService";
+import { WalletService as DriverWalletService } from "../../services/driver/walletService";
 
 //-- Repositories & their interfaces --
 import { SuperAdminRepository } from "../../repositories/superAdmin/superAdminRepository";
@@ -200,6 +208,9 @@ import { IWalletRepository } from "../../repositories/wallet/interface/IWalletRe
 import { WalletRepository } from "../../repositories/wallet/walletRepository";
 import { IRatingRepository } from "../../repositories/rating/interface/IRatingRepository";
 import { RatingRepository } from "../../repositories/rating/ratingRepository";
+import { IAttendanceRepository } from "../../repositories/atendance/interface/IAttendanceRepository";
+import { AttendanceRepository } from "../../repositories/atendance/attendanceRepository";
+
 
 //Create the container
 const container = new Container();
@@ -299,6 +310,9 @@ container
 container
   .bind<IPlantProfileController>(TYPES.PlantProfileController)
   .to(PlantProfileController);
+container
+  .bind<IPlantWalletController>(TYPES.PlantWalletController)
+  .to(PlantWalletController);
 
 //driver
 container
@@ -325,7 +339,9 @@ container
 container
   .bind<IDriverDashboardController>(TYPES.DriverDashboardController)
   .to(DriverDashboardController);
-
+container
+  .bind<IDriverWalletController>(TYPES.DriverWalletController)
+  .to(DriverWalletController)
 //--Bind Services--
 
 //superadmin
@@ -412,6 +428,10 @@ container
 container
   .bind<IPlantProfileService>(TYPES.PlantProfileService)
   .to(PlantProfileService);
+container
+  .bind<IPlantWalletService>(TYPES.PlantWalletService)
+  .to(PlantWalletService);
+  
 
 //driver
 container
@@ -436,6 +456,9 @@ container
 container
   .bind<IDriverDashboardService>(TYPES.DriverDashboardService)
   .to(DriverDashboardService);
+container
+  .bind<IDriverWalletService>(TYPES.DriverWalletService)
+  .to(DriverWalletService);
 
 //--Bind Repositories--
 container
@@ -482,6 +505,9 @@ container
 container
   .bind<IRatingRepository>(TYPES.RatingRepository)
   .to(RatingRepository);
+container
+  .bind<IAttendanceRepository>(TYPES.AttendanceRepository)
+  .to(AttendanceRepository);
 
 // Bind factory for circular dep
 container

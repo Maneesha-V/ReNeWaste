@@ -38,6 +38,7 @@ const TYPES = {
   PlantDashboardController: Symbol.for("PlantDashboardController"),
   PlantReportController: Symbol.for("PlantReportController"),
   PlantProfileController: Symbol.for("PlantProfileController"),
+  PlantWalletController: Symbol.for("PlantWalletController"),
 
   //driver
   DriverAuthController: Symbol.for("DriverAuthController"),
@@ -48,7 +49,8 @@ const TYPES = {
   DriverTruckController: Symbol.for("DriverTruckController"),
   DriverNotificationController: Symbol.for("DriverNotificationController"),
   DriverDashboardController: Symbol.for("DriverDashboardController"),
-
+  DriverWalletController: Symbol.for("DriverWalletController"),
+  
   //--services--
 
   //superadmin
@@ -85,6 +87,7 @@ const TYPES = {
   PlantDashboardService: Symbol.for("PlantDashboardService"),
   PlantReportService: Symbol.for("PlantReportService"),
   PlantProfileService: Symbol.for("PlantProfileService"),
+  PlantWalletService: Symbol.for("PlantWalletService"),
 
   //driver
   DriverAuthService: Symbol.for("DriverAuthService"),
@@ -95,6 +98,7 @@ const TYPES = {
   DriverTruckService: Symbol.for("DriverTruckService"),
   DriverNotificationService: Symbol.for("DriverNotificationService"),
   DriverDashboardService: Symbol.for("DriverDashboardService"),
+  DriverWalletService: Symbol.for("DriverWalletService"),
 
   //--repositories--
   SuperAdminRepository: Symbol.for("SuperAdminRepository"),
@@ -113,7 +117,8 @@ const TYPES = {
   SubscriptionPaymentRepository: Symbol.for("SubscriptionPaymentRepository"),
   WalletRepository: Symbol.for("WalletRepository"),
   RatingRepository: Symbol.for("RatingRepository"),
-
+  AttendanceRepository: Symbol.for("AttendanceRepository"),
+  
   //-factories--
   DriverRepositoryFactory: Symbol.for("DriverRepositoryFactory"),
   TruckRepositoryFactory: Symbol.for("TruckRepositoryFactory"),
