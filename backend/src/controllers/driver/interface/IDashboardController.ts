@@ -12,4 +12,15 @@ export interface IDashboardController {
     res: Response,
     next: NextFunction,
   ): Promise<void>;
+    markAttendance(
+    req: AuthRequest,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void>;
+    fetchDriverEarnStats(
+    req: AuthRequest,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void>;
+  
 }

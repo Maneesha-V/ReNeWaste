@@ -119,6 +119,7 @@ export const MESSAGES = {
       TRUCK_REQ_SENT: "Truck request sent successfully.",
       MARK_RETURN_TRUCK: "Truck marked as returned.",
       MARK_PICKUP_COMPLETED: "Marked pickup as completed.",
+      MARK_ATTENDANCE: "Attendance marked successfully",
     },
     ERROR: {
       IMG_ERRROR: "Both license front and back images are required.",

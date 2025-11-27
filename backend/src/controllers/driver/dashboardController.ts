@@ -11,7 +11,7 @@ import { AuthRequest } from "../../dtos/base/BaseDTO";
 export class DashboardController implements IDashboardController {
   constructor(
     @inject(TYPES.DriverDashboardService)
-    private dashboardService: IDashboardService,
+    private _dashboardService: IDashboardService,
   ) {}
   async fetchDriverDashboard(
     req: AuthRequest,
@@ -28,7 +28,7 @@ export class DashboardController implements IDashboardController {
       }
 
       const dashboardData =
-        await this.dashboardService.fetchDriverDashboard(driverId);
+        await this._dashboardService.fetchDriverDashboard(driverId);
       console.log("dashboardData", dashboardData);
 
       res.status(STATUS_CODES.SUCCESS).json({
@@ -55,12 +55,72 @@ export class DashboardController implements IDashboardController {
       }
 
       const supportData =
-        await this.dashboardService.fetchWastePlantSupport(driverId);
+        await this._dashboardService.fetchWastePlantSupport(driverId);
       console.log("supportData", supportData);
 
       res.status(STATUS_CODES.SUCCESS).json({
         supportData,
         success: true,
+      });
+    } catch (error) {
+      console.error("err", error);
+      next(error);
+    }
+  }
+  async markAttendance(
+    req: AuthRequest,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> {
+    try {
+      const driverId = req.user?.id;
+      console.log("body",req.body);
+      
+      const status = req.body.status;
+      if (!driverId) {
+        throw new ApiError(
+          STATUS_CODES.UNAUTHORIZED,
+          MESSAGES.COMMON.ERROR.UNAUTHORIZED,
+        );
+      }
+
+      const result =
+        await this._dashboardService.markAttendance(driverId, status);
+      console.log("result", result);
+
+      res.status(STATUS_CODES.SUCCESS).json({
+        message: MESSAGES.DRIVER.SUCCESS.MARK_ATTENDANCE,
+        success: true,
+      });
+    } catch (error) {
+      console.error("err", error);
+      next(error);
+    }
+  }
+  async fetchDriverEarnStats(
+       req: AuthRequest,
+    res: Response,
+    next: NextFunction, 
+  ): Promise<void> {
+        try {
+      const driverId = req.user?.id;
+      console.log("params",req.params);
+      
+      const filter = req.query.earnFilter as string;
+      if (!driverId) {
+        throw new ApiError(
+          STATUS_CODES.UNAUTHORIZED,
+          MESSAGES.COMMON.ERROR.UNAUTHORIZED,
+        );
+      }
+
+      const earnRewardStats =
+        await this._dashboardService.fetchDriverEarnStats({driverId, filter});
+      console.log("earnRewardStats", earnRewardStats);
+
+      res.status(STATUS_CODES.SUCCESS).json({
+        success: true,
+        earnRewardStats
       });
     } catch (error) {
       console.error("err", error);
