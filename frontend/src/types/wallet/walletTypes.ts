@@ -1,6 +1,7 @@
 export type WalletDTO = {
   _id: string;
-    userId: string;
+  accountId: string;
+  accountType: string;
     balance: number;
     transactions: TransactionDTO[];
 }
@@ -52,7 +53,9 @@ export type VerifyWalletAddPaymentResp = {
   };
 };
 export type GetWalletResp = {
-  userWallet: WalletDTO;
+  transactions: TransactionDTO[];
+  total: number;
+  balance: number;
 }
 export type RetryAddMoneyResp = {
         orderId: string;
@@ -60,4 +63,10 @@ export type RetryAddMoneyResp = {
       currency: string;
       walletId: string;
       expiresAt: string;
+}
+export type GetWalletWPResp = {
+  transactions: TransactionDTO[];
+  balance: number;
+  total: number;
+  earnings: number;
 }

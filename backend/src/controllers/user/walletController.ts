@@ -19,19 +19,20 @@ export class WalletController implements IWalletController {
       next: NextFunction,
     ): Promise<void> {
       try {
-        const userId = req.user?.id;
+        const accountId = req.user?.id;
+        const accountType = "User";
         console.log("body",req.body);
         
         const { data } = req.body;
         console.log("data",data);
         
-        if (!userId) {
+        if (!accountId) {
           throw new ApiError(
             STATUS_CODES.UNAUTHORIZED,
             MESSAGES.COMMON.ERROR.UNAUTHORIZED,
           );
         }
-        const walletPayOrder = await this._walletService.createAddMoneyOrder({userId, data});
+        const walletPayOrder = await this._walletService.createAddMoneyOrder({accountId, accountType, data});
         console.log("walletPayOrder", walletPayOrder);
   
         res
@@ -47,19 +48,20 @@ export class WalletController implements IWalletController {
       next: NextFunction,
     ): Promise<void> {
       try {
-        const userId = req.user?.id;
+        const accountId = req.user?.id;
+        const accountType = "User";
         console.log("body",req.body);
         
         const { data } = req.body;
         console.log("data",data);
         
-        if (!userId) {
+        if (!accountId) {
           throw new ApiError(
             STATUS_CODES.UNAUTHORIZED,
             MESSAGES.COMMON.ERROR.UNAUTHORIZED,
           );
         }
-        const walletVerPayOrder = await this._walletService.verifyWalletAddPayment({userId, data});
+        const walletVerPayOrder = await this._walletService.verifyWalletAddPayment({accountId, accountType, data});
         console.log("res", res);
       
         res
@@ -78,19 +80,29 @@ export class WalletController implements IWalletController {
       next: NextFunction,
     ): Promise<void> {
       try {
-        const userId = req.user?.id;
+        const accountId = req.user?.id;
+        const accountType = "User";
            
-        if (!userId) {
+        if (!accountId) {
           throw new ApiError(
             STATUS_CODES.UNAUTHORIZED,
             MESSAGES.COMMON.ERROR.UNAUTHORIZED,
           );
         }
-        const userWallet = await this._walletService.getWallet(userId);
+              const page = parseInt(req.query.page as string) || 1;
+      const limit = parseInt(req.query.limit as string) || 5;
+      const search = (req.query.search as string) || "";
+        const { transactions, balance, total} = await this._walletService.getWallet(
+          accountId, 
+          accountType,
+          page,
+          limit,
+          search
+        );
       
         res
           .status(STATUS_CODES.SUCCESS)
-          .json({userWallet});
+          .json({transactions, balance, total});
       } catch (error) {
         console.log("wallet--error",error);
         
@@ -104,16 +116,17 @@ export class WalletController implements IWalletController {
       next: NextFunction,
     ): Promise<void> {
       try {
-        const userId = req.user?.id;
+        const accountId = req.user?.id;
+        const accountType = "User";
         const transactionId = req.body.transactionId;
 
-        if (!userId) {
+        if (!accountId) {
           throw new ApiError(
             STATUS_CODES.UNAUTHORIZED,
             MESSAGES.COMMON.ERROR.UNAUTHORIZED,
           );
         }
-        const retryAddMoneyResp = await this._walletService.retryWalletAddPayment(userId,transactionId);
+        const retryAddMoneyResp = await this._walletService.retryWalletAddPayment(accountId, accountType,transactionId);
       
         res
           .status(STATUS_CODES.SUCCESS)

@@ -11,23 +11,29 @@ import {
   CreateWalletOrderResp,
   GetWalletResp,
   RetryAddMoneyResp,
+  TransactionDTO,
   VerifyWalletAddPaymentReq,
   VerifyWalletAddPaymentResp,
   WalletDTO,
 } from "../../../types/wallet/walletTypes";
+import { PaginationPayload } from "../../../types/common/commonTypes";
 
 
 interface WalletState {
   loading: boolean;
   message: string | null;
   error: string | null;
-  userWallet: WalletDTO | null
+  transactions: TransactionDTO[] | [];
+  total: number;
+  balance: number;
 }
 const initialState: WalletState = {
   loading: false,
   message: null,
   error: null,
-  userWallet: null,
+  transactions: [],
+  total: 0,
+  balance: 0,
 };
 
 export const createAddMoneyOrder = createAsyncThunk<
@@ -64,11 +70,12 @@ export const verifyWalletAddPayment = createAsyncThunk<
 });
 export const getWallet = createAsyncThunk<
   GetWalletResp,
-  void,
+  PaginationPayload,
   { rejectValue: { error: string } }
->("userWallet/getWallet", async (_, { rejectWithValue }) => {
+>("userWallet/getWallet", async (
+  { page, limit, search }: PaginationPayload, { rejectWithValue }) => {
   try {
-    const response = await getWalletService();
+    const response = await getWalletService({ page, limit, search });
     console.log("response", response);
 
     return response;
@@ -121,7 +128,9 @@ const userWalletSlice = createSlice({
       .addCase(getWallet.fulfilled, (state, action) => {
         console.log("acc", action.payload);
         state.loading = false;
-        state.userWallet = action.payload.userWallet;
+        state.transactions = action.payload.transactions;
+        state.total = action.payload.total;
+        state.balance = action.payload.balance;
       })
       .addCase(getWallet.rejected, (state, action) => {
         state.loading = false;

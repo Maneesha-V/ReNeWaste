@@ -11,6 +11,7 @@ import container from "../config/inversify/container";
 import { NotificationController } from "../controllers/driver/notificationController";
 import { DashboardController } from "../controllers/driver/dashboardController";
 import { MapController } from "../controllers/driver/mapController";
+import { WalletController } from "../controllers/driver/walletController";
 
 const router = express.Router();
 const upload = multer();
@@ -35,6 +36,7 @@ const driverDashboardCtrl = container.get<DashboardController>(
   TYPES.DriverDashboardController,
 );
 const driverMapCtrl = container.get<MapController>(TYPES.DriverMapController);
+const driverWalletCtrl = container.get<WalletController>(TYPES.DriverWalletController);
 
 router.get("/refresh-token", driverCtrl.refreshToken.bind(driverCtrl));
 router.post("/", driverCtrl.driverLogin.bind(driverCtrl));
@@ -135,6 +137,21 @@ router.get(
   "/maps/eta",
   authenticateDriver as RequestHandler,
   driverMapCtrl.getETA.bind(driverMapCtrl),
+);
+router.get(
+  "/wallet",
+  authenticateDriver as RequestHandler,
+  driverWalletCtrl.getWallet.bind(driverWalletCtrl),  
+);
+router.post(
+  "/attendance",
+  authenticateDriver as RequestHandler,
+  driverDashboardCtrl.markAttendance.bind(driverDashboardCtrl),  
+);
+router.get(
+  "/stats/earn/reward",
+  authenticateDriver as RequestHandler,
+  driverDashboardCtrl.fetchDriverEarnStats.bind(driverDashboardCtrl),  
 );
 
 export default router;

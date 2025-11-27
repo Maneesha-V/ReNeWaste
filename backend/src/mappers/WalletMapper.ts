@@ -5,7 +5,8 @@ export class WalletMapper {
   static mapWalletDTO(doc: IWalletDocument): WalletDTO {
     return {
         _id: doc?._id.toString(),
-        userId: doc?.userId.toString(),
+        accountId: doc?.accountId.toString(),
+        accountType : doc?.accountType,
     balance: doc?.balance ?? 0,
     transactions: doc?.transactions.map((tx) => this.mapTransactionDTO(tx)) ?? [],
     }

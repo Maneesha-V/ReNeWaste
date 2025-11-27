@@ -18,6 +18,7 @@ import { ReportController } from "../controllers/wastePlant/reportController";
 import { ProfileController } from "../controllers/wastePlant/profileController";
 import upload from "../config/multer";
 import { checkNotBlocked } from "../middlewares/blockMiddleware";
+import { WalletController } from "../controllers/wastePlant/walletController";
 
 const router = express.Router();
 const plantCtrl = container.get<AuthController>(TYPES.PlantAuthController);
@@ -52,6 +53,9 @@ const plantReportCtrl = container.get<ReportController>(
 );
 const plantProfileCtrl = container.get<ProfileController>(
   TYPES.PlantProfileController,
+);
+const plantWalletCtrl = container.get<WalletController>(
+  TYPES.PlantWalletController
 );
 
 router.get("/refresh-token", plantCtrl.refreshToken.bind(plantCtrl));
@@ -357,5 +361,11 @@ router.patch(
   authenticateWastePlant as RequestHandler,
   checkNotBlocked,
   plantSubscriptionCtrl.cancelSubcptReason.bind(plantSubscriptionCtrl),
+);
+router.get(
+  "/wallet",
+  authenticateWastePlant as RequestHandler,
+  checkNotBlocked,
+  plantWalletCtrl.getWallet.bind(plantWalletCtrl),  
 );
 export default router;

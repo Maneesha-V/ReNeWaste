@@ -6,6 +6,7 @@ import { IUserRepository } from "../../repositories/user/interface/IUserReposito
 import {
   AddMoneyToWalletReq,
   CreateWalletOrderResp,
+  GetWalletUserResp,
   RetryWalletAddPaymentResp,
   VerifyWalletAddPaymentReq,
   VerifyWalletAddPaymentResp,
@@ -43,16 +44,20 @@ export class WalletService implements IWalletService {
     payload: AddMoneyToWalletReq
   ): Promise<CreateWalletOrderResp> {
     const {
-      userId,
+      accountId,
+      accountType,
       data: { amount, description, type },
     } = payload;
     let userWallet;
-    userWallet = await this._walletRepository.findWalletByUserId(userId);
+    userWallet = await this._walletRepository.findWallet(
+      accountId,
+      accountType
+    );
     if (!userWallet) {
-      userWallet = await this._walletRepository.createUserWallet(payload);
+      userWallet = await this._walletRepository.createWallet(payload);
     }
-    console.log("userWallet",userWallet);
-    
+    console.log("userWallet", userWallet);
+
     const now = new Date();
     const transactions = userWallet.transactions;
     const activeTransaction = transactions.find(
@@ -66,8 +71,8 @@ export class WalletService implements IWalletService {
         "A payment is already in progress. Please wait a few minutes before retrying."
       );
     }
-    console.log("activeTransaction",activeTransaction);
-    
+    console.log("activeTransaction", activeTransaction);
+
     let expiredTransaction = transactions.find(
       (tx) =>
         tx.status === "InProgress" &&
@@ -83,24 +88,24 @@ export class WalletService implements IWalletService {
         currency: "INR",
         receipt: `receipt_${userWallet._id}_${Date.now().toString().slice(-4)}`,
         notes: {
-          userId,
+          accountId,
         },
         payment_capture: true,
       });
       expiredTransaction.razorpayOrderId = order.id;
       expiredTransaction.inProgressExpiresAt = inProgressExpiresAt;
-          console.log("expiredTransaction",expiredTransaction);
+      console.log("expiredTransaction", expiredTransaction);
     } else {
       order = await this._razorpay.orders.create({
         amount: amount * 100,
         currency: "INR",
         receipt: `receipt_${userWallet._id}_${Date.now().toString().slice(-4)}`,
         notes: {
-          userId,
+          accountId,
         },
         payment_capture: true,
       });
-      
+
       userWallet.transactions.push({
         type,
         amount,
@@ -124,7 +129,7 @@ export class WalletService implements IWalletService {
   async verifyWalletAddPayment(
     payload: VerifyWalletAddPaymentReq
   ): Promise<VerifyWalletAddPaymentResp> {
-    const { userId, data } = payload;
+    const { accountId, accountType, data } = payload;
     const {
       razorpay_order_id,
       razorpay_payment_id,
@@ -167,36 +172,66 @@ export class WalletService implements IWalletService {
       transactionId: transaction._id.toString(),
     };
   }
-  async getWallet(userId: string): Promise<WalletDTO> {
-    const userWallet = await this._walletRepository.findWalletByUserId(userId);
+  async getWallet(
+    accountId: string,
+    accountType: string,
+    page: number,
+    limit: number,
+    search: string
+  ): Promise<GetWalletUserResp> {
+    const userWallet = await this._walletRepository.findWallet(
+      accountId,
+      accountType
+    );
     if (!userWallet) {
       throw new Error("Wallet not found for this user");
     }
     console.log("userWallet", userWallet);
-
-    return WalletMapper.mapWalletDTO(userWallet);
+    const { transactions, total } =
+      await this._walletRepository.paginatedUserGetWallet({
+        walletId: userWallet._id.toString(),
+        page,
+        limit,
+        search,
+      });
+      console.log({transactions, total});
+      
+    return {
+      transactions: WalletMapper.mapTransactionsDTO(transactions),
+      balance: userWallet.balance,
+      total,
+    };
   }
-  async retryWalletAddPayment(userId: string, transactionId: string): Promise<RetryWalletAddPaymentResp> {
-    const userWallet = await this._walletRepository.findWalletByUserId(userId);
-    if(!userWallet) throw new Error("Wallet not found for this user.")
+  async retryWalletAddPayment(
+    accountId: string,
+    accountType: string,
+    transactionId: string
+  ): Promise<RetryWalletAddPaymentResp> {
+    const userWallet = await this._walletRepository.findWallet(
+      accountId,
+      accountType
+    );
+    if (!userWallet) throw new Error("Wallet not found for this user.");
     const transaction = userWallet?.transactions.find(
       (tx) => tx._id.toString() === transactionId
-    )
-    if(!transaction) throw new Error("Transaction not found.");
+    );
+    if (!transaction) throw new Error("Transaction not found.");
     const now = new Date();
-        if(
+    if (
       transaction.status === "InProgress" &&
-      transaction.inProgressExpiresAt && 
-      transaction.inProgressExpiresAt <= now){
+      transaction.inProgressExpiresAt &&
+      transaction.inProgressExpiresAt <= now
+    ) {
       transaction.status = "Pending";
       transaction.inProgressExpiresAt = null;
     }
-    if(
+    if (
       transaction.status === "InProgress" &&
-      transaction.inProgressExpiresAt && 
-      transaction.inProgressExpiresAt > now){
+      transaction.inProgressExpiresAt &&
+      transaction.inProgressExpiresAt > now
+    ) {
       throw new Error(
-        "A payment is already in progress. Please wait a few minutes before retrying.",
+        "A payment is already in progress. Please wait a few minutes before retrying."
       );
     }
 

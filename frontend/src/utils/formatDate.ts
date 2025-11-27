@@ -1,7 +1,7 @@
 import dayjs from "dayjs";
 import { NotificationResp } from "../types/notification/notificationTypes";
 
-export function formatDateToDDMMYYYY(dateStr: string | null): string {
+export function formatDateToDDMMYYYY(dateStr: string | Date | null): string {
   if (!dateStr) return "-"; 
   const date = new Date(dateStr);
 
@@ -67,3 +67,19 @@ export function extractDateTimeParts(isoString: string) {
 export const sortByDateDesc = (a: NotificationResp, b: NotificationResp) => {
   return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
 };
+
+export const extractDateAndTime24H = (isoString: string | Date) => {
+  const dateObj = new Date(isoString);
+
+  const day = String(dateObj.getDate()).padStart(2, "0");
+  const month = String(dateObj.getMonth() + 1).padStart(2, "0");
+  const year = dateObj.getFullYear();
+
+  const hours = String(dateObj.getHours()).padStart(2, "0");   
+  const minutes = String(dateObj.getMinutes()).padStart(2, "0");
+
+  return {
+    date: `${day}-${month}-${year}`,
+    time: `${hours}:${minutes}`,
+  };
+}

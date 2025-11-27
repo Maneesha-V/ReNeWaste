@@ -8,7 +8,7 @@ export const walletTransactionSchema: Schema<IWalletTransactionDocument> =
   new Schema({
     type: {
       type: String,
-      enum: ["Credit", "Debit"],
+      enum: ["Credit", "Debit","Reward","Earning"],
       required: true,
     },
     amount: {
@@ -69,9 +69,19 @@ export const walletTransactionSchema: Schema<IWalletTransactionDocument> =
   );
 
 export const walletSchema: Schema<IWalletDocument> = new Schema({
-  userId: {
+  // userId: {
+  //   type: mongoose.Schema.Types.ObjectId,
+  //   ref: "User",
+  //   required: true,
+  // },
+  accountId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "User",
+    required: true,
+    index: true,
+  },
+  accountType: {
+    type: String,
+    enum: ["User", "Driver", "WastePlant","SuperAdmin"],
     required: true,
   },
   balance: {

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Footer from "../../components/user/Footer";
 import Header from "../../components/user/Header";
 import AddMoneyModal from "../../components/common/AddMoneyModal";
@@ -17,18 +17,48 @@ import { RazorpayResponse } from "../../types/pickupReq/paymentTypes";
 import { loadRazorpayScript } from "../../utils/razorpayUtils";
 import { useSelector } from "react-redux";
 import { RootState } from "../../redux/store";
+import debounce from "lodash/debounce";
+import usePagination from "../../hooks/usePagination";
+import PaginationSearch from "../../components/common/PaginationSearch";
+import { Pagination } from "antd";
+import { extractDateAndTime24H } from "../../utils/formatDate";
 
 const MyWallet = () => {
   const dispatch = useAppDispatch();
   const [showModal, setShowModal] = useState(false);
-  const userWallet = useSelector(
-    (state: RootState) => state.userWallet.userWallet
+  const { transactions, total, balance } = useSelector(
+    (state: RootState) => state.userWallet
   );
-  console.log("userWallet", userWallet);
-
+  console.log("transactions", transactions);
+  const { currentPage, setCurrentPage, pageSize, search, setSearch } =
+    usePagination();
+  const debouncedFetchWallet = useMemo(
+    () =>
+      debounce((page: number, limit: number, query: string) => {
+        dispatch(getWallet({ page, limit, search: query }));
+      }, 500),
+    []
+  );
   useEffect(() => {
-    dispatch(getWallet());
-  }, [dispatch]);
+    debouncedFetchWallet(currentPage, pageSize, search);
+
+    return () => {
+      debouncedFetchWallet.cancel();
+    };
+  }, [currentPage, pageSize, search]);
+
+  // useEffect(() => {
+  //   dispatch(getWallet());
+  // }, [dispatch]);
+  const refreshWallet = () => {
+    dispatch(
+      getWallet({
+        page: currentPage,
+        limit: pageSize,
+        search,
+      })
+    );
+  };
 
   const handleAddMoney = async (data: AddMoneyReq) => {
     try {
@@ -74,7 +104,8 @@ const MyWallet = () => {
                   text: `₹${res.walletVerPayOrder.amount} ${res.message}`,
                   confirmButtonColor: "#28a745",
                 });
-                dispatch(getWallet());
+                // dispatch(getWallet());
+                refreshWallet();
               })
               .then(() => {
                 setShowModal(false);
@@ -101,7 +132,8 @@ const MyWallet = () => {
         razorpay.on("modal.closed", function () {
           console.warn("Razorpay modal closed by user.");
           toast.info("Payment window closed.");
-          dispatch(getWallet());
+          // dispatch(getWallet());
+          refreshWallet();
         });
 
         razorpay.open();
@@ -139,7 +171,6 @@ const MyWallet = () => {
           order_id: orderId,
           handler: function (response: RazorpayResponse) {
             console.log("response", response);
-
             const {
               razorpay_order_id,
               razorpay_payment_id,
@@ -164,7 +195,8 @@ const MyWallet = () => {
                   text: `₹${res.walletVerPayOrder.amount} ${res.message}`,
                   confirmButtonColor: "#28a745",
                 });
-                dispatch(getWallet());
+                // dispatch(getWallet());
+                refreshWallet();
               })
               .catch((err) => {
                 Swal.fire({
@@ -188,7 +220,8 @@ const MyWallet = () => {
         razorpay.on("modal.closed", function () {
           console.warn("Razorpay modal closed by user.");
           toast.info("Payment window closed.");
-          dispatch(getWallet());
+          // dispatch(getWallet());
+          refreshWallet();
         });
 
         razorpay.open();
@@ -212,7 +245,7 @@ const MyWallet = () => {
         <div className="bg-white shadow-md rounded-2xl p-6 mb-6 text-center">
           <h2 className="text-xl font-semibold mb-2">My Wallet</h2>
           <p className="text-3xl font-bold text-green-600">
-            ₹ {userWallet?.balance?.toFixed(2) ?? 0}
+            ₹ {balance?.toFixed(2) ?? 0}
           </p>
           <div className="flex justify-center gap-4 mt-4 flex-wrap">
             <button
@@ -228,37 +261,30 @@ const MyWallet = () => {
         <div className="bg-white shadow-md rounded-2xl p-6">
           <h3 className="text-lg font-semibold mb-4">Transaction History</h3>
           <div className="overflow-x-auto">
+            <PaginationSearch onSearchChange={setSearch} searchValue={search} />
             <table className="min-w-full text-left border-collapse">
               <thead>
                 <tr className="bg-gray-100 text-gray-700">
                   <th className="p-3 border-b">Date</th>
                   <th className="p-3 border-b">Description</th>
                   <th className="p-3 border-b">Amount</th>
+                  <th className="p-3 border-b">Type</th>
                   <th className="p-3 border-b">Status</th>
                   <th className="p-3 border-b">Action</th>
                 </tr>
               </thead>
               <tbody>
-                {userWallet &&
-                userWallet.transactions &&
-                userWallet.transactions.length > 0 ? (
-                  userWallet.transactions.map((txn, idx) => (
+                {transactions &&
+                transactions.length > 0 ? (
+                  transactions.map((txn, idx) => (
                     <tr key={idx}>
                       <td className="p-3 border-b">
-                        {txn.paidAt
-                          ? new Date(txn.paidAt).toLocaleDateString("en-IN", {
-                              day: "2-digit",
-                              month: "short",
-                              year: "numeric",
-                            })
-                          : new Date(txn.updatedAt).toLocaleDateString(
-                              "en-IN",
-                              {
-                                day: "2-digit",
-                                month: "short",
-                                year: "numeric",
-                              }
-                            )}
+                        {(() => {
+                          const { date, time } = extractDateAndTime24H(
+                            txn.paidAt ? txn.paidAt : txn.updatedAt
+                          );
+                          return `${date} ${time}`;
+                        })()}
                       </td>
                       <td className="p-3 border-b">{txn.description}</td>
                       <td
@@ -272,6 +298,7 @@ const MyWallet = () => {
                           ? `+ ₹${txn.amount}`
                           : `- ₹${Math.abs(txn.amount)}`}
                       </td>
+                      <td className="p-3 border-b">{txn.type}</td>
                       {(txn.refundStatus || txn.status) && (
                         <td
                           className={`p-3 border-b ${
@@ -310,6 +337,18 @@ const MyWallet = () => {
                 )}
               </tbody>
             </table>
+            <div
+              className="flex justify-end items-center py-4"
+              style={{ borderTop: "1px solid #f0f0f0" }}
+            >
+              <Pagination
+                current={currentPage}
+                pageSize={pageSize}
+                total={total}
+                onChange={setCurrentPage}
+                showSizeChanger={false}
+              />
+            </div>
           </div>
         </div>
       </main>

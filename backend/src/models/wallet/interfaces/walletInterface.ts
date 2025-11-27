@@ -24,7 +24,9 @@ export interface IWalletTransactionDocument
   _id: Types.ObjectId;
 }
 export interface IWallet {
-  userId: mongoose.Types.ObjectId;
+  // userId: mongoose.Types.ObjectId;
+  accountId: mongoose.Types.ObjectId;
+  accountType: string;
   balance: number;
   transactions: Types.DocumentArray<IWalletTransactionDocument>;
 }

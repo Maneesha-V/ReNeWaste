@@ -16,6 +16,7 @@ import Unauthorized from "../pages/driver/Unauthorized";
 import NotFoundPage from "../pages/driver/NotFoundPage";
 import DriverChat from "../pages/driver/DriverChat";
 import Support from "../pages/driver/Support";
+import Wallet from "../pages/driver/Wallet";
 
 const DriverRoutes = () => {
   return (
@@ -37,6 +38,7 @@ const DriverRoutes = () => {
           <Route path="/assigned-trucks" element={<AssignedTrucks />} />        
           <Route path="/chat" element={<DriverChat />} />
           <Route path="/support" element={<Support />} />
+          <Route path="/wallet" element={<Wallet />} />
         </Route>
       </Route>
       

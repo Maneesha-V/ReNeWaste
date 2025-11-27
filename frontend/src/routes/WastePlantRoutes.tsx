@@ -25,6 +25,7 @@ import WasteReports from "../pages/wastePlant/WasteReports";
 import ProfileWasteplant from "../pages/wastePlant/ProfileWasteplant";
 import EditProfileWasteplant from "../pages/wastePlant/EditProfileWasteplant";
 import Blocked from "../pages/wastePlant/Blocked";
+import Wallet from "../pages/wastePlant/Wallet";
 
 const WastePlantRoutes = () => {
   return (
@@ -58,6 +59,7 @@ const WastePlantRoutes = () => {
           <Route path="/payment" element={<Payments />} />
           <Route path="/subscription-plan" element={<Subscription />} />
           <Route path="/waste-reports" element={<WasteReports />} />
+          <Route path="/wallet" element={<Wallet />} />
         </Route>
       </Route>
       

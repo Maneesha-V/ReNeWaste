@@ -20,6 +20,7 @@ import wastePlantPaymentsReducer from "../redux/slices/wastePlant/wastePlantPaym
 import wastePlantSubscriptionReducer from "../redux/slices/wastePlant/wastePlantSubscriptionSlice";
 import wastePlantReportsReducer from "../redux/slices/wastePlant/wastePlantReportsSlice";
 import wastePlantProfileReducer from "../redux/slices/wastePlant/wastePlantProfileSlice";
+import wastePlantWalletReducer from "../redux/slices/wastePlant/wastePlantWalletSlice";
 
 import driverReducer from "../redux/slices/driver/driverSlice";
 import driverProfileReducer from "../redux/slices/driver/profileDriverSlice";
@@ -30,6 +31,7 @@ import driverTrucksReducer from "../redux/slices/driver/truckDriverSlice";
 import driverChatsReducer from "../redux/slices/driver/chatDriverSlice";
 import driverNotificationsReducer from "../redux/slices/driver/driverNotificationSlice";
 import driverDashboardReducer from "../redux/slices/driver/dashboardDriverSlice";
+import driverWalletReducer from "../redux/slices/driver/walletDriverSlice";
 
 import  userReducer  from "../redux/slices/user/userSlice";
 import userPickupReducer from "../redux/slices/user/userPickupSlice";
@@ -71,6 +73,7 @@ export const store = configureStore({
         wastePlantSubscription: wastePlantSubscriptionReducer,
         wastePlantReports: wastePlantReportsReducer,
         wastePlantProfile: wastePlantProfileReducer,
+        wastePlantWallet: wastePlantWalletReducer,
         driver: driverReducer,
         driverProfile: driverProfileReducer,
         driverPickups: driverPickupsReducer,
@@ -78,6 +81,7 @@ export const store = configureStore({
         driverChats: driverChatsReducer,
         driverNotifications: driverNotificationsReducer,
         driverDashboard: driverDashboardReducer,
+        driverWallet: driverWalletReducer,
     }
 })
 

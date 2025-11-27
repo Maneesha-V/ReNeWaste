@@ -1,4 +1,5 @@
 import { axiosUser } from "../../config/axiosClients"
+import { PaginationPayload } from "../../types/common/commonTypes";
 import { AddMoneyReq, VerifyWalletAddPaymentReq } from "../../types/wallet/walletTypes";
 
 export const addMoneyService = async (data: AddMoneyReq) => {
@@ -13,8 +14,10 @@ export const verifyWalletPaymentService  = async (data: VerifyWalletAddPaymentRe
     })
     return response.data;
 }
-export const getWalletService = async () => {
-    const response = await axiosUser.get("/wallet");
+export const getWalletService = async ({ page, limit, search }: PaginationPayload) => {
+    const response = await axiosUser.get("/wallet",{
+        params: { page, limit, search }
+    });
     return response.data;
 }
 export const retryAddMoneyService = async (transactionId: string) => {
