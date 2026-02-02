@@ -23,8 +23,11 @@ export class DropSpotService implements IDropSpotService {
     }
 
     const userAddress = user.addresses[0];
+    console.log("userAddress",userAddress);
+    
     const { location, district, state } = userAddress;
     const wasteplantId = user.wasteplantId;
+  
     if (!wasteplantId) {
       throw new Error("User's wasteplantId is missing");
     }
@@ -35,6 +38,8 @@ export class DropSpotService implements IDropSpotService {
         state,
         wasteplantId,
       });
+      console.log("drops",dropspots);
+      
     if (!dropspots) {
       throw new Error("Drop spots not found.");
     }

@@ -4,6 +4,7 @@ import {
   CarOutlined,
   InboxOutlined,
   CustomerServiceOutlined,
+  WalletOutlined,
 } from '@ant-design/icons';
 import { FaUserCircle } from 'react-icons/fa';
 import { DriverSidebarProps } from '../../types/common/modalTypes';
@@ -14,7 +15,7 @@ const SidebarDriver = ({ collapsed }: DriverSidebarProps) => {
     { key: 'dashboard', icon: <DashboardOutlined />, label: 'Dashboard', path: '/driver/dashboard' },
     { key: 'pickups', icon: <InboxOutlined />, label: 'Alloted Pickups', path: '/driver/alloted-pickups' },
     { key: 'assigned-trucks', icon: <CarOutlined />, label: 'Assigned Trucks', path: '/driver/assigned-trucks' },
-    // { key: 'stats', icon: <BarChartOutlined />, label: 'Stats', path: '/driver/stats' },
+    { key: 'wallet', icon: <WalletOutlined />, label: 'Wallet', path: '/driver/wallet' },
     { key: 'support', icon: <CustomerServiceOutlined />, label: 'Support', path: '/driver/support' } 
   ];
 

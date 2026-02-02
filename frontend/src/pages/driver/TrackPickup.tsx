@@ -1,4 +1,4 @@
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useRef, useState } from "react";
 import { Spin, Card, Button, Tag } from "antd";
 import { RootState } from "../../redux/store";
@@ -14,20 +14,21 @@ import { getDistanceFromLatLonInKm } from "../../utils/mapUtils";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
-import { useSocket } from "../../hooks/useSocket";
+import { useSafeSocket } from "../../hooks/useSocket";
+import { formatDateToDDMMYYYY, formatTimeTo12Hour } from "../../utils/formatDate";
 
 const TrackPickup = () => {
   const { pickupReqId } = useParams<{ pickupReqId: string }>();
   const dispatch = useAppDispatch();
-  const socket = useSocket();
+  const socket = useSafeSocket();
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
-
+  const navigate = useNavigate();
   const {
     selectedPickup: pickup,
-    loading,
-    error,
+    loading
   } = useSelector((state: RootState) => state.driverPickups);
-
+  const eta = useSelector((state: RootState) => state.driverPickups.eta);
+  
   const [journeyStarted, setJourneyStarted] = useState(false);
   const [driverLocation, setDriverLocation] = useState<[number, number] | null>(
     null
@@ -47,6 +48,7 @@ const TrackPickup = () => {
       navigator.geolocation.getCurrentPosition(
         (position) => {
           const { latitude, longitude, accuracy } = position.coords;
+          console.log("accuracy",accuracy)
           const fallbackLat = 10.886702;
           const fallbackLng = 76.039615;
           const finalLat = accuracy > 1000 ? fallbackLat : latitude;
@@ -200,65 +202,59 @@ if (newStatus === "Completed") {
   });
 
   return (
-    <div className="p-4 max-w-4xl mx-auto space-y-4">
+    <div className="p-4 max-w-6xl mx-auto">
       <h2 className="text-2xl font-semibold text-gray-800 mb-4">
         Pickup Details
       </h2>
+      <div className="grid grid-cols-1 md:grid-cols-[1fr_2fr] gap-4">
+      <Card bordered className="shadow-md w-full h-full p-4">
+  <div className="space-y-2 text-sm sm:text-base">
 
-      <Card bordered className="shadow-md">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm sm:text-base">
-          <div>
-            <p>
-              <strong>Pickup ID:</strong> {pickup.pickupId}
-            </p>
-            <p>
-              <strong>User Name:</strong> {pickup.userName}
-            </p>
-            <p>
-              <strong>Pickup Date:</strong>{" "}
-              {/* {pickup.originalPickupDate?.slice(0, 10)} */}
-            </p>
-            <p>
-              <strong>Time:</strong> {pickup.pickupTime}
-            </p>
-            <p>
-              <strong>Status:</strong> <Tag color="green">{pickup.status}</Tag>
-            </p>
-            <p>
-              <strong>ETA:</strong>{" "}
-              {error
-                ? "Failed to fetch ETA"
-                : pickup.eta?.text || "Calculating..."}
-            </p>
-            {/* <p><strong>Tracking:</strong> {pickup.trackingStatus}</p> */}
-            <Button
-              type="primary"
-              onClick={handleStartJourney}
-              disabled={pickup.trackingStatus === "Completed" || journeyStarted}
-              className="mt-3"
-            >
-              {journeyStarted ? "Journey Started" : "Start Pickup Journey"}
-            </Button>
-          </div>
+    <p><strong>Pickup ID:</strong> {pickup.pickupId}</p>
+    <p><strong>User Name:</strong> {pickup.userName}</p>
+    <p><strong>Pickup Date:</strong> {pickup.originalPickupDate ? formatDateToDDMMYYYY(pickup.originalPickupDate): ""}</p>
+    <p><strong>Time:</strong> {pickup.pickupTime ? formatTimeTo12Hour(pickup.pickupTime) : ""}</p>
 
-          <div className="text-gray-700">
-            <p>
-              <strong>Address:</strong>
-            </p>
-            <p>{pickup.userAddress.addressLine1}</p>
-            <p>{pickup.userAddress.addressLine2}</p>
-            <p>
-              {pickup.userAddress.location}, {pickup.userAddress.taluk}
-            </p>
-            <p>
-              {pickup.userAddress.district}, {pickup.userAddress.state}{" "}
-              - {pickup.userAddress.pincode}
-            </p>
-          </div>
-        </div>
-      </Card>
+    <p>
+      <strong>Status:</strong>
+      <Tag color="green" className="ml-2">{pickup.status}</Tag>
+    </p>
+    <p>
+      <strong>ETA:</strong> 
+      {eta?.duration?.text || pickup?.eta?.text || "Calculating..."}
+    </p>
 
-      <div className="h-[400px] rounded overflow-hidden shadow-md">
+{/* <hr className="my-2" /> */}
+
+    {/* Address Section */}
+    <div className="space-y-1">
+      <p><strong>Address:</strong></p>
+      <p>{pickup.userAddress.addressLine1}</p>
+      <p>{pickup.userAddress.addressLine2}</p>
+      <p>{pickup.userAddress.location}, {pickup.userAddress.taluk}</p>
+      <p>{pickup.userAddress.district}, {pickup.userAddress.state} - {pickup.userAddress.pincode}</p>
+    </div>
+    <p><strong>Tracking:</strong> {pickup.trackingStatus}</p>
+    <Button
+      type="primary"
+      onClick={handleStartJourney}
+      disabled={pickup.trackingStatus === "Completed" || journeyStarted}
+      className="mt-4 w-full"
+    >
+      {journeyStarted ? "Journey Started" : "Start Pickup Journey"}
+    </Button>
+    <Button
+    type="primary"
+  onClick={() => navigate("/driver/alloted-pickups")}
+  className="mt-2 w-full bg-primary"
+>
+  Go Back
+</Button>
+    
+  </div>
+</Card>
+
+      <div className="h-[500px] rounded overflow-hidden shadow-md">
         <MapContainer
           center={driverLocation ?? position}
           zoom={15}
@@ -288,6 +284,7 @@ if (newStatus === "Completed") {
 
         </MapContainer>
       </div>
+    </div>
     </div>
   );
 };

@@ -1,12 +1,15 @@
+import { ClientSession } from "mongoose";
 import { PaginationInput } from "../../../dtos/common/commonDTO";
 import {
   CheckExistingBusinessReq,
   CheckExistingBusinessResp,
   CheckExistingResidReq,
+  FindDriverPlantTruckByIdReq,
   IPickupRequestExtDocument,
   PickupDriverFilterParams,
   PickupStatusByWasteType,
   PopulatedPIckupPlans,
+  PopulatedUserPickupReq,
   RevenueByWasteType,
 } from "../../../dtos/pickupReq/pickupReqDTO";
 import { AddressDTO } from "../../../dtos/user/userDTO";
@@ -66,7 +69,7 @@ export interface IPickupRepository {
     status: string,
   ): Promise<IPickupRequestDocument | null>;
   markPickupCompletedStatus(
-    pickupReqId: string,
+    pickupReqId: string, session?: ClientSession
   ): Promise<IPickupRequestDocument | null>;
   getPickupByUserIdAndPickupReqId(
     pickupReqId: string,
@@ -113,4 +116,6 @@ export interface IPickupRepository {
   checkExistingResid(
     data: CheckExistingResidReq,
   ): Promise<CheckExistingBusinessResp | null>;
+  findDriverPlantTruckById(data: FindDriverPlantTruckByIdReq): Promise<IPickupRequestDocument[]>;
+  getDriverCompletedPickups(driverId: string): Promise<PopulatedUserPickupReq[]>;
 }

@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { Table, Button, Tag, Popconfirm } from "antd";
 import { useSelector } from "react-redux";
 import { RootState } from "../../redux/store";
-import { formatDateToDDMMYYYY } from "../../utils/formatDate";
+import { formatDateToDDMMYYYY, formatTimeTo12Hour } from "../../utils/formatDate";
 import { useAppDispatch } from "../../redux/hooks";
 import {
   fetchDriverPickups,
@@ -103,7 +103,13 @@ const AllotedPickups = () => {
                 return formatDateToDDMMYYYY(date);
               }}
             />
-            <Table.Column title="Time" dataIndex="pickupTime" />
+            <Table.Column 
+             title="Time" 
+             dataIndex="pickupTime"
+             render={(_, record: PickupPlansResp) => {
+              return formatTimeTo12Hour(record.pickupTime)
+             }}
+              />
             {driverCategory === "Commercial" && (
               <>
                 <Table.Column title="Business Name" dataIndex="businessName" />

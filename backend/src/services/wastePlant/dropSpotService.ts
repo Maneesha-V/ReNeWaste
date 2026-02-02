@@ -67,6 +67,7 @@ export class DropSpotService implements IDropSpotService {
     if (!dropspots) {
       throw new Error("Dropspots not found.");
     }
+
     return {
       dropspots: DropSpotMapper.mapDropSpotsDTO(dropspots),
       total,

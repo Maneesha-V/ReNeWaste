@@ -25,8 +25,6 @@ const ProfileDriver = () => {
 
   return (
     <main className="flex-grow p-4 sm:p-6 md:p-8 bg-green-50 min-h-screen">
-      <Breadcrumbs paths={[{ label: "Profile" }]} />
-  
       <div className="max-w-3xl mx-auto bg-white p-6 sm:p-8 rounded-lg shadow-md">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6">
           <h1 className="text-2xl font-bold text-green-700 text-center sm:text-left">

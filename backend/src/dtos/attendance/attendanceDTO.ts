@@ -10,6 +10,7 @@ export interface AttendanceDTO extends BaseDTO {
        totalPickups: number;
        reward: number;
        earning: number;
+       wpEarning: number;
        createdAt?: Date;
        updatedAt?: Date;
 }
@@ -27,6 +28,8 @@ export type FindDriverAttendanceReq = {
   export type FetchDriverEarnStats = {
     filter: string;
     driverId: string;
+    from: string;
+    to: string;
   }
   export interface DriverEarnRewardStatResp {
   _id: {
@@ -37,3 +40,9 @@ export type FindDriverAttendanceReq = {
   totalReward: number;
   totalEarning: number;
 }
+export interface AttendancePieItemDTO {
+  workType: string;
+  count: number;
+}
+
+

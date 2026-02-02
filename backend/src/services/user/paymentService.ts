@@ -221,6 +221,8 @@ export class PaymentService implements IPaymentService {
     paymentData: VerifyWalletPickupPaymentReq
   ): Promise<VerifyPaymentResp> {
     const { pickupReqId, amount, method } = paymentData;
+    const accountId = userId;
+    const accountType = "User";
     const pickupRequest =
       await this._pickupRepository.getPickupByUserIdAndPickupReqId(
         pickupReqId,
@@ -258,8 +260,11 @@ export class PaymentService implements IPaymentService {
         "A payment is already in progress. Please wait a few minutes before retrying."
       );
     }
-   
-    const wallet = await this._walletRepository.findWalletByUserId(userId);
+
+    const wallet = await this._walletRepository.findWallet(
+      accountId,
+      accountType
+    );
     if (!wallet) {
       throw new Error("Wallet not found for this user.");
     }
@@ -267,20 +272,31 @@ export class PaymentService implements IPaymentService {
       throw new Error("Insufficient wallet balance.");
     }
     wallet.balance -= amount;
+    wallet.transactions.push({
+      amount,
+      description: `Pickup payment for request ${pickupReqId}`,
+      type: "Debit",
+      paidAt: new Date(),
+      status: "Paid",
+      method: "Wallet",
+    });
+
     await wallet.save();
-const walletOrderId = `wallet_${pickupRequest.pickupId}_${Date.now()
-  .toString()
-  .slice(-6)}`;
-console.log("walletOrderId",walletOrderId);
+    const walletOrderId = `wallet_${pickupRequest.pickupId}_${Date.now()
+      .toString()
+      .slice(-6)}`;
+    console.log("walletOrderId", walletOrderId);
 
     payment.status = "Paid";
     payment.method = method;
     payment.paidAt = new Date();
     payment.inProgressExpiresAt = new Date(now.getTime() + 5 * 60 * 1000);
     payment.walletOrderId = walletOrderId;
-    await pickupRequest.save();
-    
+
     pickupRequest.markModified("payment");
+
+    await pickupRequest.save();
+
     return PickupRequestMapper.toPaymentDTO(pickupRequest);
   }
 }

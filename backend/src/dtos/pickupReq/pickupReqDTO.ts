@@ -9,6 +9,7 @@ import {
 import { ITruckDocument } from "../../models/truck/interfaces/truckInterface";
 import { IUserDocument } from "../../models/user/interfaces/userInterface";
 import { BaseDTO } from "../base/BaseDTO";
+import { AddressDTO } from "../user/userDTO";
 
 // export type PIckupReqStatus = "Pending" | "Scheduled" | "Completed"| "Cancelled" | "Rescheduled"
 export interface PickupReqDTO extends BaseDTO {
@@ -38,6 +39,7 @@ export interface PickupReqDTO extends BaseDTO {
     text: string | null;
     value: number | null;
   };
+  completedAt?: Date | null;
   payment: PaymentDTO;
 }
 export interface IPickupRequestExtDocument
@@ -112,6 +114,33 @@ export interface PickupReqGetDTO extends BaseDTO {
   userName: string;
   userAddress?: Address;
   location?: string;
+}
+export interface PopulatedUserPickupReq extends BaseDTO {
+ userId: {
+    _id: string;
+    addresses: AddressDTO[];
+  };
+  driverId?: string;
+  wasteplantId?: string;
+  truckId?: string;
+  addressId: string;
+  wasteType: string;
+  originalPickupDate: Date;
+  rescheduledPickupDate?: Date;
+  pickupTime: string;
+  pickupId: string;
+  businessName?: string;
+  service?: string;
+  frequency?: string;
+  parentRequestId?: string;
+  status: string;
+  trackingStatus?: string | null;
+  eta?: {
+    text: string | null;
+    value: number | null;
+  };
+  completedAt: Date;
+  payment: PaymentDTO;
 }
 export interface PaymentDTO {
   status: string;
@@ -256,3 +285,8 @@ export type PaymentRecord = {
   userName?: string;
   dueDate: Date;
 };
+export type FindDriverPlantTruckByIdReq = {
+  truckId: string;
+  plantId: string;
+  driverId: string;
+}

@@ -26,8 +26,8 @@ export class PickupController implements IPickupController {
         // wasteType: wasteType as string,
         driverId: driverId as string,
       });
-      console.log("pickups",pickups);
-      
+      console.log("pickups", pickups);
+
       res.status(STATUS_CODES.SUCCESS).json({
         success: true,
         pickups,
@@ -56,6 +56,7 @@ export class PickupController implements IPickupController {
         pickupReqId,
         driverId,
       );
+      console.log("tr-pickup", pickup);
 
       res.status(STATUS_CODES.SUCCESS).json({
         success: true,
@@ -141,12 +142,18 @@ export class PickupController implements IPickupController {
 
       const pickupStatus =
         await this.pickupService.markPickupCompletedService(pickupReqId);
-
-      res.status(STATUS_CODES.SUCCESS).json({
-        success: true,
-        message: MESSAGES.DRIVER.SUCCESS.MARK_PICKUP_COMPLETED,
-        pickupStatus,
-      });
+      if (pickupStatus) {
+        res.status(STATUS_CODES.SUCCESS).json({
+          success: true,
+          message: MESSAGES.DRIVER.SUCCESS.MARK_PICKUP_COMPLETED,
+          pickupStatus,
+        });
+      } else {
+        res.status(STATUS_CODES.FORBIDDEN).json({
+          success: false,
+          message: MESSAGES.DRIVER.ERROR.MARK_PICKUP_COMPLETED,
+        });
+      }
     } catch (error) {
       next(error);
     }

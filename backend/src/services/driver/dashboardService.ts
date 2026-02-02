@@ -11,7 +11,11 @@ import {
 import { IWastePlantRepository } from "../../repositories/wastePlant/interface/IWastePlantRepository";
 import { IAttendanceRepository } from "../../repositories/atendance/interface/IAttendanceRepository";
 import { AttendanceMapper } from "../../mappers/AttendanceMapper";
-import { AttendanceDTO, DriverEarnRewardStatResp, FetchDriverEarnStats } from "../../dtos/attendance/attendanceDTO";
+import {
+  AttendanceDTO,
+  DriverEarnRewardStatResp,
+  FetchDriverEarnStats,
+} from "../../dtos/attendance/attendanceDTO";
 
 @injectable()
 export class DashboardService implements IDashboardService {
@@ -21,7 +25,7 @@ export class DashboardService implements IDashboardService {
     @inject(TYPES.TruckRepository)
     private truckRepository: ITruckRepository,
     @inject(TYPES.PickupRepository)
-    private pickupRepository: IPickupRepository,
+    private _pickupRepository: IPickupRepository,
     @inject(TYPES.WastePlantRepository)
     private wastePlantRepository: IWastePlantRepository,
     @inject(TYPES.AttendanceRepository)
@@ -34,10 +38,12 @@ export class DashboardService implements IDashboardService {
     if (!driver) {
       throw new Error("Driver not found.");
     }
+    console.log("-driver", driver);
 
     const driverData = {
       name: driver.name,
       email: driver.email,
+      assignedZone: driver.assignedZone ?? "Not Assigned.",
     };
 
     let truckData = null;
@@ -54,8 +60,36 @@ export class DashboardService implements IDashboardService {
       }
     }
     const { assignedCount, completedCount } =
-      await this.pickupRepository.getDriverTotalPickups(driverId);
+      await this._pickupRepository.getDriverTotalPickups(driverId);
 
+    const driverPickups =
+      await this._pickupRepository.getDriverCompletedPickups(driverId);
+
+    console.log("driveerPIckups", driverPickups);
+    const recentActivities = driverPickups.map((p) => {
+      const selectedAddress = p.userId.addresses.find(
+        (ad) => ad._id.toString() === p.addressId.toString(),
+      );
+      if (!selectedAddress) {
+        throw new Error(`Address not found for pickup ${p.pickupId}`);
+      }
+
+      return {
+        pickupId: p.pickupId,
+        status: p.status,
+        completedAt: p.completedAt,
+        selectedAddress,
+      };
+    });
+
+    const driverAttendanceData =
+      await this._attendanceRepository.findAttendancesByDriverId(driverId);
+
+    //    if (!driverAttendanceData) {
+    //   throw new Error("Driver attendances not found.");
+    // }
+    console.log("driverAttendanceData",driverAttendanceData);
+    
     const dashboardSummary = {
       driver: driverData,
       truck: truckData,
@@ -63,6 +97,8 @@ export class DashboardService implements IDashboardService {
         assignedTasks: assignedCount,
         completedTasks: completedCount,
       },
+      recentActivities,
+      attendanceData: driverAttendanceData
     };
 
     return { summary: dashboardSummary };
@@ -92,33 +128,27 @@ export class DashboardService implements IDashboardService {
 
     return { supportInfo: plantData };
   }
-  async markAttendance(driverId: string, status: string): Promise<AttendanceDTO> {
+  async markAttendance(
+    driverId: string,
+    status: string,
+  ): Promise<AttendanceDTO> {
     const driver = await this._driverRepository.getDriverById(driverId);
     if (!driver) throw new Error("Driver not found");
-      const attendance = await this._attendanceRepository.createAttendance({
-        driverId, 
-        status,
-        wasteplantId: driver.wasteplantId?.toString()!,
-        assignedTruckId: driver.assignedTruckId?.toString()!
-      })
-      return AttendanceMapper.mapAttendanceDTO(attendance);
+    const attendance = await this._attendanceRepository.createAttendance({
+      driverId,
+      status,
+      wasteplantId: driver.wasteplantId?.toString()!,
+      assignedTruckId: driver.assignedTruckId?.toString()!,
+    });
+    return AttendanceMapper.mapAttendanceDTO(attendance);
   }
-  async fetchDriverEarnStats( data: FetchDriverEarnStats): Promise<DriverEarnRewardStatResp[]>{
-    const { driverId, filter } = data;
-    const stats = await this._attendanceRepository.getDriverEarnRewardStats(data);
-    // return stats;
-    return [
-  {
-    "_id": { "day": "2025-11-25" },
-    "totalReward": 300,
-    "totalEarning": 600
-  },
-  {
-    "_id": { "day": "2025-11-26" },
-    "totalReward": 200,
-    "totalEarning": 400
-  }
-]
+  async fetchDriverEarnStats(
+    data: FetchDriverEarnStats,
+  ): Promise<DriverEarnRewardStatResp[]> {
+    const { driverId, filter, from, to } = data;
+    const stats =
+      await this._attendanceRepository.getDriverEarnRewardStats(data);
 
+    return stats;
   }
 }

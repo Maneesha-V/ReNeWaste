@@ -44,6 +44,10 @@ export const attendanceSchema: Schema<IAttendanceDocument> = new Schema(
       type: Number,
       default: 0,
     },
+    wpEarning: {
+      type: Number,
+      default: 0,
+    },
   },
   {
     timestamps: true,

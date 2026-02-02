@@ -28,6 +28,7 @@ export interface IPickupRequest extends Document {
     text: string | null;
     value: number | null;
   };
+  completedAt?: Date | null;
   payment: IPayment;
   createdAt: Date;
   updatedAt: Date;

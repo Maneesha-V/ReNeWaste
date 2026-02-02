@@ -98,15 +98,18 @@ export class DashboardController implements IDashboardController {
     }
   }
   async fetchDriverEarnStats(
-       req: AuthRequest,
+    req: AuthRequest,
     res: Response,
     next: NextFunction, 
   ): Promise<void> {
         try {
       const driverId = req.user?.id;
-      console.log("params",req.params);
-      
-      const filter = req.query.earnFilter as string;
+      console.log("query",req.query);
+
+      const filter = req.query.filter as string;
+      const from = req.query.from as string;
+      const to = req.query.to as string;
+
       if (!driverId) {
         throw new ApiError(
           STATUS_CODES.UNAUTHORIZED,
@@ -115,7 +118,12 @@ export class DashboardController implements IDashboardController {
       }
 
       const earnRewardStats =
-        await this._dashboardService.fetchDriverEarnStats({driverId, filter});
+        await this._dashboardService.fetchDriverEarnStats({
+          driverId, 
+          filter,
+          from,
+          to
+        });
       console.log("earnRewardStats", earnRewardStats);
 
       res.status(STATUS_CODES.SUCCESS).json({

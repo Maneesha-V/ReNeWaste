@@ -88,6 +88,10 @@ export const pickupRequestSchema: Schema<IPickupRequestDocument> = new Schema(
       enum: ["Assigned", "InTransit", "Near", "Arrived", "Completed"],
       default: null,
     },
+    completedAt: {
+      type: Date,
+      default: null
+    },
     payment: PaymentSchema,
   },
   {

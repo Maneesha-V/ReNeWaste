@@ -10,6 +10,7 @@ export interface IAttendance {
    totalPickups: number;
    reward: number;
    earning: number;
+   wpEarning: number;
    createdAt?: Date;
    updatedAt?: Date;
 }

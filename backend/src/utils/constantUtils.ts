@@ -125,6 +125,7 @@ export const MESSAGES = {
       IMG_ERRROR: "Both license front and back images are required.",
       LAT_LONG_REQUIRED: "Latitude and longitude are required.",
       STATUS_REQUIRED: "TrackingStatus is required.",
+      MARK_PICKUP_COMPLETED: "Failed to mark pickup completed."
     },
   },
   USER: {

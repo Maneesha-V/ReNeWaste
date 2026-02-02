@@ -438,11 +438,12 @@ export class PaymentService implements IPaymentService {
     if (!payment) {
       throw new Error("No payment record found.");
     }
-
+    const accountId = pickupReq.userId.toString();
+    const accountType = "User";
     try {
       if (payment.method === "Wallet") {
-        const wallet = await this._walletRepository.findWalletByUserId(
-          pickupReq.userId.toString()
+        const wallet = await this._walletRepository.findWallet(
+          accountId, accountType
         );
         if (!wallet) throw new Error("Wallet not found for this user.");
 

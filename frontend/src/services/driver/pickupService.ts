@@ -18,8 +18,8 @@ export const fetchPickupByIdService = async (pickupReqId: string) => {
 };
 export const fetchEtaService = async (data: FetchEtaReq) => {
   const {origin,destination,pickupReqId,addressId} = data
-  const baseUrl = import.meta.env.VITE_API_URL;
-  const url = `${baseUrl}/maps/eta?origin=${origin}&destination=${encodeURIComponent(
+  // const baseUrl = import.meta.env.VITE_API_URL;
+  const url = `/maps/eta?origin=${origin}&destination=${encodeURIComponent(
     destination
   )}&pickupReqId=${pickupReqId}&addressId=${addressId}`;
   const response = await axiosDriver.get(url);

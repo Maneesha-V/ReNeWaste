@@ -11,7 +11,7 @@ import {
   PaginatedGetWalletReq,
   PaginatedUserWallet,
 } from "../../dtos/wallet/walletDTO";
-import mongoose from "mongoose";
+import mongoose, { ClientSession } from "mongoose";
 
 @injectable()
 export class WalletRepository
@@ -20,15 +20,16 @@ export class WalletRepository
 {
   constructor(
     @inject(TYPES.UserRepository)
-    private _userRepository: IUserRepository
+    private _userRepository: IUserRepository,
   ) {
     super(WalletModel);
   }
   async findWallet(
     accountId: string,
-    accountType: string
+    accountType: string,
+    session?: ClientSession,
   ): Promise<IWalletDocument | null> {
-    return await this.model.findOne({ accountId, accountType });
+    return await this.model.findOne({ accountId, accountType }, null, session);
   }
   async createWallet(payload: AddMoneyToWalletReq) {
     const { accountId, accountType } = payload;
@@ -44,7 +45,7 @@ export class WalletRepository
       _id: walletId,
     });
   }
-  async addMoney(payload: AddMoneyToWallet) {
+  async addMoney(payload: AddMoneyToWallet, session?: ClientSession) {
     const { walletId, data } = payload;
     return await this.model.findByIdAndUpdate(
       walletId,
@@ -55,32 +56,41 @@ export class WalletRepository
             amount: data.amount,
             description: data.description,
             type: data.type,
-            paidAt: Date.now(),
+            paidAt: new Date(),
             status: "Paid",
           },
         },
       },
-      { new: true }
+      { new: true, session },
     );
   }
-  async createDrWpWallet(payload: AddMoneyToWalletReq) {
+  async createDrWpWallet(
+    payload: AddMoneyToWalletReq,
+    session?: ClientSession,
+  ) {
     const { accountId, accountType, data } = payload;
-    return await this.model.create({
-      accountId,
-      accountType,
-      balance: data?.amount || 0,
-      transactions: data
-        ? [
-            {
-              amount: data.amount,
-              description: data.description,
-              type: data.type,
-              paidAt: Date.now(),
-              status: "Paid",
-            },
-          ]
-        : [],
-    });
+    const [wallet] = await this.model.create(
+      [
+        {
+          accountId,
+          accountType,
+          balance: data?.amount || 0,
+          transactions: data
+            ? [
+                {
+                  amount: data.amount,
+                  description: data.description,
+                  type: data.type,
+                  paidAt: new Date(),
+                  status: "Paid",
+                },
+              ]
+            : [],
+        },
+      ],
+      session ? { session } : {},
+    );
+    return wallet;
   }
 
   async paginatedWPGetWallet(payload: PaginatedGetWalletReq) {
@@ -265,7 +275,7 @@ export class WalletRepository
     return { transactions, total, rewards };
   }
   async paginatedUserGetWallet(
-    payload: PaginatedGetWalletReq
+    payload: PaginatedGetWalletReq,
   ): Promise<PaginatedUserWallet> {
     const { walletId, page, limit, search } = payload;
     const skip = (page - 1) * limit;
@@ -358,12 +368,12 @@ export class WalletRepository
         $facet: {
           metadata: [{ $count: "total" }],
           data: [
-            { 
-              // $sort: { "transactions.paidAt": -1 } 
-               $sort: { 
-              "transactions.updatedAt": -1,
-              "transactions.paidAt": -1 
-            } 
+            {
+              // $sort: { "transactions.paidAt": -1 }
+              $sort: {
+                "transactions.updatedAt": -1,
+                "transactions.paidAt": -1,
+              },
             },
             { $skip: skip },
             { $limit: limit },

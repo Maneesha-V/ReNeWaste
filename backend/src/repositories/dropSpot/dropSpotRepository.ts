@@ -50,7 +50,8 @@ export class DropSpotRepository
       .sort({ createdAt: -1 });
 
     const total = await this.model.countDocuments(query);
-
+    console.log("dropspots",dropspots);
+    
     return { dropspots, total };
   }
   async getDropSpotsByLocationAndWasteplant({

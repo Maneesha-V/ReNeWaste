@@ -1,3 +1,4 @@
+import { AttendanceDTO, AttendancePieItemDTO } from "../attendance/attendanceTypes";
 import { MsgSuccessResp } from "../common/commonTypes";
 import { PickupPlansResp, PickupReqDTO, PickupReqGetResp } from "../pickupReq/pickupTypes";
 import { Address } from "../user/userTypes";
@@ -52,6 +53,7 @@ export interface DashboardSummary {
   driver: {
     name: string;
     email: string;
+    assignedZone: string;
   };
   truck: {
     name: string;
@@ -62,8 +64,15 @@ export interface DashboardSummary {
     assignedTasks: number;
     completedTasks: number;
   };
+  recentActivities: DriverPickupCompleted[];
+  attendanceData: AttendancePieItemDTO[];
 }
-
+export interface DriverPickupCompleted {
+  pickupId: string;
+  status: string;
+  completedAt: string;
+  selectedAddress: Address;
+}
 export interface DriverSupportInfo {
   plantName: string;
   ownerName: string;
