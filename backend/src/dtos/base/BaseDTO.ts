@@ -11,3 +11,7 @@ export interface AuthRequest extends Request {
     role: string;
   };
 }
+export type PopulatedRef = {
+  _id: Types.ObjectId;
+  name: string;
+};

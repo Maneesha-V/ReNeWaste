@@ -95,7 +95,7 @@ export class WasteCollectionRepository
       totalCommWaste,
     };
   }
-  async fetchWasteCollectionReportsByPlantId(plantId: string) {
+  async fetchWasteCollectionReportsByPlantId(plantId: string): Promise<IWasteCollectionDocument[]> {
     const collectionReports = await this.model
       .find({
         wasteplantId: plantId,

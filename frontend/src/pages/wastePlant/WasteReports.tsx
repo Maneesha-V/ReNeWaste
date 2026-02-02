@@ -216,13 +216,13 @@ const WasteReports = () => {
     { title: "Waste Type", dataIndex: "wasteType", key: "wasteType" },
     {
       title: "Driver",
-      dataIndex: ["driverId", "name"],
+      dataIndex: ["driver", "name"],
       key: "name",
       render: (name: string) => name,
     },
     {
       title: "Truck",
-      dataIndex: ["truckId", "name"],
+      dataIndex: ["truck", "name"],
       key: "name",
       render: (name: string) => name,
     },

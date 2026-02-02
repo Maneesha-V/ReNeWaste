@@ -1,4 +1,4 @@
-import { AttendanceDTO, AttendancePieItemDTO } from "../attendance/attendanceTypes";
+import { AttendancePieItemDTO } from "../attendance/attendanceTypes";
 import { MsgSuccessResp } from "../common/commonTypes";
 import { PickupPlansResp, PickupReqDTO, PickupReqGetResp } from "../pickupReq/pickupTypes";
 import { Address } from "../user/userTypes";

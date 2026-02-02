@@ -5,6 +5,7 @@ import { IPickupRepository } from "../../repositories/pickupReq/interface/IPicku
 import { IWasteCollectionRepository } from "../../repositories/wasteCollection/interface/IWasteCollectionRepository";
 import { FilterReport } from "../../dtos/wasteplant/WasteplantDTO";
 import { WasteCollectionMapper } from "../../mappers/WasteCollectionMapper";
+import { PopulatedWasteCollectionDTO, WasteCollectionDTO } from "../../dtos/wasteCollection/wasteCollectionDTO";
 
 @injectable()
 export class ReportService implements IReportService {
@@ -16,7 +17,7 @@ export class ReportService implements IReportService {
     @inject(TYPES.WasteCollectionRepository)
     private wasteCollectionRepository: IWasteCollectionRepository,
   ) {}
-  async getWasteReports(plantId: string) {
+  async getWasteReports(plantId: string): Promise<PopulatedWasteCollectionDTO[]> {
     const wastereports =
       await this.wasteCollectionRepository.fetchWasteCollectionReportsByPlantId(
         plantId,
@@ -24,7 +25,7 @@ export class ReportService implements IReportService {
     if (!wastereports) {
       throw new Error("Waste report not found.");
     }
-    return WasteCollectionMapper.mapWasteCollectionsDTO(wastereports);
+    return WasteCollectionMapper.mapPopulatedWasteCollectionsDTO(wastereports);
   }
   async filterWasteReports(data: FilterReport) {
     const { plantId, from, to } = data;
