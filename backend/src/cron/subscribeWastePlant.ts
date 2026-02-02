@@ -3,7 +3,7 @@ import { WastePlantModel } from "../models/wastePlant/wastePlantModel";
 import { sendNotification } from "../utils/notificationUtils";
 import { SuperAdminModel } from "../models/superAdmin/superAdminModel";
 
-cron.schedule("0 9 * * *", async () => {
+cron.schedule("* * * * *", async () => {
   const now = new Date();
 
   const plants = await WastePlantModel.find({
