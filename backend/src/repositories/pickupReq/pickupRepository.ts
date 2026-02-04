@@ -30,12 +30,15 @@ import {
 import { PaginationInput } from "../../dtos/common/commonDTO";
 import {
   FetchPaymentPayload,
+  FetchWPDashboard,
   FilterReport,
   PaginatedPaymentsResult,
   PickupFilterParams,
+  PickupTrendResult,
 } from "../../dtos/wasteplant/WasteplantDTO";
 import { IDriverRepository } from "../driver/interface/IDriverRepository";
 import { IWalletRepository } from "../wallet/interface/IWalletRepository";
+import { getDateRange, getGroupFormat } from "../../utils/dateUtils";
 
 @injectable()
 export class PickupRepository
@@ -46,7 +49,7 @@ export class PickupRepository
     @inject(TYPES.UserRepository)
     private _userRepository: IUserRepository,
     @inject(TYPES.DriverRepository)
-    private _driverRepository: IDriverRepository
+    private _driverRepository: IDriverRepository,
   ) {
     super(PickupModel);
   }
@@ -436,19 +439,16 @@ export class PickupRepository
   }
 
   async markPickupCompletedStatus(
-    pickupReqId: string, session?: ClientSession
+    pickupReqId: string,
+    session?: ClientSession,
   ): Promise<IPickupRequestDocument | null> {
-    const pickup = await this.model.findById(
-      pickupReqId,
-      null,
-      {session}
-    );
+    const pickup = await this.model.findById(pickupReqId, null, { session });
     console.log("pickup.....", pickup);
 
-    if (!pickup) { 
+    if (!pickup) {
       throw new Error("Pickup not found");
     }
-    
+
     if (pickup.trackingStatus !== "Completed") {
       throw new Error(
         "Cannot mark pickup as completed until tracking is completed",
@@ -461,8 +461,8 @@ export class PickupRepository
     }
     pickup.status = "Completed";
     pickup.completedAt = new Date();
-    await pickup.save({session});
-   
+    await pickup.save({ session });
+
     return pickup;
   }
   async getPickupByUserIdAndPickupReqId(pickupReqId: string, userId: string) {
@@ -1078,8 +1078,9 @@ export class PickupRepository
     }
     return null;
   }
-  async findDriverPlantTruckById(data: FindDriverPlantTruckByIdReq): 
-  Promise<IPickupRequestDocument[]> {
+  async findDriverPlantTruckById(
+    data: FindDriverPlantTruckByIdReq,
+  ): Promise<IPickupRequestDocument[]> {
     const startOfToday = new Date();
     startOfToday.setHours(0, 0, 0, 0);
 
@@ -1090,29 +1091,98 @@ export class PickupRepository
       wasteplantId: data.plantId,
       driverId: data.driverId,
       truckId: data.truckId,
-      completedAt: {$gte: startOfToday, $lte: endOfToday},
-      status: "Completed"
-    })
+      completedAt: { $gte: startOfToday, $lte: endOfToday },
+      status: "Completed",
+    });
   }
-  async getDriverCompletedPickups(driverId: string): Promise<PopulatedUserPickupReq[]> {
+  async getDriverCompletedPickups(
+    driverId: string,
+  ): Promise<PopulatedUserPickupReq[]> {
     const startOfDay = new Date();
-    startOfDay.setDate(startOfDay.getDate()-1)
-    startOfDay.setHours(0,0,0,0);
+    startOfDay.setDate(startOfDay.getDate() - 1);
+    startOfDay.setHours(0, 0, 0, 0);
     const endOfDay = new Date();
     // endOfDay.setDate(endOfDay.getDate()-1)
-    endOfDay.setHours(23,59,59,999);
-    const pickups = await this.model.find(
-      {
+    endOfDay.setHours(23, 59, 59, 999);
+    const pickups = await this.model
+      .find({
         driverId,
         status: "Completed",
-        completedAt: {$gte: startOfDay, $lte: endOfDay}
+        completedAt: { $gte: startOfDay, $lte: endOfDay },
       })
-    .sort({completedAt: -1})
-    .limit(5)
-    .populate("userId","addresses")
-    .lean();
+      .sort({ completedAt: -1 })
+      .limit(5)
+      .populate("userId", "addresses")
+      .lean();
 
     return pickups as unknown as PopulatedUserPickupReq[];
+  }
+  async fetchAllCompletedPickups(
+    data: FetchWPDashboard,
+  ): Promise<PickupTrendResult[]> {
+    const { plantId, filter, from, to } = data;
+    const { start, end } = getDateRange(filter, from, to);
+    const format = getGroupFormat(filter);
 
+    const pipeline: PipelineStage[] = [
+      {
+        $match: {
+          wasteplantId: new Types.ObjectId(plantId),
+          status: "Completed",
+        },
+      },
+      {
+        $addFields: {
+          effectivePickupDate: {
+            $ifNull: ["$rescheduledPickupDate", "$originalPickupDate"],
+          },
+        },
+      },
+    ];
+    if (start && end) {
+      pipeline.push({
+        $match: {
+          effectivePickupDate: {
+            $gte: start,
+            $lte: end,
+          },
+        },
+      });
+    }
+    pipeline.push(
+      {
+        $group: {
+          _id: {
+            $dateToString: {
+              format,
+              date: "$effectivePickupDate",
+              timezone: "Asia/Kolkata"
+            },
+          },
+          totalPickups: { $sum: 1 },
+          residential: {
+            $sum: {
+              $cond: [{ $eq: ["$wasteType", "Residential"] }, 1, 0],
+            },
+          },
+          commercial: {
+            $sum: {
+              $cond: [{ $eq: ["$wasteType", "Commercial"] }, 1, 0],
+            },
+          },
+        },
+      },
+      { $sort: { _id: 1 } },
+      {
+        $project: {
+          _id: 0,
+          date: "$_id",
+          totalPickups: 1,
+          residential: 1,
+          commercial: 1,
+        },
+      },
+    );
+    return this.model.aggregate<PickupTrendResult>(pipeline);
   }
 }

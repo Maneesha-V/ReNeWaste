@@ -19,7 +19,12 @@ export class DashboardController implements IDashboardController {
     next: NextFunction,
   ): Promise<void> {
     try {
+      console.log("query",req.query);
+      
       const plantId = req.user?.id;
+            const filter = req.query.filter as string;
+      const from = req.query.from as string;
+      const to = req.query.to as string;
       if (!plantId) {
         throw new ApiError(
           STATUS_CODES.UNAUTHORIZED,
@@ -28,8 +33,13 @@ export class DashboardController implements IDashboardController {
       }
 
       const dashboardData =
-        await this._dashboardService.getDashboardData(plantId);
-      console.log("dashboardData", dashboardData);
+        await this._dashboardService.getDashboardData({
+          plantId,
+          filter,
+          from,
+          to
+        });
+      // console.log("dashboardData", dashboardData);
 
       res.status(STATUS_CODES.SUCCESS).json({
         dashboardData,

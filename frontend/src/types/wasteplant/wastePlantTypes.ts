@@ -12,7 +12,7 @@ export type LoginWPResp = {
   plantId: string;
   token: string;
   status: string;
-}
+};
 export type WastePlant = {
   _id?: string;
   plantName: string;
@@ -41,7 +41,7 @@ export type WastePlant = {
   unblockNotificationSent?: boolean;
   createdAt?: Date;
   updatedAt?: Date;
-}
+};
 
 export type updateProfilePayload = {
   plantName: string;
@@ -55,47 +55,47 @@ export type updateProfilePayload = {
   capacity: number;
   licenseDocumentPath?: string;
   cloudinaryPublicId?: string;
-}
+};
 export type PostOffice = {
   name: string;
   taluk: string;
-}
+};
 export type TogglePlantBlockPayload = {
-   plantId: string; 
-   isBlocked: boolean
-}
+  plantId: string;
+  isBlocked: boolean;
+};
 export type TogglePlantBlockResp = {
   message: string;
-  wasteplant: WasteplantDTO
-}
+  wasteplant: WasteplantDTO;
+};
 export type WastePlantFormData = {
-    plantName: string;
-    ownerName: string;
-    location: string;
-    district: string;
-    taluk: string;
-    pincode: string;
-    state: string;
-    contactInfo: string;
-    contactNo: string;
-    email: string;
-    licenseNumber: string;
-    capacity: number;
-    status: string; 
-    subscriptionPlan: string;
-    password:string;
-    licenseDocument?: File;
-    cloudinaryPublicId?: string;
-    services: string[];
-  }
-  export type PartialWastePlantFormData = Partial<WastePlantFormData>;
-  // export  type AddWastePlantResp = MsgSuccessResp  & {
-  // newWastePlant: {
-  //   autoSubscribeAt: Date;
-  //   subscribeNotificationSent: boolean;
-  // }
-  // }
-  export type PaymentRecord = {
+  plantName: string;
+  ownerName: string;
+  location: string;
+  district: string;
+  taluk: string;
+  pincode: string;
+  state: string;
+  contactInfo: string;
+  contactNo: string;
+  email: string;
+  licenseNumber: string;
+  capacity: number;
+  status: string;
+  subscriptionPlan: string;
+  password: string;
+  licenseDocument?: File;
+  cloudinaryPublicId?: string;
+  services: string[];
+};
+export type PartialWastePlantFormData = Partial<WastePlantFormData>;
+// export  type AddWastePlantResp = MsgSuccessResp  & {
+// newWastePlant: {
+//   autoSubscribeAt: Date;
+//   subscribeNotificationSent: boolean;
+// }
+// }
+export type PaymentRecord = {
   _id: string;
   pickupId: string;
   wasteType: string;
@@ -114,56 +114,67 @@ export type WastePlantFormData = {
   userName?: string;
   dueDate: Date;
 };
-  export type FetchPaymentsResp = {
-    success: boolean;
-    payments: PaymentRecord[]
-    total: number;
-  }
+export type FetchPaymentsResp = {
+  success: boolean;
+  payments: PaymentRecord[];
+  total: number;
+};
 export type FetchPickupReqParams = {
   wasteType: "Residential" | "Commercial";
   status: "Pending" | "Scheduled" | "Completed" | "Cancelled" | "Rescheduled";
 };
-  
-  export type FetchPickupResp = {
-success: boolean;
-pickups: PickupReqDTO[];
-  }
-  export type ApprovePickupPayload = {
+
+export type FetchPickupResp = {
+  success: boolean;
+  pickups: PickupReqDTO[];
+};
+export type ApprovePickupPayload = {
   pickupReqId: string;
   pickupId: string;
   status: string;
   driverId: string;
   assignedTruckId: string;
-}
+};
 export type ApprovePickupResp = {
   message: string;
   result: PickupReqDTO;
-}
+};
 export type ReschedulePickupResp = MsgSuccessResp & {
   updatedPickup: PickupReqDTO;
-}
+};
 export type PickupCancelResp = {
-    message: string;
+  message: string;
   result: PickupReqDTO;
-}
+};
 export type FetchDriversByPlaceResp = {
   success: boolean;
   drivers: DriverDTO[];
-}
+};
 export type FetchUsers = MsgSuccessResp & {
   users: UserResp[];
   total: number;
-}
+};
 export type ToggleUserBlockStatusResp = MsgSuccessResp & {
   updatedUser: UserResp;
-}
+};
 export type FetchPlantProfileResp = {
   wasteplant: WastePlant;
-}
+};
 export type UpdatePlantProfileResp = {
   updatedPlant: WastePlant;
-}
+};
 export type WasteReportFilter = {
   from: string;
   to: string;
 };
+export type WPDashboardReq = {
+  filter: string;
+  from?: string;
+  to?: string;
+};
+  export interface PickupTrendResult {
+  date: string;
+  totalPickups: number;
+  residential: number;
+  commercial: number;
+}

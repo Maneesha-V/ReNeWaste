@@ -208,3 +208,15 @@ export type ReschedulePickupDTO = {
   pickupTime: string;
   status: string;
 };
+  export type FetchWPDashboard = {
+    filter: string;
+    plantId: string;
+    from: string;
+    to: string;
+  }
+  export interface PickupTrendResult {
+  date: string;
+  totalPickups: number;
+  residential: number;
+  commercial: number;
+}

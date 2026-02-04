@@ -204,7 +204,8 @@ const PickupPlans = () => {
                         type="primary"
                         onClick={() => handleTrackClick(pickup)}
                       >
-                        {pickup.trackingStatus === "Completed"
+                        {pickup.trackingStatus === "Completed" &&
+                        pickup.payment.status === "Paid"
                           ? "View"
                           : "Track"}
                       </Button>

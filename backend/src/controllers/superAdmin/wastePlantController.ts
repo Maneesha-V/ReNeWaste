@@ -32,7 +32,7 @@ export class WastePlantController implements IWastePlantController {
     try {
       const subscriptionPlans =
         await this.subscriptionService.fetchActiveSubscriptionPlans();
-      console.log("subscriptionPlans", subscriptionPlans);
+      // console.log("subscriptionPlans", subscriptionPlans);
 
       res.status(STATUS_CODES.SUCCESS).json({
         success: true,

@@ -15,9 +15,11 @@ import {
 import { AddressDTO } from "../../../dtos/user/userDTO";
 import {
   FetchPaymentPayload,
+  FetchWPDashboard,
   FilterReport,
   PaginatedPaymentsResult,
   PickupFilterParams,
+  PickupTrendResult,
 } from "../../../dtos/wasteplant/WasteplantDTO";
 import {
   IPickupRequest,
@@ -118,4 +120,5 @@ export interface IPickupRepository {
   ): Promise<CheckExistingBusinessResp | null>;
   findDriverPlantTruckById(data: FindDriverPlantTruckByIdReq): Promise<IPickupRequestDocument[]>;
   getDriverCompletedPickups(driverId: string): Promise<PopulatedUserPickupReq[]>;
+  fetchAllCompletedPickups(data: FetchWPDashboard): Promise<PickupTrendResult[]>;
 }

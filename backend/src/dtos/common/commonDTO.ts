@@ -1,3 +1,5 @@
+import { PickupTrendResult } from "../wasteplant/WasteplantDTO";
+
 export interface PaginationInput {
   page: number;
   limit: number;
@@ -62,6 +64,7 @@ export type DashboardDataResp = {
     totalCommercialRevenue: number;
     totalRevenue: number;
   };
+  pickupTrends: PickupTrendResult[];
 };
 interface EtaResult {
   text: string;

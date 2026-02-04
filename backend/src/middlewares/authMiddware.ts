@@ -111,7 +111,7 @@ export const authenticateWastePlant = async (
     const wastePlant = await WastePlantModel.findById(
       new mongoose.Types.ObjectId(decoded.userId),
     ).select("-password");
-    console.log("plant Found:", wastePlant);
+    // console.log("plant Found:", wastePlant);
     if (!wastePlant) {
       return res.status(404).json({ error: "wastePlant not found" });
     }

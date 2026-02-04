@@ -5,18 +5,42 @@ import { useAppDispatch } from "../../redux/hooks";
 import { RootState } from "../../redux/store";
 import { fetchDashboardData } from "../../redux/slices/wastePlant/wastePlantDashboardSlice";
 import SubscriptionModal from "../../components/wastePlant/SubscriptionModal";
+import { CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 
 const DashboardWastePlant = () => {
   const dispatch = useAppDispatch();
   const [showSubscriptionModal, setShowSubscriptionModal] = useState(false);
+const filters = ["daily", "weekly", "monthly", "yearly", "custom"] as const;
 
-  const { summary, pickupStatus, loading } = useSelector(
+const [trendFilter, setTrendFilter] =
+  useState<typeof filters[number]>("weekly");
+
+const [customRange, setCustomRange] = useState({
+  from: "",
+  to: "",
+});
+
+  const { summary, pickupStatus, loading, pickupTrends } = useSelector(
     (state: RootState) => state.wastePlantDashboard
   );
+// const pickupTrends= [
+//   { date: "Mon", residential: 10, commercial: 5 },
+//   { date: "Tue", residential: 18, commercial: 8 },
+//   { date: "Wed", residential: 14, commercial: 5 },
+//   { date: "Thu", residential: 16, commercial: 12 },
+//   { date: "Fri", residential: 10, commercial: 5 },
+// ]
+
+  // useEffect(() => {
+  //   dispatch(fetchDashboardData());
+  // }, [dispatch]);
 
   useEffect(() => {
-    dispatch(fetchDashboardData());
-  }, [dispatch]);
+  if (trendFilter !== "custom") {
+    dispatch(fetchDashboardData({ filter: trendFilter }));
+  }
+}, [trendFilter]);
+
   useEffect(() => {
     const status = localStorage.getItem("wasteplant_status");
     if (status === "Inactive" || status === "Pending") {
@@ -25,6 +49,18 @@ const DashboardWastePlant = () => {
       setShowSubscriptionModal(false);
     }
   }, []);
+
+  const handleApplyCustom = () => {
+  if (!customRange.from || !customRange.to) return;
+
+  dispatch(
+    fetchDashboardData({
+      filter: "custom",
+      from: customRange.from,
+      to: customRange.to,
+    })
+  );
+};
 
   const stats = [
     {
@@ -80,6 +116,88 @@ const DashboardWastePlant = () => {
           </div>
         ))}
       </div>
+{/* Pickup Trends */}
+{pickupTrends && (
+  <div className="bg-white p-6 rounded-2xl shadow-md border border-green-200 mb-8">
+    
+    {/* Header + Filters */}
+    <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:justify-between mb-4">
+      
+      <h2 className="text-lg font-semibold text-green-800">
+        Pickup Trends
+      </h2>
+
+      <div className="flex flex-col sm:flex-row gap-3">
+        
+        {/* FILTER DROPDOWN */}
+        <select
+          value={trendFilter}
+          onChange={(e) =>
+            setTrendFilter(e.target.value as typeof trendFilter)
+          }
+          className="border rounded px-3 py-1 text-sm capitalize"
+        >
+          {filters.map((f) => (
+            <option key={f} value={f}>
+              {f}
+            </option>
+          ))}
+        </select>
+
+        {/* CUSTOM DATE RANGE */}
+        {trendFilter === "custom" && (
+          <>
+            <input
+              type="date"
+              value={customRange.from}
+              onChange={(e) =>
+                setCustomRange({
+                  ...customRange,
+                  from: e.target.value,
+                })
+              }
+              className="border rounded px-3 py-1 text-sm"
+            />
+
+            <input
+              type="date"
+              value={customRange.to}
+              onChange={(e) =>
+                setCustomRange({
+                  ...customRange,
+                  to: e.target.value,
+                })
+              }
+              className="border rounded px-3 py-1 text-sm"
+            />
+
+            <button
+              onClick={handleApplyCustom}
+              disabled={!customRange.from || !customRange.to}
+              className="bg-green-600 text-white px-3 py-1 rounded text-sm disabled:opacity-50"
+            >
+              Apply
+            </button>
+          </>
+        )}
+      </div>
+    </div>
+
+    {/* Chart */}
+    <ResponsiveContainer width="100%" height={300}>
+      <LineChart data={pickupTrends}>
+        <CartesianGrid strokeDasharray="3 3" />
+        <XAxis dataKey="date" />
+        <YAxis />
+        <Tooltip />
+
+        <Line dataKey="residential" stroke="#16a34a" strokeWidth={3} />
+        <Line dataKey="commercial" stroke="#2563eb" strokeWidth={3} />
+      </LineChart>
+    </ResponsiveContainer>
+  </div>
+)}
+
 
       {/* Pickup Status Section */}
       {/* {pickupStatus && (
@@ -173,32 +291,5 @@ const StatCard = ({
     <p className="text-lg font-semibold text-green-900">{value}</p>
   </div>
 );
-
-// return (
-//   <div className="p-6 bg-green-50 min-h-screen">
-//     <h1 className="text-2xl font-bold text-green-800 mb-6">Waste Plant Dashboard</h1>
-
-//     {loading ? (
-//       <p className="text-green-700">Loading dashboard data...</p>
-//     ) : (
-//       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-//         {stats.map((stat, index) => (
-//           <div
-//             key={index}
-//             className="bg-white shadow-md rounded-2xl p-5 flex items-center space-x-4 border border-green-200"
-//           >
-//             <div className="bg-green-100 rounded-full p-3">{stat.icon}</div>
-//             <div>
-//               <p className="text-sm text-green-700">{stat.title}</p>
-//               <p className="text-xl font-semibold text-green-900">{stat.value.}</p>
-//             </div>
-//           </div>
-//         ))}
-//       </div>
-//     )}
-//   </div>
-// );
-
-// };
 
 export default DashboardWastePlant;

@@ -9,6 +9,7 @@ import {
   ShoppingOutlined,
   AimOutlined,
   UserOutlined,
+  WalletOutlined,
 } from "@ant-design/icons";
 import { toast } from "react-toastify";
 import { FaUserCircle } from "react-icons/fa";
@@ -74,6 +75,13 @@ const SidebarWastePlant = ({
       label: "Subscription",
       path: "/waste-plant/subscription-plan",
     },
+    {
+      key: "wallet",
+      icon: <WalletOutlined />,
+      label: "Wallet",
+      path: "/waste-plant/wallet",
+    },
+    
   ];
 
   const handleClick = (

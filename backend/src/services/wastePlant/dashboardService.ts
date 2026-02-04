@@ -6,6 +6,7 @@ import { IDriverRepository } from "../../repositories/driver/interface/IDriverRe
 import { ITruckRepository } from "../../repositories/truck/interface/ITruckRepository";
 import { IPickupRepository } from "../../repositories/pickupReq/interface/IPickupRepository";
 import { IWasteCollectionRepository } from "../../repositories/wasteCollection/interface/IWasteCollectionRepository";
+import { FetchWPDashboard } from "../../dtos/wasteplant/WasteplantDTO";
 
 @injectable()
 export class DashboardService implements IDashboardService {
@@ -22,7 +23,8 @@ export class DashboardService implements IDashboardService {
     private wasteCollectionRepository: IWasteCollectionRepository,
   ) {}
 
-  async getDashboardData(plantId: string) {
+  async getDashboardData(data: FetchWPDashboard) {
+    const { plantId } = data;
     // const drivers = this.driverRepository.fetchAllDriversByPlantId(plantId);
     // const trucks = this.truckRepository.fetchAllTrucksByPlantId(plantId);
     // const totalPickups = this.pickupRepository.fetchAllPickupsByPlantId(plantId);
@@ -41,7 +43,9 @@ export class DashboardService implements IDashboardService {
       pickupStatus.Residential.Active + pickupStatus.Commercial.Active;
     const totalCompletedPickups =
       pickupStatus.Residential.Completed + pickupStatus.Commercial.Completed;
-
+    const pickupTrends = await this.pickupRepository.fetchAllCompletedPickups(data); 
+    console.log("completedPickups",pickupTrends);
+    
     return {
       summary: {
         totalDrivers: drivers,
@@ -55,6 +59,7 @@ export class DashboardService implements IDashboardService {
       drivers,
       trucks,
       revenue,
+      pickupTrends
     };
   }
 }

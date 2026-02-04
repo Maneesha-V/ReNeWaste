@@ -2,6 +2,7 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { getDashboard } from "../../../services/wastePlant/dashboardService";
 import { getAxiosErrorMessage } from "../../../utils/handleAxiosError";
 import { DashboardDataResp } from "../../../types/common/commonTypes";
+import { PickupTrendResult, WPDashboardReq } from "../../../types/wasteplant/wastePlantTypes";
 
 // interface DashboardState {
 //   loading: boolean;
@@ -35,6 +36,7 @@ interface DashboardState {
     totalRevenue: number;
   };
   pickupStatus: any;
+  pickupTrends: PickupTrendResult[];
 }
 
 const initialState: DashboardState = {
@@ -49,17 +51,18 @@ const initialState: DashboardState = {
     totalRevenue: 0,
   },
   pickupStatus: null,
+  pickupTrends: [],
 };
 
 export const fetchDashboardData = createAsyncThunk<
 DashboardDataResp,
-void,
+WPDashboardReq,
 {rejectValue: {message: string}}
 >(
   "wastePlantDashboard/fetchDashboardData",
-  async (_, { rejectWithValue }) => {
+  async (filterData, { rejectWithValue }) => {
     try {
-      const response = await getDashboard();
+      const response = await getDashboard(filterData);
       console.log("resp", response);
 
       return response;
@@ -93,6 +96,7 @@ const wasteplantDashboardSlice = createSlice({
         state.loading = false;
         state.summary = action.payload.summary;
         state.pickupStatus = action.payload.pickupStatus;
+        state.pickupTrends = action.payload.pickupTrends;
       })
       .addCase(fetchDashboardData.rejected, (state, action) => {
         state.loading = false;

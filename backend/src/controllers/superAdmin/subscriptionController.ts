@@ -64,7 +64,7 @@ export class SubscriptionController implements ISubscriptionController {
           limit,
           search,
         });
-      console.log("subscriptionPlans", subscriptionPlans);
+      // console.log("subscriptionPlans", subscriptionPlans);
 
       res.status(STATUS_CODES.SUCCESS).json({
         success: true,

@@ -65,7 +65,7 @@ export class SubscriptionController implements ISubscriptionController {
 
       const subscriptionPlans =
         await this._subscriptionService.fetchSubscriptionPlans(plantId);
-      console.log("subscriptionPlans", subscriptionPlans);
+      // console.log("subscriptionPlans", subscriptionPlans);
 
       res.status(STATUS_CODES.SUCCESS).json({
         success: true,
