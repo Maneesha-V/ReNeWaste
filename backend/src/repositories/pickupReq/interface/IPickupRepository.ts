@@ -10,7 +10,6 @@ import {
   PickupStatusByWasteType,
   PopulatedPIckupPlans,
   PopulatedUserPickupReq,
-  RevenueByWasteType,
 } from "../../../dtos/pickupReq/pickupReqDTO";
 import { AddressDTO } from "../../../dtos/user/userDTO";
 import {
@@ -87,7 +86,7 @@ export interface IPickupRepository {
     paginationData: PaginationInput,
   ): Promise<{ pickups: Partial<IPickupRequestDocument>[]; total: number }>;
   fetchAllPickupsByPlantId(plantId: string): Promise<PickupStatusByWasteType>;
-  totalRevenueByPlantId(plantId: string): Promise<RevenueByWasteType>;
+  // totalRevenueByPlantId(plantId: string): Promise<RevenueByWasteType>;
   fetchAllPaymentsByPlantId(
     data: FetchPaymentPayload,
   ): Promise<PaginatedPaymentsResult>;

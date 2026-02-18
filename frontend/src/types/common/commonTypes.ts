@@ -1,5 +1,6 @@
 import { Auth, GoogleAuthProvider } from "firebase/auth";
 import { PickupTrendResult } from "../wasteplant/wastePlantTypes";
+import { RevenueWPTrendDTO } from "../wallet/walletTypes";
 
   export type LoginRequest = {
     email: string;
@@ -119,12 +120,8 @@ export type  DashboardDataResp = {
     inactive: number;
     maintenance: number;
   };
-  revenue: {
-    totalResidentialRevenue: number;
-    totalCommercialRevenue: number;
-    totalRevenue: number;
-  };
   pickupTrends: PickupTrendResult[];
+  revenueTrends: RevenueWPTrendDTO[];
 };
  export type FormErrors = {
     firstName?: string;

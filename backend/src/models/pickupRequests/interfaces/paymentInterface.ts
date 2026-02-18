@@ -8,6 +8,8 @@ export interface IPayment {
   razorpaySignature: string | null;
   amount: number;
   paidAt: Date | null;
+  payoutStatus: "Pending" | "Credited" | "Completed";
+  payoutAt: Date | null;
   refundRequested: boolean;
   refundStatus: "Pending" | "Processing" | "Refunded" | "Rejected" | null;
   refundAt: Date | null;

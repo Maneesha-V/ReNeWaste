@@ -9,6 +9,8 @@ export type WalletDTO = {
 export interface TransactionDTO {
   _id: string;
   type: string;
+  subType : string;
+  pickupReqId: string;
   amount: number;
   description: string;
   status: string;
@@ -67,6 +69,17 @@ export type RetryAddMoneyResp = {
 export type GetWalletWPResp = {
   transactions: TransactionDTO[];
   balance: number;
+  holdingBalance: number;
   total: number;
   earnings: number;
+}
+export type RevenueWPTrendDTO = { 
+  totalRevenue: number;
+  date: string; 
+  wasteType: "Residential" | "Commercial";
+}
+export type FormattedRevenueTrend = {
+  date: string;
+  Residential: number;
+  Commercial: number;
 }

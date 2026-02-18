@@ -27,14 +27,14 @@ export class PaymentService implements IPaymentService {
     @inject(TYPES.PickupRepository)
     private _pickupRepository: IPickupRepository,
     @inject(TYPES.WalletRepository)
-    private _walletRepository: IWalletRepository
+    private _walletRepository: IWalletRepository,
   ) {
     const key_id = process.env.RAZORPAY_KEY_ID!;
     const key_secret = process.env.RAZORPAY_KEY_SECRET!;
 
     if (!key_id || !key_secret) {
       throw new Error(
-        "Razorpay API keys are not defined in environment variables"
+        "Razorpay API keys are not defined in environment variables",
       );
     }
 
@@ -44,13 +44,13 @@ export class PaymentService implements IPaymentService {
     });
   }
   async createPaymentOrderService(
-    data: CreatePaymentReq
+    data: CreatePaymentReq,
   ): Promise<CreatePaymentResp> {
     const { pickupReqId, userId, amount, method } = data;
     const pickupRequest =
       await this._pickupRepository.getPickupByUserIdAndPickupReqId(
         pickupReqId,
-        userId
+        userId,
       );
     console.log("pickupRequest ", pickupRequest);
     if (!pickupRequest) {
@@ -61,7 +61,7 @@ export class PaymentService implements IPaymentService {
     const payment = pickupRequest.payment;
     if (payment?.inProgressExpiresAt && payment?.inProgressExpiresAt > now) {
       throw new Error(
-        "A payment is already in progress. Please wait a few minutes before retrying."
+        "A payment is already in progress. Please wait a few minutes before retrying.",
       );
     }
     const order = await this.razorpay.orders.create({
@@ -100,7 +100,7 @@ export class PaymentService implements IPaymentService {
   }
 
   async verifyPaymentService(
-    data: VerifyPaymentReq
+    data: VerifyPaymentReq,
   ): Promise<VerifyPaymentResp> {
     console.log("data", data);
 
@@ -124,7 +124,7 @@ export class PaymentService implements IPaymentService {
     const pickupRequest =
       await this._pickupRepository.getPickupByUserIdAndPickupReqId(
         pickupReqId,
-        userId
+        userId,
       );
 
     if (!pickupRequest) {
@@ -135,7 +135,13 @@ export class PaymentService implements IPaymentService {
     if (!payment) {
       throw new Error("Payment details not found in the pickup request.");
     }
+    if (payment.status === "Paid") {
+      throw new Error("Payment already completed");
+    }
 
+    if (payment.amount !== amount) {
+      throw new Error("Payment amount mismatch");
+    }
     pickupRequest.payment = {
       ...pickupRequest.payment,
       amount,
@@ -144,16 +150,65 @@ export class PaymentService implements IPaymentService {
       razorpaySignature: razorpay_signature,
       paidAt: new Date(),
       status: "Paid",
+      payoutStatus: "Pending",
+      payoutAt: null,
     };
     pickupRequest.markModified("payment");
     await pickupRequest.save();
     console.log("✅ Saved payment status:", pickupRequest.payment);
+    const accountId = userId;
+    const accountType = "User";
+    console.log("➡ Before wallet lookup");
+    let wallet = await this._walletRepository.findWallet(
+      accountId,
+      accountType,
+    );
+    console.log("➡ After wallet lookup", wallet);
+    // if (!wallet) {
+    //    wallet = await this._walletRepository.createWallet({
+    //     accountId,
+    //     accountType
+    //   });
+    // }
+if (!wallet) {
+  try {
+    wallet = await this._walletRepository.createWallet({
+      accountId,
+      accountType
+    });
+  } catch(err) {
+     console.error("Wallet creation error", err);
+    wallet = await this._walletRepository.findWallet(accountId, accountType);
+  }
+}
+
+if (!wallet) throw new Error("Wallet creation failed");
+console.log("Wallet found:", wallet);
+    wallet.holdingBalance += amount;
+
+    wallet.transactions.push({
+      amount,
+      description: `Pickup payment for request ${pickupRequest.pickupId}`,
+      type: "Debit",
+      subType: "PickupPayment",
+      pickupReqId: pickupRequest._id,
+      settlementStatus: "Pending",
+      status: "Paid",
+      method: "Razorpay",
+      razorpayOrderId: razorpay_order_id,
+      razorpayPaymentId: razorpay_payment_id,
+      razorpaySignature: razorpay_signature,
+      paidAt: new Date(),
+    });
+    
+    await wallet.save();
+
     return PickupRequestMapper.toPaymentDTO(pickupRequest);
   }
 
   async getAllPayments(
     userId: string,
-    paginationData: PaginationInput
+    paginationData: PaginationInput,
   ): Promise<{ payments: PickupPaymentSummaryDTO[]; total: number }> {
     const { pickups, total } =
       await this._pickupRepository.getAllPaymentsByUser(userId, paginationData);
@@ -165,7 +220,7 @@ export class PaymentService implements IPaymentService {
     const pickupRequest =
       await this._pickupRepository.getPickupByUserIdAndPickupReqId(
         pickupReqId,
-        userId
+        userId,
       );
     console.log("pickupRequest ", pickupRequest);
     if (!pickupRequest) {
@@ -176,6 +231,7 @@ export class PaymentService implements IPaymentService {
     if (!payment) {
       throw new Error("Payment details not found in the pickup request.");
     }
+
     const now = new Date();
     if (
       payment.status === "InProgress" &&
@@ -191,7 +247,7 @@ export class PaymentService implements IPaymentService {
       payment.inProgressExpiresAt > now
     ) {
       throw new Error(
-        "A payment is already in progress. Please wait a few minutes before retrying."
+        "A payment is already in progress. Please wait a few minutes before retrying.",
       );
     }
     const expiresIn = 5 * 60 * 1000;
@@ -208,6 +264,7 @@ export class PaymentService implements IPaymentService {
     payment.razorpayRefundId = null;
 
     await pickupRequest.save();
+  
     return {
       orderId: payment.razorpayOrderId,
       amount: payment.amount,
@@ -218,7 +275,7 @@ export class PaymentService implements IPaymentService {
   }
   async verifyWalletPickupPayment(
     userId: string,
-    paymentData: VerifyWalletPickupPaymentReq
+    paymentData: VerifyWalletPickupPaymentReq,
   ): Promise<VerifyPaymentResp> {
     const { pickupReqId, amount, method } = paymentData;
     const accountId = userId;
@@ -226,18 +283,24 @@ export class PaymentService implements IPaymentService {
     const pickupRequest =
       await this._pickupRepository.getPickupByUserIdAndPickupReqId(
         pickupReqId,
-        userId
+        userId,
       );
 
     if (!pickupRequest) {
       throw new Error("Pickup request not found for this user.");
     }
+    if (pickupRequest.payment?.status === "Paid") {
+      throw new Error("Payment already completed");
+    }
+
     if (!pickupRequest.payment) {
       pickupRequest.payment = {
         status: "Pending",
         method,
         amount,
         paidAt: null,
+        payoutStatus: "Pending",
+        payoutAt: null,
         inProgressExpiresAt: null,
         razorpayOrderId: null,
         razorpayPaymentId: null,
@@ -257,13 +320,13 @@ export class PaymentService implements IPaymentService {
 
     if (payment.inProgressExpiresAt && payment.inProgressExpiresAt > now) {
       throw new Error(
-        "A payment is already in progress. Please wait a few minutes before retrying."
+        "A payment is already in progress. Please wait a few minutes before retrying.",
       );
     }
 
     const wallet = await this._walletRepository.findWallet(
       accountId,
-      accountType
+      accountType,
     );
     if (!wallet) {
       throw new Error("Wallet not found for this user.");
@@ -272,12 +335,16 @@ export class PaymentService implements IPaymentService {
       throw new Error("Insufficient wallet balance.");
     }
     wallet.balance -= amount;
+    wallet.holdingBalance += amount;
     wallet.transactions.push({
       amount,
-      description: `Pickup payment for request ${pickupReqId}`,
+      description: `Pickup payment for request ${pickupRequest.pickupId}`,
       type: "Debit",
+      subType: "PickupPayment",
+      pickupReqId: pickupRequest._id,
       paidAt: new Date(),
       status: "Paid",
+      settlementStatus: "Pending",
       method: "Wallet",
     });
 

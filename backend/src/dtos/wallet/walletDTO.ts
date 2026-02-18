@@ -5,14 +5,18 @@ export interface WalletDTO extends BaseDTO {
   accountId: string;
   accountType: string;
   balance: number;
+  holdingBalance?: number;
   transactions: TransactionDTO[];
 }
 
 export interface TransactionDTO {
   _id: string;
   type: string;
+  subType? : string;
+  pickupReqId ?: string;
   amount: number;
   description: string;
+  settlementStatus: string;
   status: string;
   paidAt: Date | null;
   method: string;
@@ -33,8 +37,14 @@ export type AddMoneyToWalletReq = {
     amount: number;
     description: string;
     type: string;
+    subType: string;
+    pickupReqId: string;
   };
 };
+export type CreateWalletReq = {
+  accountId: string;
+  accountType: string;
+}
 export type CreateWalletOrderResp = {
   orderId: string;
   amount: number;
@@ -72,6 +82,10 @@ export type AddMoneyToWallet = {
     amount: number;
     description: string;
     type: string;
+    subType: string;
+    pickupReqId: string;
+    status: string;
+    paidAt: Date;
   };
 };
 export type PaginatedGetWalletReq = {
@@ -83,6 +97,7 @@ export type PaginatedGetWalletReq = {
 export type GetWalletWPResp = {
   transactions: TransactionDTO[],
   balance: number;
+  holdingBalance: number;
   total: number;
   earnings: number;
 }
@@ -111,3 +126,14 @@ export type PaginatedUserWallet = {
     transactions: IWalletTransactionDocument[];
     total: number;
 }
+export interface RevenueWPTrendDTO { 
+  totalRevenue: number;
+  date: string; 
+  wasteType: "Residential" | "Commercial";
+}
+export type FetchFilteredWPRevenueResp = {
+  revenueTrends: RevenueWPTrendDTO[];
+  wasteplantTotRevenue: number;
+}
+
+

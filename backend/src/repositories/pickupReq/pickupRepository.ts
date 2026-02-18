@@ -24,7 +24,6 @@ import {
   PickupStatusByWasteType,
   PopulatedPIckupPlans,
   PopulatedUserPickupReq,
-  RevenueByWasteType,
   WasteType,
 } from "../../dtos/pickupReq/pickupReqDTO";
 import { PaginationInput } from "../../dtos/common/commonDTO";
@@ -632,41 +631,41 @@ export class PickupRepository
 
     return result;
   }
-  async totalRevenueByPlantId(plantId: string): Promise<RevenueByWasteType> {
-    const result = await this.model.aggregate([
-      {
-        $match: {
-          wasteplantId: new Types.ObjectId(plantId),
-          "payment.status": "Paid",
-        },
-      },
-      {
-        $group: {
-          _id: "$wasteType",
-          total: { $sum: "$payment.amount" },
-        },
-      },
-    ]);
+  // async totalRevenueByPlantId(plantId: string): Promise<RevenueByWasteType> {
+  //   const result = await this.model.aggregate([
+  //     {
+  //       $match: {
+  //         wasteplantId: new Types.ObjectId(plantId),
+  //         "payment.status": "Paid",
+  //       },
+  //     },
+  //     {
+  //       $group: {
+  //         _id: "$wasteType",
+  //         total: { $sum: "$payment.amount" },
+  //       },
+  //     },
+  //   ]);
 
-    let totalResidentialRevenue = 0;
-    let totalCommercialRevenue = 0;
+  //   let totalResidentialRevenue = 0;
+  //   let totalCommercialRevenue = 0;
 
-    for (const item of result) {
-      if (item._id === "Residential") {
-        totalResidentialRevenue = item.total;
-      } else if (item._id === "Commercial") {
-        totalCommercialRevenue = item.total;
-      }
-    }
+  //   for (const item of result) {
+  //     if (item._id === "Residential") {
+  //       totalResidentialRevenue = item.total;
+  //     } else if (item._id === "Commercial") {
+  //       totalCommercialRevenue = item.total;
+  //     }
+  //   }
 
-    const totalRevenue = totalResidentialRevenue + totalCommercialRevenue;
+  //   const totalRevenue = totalResidentialRevenue + totalCommercialRevenue;
 
-    return {
-      totalResidentialRevenue,
-      totalCommercialRevenue,
-      totalRevenue,
-    };
-  }
+  //   return {
+  //     totalResidentialRevenue,
+  //     totalCommercialRevenue,
+  //     totalRevenue,
+  //   };
+  // }
 
   async fetchAllPaymentsByPlantId(
     data: FetchPaymentPayload,

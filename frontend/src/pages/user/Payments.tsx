@@ -49,12 +49,6 @@ const Payments = () => {
     setStatusFilter,
   } = usePagination();
 
-  // const debouncedFetchPayments = useCallback(
-  //   debounce((page: number, limit: number, query: string, filter?: string) => {
-  //     dispatch(getAllPayments({ page, limit, search: query, filter }));
-  //   }, 500),
-  //   [dispatch]
-  // );
     const debouncedFetchPayments = useMemo(
       () =>
     debounce((page: number, limit: number, query: string, filter?: string) => {

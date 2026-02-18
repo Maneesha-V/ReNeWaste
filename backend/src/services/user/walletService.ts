@@ -54,7 +54,10 @@ export class WalletService implements IWalletService {
       accountType
     );
     if (!userWallet) {
-      userWallet = await this._walletRepository.createWallet(payload);
+      userWallet = await this._walletRepository.createWallet({
+        accountId,
+        accountType
+      });
     }
     console.log("userWallet", userWallet);
 
@@ -108,6 +111,7 @@ export class WalletService implements IWalletService {
 
       userWallet.transactions.push({
         type,
+        subType: "UserDeposit",
         amount,
         description,
         razorpayOrderId: order.id,
@@ -159,6 +163,7 @@ export class WalletService implements IWalletService {
     if (!transaction) {
       throw new Error("Transaction not found.");
     }
+    transaction.settlementStatus = "NotApplicable";
     transaction.status = "Paid";
     transaction.razorpayPaymentId = razorpay_payment_id;
     transaction.razorpaySignature = razorpay_signature;

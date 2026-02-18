@@ -3,26 +3,7 @@ import { getDashboard } from "../../../services/wastePlant/dashboardService";
 import { getAxiosErrorMessage } from "../../../utils/handleAxiosError";
 import { DashboardDataResp } from "../../../types/common/commonTypes";
 import { PickupTrendResult, WPDashboardReq } from "../../../types/wasteplant/wastePlantTypes";
-
-// interface DashboardState {
-//   loading: boolean;
-//   error: string | null;
-//   drivers: number;
-//   trucks: number;
-//   pickups: number;
-//   revenue: number;
-//   waste: number;
-// }
-
-// const initialState: DashboardState = {
-//   loading: false,
-//   error: null,
-//   drivers: 0,
-//   trucks: 0,
-//   pickups: 0,
-//   revenue: 0,
-//   waste: 0,
-// };
+import { RevenueWPTrendDTO } from "../../../types/wallet/walletTypes";
 
 interface DashboardState {
   loading: boolean;
@@ -37,6 +18,7 @@ interface DashboardState {
   };
   pickupStatus: any;
   pickupTrends: PickupTrendResult[];
+  revenueTrends: RevenueWPTrendDTO[];
 }
 
 const initialState: DashboardState = {
@@ -52,6 +34,7 @@ const initialState: DashboardState = {
   },
   pickupStatus: null,
   pickupTrends: [],
+  revenueTrends: [],
 };
 
 export const fetchDashboardData = createAsyncThunk<
@@ -68,7 +51,7 @@ WPDashboardReq,
       return response;
     } catch (error) {
       const msg = getAxiosErrorMessage(error);
-             return rejectWithValue({ message: msg });
+      return rejectWithValue({ message: msg });
     }
   }
 );
@@ -97,6 +80,7 @@ const wasteplantDashboardSlice = createSlice({
         state.summary = action.payload.summary;
         state.pickupStatus = action.payload.pickupStatus;
         state.pickupTrends = action.payload.pickupTrends;
+        state.revenueTrends = action.payload.revenueTrends;
       })
       .addCase(fetchDashboardData.rejected, (state, action) => {
         state.loading = false;

@@ -32,6 +32,15 @@ export const PaymentSchema: Schema<IPaymentDocument> = new Schema(
       type: Date,
       default: null,
     },
+    payoutStatus: {
+      type: String,
+      enum: ["Pending", "Credited","Completed"],
+      default: "Pending",
+    },
+    payoutAt: {
+      type: Date,
+      default: null,
+    },
     refundRequested: {
       type: Boolean,
       default: false,

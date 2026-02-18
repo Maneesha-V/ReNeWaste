@@ -8,6 +8,7 @@ export class WalletMapper {
         accountId: doc?.accountId.toString(),
         accountType : doc?.accountType,
     balance: doc?.balance ?? 0,
+    holdingBalance: doc?.holdingBalance ?? 0,
     transactions: doc?.transactions.map((tx) => this.mapTransactionDTO(tx)) ?? [],
     }
   }
@@ -15,8 +16,11 @@ export class WalletMapper {
     return {
         _id: doc._id.toString(),
         type: doc?.type,
+        subType: doc?.subType,
+        pickupReqId: doc?.pickupReqId?.toString(),
       amount: doc?.amount,
       description: doc?.description,
+      settlementStatus: doc?.settlementStatus,
       status: doc?.status,
       method: doc?.method,
       razorpayOrderId: doc?.razorpayOrderId ?? null,

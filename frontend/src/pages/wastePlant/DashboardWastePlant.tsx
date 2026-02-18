@@ -5,12 +5,15 @@ import { useAppDispatch } from "../../redux/hooks";
 import { RootState } from "../../redux/store";
 import { fetchDashboardData } from "../../redux/slices/wastePlant/wastePlantDashboardSlice";
 import SubscriptionModal from "../../components/wastePlant/SubscriptionModal";
-import { CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import { Bar, BarChart, CartesianGrid, Cell, Legend, Line, LineChart, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import React from "react";
+import { FormattedRevenueTrend } from "../../types/wallet/walletTypes";
 
 const DashboardWastePlant = () => {
   const dispatch = useAppDispatch();
   const [showSubscriptionModal, setShowSubscriptionModal] = useState(false);
 const filters = ["daily", "weekly", "monthly", "yearly", "custom"] as const;
+const PIE_COLORS = ["#16a34a", "#2563eb"];
 
 const [trendFilter, setTrendFilter] =
   useState<typeof filters[number]>("weekly");
@@ -20,26 +23,35 @@ const [customRange, setCustomRange] = useState({
   to: "",
 });
 
-  const { summary, pickupStatus, loading, pickupTrends } = useSelector(
+  const { summary, pickupStatus, loading, pickupTrends, revenueTrends } = useSelector(
     (state: RootState) => state.wastePlantDashboard
   );
-// const pickupTrends= [
-//   { date: "Mon", residential: 10, commercial: 5 },
-//   { date: "Tue", residential: 18, commercial: 8 },
-//   { date: "Wed", residential: 14, commercial: 5 },
-//   { date: "Thu", residential: 16, commercial: 12 },
-//   { date: "Fri", residential: 10, commercial: 5 },
-// ]
-
-  // useEffect(() => {
-  //   dispatch(fetchDashboardData());
-  // }, [dispatch]);
 
   useEffect(() => {
   if (trendFilter !== "custom") {
     dispatch(fetchDashboardData({ filter: trendFilter }));
   }
 }, [trendFilter]);
+
+const formattedRevenueTrends = React.useMemo<FormattedRevenueTrend[]>(() => {
+  if (!revenueTrends) return [];
+
+  const grouped: Record<string, FormattedRevenueTrend> = {};
+
+  revenueTrends.forEach((item) => {
+    if (!grouped[item.date]) {
+      grouped[item.date] = {
+        date: item.date,
+        Residential: 0,
+        Commercial: 0,
+      };
+    }
+
+    grouped[item.date][item.wasteType] = item.totalRevenue;
+  });
+
+  return Object.values(grouped);
+}, [revenueTrends]);
 
   useEffect(() => {
     const status = localStorage.getItem("wasteplant_status");
@@ -78,22 +90,33 @@ const [customRange, setCustomRange] = useState({
       value: summary?.totalActivePickups || 0,
       icon: <Activity className="text-green-600 w-6 h-6" />,
     },
-    {
-      title: "Residential Waste",
-      value: `${summary?.totalWasteCollected?.totalResidWaste || 0} Kg`,
-      icon: <Recycle className="text-green-600 w-6 h-6" />,
-    },
-    {
-      title: "Commercial Waste",
-      value: `${summary?.totalWasteCollected?.totalCommWaste || 0} Kg`,
-      icon: <Recycle className="text-green-600 w-6 h-6" />,
-    },
+    // {
+    //   title: "Residential Waste",
+    //   value: `${summary?.totalWasteCollected?.totalResidWaste || 0} Kg`,
+    //   icon: <Recycle className="text-green-600 w-6 h-6" />,
+    // },
+    // {
+    //   title: "Commercial Waste",
+    //   value: `${summary?.totalWasteCollected?.totalCommWaste || 0} Kg`,
+    //   icon: <Recycle className="text-green-600 w-6 h-6" />,
+    // },
     {
       title: "Total Revenue",
       value: `${summary?.totalRevenue || 0} Rs`,
       icon: <Recycle className="text-green-600 w-6 h-6" />,
     },
   ];
+  const wasteMetrics = [
+  {
+    name: "Residential Waste",
+    value: summary?.totalWasteCollected?.totalResidWaste || 0,
+  },
+  {
+    name: "Commercial Waste",
+    value: summary?.totalWasteCollected?.totalCommWaste || 0,
+  },
+];
+
   return (
     <div className="p-6 bg-green-50 min-h-screen">
       <h1 className="text-2xl font-bold text-green-800 mb-6">
@@ -117,19 +140,17 @@ const [customRange, setCustomRange] = useState({
         ))}
       </div>
 {/* Pickup Trends */}
+
 {pickupTrends && (
   <div className="bg-white p-6 rounded-2xl shadow-md border border-green-200 mb-8">
     
-    {/* Header + Filters */}
-    <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:justify-between mb-4">
-      
+    {/* Header + Filters (SHARED) */}
+    <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:justify-between mb-6">
       <h2 className="text-lg font-semibold text-green-800">
-        Pickup Trends
+        Trends Overview
       </h2>
 
       <div className="flex flex-col sm:flex-row gap-3">
-        
-        {/* FILTER DROPDOWN */}
         <select
           value={trendFilter}
           onChange={(e) =>
@@ -144,17 +165,13 @@ const [customRange, setCustomRange] = useState({
           ))}
         </select>
 
-        {/* CUSTOM DATE RANGE */}
         {trendFilter === "custom" && (
           <>
             <input
               type="date"
               value={customRange.from}
               onChange={(e) =>
-                setCustomRange({
-                  ...customRange,
-                  from: e.target.value,
-                })
+                setCustomRange({ ...customRange, from: e.target.value })
               }
               className="border rounded px-3 py-1 text-sm"
             />
@@ -163,10 +180,7 @@ const [customRange, setCustomRange] = useState({
               type="date"
               value={customRange.to}
               onChange={(e) =>
-                setCustomRange({
-                  ...customRange,
-                  to: e.target.value,
-                })
+                setCustomRange({ ...customRange, to: e.target.value })
               }
               className="border rounded px-3 py-1 text-sm"
             />
@@ -183,20 +197,89 @@ const [customRange, setCustomRange] = useState({
       </div>
     </div>
 
-    {/* Chart */}
-    <ResponsiveContainer width="100%" height={300}>
-      <LineChart data={pickupTrends}>
-        <CartesianGrid strokeDasharray="3 3" />
-        <XAxis dataKey="date" />
-        <YAxis />
-        <Tooltip />
+    {/* CHARTS GRID */}
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      
+      {/* Pickup Trends */}
+      <div className="border rounded-xl p-4">
+        <h3 className="text-md font-semibold text-green-700 mb-2">
+          Pickup Trends
+        </h3>
 
-        <Line dataKey="residential" stroke="#16a34a" strokeWidth={3} />
-        <Line dataKey="commercial" stroke="#2563eb" strokeWidth={3} />
-      </LineChart>
-    </ResponsiveContainer>
+        <ResponsiveContainer width="100%" height={280}>
+          <LineChart data={pickupTrends}>
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="date" />
+            <YAxis />
+            <Tooltip />
+            <Line dataKey="residential" stroke="#16a34a" strokeWidth={3} />
+            <Line dataKey="commercial" stroke="#2563eb" strokeWidth={3} />
+          </LineChart>
+        </ResponsiveContainer>
+      </div>
+
+      {/* Revenue Trends */}
+      <div className="border rounded-xl p-4">
+        <h3 className="text-md font-semibold text-green-700 mb-2">
+          Revenue Trends
+        </h3>
+
+        <ResponsiveContainer width="100%" height={280}>
+          <BarChart data={formattedRevenueTrends}>
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="date" />
+            <YAxis />
+            <Tooltip />
+            <Bar
+              dataKey="Residential"
+              // stroke="#f59e0b"
+              fill="#f59e0b"
+              // fill="#10b981"
+              radius={[6, 6, 0, 0]}
+            />
+             <Bar
+        dataKey="Commercial"
+        fill="#10b981"
+        // fill="#3b82f6"
+        radius={[6, 6, 0, 0]}
+      />
+          </BarChart>
+        </ResponsiveContainer>
+      </div>
+
+    </div>
   </div>
 )}
+<div className="bg-white p-6 rounded-2xl shadow-md border border-green-200 mb-8">
+
+  <h2 className="text-lg font-semibold text-green-800 mb-4">
+    Waste Collection Metrics
+  </h2>
+<div className="h-px bg-green-100 mb-4" />
+  <ResponsiveContainer width="100%" height={320}>
+    <PieChart>
+      <Pie
+        data={wasteMetrics}
+        dataKey="value"
+        nameKey="name"
+        cx="50%"
+        cy="50%"
+        outerRadius={110}
+        label
+      >
+        {wasteMetrics.map((entry, index) => (
+          <Cell
+            key={`cell-${index}`}
+            fill={PIE_COLORS[index % PIE_COLORS.length]}
+          />
+        ))}
+      </Pie>
+
+      <Tooltip />
+      <Legend />
+    </PieChart>
+  </ResponsiveContainer>
+</div>
 
 
       {/* Pickup Status Section */}

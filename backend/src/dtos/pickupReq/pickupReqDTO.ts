@@ -237,11 +237,11 @@ export type StatusCounts = Record<PickupStatus | "Active", number>;
 
 export type PickupStatusByWasteType = Record<WasteType, StatusCounts>;
 
-export type RevenueByWasteType = {
-  totalResidentialRevenue: number;
-  totalCommercialRevenue: number;
-  totalRevenue: number;
-};
+// export type RevenueByWasteType = {
+//   totalResidentialRevenue: number;
+//   totalCommercialRevenue: number;
+//   totalRevenue: number;
+// };
 export type PickupDriverFilterParams = {
   // wasteType?: string;
   driverId: string;

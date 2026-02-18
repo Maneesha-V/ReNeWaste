@@ -10,6 +10,7 @@ import {
   PickupPlansDTO,
 } from "../../dtos/pickupReq/pickupReqDTO";
 import { PaginationInput } from "../../dtos/common/commonDTO";
+import { IWalletRepository } from "../../repositories/wallet/interface/IWalletRepository";
 
 @injectable()
 export class PickupService implements IPickupService {
@@ -18,6 +19,8 @@ export class PickupService implements IPickupService {
     private _pickupRepository: IPickupRepository,
     @inject(TYPES.NotificationRepository)
     private _notificationRepository: INotificationRepository,
+    @inject(TYPES.WalletRepository)
+    private _walletRepository: IWalletRepository,
   ) {}
   async getPickupPlanService(
     userId: string,
@@ -61,9 +64,41 @@ export class PickupService implements IPickupService {
     const updatedPickupRequest =
       await this._pickupRepository.updatePaymentStatus(data.pickupReqId);
     if (!updatedPickupRequest) throw new Error("Pickup not updated.");
+    if (updatedPickupRequest.payment?.payoutStatus === "Completed") {
+      throw new Error("Refund not allowed after payout released.");
+    }
+
     if (!updatedPickupRequest.wasteplantId) {
       throw new Error("Wasteplant ID not found in pickup request.");
     }
+    const userWallet = await this._walletRepository.findWallet(
+      data.userId,
+      "User",
+    );
+    if (!userWallet) {
+      throw new Error("User wallet not found.");
+    }
+    const cancelPickupTransaction = userWallet.transactions.find(
+      (tx) =>
+        tx.subType === "PickupPayment" &&
+        tx.pickupReqId?.toString() === data.pickupReqId,
+    );
+    if (!cancelPickupTransaction)
+      throw new Error("Pickup payment transaction not found.");
+    if (cancelPickupTransaction.status !== "Paid") {
+      throw new Error("Payment not completed. Refund not allowed.");
+    }
+    if (cancelPickupTransaction.refundRequested) {
+      throw new Error("Refund already requested.");
+    }
+    if (userWallet.holdingBalance < cancelPickupTransaction.amount) {
+      throw new Error("Refund cannot be processed. Amount already settled.");
+    }
+
+    cancelPickupTransaction.refundRequested = true;
+    cancelPickupTransaction.refundStatus = "Pending";
+    await userWallet.save();
+
     const io = globalThis.io;
 
     const plantId = updatedPickupRequest?.wasteplantId.toString();
@@ -78,7 +113,7 @@ export class PickupService implements IPickupService {
         message: userMessage,
         type: "pickup_refund-req",
       });
-    console.log("plantNotification", plantNotification);
+ 
 
     if (io) {
       io.to(`${plantId}`).emit("newNotification", plantNotification);

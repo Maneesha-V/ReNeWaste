@@ -1,9 +1,12 @@
 import mongoose, { Document, Types } from "mongoose";
 
 export interface IWalletTransaction {
-  type: string;
+  type: "Credit"| "Debit";
+  subType: "PickupPayment"| "Settlement"|"SettlementEarning" | "DriverEarning"| "Withdrawal"| "Refund"|"ExternalRefund" |"UserDeposit";
+  pickupReqId?: mongoose.Types.ObjectId;
   amount: number;
   description: string;
+  settlementStatus: "NotApplicable"| "Pending"| "Completed";
   status: string;
   paidAt: Date | null;
   method: string;
@@ -24,10 +27,10 @@ export interface IWalletTransactionDocument
   _id: Types.ObjectId;
 }
 export interface IWallet {
-  // userId: mongoose.Types.ObjectId;
   accountId: mongoose.Types.ObjectId;
   accountType: string;
   balance: number;
+  holdingBalance: number;
   transactions: Types.DocumentArray<IWalletTransactionDocument>;
 }
 export interface IWalletDocument extends IWallet, Document {

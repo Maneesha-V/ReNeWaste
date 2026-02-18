@@ -1,3 +1,4 @@
+import { RevenueWPTrendDTO } from "../wallet/walletDTO";
 import { PickupTrendResult } from "../wasteplant/WasteplantDTO";
 
 export interface PaginationInput {
@@ -59,12 +60,8 @@ export type DashboardDataResp = {
     inactive: number;
     maintenance: number;
   };
-  revenue: {
-    totalResidentialRevenue: number;
-    totalCommercialRevenue: number;
-    totalRevenue: number;
-  };
   pickupTrends: PickupTrendResult[];
+  revenueTrends: RevenueWPTrendDTO[];
 };
 interface EtaResult {
   text: string;

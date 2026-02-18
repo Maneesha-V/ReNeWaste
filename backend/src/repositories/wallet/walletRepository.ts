@@ -8,10 +8,16 @@ import { IUserRepository } from "../user/interface/IUserRepository";
 import {
   AddMoneyToWallet,
   AddMoneyToWalletReq,
+  CreateWalletReq,
+  FetchFilteredWPRevenueResp,
   PaginatedGetWalletReq,
   PaginatedUserWallet,
+  RevenueWPTrendDTO,
 } from "../../dtos/wallet/walletDTO";
-import mongoose, { ClientSession } from "mongoose";
+import mongoose, { ClientSession, PipelineStage, Types } from "mongoose";
+import { FetchWPDashboard } from "../../dtos/wasteplant/WasteplantDTO";
+import { getDateRange, getGroupFormat } from "../../utils/dateUtils";
+import { ObjectId } from "mongodb";
 
 @injectable()
 export class WalletRepository
@@ -29,14 +35,25 @@ export class WalletRepository
     accountType: string,
     session?: ClientSession,
   ): Promise<IWalletDocument | null> {
-    return await this.model.findOne({ accountId, accountType }, null, session);
+    const accountIdObj = new Types.ObjectId(accountId);
+    // return await this.model.findOne({ accountId: accountIdObj, accountType }, null, session);
+    const query = this.model.findOne({
+      accountId: accountIdObj,
+      accountType,
+    });
+
+    if (session) query.session(session);
+
+    return query;
   }
-  async createWallet(payload: AddMoneyToWalletReq) {
+  async createWallet(payload: CreateWalletReq) {
+    console.log("🔥 Creating wallet", payload);
     const { accountId, accountType } = payload;
     return await this.model.create({
-      accountId,
+      accountId: new Types.ObjectId(accountId),
       accountType,
       balance: 0,
+      holdingBalance: 0,
       transactions: [],
     });
   }
@@ -56,6 +73,8 @@ export class WalletRepository
             amount: data.amount,
             description: data.description,
             type: data.type,
+            subType: data.subType,
+            pickupReqId: new Types.ObjectId(data.pickupReqId),
             paidAt: new Date(),
             status: "Paid",
           },
@@ -81,6 +100,8 @@ export class WalletRepository
                   amount: data.amount,
                   description: data.description,
                   type: data.type,
+                  subType: data.subType,
+                  pickupReqId: new Types.ObjectId(data.pickupReqId),
                   paidAt: new Date(),
                   status: "Paid",
                 },
@@ -162,7 +183,8 @@ export class WalletRepository
           earnings: [
             {
               $match: {
-                "transactions.type": "Earning",
+                "transactions.type": "Credit",
+                "transactions.subType": "Settlement",
               },
             },
             {
@@ -253,7 +275,8 @@ export class WalletRepository
             {
               $match: {
                 // "transactions.description": {$regex: "^Reward", $options: "i"}
-                "transactions.type": "Reward",
+                "transactions.subType": "DriverEarning",
+                "transactions.type": "Credit",
               },
             },
             {
@@ -388,5 +411,109 @@ export class WalletRepository
     console.log("transactions", result[0]);
 
     return { transactions, total };
+  }
+  async fetchFilteredWPRevenue(data: FetchWPDashboard): Promise<FetchFilteredWPRevenueResp> {
+    const { plantId, filter, from, to } = data;
+    const { start, end } = getDateRange(filter, from, to);
+    const format = getGroupFormat(filter);
+    console.log("data",data);
+    console.log("st-en",start,end);
+    
+    const pipeline: PipelineStage[] = [
+      {
+        $match: {
+          accountId: new ObjectId(plantId),
+          accountType: "WastePlant",
+        },
+      },
+      {
+        $unwind: "$transactions",
+      },
+      {
+        $match: {
+          "transactions.subType": "SettlementEarning",
+        },
+      },
+    ];
+    if (start && end) {
+      pipeline.push({
+        $match: {
+          "transactions.paidAt": {
+            $gte: start,
+            $lte: end,
+          },
+        },
+      });
+    }
+
+    // pipeline.push({
+    //   $group: {
+    //     _id: {
+    //       $dateToString: {
+    //         format,
+    //         date: "$transactions.paidAt",
+    //         timezone: "Asia/Kolkata"
+    //       }
+    //     },
+    //     totalRevenue: { $sum: "$transactions.amount" },
+    //   },
+    // });
+    // pipeline.push({
+    //   $sort: { _id: 1 },
+    // })
+    // pipeline.push({
+    //   $project: {
+    //     _id: 0,
+    //     date: "$_id",
+    //     totalRevenue: 1
+    //   }
+    // })
+    pipeline.push(
+  {
+    $lookup: {
+      from: "pickuprequests",
+      localField: "transactions.pickupReqId",
+      foreignField: "_id",
+      as: "pickupData"
+    }
+  },
+  { $unwind: "$pickupData" },
+  {
+    $group: {
+      _id: {
+        date: {
+          $dateToString: {
+            format,
+            date: "$transactions.paidAt",
+            timezone: "Asia/Kolkata"
+          }
+        },
+        wasteType: "$pickupData.wasteType"
+      },
+      totalRevenue: { $sum: "$transactions.amount" }
+    }
+  },
+  { $sort: { "_id.date": 1 } },
+  {
+    $project: {
+      _id: 0,
+      date: "$_id.date",
+      wasteType: "$_id.wasteType",
+      totalRevenue: 1
+    }
+  }
+);
+
+    const result = await this.model.aggregate<RevenueWPTrendDTO>(pipeline);
+    console.log("AGG RESULT:", result);
+  
+    const totalRevenue = await this.model.findOne({
+      accountId: plantId,
+      accountType: "WastePlant"
+    });
+    return {
+      revenueTrends: result,
+      wasteplantTotRevenue: totalRevenue?.balance ?? 0,
+    }
   }
 }

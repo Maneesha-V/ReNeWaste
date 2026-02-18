@@ -116,7 +116,6 @@ export class PickupService implements IPickupService {
         message: driverMessage,
         type: "pickup_scheduled",
       });
-    console.log("driverNotification", driverNotification);
 
     if (io) {
       io.to(`${driverId}`).emit("newNotification", driverNotification);
@@ -132,8 +131,6 @@ export class PickupService implements IPickupService {
         message: userMessage,
         type: "pickup_approved",
       });
-
-    console.log("userNotification", driverNotification);
 
     if (io) {
       io.to(`${userId}`).emit("newNotification", userNotification);

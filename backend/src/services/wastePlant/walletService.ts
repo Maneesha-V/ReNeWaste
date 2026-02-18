@@ -30,6 +30,7 @@ export class WalletService implements IWalletService {
       return {
         transactions: WalletMapper.mapTransactionsDTO(transactions),
         balance: wallet.balance,
+        holdingBalance: wallet.holdingBalance,
         total,
         earnings
       };

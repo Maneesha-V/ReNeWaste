@@ -176,8 +176,52 @@ export class PickupService implements IPickupService {
       if (!pickup) {
         throw new Error("Not mark pickup.");
       }
+      if (!pickup.payment || pickup.payment.status !== "Paid") {
+        throw new Error("Pickup payment not completed");
+      }
 
+      if (pickup.payment.payoutStatus === "Completed") {
+        throw new Error("Payout already released");
+      }
       const amount = pickup.payment.amount;
+      const userWallet = await this._walletRepository.findWallet(
+        pickup.userId.toString(),
+        "User",
+        session,
+      );
+
+      if (!userWallet) {
+        throw new Error("User wallet not found");
+      }
+
+      if (userWallet.holdingBalance < amount) {
+        throw new Error("Insufficient holding balance");
+      }
+const pickupTransaction = userWallet.transactions.find(
+  (tx) => tx.pickupReqId?.toString() === pickup._id.toString() &&
+  tx.subType === "PickupPayment"
+)
+if (!pickupTransaction) {
+  throw new Error("Pickup payment transaction not found");
+}
+
+if (pickupTransaction.settlementStatus === "Completed") {
+  throw new Error("Already settled");
+}
+      userWallet.holdingBalance -= amount;
+pickupTransaction.settlementStatus = "Completed";
+      userWallet.transactions.push({
+        type: "Debit",
+        subType: "Settlement",
+        pickupReqId: pickup._id,
+        amount,
+        description: `Pickup ${pickup.pickupId} payment settled`,
+        status: "Paid",
+        paidAt: new Date(),
+      });
+
+      await userWallet.save({ session });
+
       const driverId = pickup.driverId!.toString();
       const wasteplantId = pickup.wasteplantId!.toString();
 
@@ -197,7 +241,9 @@ export class PickupService implements IPickupService {
             data: {
               amount: driverShare,
               description: `Reward for completed pickup ${pickup.pickupId}`,
-              type: "Reward",
+              type: "Credit",
+              subType: "DriverEarning",
+              pickupReqId: pickup._id.toString(),
             },
           },
           session,
@@ -209,7 +255,11 @@ export class PickupService implements IPickupService {
             data: {
               amount: driverShare,
               description: `Reward for completed pickup ${pickup.pickupId}`,
-              type: "Reward",
+              type: "Credit",
+              subType: "DriverEarning",
+              pickupReqId: pickup._id.toString(),
+              status: "Paid",
+              paidAt: new Date()
             },
           },
           session,
@@ -228,8 +278,10 @@ export class PickupService implements IPickupService {
             accountType: "WastePlant",
             data: {
               amount: wasteplantShare,
-              type: "Earning",
+              type: "Credit",
               description: `Earnings from completed pickup ${pickup.pickupId}`,
+              subType: "SettlementEarning",
+              pickupReqId: pickup._id.toString(),
             },
           },
           session,
@@ -240,8 +292,12 @@ export class PickupService implements IPickupService {
             walletId: wasteplantWallet._id.toString(),
             data: {
               amount: wasteplantShare,
-              type: "Earning",
-              description: `Income from completed pickup ${pickup.pickupId}`,
+              type: "Credit",
+              description: `Earnings from completed pickup ${pickup.pickupId}`,
+              subType: "SettlementEarning",
+              pickupReqId: pickup._id.toString(),
+              status: "Paid",
+              paidAt: new Date()
             },
           },
           session,
@@ -256,21 +312,25 @@ export class PickupService implements IPickupService {
         },
         session,
       );
-      
+
       if (!attendance) {
         throw new Error("Driver attendance not found.");
       }
-      // attendance.totalPickups += 1;
-      // attendance.reward += driverShare;
-      // attendance.earning += wasteplantShare;
+
       attendance.totalPickups = (attendance.totalPickups || 0) + 1;
-attendance.reward = (attendance.reward || 0) + driverShare;
-attendance.wpEarning = (attendance.wpEarning || 0) + wasteplantShare;
+      attendance.reward = (attendance.reward || 0) + driverShare;
+      attendance.wpEarning = (attendance.wpEarning || 0) + wasteplantShare;
       await attendance.save({ session });
+
+      pickup.payment.payoutStatus = "Completed";
+      pickup.payment.payoutAt = new Date();
+
+      pickup.markModified("payment");
+      await pickup.save({ session });
 
       await session.commitTransaction();
       session.endSession();
- console.log("attendance",attendance);
+      console.log("attendance", attendance);
       return {
         pickupReqId: pickup._id.toString(),
         status: pickup.status,

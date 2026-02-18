@@ -22,7 +22,7 @@ export class DashboardController implements IDashboardController {
       console.log("query",req.query);
       
       const plantId = req.user?.id;
-            const filter = req.query.filter as string;
+      const filter = req.query.filter as string;
       const from = req.query.from as string;
       const to = req.query.to as string;
       if (!plantId) {

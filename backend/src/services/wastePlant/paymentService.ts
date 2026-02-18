@@ -49,14 +49,14 @@ export class PaymentService implements IPaymentService {
     @inject(TYPES.SuperAdminRepository)
     private superAdminRepository: ISuperAdminRepository,
     @inject(TYPES.WalletRepository)
-    private _walletRepository: IWalletRepository
+    private _walletRepository: IWalletRepository,
   ) {
     const key_id = process.env.RAZORPAY_KEY_ID!;
     const key_secret = process.env.RAZORPAY_KEY_SECRET!;
 
     if (!key_id || !key_secret) {
       throw new Error(
-        "Razorpay API keys are not defined in environment variables"
+        "Razorpay API keys are not defined in environment variables",
       );
     }
 
@@ -66,13 +66,13 @@ export class PaymentService implements IPaymentService {
     });
   }
   async fetchPayments(
-    data: FetchPaymentPayload
+    data: FetchPaymentPayload,
   ): Promise<PaginatedPaymentsResult> {
     return await this.pickupRepository.fetchAllPaymentsByPlantId(data);
   }
 
   async createPaymentOrder(
-    data: SubCreatePaymtReq
+    data: SubCreatePaymtReq,
   ): Promise<SubCreatePaymtResp> {
     const { plantId, planId } = data;
     const plant = await this.wastePlantRepository.getWastePlantById(plantId);
@@ -84,14 +84,14 @@ export class PaymentService implements IPaymentService {
     //   throw new Error("Subscription plan not found.");
     // }
     const existingPlan = await this.subscriptionRepository.checkPlanNameExist(
-      plant.subscriptionPlan!
+      plant.subscriptionPlan!,
     );
     if (!existingPlan || existingPlan.status !== "Active") {
       throw new Error("This subscription plan is not active.");
     }
     const existingInProgressPayment =
       await this.subscriptionPaymentRepository.findLatestInProgressPayment(
-        plantId
+        plantId,
       );
 
     const now = new Date();
@@ -114,10 +114,10 @@ export class PaymentService implements IPaymentService {
         (existingInProgressPayment.inProgressExpiresAt.getTime() -
           now.getTime()) /
           1000 /
-          60
+          60,
       );
       throw new Error(
-        `A payment is already in progress. Please try again after ${remainingMinutes} minutes.`
+        `A payment is already in progress. Please try again after ${remainingMinutes} minutes.`,
       );
     }
 
@@ -205,7 +205,7 @@ export class PaymentService implements IPaymentService {
       throw new Error("Plant not found to update status to Active.");
     }
     const plan = await this.subscriptionRepository.getSubscriptionPlanById(
-      paymentData.planId
+      paymentData.planId,
     );
     if (!plan) {
       throw new Error("Plan not exist.");
@@ -237,7 +237,7 @@ export class PaymentService implements IPaymentService {
     };
   }
   async fetchSubscriptionPayments(
-    plantId: string
+    plantId: string,
   ): Promise<ReturnSubcptnPaymentResult> {
     const plant = await this.wastePlantRepository.getWastePlantById(plantId);
     if (!plant) {
@@ -247,14 +247,14 @@ export class PaymentService implements IPaymentService {
       throw new Error("Subscription plan not found for this plant.");
     }
     const subptnPlanData = await this.subscriptionRepository.checkPlanNameExist(
-      plant?.subscriptionPlan
+      plant?.subscriptionPlan,
     );
     if (!subptnPlanData || !subptnPlanData._id) {
       throw new Error("Subscription plan not exist.");
     }
     const paymentData =
       await this.subscriptionPaymentRepository.findSubscriptionPayments(
-        plantId
+        plantId,
       );
     if (!paymentData) {
       throw new Error("Subscription paymnets not found.");
@@ -284,17 +284,17 @@ export class PaymentService implements IPaymentService {
 
     return {
       paymentData: SubscriptionPaymentMapper.mapPopulatedList(
-        paymentData ?? []
+        paymentData ?? [],
       ),
     };
   }
   async retrySubscriptionPayment(
-    data: RetrySubPaymntReq
+    data: RetrySubPaymntReq,
   ): Promise<RetrySubPaymntRes> {
     const { plantId, planId, amount, subPaymtId } = data;
     const subptnPaymentData =
       await this.subscriptionPaymentRepository.findSubscriptionPaymentById(
-        subPaymtId
+        subPaymtId,
       );
     if (!subptnPaymentData) {
       throw new Error("Payment not found.");
@@ -315,10 +315,10 @@ export class PaymentService implements IPaymentService {
     ) {
       const waitTime = Math.ceil(
         (subptnPaymentData.inProgressExpiresAt.getTime() - now.getTime()) /
-          60000
+          60000,
       );
       throw new Error(
-        `Another payment is in progress. Try again in ${waitTime} minutes.`
+        `Another payment is in progress. Try again in ${waitTime} minutes.`,
       );
     }
 
@@ -341,7 +341,7 @@ export class PaymentService implements IPaymentService {
     const updatedData =
       await this.subscriptionPaymentRepository.updateSubscriptionPaymentById(
         subptnPaymentData._id.toString(),
-        paymentUpdate
+        paymentUpdate,
       );
     if (!updatedData.razorpayOrderId || !updatedData.planId) {
       throw new Error("Can't update payment");
@@ -357,7 +357,7 @@ export class PaymentService implements IPaymentService {
     };
   }
   async updateRefundStatusPayment(
-    data: UpdateStatusReq
+    data: UpdateStatusReq,
   ): Promise<RefundStatusUpdateResp> {
     const { plantId, statusUpdateData } = data;
     const { pickupReqId, status } = statusUpdateData;
@@ -369,7 +369,12 @@ export class PaymentService implements IPaymentService {
     if (pickupReq.wasteplantId?.toString() !== plantId) {
       throw new Error("Not belongs in wasteplant.");
     }
-
+    if (pickupReq.payment.status !== "Paid") {
+      throw new Error("Payment not completed.");
+    }
+    if (pickupReq.payment.payoutStatus === "Completed") {
+      throw new Error("Refund not allowed after payout settlement.");
+    }
     const currentStatus = pickupReq.payment.refundStatus;
     const inProgressExpiresAt = pickupReq.payment.inProgressExpiresAt;
     if (
@@ -383,25 +388,49 @@ export class PaymentService implements IPaymentService {
           hour: "2-digit",
           minute: "2-digit",
           hour12: true,
-        }
+        },
       );
       throw new Error(
-        `Refund is already being processed. Try again after ${expireTime}.`
+        `Refund is already being processed. Try again after ${expireTime}.`,
       );
     }
     pickupReq.payment.refundStatus = status;
     if (status === "Processing") {
       pickupReq.payment.inProgressExpiresAt = new Date(
-        Date.now() + 5 * 60 * 1000
+        Date.now() + 5 * 60 * 1000,
       );
     } else {
       pickupReq.payment.inProgressExpiresAt = null;
     }
     await pickupReq.save();
+    const userId = pickupReq.userId.toString();
+    const userWallet = await this._walletRepository.findWallet(userId, "User");
+    if (!userWallet) throw new Error("User wallet not found.");
+    const pickupTransaction = userWallet.transactions.find(
+      (tx) =>
+        tx.pickupReqId?.toString() === pickupReqId.toString() &&
+        tx.subType === "PickupPayment",
+    );
+    if (!pickupTransaction) throw new Error("Pickup transaction not found.");
+    if (!pickupTransaction.refundRequested) {
+      throw new Error("Refund was not requested.");
+    }
+    if (!status || !currentStatus) {
+      throw new Error("Refund status cannot be null.");
+    }
+    if (
+      (currentStatus === "Pending" &&
+        !["Processing", "Rejected"].includes(status)) ||
+      (currentStatus === "Processing" && status !== "Refunded") ||
+      ["Refunded", "Rejected"].includes(currentStatus)
+    ) {
+      throw new Error("Invalid refund status transition.");
+    }
+    pickupTransaction.refundStatus = status;
 
+    await userWallet.save();
     const io = globalThis.io;
 
-    const userId = pickupReq.userId.toString();
     const userMessage = `Refund process started for Pickup ID ${pickupReq.pickupId}.`;
     const userNotification =
       await this.notificationRepository.createNotification({
@@ -412,13 +441,11 @@ export class PaymentService implements IPaymentService {
         message: userMessage,
         type: "pickup_refund-processing",
       });
-    console.log("userNotification", userNotification);
 
     if (io) {
       io.to(`${userId}`).emit("newNotification", userNotification);
     }
 
-    // return pickupReq;
     return {
       _id: pickupReq._id.toString(),
       refundStatus: pickupReq.payment.refundStatus,
@@ -426,8 +453,10 @@ export class PaymentService implements IPaymentService {
     };
   }
   async refundPayment(plantId: string, data: RefundDataReq) {
+    console.log("data",data);
+    
     const pickupReq = await this.pickupRepository.getPickupById(
-      data.pickupReqId
+      data.pickupReqId,
     );
     console.log("pickupReq", pickupReq);
 
@@ -438,22 +467,43 @@ export class PaymentService implements IPaymentService {
     if (!payment) {
       throw new Error("No payment record found.");
     }
+    if (payment.refundStatus === "Refunded") {
+      throw new Error("Already refunded");
+    }
+
     const accountId = pickupReq.userId.toString();
     const accountType = "User";
     try {
       if (payment.method === "Wallet") {
         const wallet = await this._walletRepository.findWallet(
-          accountId, accountType
+          accountId,
+          accountType,
         );
         if (!wallet) throw new Error("Wallet not found for this user.");
-
+        const pickupTansaction = wallet.transactions.find(
+          (tx) =>
+            tx.subType === "PickupPayment" &&
+            // tx.pickupReqId?.toString() === pickupReq._id.toString() &&
+            tx.pickupReqId?.equals(pickupReq._id) &&
+            tx.method === "Wallet",
+        );
+        if (!pickupTansaction) throw new Error("Pickup transaction not found.");
+        wallet.holdingBalance -= payment.amount;
         wallet.balance += payment.amount;
+        // pickupTansaction.type = "Credit";
+        // pickupTansaction.subType = "Refund";
+        // pickupTansaction.description = `Refund for Pickup ID ${pickupReq.pickupId}`;
+        // pickupTansaction.refundStatus = "Refunded";
+        // pickupTansaction.refundAt = new Date();
         wallet.transactions.push({
           type: "Credit",
+          subType: "Refund",
+          method: "Wallet",
+          pickupReqId: pickupReq._id,
           amount: pickupReq.payment.amount,
           description: `Refund for Pickup ID ${pickupReq.pickupId}`,
           refundStatus: "Refunded",
-          createdAt: new Date(),
+          refundAt: new Date(),
         });
 
         await wallet.save();
@@ -473,7 +523,7 @@ export class PaymentService implements IPaymentService {
         }
 
         const paymentDetails = await this.razorpay.payments.fetch(
-          data.razorpayPaymentId
+          data.razorpayPaymentId,
         );
 
         if (paymentDetails.status !== "captured") {
@@ -483,7 +533,7 @@ export class PaymentService implements IPaymentService {
         if (process.env.NODE_ENV === "production") {
           const refund = await this.razorpay.payments.refund(
             data.razorpayPaymentId,
-            { amount: paymentDetails.amount, speed: "normal" }
+            { amount: paymentDetails.amount, speed: "normal" },
           );
           payment.razorpayRefundId = refund.id;
         } else {
@@ -491,6 +541,41 @@ export class PaymentService implements IPaymentService {
           payment.razorpayRefundId = `test_refund_${Date.now()}`;
         }
 
+        const wallet = await this._walletRepository.findWallet(
+          accountId,
+          accountType,
+        );
+        if (!wallet) throw new Error("Wallet not found for this user.");
+        console.log("wallet-raz",wallet);
+        
+        const pickupTansaction = wallet.transactions.find(
+          (tx) =>
+            tx.subType === "PickupPayment" &&
+            // tx.pickupReqId?.toString() === pickupReq._id.toString() &&
+            tx.pickupReqId?.equals(pickupReq._id) &&
+            tx.method === "Razorpay"
+        );
+        console.log("pickupTansaction",pickupTansaction);
+        
+        if (!pickupTansaction) throw new Error("Pickup transaction not found.");
+        wallet.holdingBalance -= payment.amount;
+
+        // pickupTansaction.type = "Credit";
+        // pickupTansaction.subType = "ExternalRefund";
+        // pickupTansaction.description = `Refund via Razorpay for Pickup ${pickupReq.pickupId}`;
+        // pickupTansaction.refundStatus = "Refunded";
+        // pickupTansaction.refundAt = new Date();
+        wallet.transactions.push({
+          type: "Credit",
+          subType: "ExternalRefund",
+          method: "Razorpay",
+          pickupReqId: pickupReq._id,
+          amount: payment.amount,
+          description: `Refund via Razorpay for Pickup ${pickupReq.pickupId}`,
+          refundStatus: "Refunded",
+          refundAt: new Date(),
+        });
+        await wallet.save();
         pickupReq.status = "Cancelled";
         payment.refundStatus = "Refunded";
         payment.refundAt = new Date();
@@ -518,8 +603,15 @@ export class PaymentService implements IPaymentService {
 
       return PickupRequestMapper.mapPickupReqDTO(pickupReq);
     } catch (error: any) {
-      console.error("Refund failed:", JSON.stringify(error, null, 2));
-      throw new Error(error?.error?.description || "Refund failed");
+      // console.error("Refund failed:", JSON.stringify(error, null, 2));
+      // throw new Error(error?.error?.description || "Refund failed");
+        console.error("========== REFUND ERROR ==========");
+  console.error("RAW ERROR:", error);
+  console.error("MESSAGE:", error?.message);
+  console.error("STACK:", error?.stack);
+  console.error("==================================");
+
+  throw error; // DO NOT wrap again
     }
     // if (
     //   pickupReq.payment.razorpayPaymentId !== data.razorpayPaymentId ||
