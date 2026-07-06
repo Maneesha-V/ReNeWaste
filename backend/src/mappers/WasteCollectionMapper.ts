@@ -5,6 +5,7 @@ import {
   WasteCollectionDTO,
 } from "../dtos/wasteCollection/wasteCollectionDTO";
 import { IWasteCollectionDocument } from "../models/wasteCollection/interfaces/wasteCollectionInterface";
+import socketHandler from "../socket/socketHandler";
 
 export class WasteCollectionMapper {
   static mapWasteCollectionDTO(

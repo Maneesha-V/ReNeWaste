@@ -8,6 +8,7 @@ export type NotificationResp = {
   type: string;
   isRead: boolean;
   createdAt: string;
+  isMeasured: boolean;
 };
 export type FetchNotificationsResp = {
   notifications: NotificationResp[];

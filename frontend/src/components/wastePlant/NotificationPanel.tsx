@@ -24,15 +24,12 @@ const NotificationPanel: React.FC<WastePlantNotificationPanelProps> = ({
   const notifications = useSelector(
     (state: RootState) => state.wastePlantNotifications.notifications
   );
-  const measuredNotificationId = useSelector(
-    (state: RootState) => state.wastePlantNotifications.measuredNotificationId
-  );
+
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const socket = useSafeSocket();
 
   const [activeTab, setActiveTab] = useState<"unread" | "all">("unread");
-  const [disabledMeasureIds, setDisabledMeasureIds] = useState<string[]>([]);
 
   useEffect(() => {
     if (visible && plantId) {
@@ -63,7 +60,6 @@ const NotificationPanel: React.FC<WastePlantNotificationPanelProps> = ({
   };
 
   const handleOpenWasteWeight = (notification: NotificationResp) => {
-    setDisabledMeasureIds(prev => [...prev, notification._id]);
     const messageParts = notification.message.split(" ");
     const vehicleNumber = messageParts[1];
     const driverName = messageParts[messageParts.length - 1];
@@ -137,19 +133,21 @@ const NotificationPanel: React.FC<WastePlantNotificationPanelProps> = ({
                   <div className="flex justify-between items-center">
                     <div className="text-sm text-gray-800">{n.message}</div>
                     <div className="flex items-center space-x-2">
-                      {n.type === "truck_returned" &&
-                        ((n as any).isMeasured || measuredNotificationId === n._id || disabledMeasureIds.includes(n._id) ? (
+                      { n.type === "truck_returned" &&
+                        (n.isMeasured ? (
                           <span className="text-sm text-gray-500 italic">
                             Measured
                           </span>
-                        ) : (
+                        )
+                        : (
                           <button
                             className="px-2 py-1 text-xs cursor-pointer bg-blue-600 text-white rounded hover:bg-blue-700"
                             onClick={() => handleOpenWasteWeight(n)}
                           >
                             Measure
                           </button>
-                        ))}
+                        ))
+                        }
                          {n.type === "subscribe_reminder" &&
                         (
                           <button

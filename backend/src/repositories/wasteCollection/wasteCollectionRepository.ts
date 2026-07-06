@@ -1,5 +1,5 @@
 import { inject, injectable } from "inversify";
-import { IWasteCollectionDocument } from "../../models/wasteCollection/interfaces/wasteCollectionInterface";
+import { FilterReportRepo, InputWasteMeasurementRepo, IWasteCollectionDocument, ReturnTotalWasteAmount, ReturnWasteMeasurementRepo } from "../../models/wasteCollection/interfaces/wasteCollectionInterface";
 import { WasteCollectionModel } from "../../models/wasteCollection/wasteCollectionModel";
 import BaseRepository from "../baseRepository/baseRepository";
 import { IWasteCollectionRepository } from "./interface/IWasteCollectionRepository";
@@ -8,12 +8,6 @@ import { IDriverRepository } from "../driver/interface/IDriverRepository";
 import { ITruckRepository } from "../truck/interface/ITruckRepository";
 import { INotificationRepository } from "../notification/interface/INotifcationRepository";
 import mongoose from "mongoose";
-import { FilterReport } from "../../dtos/wasteplant/WasteplantDTO";
-import {
-  InputWasteMeasurement,
-  ReturnTotalWasteAmount,
-  ReturnWasteMeasurement,
-} from "../../dtos/wasteCollection/wasteCollectionDTO";
 
 @injectable()
 export class WasteCollectionRepository
@@ -32,8 +26,8 @@ export class WasteCollectionRepository
   }
 
   async createWasteMeasurement(
-    data: InputWasteMeasurement,
-  ): Promise<ReturnWasteMeasurement> {
+    data: InputWasteMeasurementRepo,
+  ): Promise<ReturnWasteMeasurementRepo> {
     const notification = await this.notificationRepository.getNotificationById(
       data.notificationId,
     );
@@ -46,7 +40,8 @@ export class WasteCollectionRepository
     const messageParts = notification?.message.split(" ");
     const vehicleNumber = messageParts[1];
     const driverName = messageParts[messageParts.length - 1];
-
+    notification.isMeasured = true;
+    await notification.save();
     const driver = await this.driverRepository.findDriverByName(driverName);
     const truck = await this.truckRepository.findTruckByVehicle(vehicleNumber);
     if (!driver || !truck) {
@@ -110,7 +105,7 @@ export class WasteCollectionRepository
       });
     return collectionReports;
   }
-  async filterWasteCollectionReportsByPlantId(data: FilterReport) {
+  async filterWasteCollectionReportsByPlantId(data: FilterReportRepo) {
     const fromDate = new Date(`${data.from}T00:00:00.000Z`);
     const toDate = new Date(`${data.to}T23:59:59.999Z`);
 

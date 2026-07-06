@@ -4,8 +4,15 @@ import {
   markAsReadService,
   saveWasteMeasurementService,
 } from "../../../services/wastePlant/notificationService";
-import { FetchNotificationsResp, markAsReadResp, NotificationResp } from "../../../types/notification/notificationTypes";
-import { SaveWasteMeasurementPayload, SaveWasteMeasurementResp } from "../../../types/wasteCollections/wasteCollectionTypes";
+import {
+  FetchNotificationsResp,
+  markAsReadResp,
+  NotificationResp,
+} from "../../../types/notification/notificationTypes";
+import {
+  SaveWasteMeasurementPayload,
+  SaveWasteMeasurementResp,
+} from "../../../types/wasteCollections/wasteCollectionTypes";
 import { getAxiosErrorMessage } from "../../../utils/handleAxiosError";
 
 interface NotificationState {
@@ -13,7 +20,6 @@ interface NotificationState {
   loading: boolean;
   error: string | null;
   saveLoading: boolean;
-  measuredNotificationId: string | null;
 }
 
 const initialState: NotificationState = {
@@ -21,13 +27,12 @@ const initialState: NotificationState = {
   loading: false,
   error: null,
   saveLoading: false,
-  measuredNotificationId: null,
 };
 
 export const fetchNotifications = createAsyncThunk<
-FetchNotificationsResp,
-void,
-{ rejectValue: { message: string } }
+  FetchNotificationsResp,
+  void,
+  { rejectValue: { message: string } }
 >(
   "wastePlantNotifications/fetchNotifications",
   async (_, { rejectWithValue }) => {
@@ -37,15 +42,15 @@ void,
       return response;
     } catch (error) {
       const msg = getAxiosErrorMessage(error);
-           return rejectWithValue({ message: msg });
+      return rejectWithValue({ message: msg });
     }
-  }
+  },
 );
 
 export const markAsRead = createAsyncThunk<
-markAsReadResp,
-string,
-{ rejectValue: { message: string } }
+  markAsReadResp,
+  string,
+  { rejectValue: { message: string } }
 >(
   "wastePlantNotifications/markAsRead",
   async (id: string, { rejectWithValue }) => {
@@ -53,16 +58,16 @@ string,
       const response = await markAsReadService(id);
       return response;
     } catch (error) {
-        const msg = getAxiosErrorMessage(error);
-           return rejectWithValue({ message: msg });
+      const msg = getAxiosErrorMessage(error);
+      return rejectWithValue({ message: msg });
     }
-  }
+  },
 );
 
 export const saveWasteMeasurement = createAsyncThunk<
-SaveWasteMeasurementResp,
-SaveWasteMeasurementPayload,
-{ rejectValue: { message: string } }
+  SaveWasteMeasurementResp,
+  SaveWasteMeasurementPayload,
+  { rejectValue: { message: string } }
 >(
   "wastePlantNotifications/saveWasteMeasurement",
   async (data: SaveWasteMeasurementPayload, { rejectWithValue }) => {
@@ -74,9 +79,9 @@ SaveWasteMeasurementPayload,
     } catch (error) {
       console.error("err", error);
       const msg = getAxiosErrorMessage(error);
-           return rejectWithValue({ message: msg });
+      return rejectWithValue({ message: msg });
     }
-  }
+  },
 );
 const wastePlantNotificationSlice = createSlice({
   name: "wastePlantNotifications",
@@ -92,8 +97,8 @@ const wastePlantNotificationSlice = createSlice({
         state.loading = true;
       })
       .addCase(fetchNotifications.fulfilled, (state, action) => {
-        console.log("fetchNotifications",action.payload.notifications);
-        
+        console.log("fetchNotifications", action.payload.notifications);
+
         state.loading = false;
         state.notifications = action.payload.notifications;
       })
@@ -104,7 +109,7 @@ const wastePlantNotificationSlice = createSlice({
       .addCase(markAsRead.fulfilled, (state, action) => {
         const updatedId = action.payload.updatedNotification._id;
         const notification = state.notifications.find(
-          (n) => n._id === updatedId
+          (n) => n._id === updatedId,
         );
         if (notification) {
           notification.isRead = true;
@@ -115,28 +120,23 @@ const wastePlantNotificationSlice = createSlice({
       })
       .addCase(saveWasteMeasurement.pending, (state) => {
         state.saveLoading = true;
-        state.measuredNotificationId = null;
       })
       .addCase(saveWasteMeasurement.fulfilled, (state, action) => {
         console.log("action", action.payload);
         state.saveLoading = false;
-        // state.measuredNotificationId = action.payload.data.notificationId;
-        state.measuredNotificationId = action.payload.data.notificationId;
         const notification = state.notifications.find(
-          (n) => n._id === action.payload.data.notificationId
+          (n) => n._id === action.payload.data.notificationId,
         );
         if (notification) {
-          (notification as any).isMeasured = true;
+          notification.isMeasured = true;
         }
       })
       .addCase(saveWasteMeasurement.rejected, (state, action) => {
         state.saveLoading = false;
-        state.measuredNotificationId = null;
         state.error = action.payload?.message as string;
       });
   },
 });
 
-export const { addNotification } =
-  wastePlantNotificationSlice.actions;
+export const { addNotification } = wastePlantNotificationSlice.actions;
 export default wastePlantNotificationSlice.reducer;

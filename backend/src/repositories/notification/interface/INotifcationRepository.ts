@@ -1,9 +1,8 @@
-import { CreateNotificationDTO } from "../../../dtos/notification/notificationDTO";
-import { INotificationDocument } from "../../../models/notification/interfaces/notificationInterface";
+import { CreateNotificationReq, INotificationDocument } from "../../../models/notification/interfaces/notificationInterface";
 
 export interface INotificationRepository {
   createNotification(
-    data: CreateNotificationDTO,
+    data: CreateNotificationReq,
   ): Promise<INotificationDocument>;
   findByReceiverId(id: string): Promise<INotificationDocument[]>;
   markAsReadById(notifId: string): Promise<INotificationDocument | null>;

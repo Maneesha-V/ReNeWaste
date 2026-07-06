@@ -25,8 +25,18 @@ export interface INotification {
   type: NotificationType;
   isRead?: boolean;
   createdAt?: Date;
+  isMeasured: boolean;
 }
 
 export interface INotificationDocument extends INotification, Document {
   _id: Types.ObjectId;
 }
+
+export type CreateNotificationReq = {
+  receiverId: string;
+  receiverType: Role;
+  senderId: string;
+  senderType: Role;
+  message: string;
+  type: string;
+};

@@ -13,6 +13,7 @@ export class NotificationMapper {
       type: doc.type,
       isRead: doc.isRead,
       createdAt: doc.createdAt,
+      isMeasured: doc.isMeasured,
     };
   }
   static mapNotificationsDTO(docs: INotificationDocument[]): NotificationDTO[] {

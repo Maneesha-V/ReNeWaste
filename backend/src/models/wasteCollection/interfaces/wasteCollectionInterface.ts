@@ -12,3 +12,20 @@ export interface IWasteCollection extends Document {
 export interface IWasteCollectionDocument extends IWasteCollection, Document {
   _id: Types.ObjectId;
 }
+export type InputWasteMeasurementRepo = {
+  wasteplantId: string;
+  weight: number;
+  notificationId: string;
+};
+export type ReturnTotalWasteAmount = {
+  totalResidWaste: number;
+  totalCommWaste: number;
+};
+export type ReturnWasteMeasurementRepo = {
+  notificationId: string;
+};
+export type FilterReportRepo = {
+  from: string;
+  to: string;
+  plantId: string;
+};

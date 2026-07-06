@@ -1,21 +1,15 @@
-import {
-  InputWasteMeasurement,
-  ReturnTotalWasteAmount,
-  ReturnWasteMeasurement,
-} from "../../../dtos/wasteCollection/wasteCollectionDTO";
-import { FilterReport } from "../../../dtos/wasteplant/WasteplantDTO";
-import { IWasteCollectionDocument } from "../../../models/wasteCollection/interfaces/wasteCollectionInterface";
+import { FilterReportRepo, InputWasteMeasurementRepo, IWasteCollectionDocument, ReturnTotalWasteAmount, ReturnWasteMeasurementRepo } from "../../../models/wasteCollection/interfaces/wasteCollectionInterface";
 
 export interface IWasteCollectionRepository {
   createWasteMeasurement(
-    data: InputWasteMeasurement,
-  ): Promise<ReturnWasteMeasurement>;
+    data: InputWasteMeasurementRepo,
+  ): Promise<ReturnWasteMeasurementRepo>;
   totalWasteAmount(plantId: string): Promise<ReturnTotalWasteAmount>;
   fetchWasteCollectionReportsByPlantId(
     plantId: string,
   ): Promise<IWasteCollectionDocument[]>;
   filterWasteCollectionReportsByPlantId(
-    data: FilterReport,
+    data: FilterReportRepo,
   ): Promise<IWasteCollectionDocument[]>;
   getTotalWasteCollected(): Promise<number>;
 }

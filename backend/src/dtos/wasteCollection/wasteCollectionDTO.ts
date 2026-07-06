@@ -19,10 +19,7 @@ export type InputWasteMeasurement = {
 export type ReturnWasteMeasurement = {
   notificationId: string;
 };
-export type ReturnTotalWasteAmount = {
-  totalResidWaste: number;
-  totalCommWaste: number;
-};
+
 export interface IWasteCollectionPopulatedDocument
   extends Omit<IWasteCollectionDocument, "driverId" | "truckId"> {
   driverId: {

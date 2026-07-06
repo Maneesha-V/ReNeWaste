@@ -11,6 +11,7 @@ export interface NotificationDTO extends BaseDTO {
   type: NotificationType;
   isRead?: boolean;
   createdAt?: Date;
+  isMeasured: boolean;
 }
 export type notificationPayload = {
   plantId: string;
@@ -18,11 +19,4 @@ export type notificationPayload = {
 };
 export type RoleType = "wasteplant" | "user" | "driver" | "superadmin";
 
-export type CreateNotificationDTO = {
-  receiverId: string;
-  receiverType: RoleType;
-  senderId: string;
-  senderType: RoleType;
-  message: string;
-  type: string;
-};
+

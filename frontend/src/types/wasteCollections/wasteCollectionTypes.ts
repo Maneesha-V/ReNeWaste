@@ -29,7 +29,8 @@ export type SaveWasteMeasurementResp = {
   message: string;
 };
 export type FilterWasteReportsResp = MsgSuccessResp & {
-  reports: WasteCollectionDTO[];
+  // reports: WasteCollectionDTO[];
+  reports: PopWasteCollectionDTO[];
 };
 export type FetchWasteReportsResp = MsgSuccessResp & {
   wasteReports: PopWasteCollectionDTO[];
