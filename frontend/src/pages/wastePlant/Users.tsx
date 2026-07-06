@@ -20,31 +20,27 @@ import usePagination from "../../hooks/usePagination";
 import PaginationSearch from "../../components/common/PaginationSearch";
 import { debounce } from "lodash";
 import { getAxiosErrorMessage } from "../../utils/handleAxiosError";
+import { UserResp } from "../../types/user/userTypes";
+import { record } from "zod";
 
 const { Title } = Typography;
 
 const Users: React.FC = () => {
   const dispatch = useAppDispatch();
   const { users, total } = useSelector(
-    (state: RootState) => state.wastePlantUser
+    (state: RootState) => state.wastePlantUser,
   );
 
   const { currentPage, setCurrentPage, pageSize, search, setSearch } =
     usePagination();
-  console.log("users",users);
-  
-  // const debouncedFetchUsers = useCallback(
-  //   debounce((page: number, limit: number, query: string) => {
-  //     dispatch(fetchUsers({ page, limit, search: query }));
-  //   }, 500),
-  //   [dispatch]
-  // );
-const debouncedFetchUsers = useMemo(
-  () =>
-    debounce((page: number, limit: number, query: string) => {
-      dispatch(fetchUsers({ page, limit, search: query }));
-    }, 500),
-    [dispatch]
+  console.log("users", users);
+
+  const debouncedFetchUsers = useMemo(
+    () =>
+      debounce((page: number, limit: number, query: string) => {
+        dispatch(fetchUsers({ page, limit, search: query }));
+      }, 500),
+    [dispatch],
   );
   useEffect(() => {
     debouncedFetchUsers(currentPage, pageSize, search);
@@ -57,7 +53,7 @@ const debouncedFetchUsers = useMemo(
   const handleToggleBlock = async (userId: string, isBlocked: boolean) => {
     try {
       await dispatch(
-        toggleUserBlockStatus({ userId, isBlocked: !isBlocked })
+        toggleUserBlockStatus({ userId, isBlocked: !isBlocked }),
       ).unwrap();
       toast.success(`User ${isBlocked ? "unblocked" : "blocked"} successfully`);
       // dispatch(fetchUsers({ page: currentPage, limit: pageSize, search }));
@@ -69,9 +65,13 @@ const debouncedFetchUsers = useMemo(
   const columns = [
     {
       title: "Name",
-      dataIndex: "name",
+      dataIndex: "firstName",
       key: "name",
-      render: (_: any, record: any) => `${record.firstName} ${record.lastName}`,
+      render(value: string, record: UserResp) {
+        console.log("value", value);
+        // console.log("record",record);
+        return `${record.firstName} ${record.lastName}`;
+      },
     },
     {
       title: "Email",
@@ -84,10 +84,18 @@ const debouncedFetchUsers = useMemo(
       key: "phone",
     },
     {
+      title: "Location",
+      key: "location",
+      render: (_: unknown, record: UserResp) => {
+        return record.addresses[0].location || "N/A";
+      },
+    },
+    {
       title: "Status",
       key: "status",
-      render: (_: any, record: any) =>
-        record.isBlocked ? (
+      dataIndex: "isBlocked",
+      render: (value: boolean) =>
+        value ? (
           <Tag color="red">Blocked</Tag>
         ) : (
           <Tag color="green">Active</Tag>
@@ -96,21 +104,19 @@ const debouncedFetchUsers = useMemo(
     {
       title: "Actions",
       key: "actions",
-      render: (_: any, record: any) => (
+      dataIndex: "isBlocked",
+      render: (value: boolean, record: UserResp) => (
         <Space>
           <Popconfirm
             title={`Are you sure you want to ${
-              record.isBlocked ? "unblock" : "block"
+              value ? "unblock" : "block"
             } this user?`}
-            onConfirm={() => handleToggleBlock(record._id, record.isBlocked)}
+            onConfirm={() => handleToggleBlock(record._id, value)}
             okText="Yes"
             cancelText="No"
           >
-            <Button
-              type={record.isBlocked ? "default" : "primary"}
-              danger={record.isBlocked}
-            >
-              {record.isBlocked ? "Unblock" : "Block"}
+            <Button type={value ? "default" : "primary"} danger={value}>
+              {value ? "Unblock" : "Block"}
             </Button>
           </Popconfirm>
         </Space>
@@ -124,10 +130,7 @@ const debouncedFetchUsers = useMemo(
         User Management
       </Title>
 
-      <PaginationSearch
-        onSearchChange={setSearch}
-        searchValue={search}
-      />
+      <PaginationSearch onSearchChange={setSearch} searchValue={search} />
 
       <Table
         rowKey="_id"

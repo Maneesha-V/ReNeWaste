@@ -50,7 +50,7 @@ export class TruckMapper {
         services: Array.isArray(doc.wasteplantId?.services)
           ? doc.wasteplantId?.services
           : [],
-        licenseDocumentPath: doc.wasteplantId?.licenseDocumentPath ?? "",
+        // licenseDocumentPath: doc.wasteplantId?.licenseDocumentPath ?? "",
         cloudinaryPublicId: doc.wasteplantId?.cloudinaryPublicId ?? "",
         isBlocked: doc.wasteplantId?.isBlocked,
         blockedAt: doc.wasteplantId?.blockedAt ?? null,

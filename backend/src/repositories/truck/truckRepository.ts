@@ -1,6 +1,8 @@
 import {
   ITruck,
   ITruckDocument,
+  PaginatedTrucksResult,
+  ReturnFetchAllTrucksByPlantId,
 } from "../../models/truck/interfaces/truckInterface";
 import { TruckModel } from "../../models/truck/truckModel";
 import { ITruckRepository } from "./interface/ITruckRepository";
@@ -9,10 +11,6 @@ import TYPES from "../../config/inversify/types";
 import BaseRepository from "../baseRepository/baseRepository";
 import { IDriverRepository } from "../driver/interface/IDriverRepository";
 import { Types } from "mongoose";
-import {
-  PaginatedTrucksResult,
-  ReturnFetchAllTrucksByPlantId,
-} from "../../dtos/truck/truckDTO";
 
 @injectable()
 export class TruckRepository

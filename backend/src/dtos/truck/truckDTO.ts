@@ -34,7 +34,7 @@ export interface ITruckExtDocument
     subscriptionPlan?: string;
     role: string;
     services?: string[];
-    licenseDocumentPath: string;
+    // licenseDocumentPath: string;
     cloudinaryPublicId: string;
     isBlocked?: boolean;
     blockedAt?: Date | null;
@@ -70,7 +70,7 @@ export interface TruckAvailbleDTO extends BaseDTO {
     subscriptionPlan?: string;
     role: string;
     services?: string[];
-    licenseDocumentPath: string;
+    // licenseDocumentPath: string;
     cloudinaryPublicId: string;
     isBlocked?: boolean;
     blockedAt?: Date | null;
@@ -91,12 +91,5 @@ export type PaginatedResult = {
   trucks: TruckDTO[];
   total: number;
 };
-export type PaginatedTrucksResult = {
-  trucks: ITruckDocument[];
-  total: number;
-};
-export type ReturnFetchAllTrucksByPlantId = {
-  active: number;
-  inactive: number;
-  maintenance: number;
-};
+
+

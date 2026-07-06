@@ -50,6 +50,7 @@ const AssignedTrucks: React.FC = () => {
       .unwrap()
       .then((res) => {
         toast.success(res?.message);
+        dispatch(fetchDriverTrucks(driver?.wasteplantId!));
       })
       .catch((err) => {
         toast.error(getAxiosErrorMessage(err));
@@ -60,7 +61,6 @@ const AssignedTrucks: React.FC = () => {
       .unwrap()
       .then((res) => {
         toast.success(res?.message);
-        // dispatch(fetchDriverTrucks(driver.wasteplantId));
       })
       .catch((err) => {
         toast.error(getAxiosErrorMessage(err));

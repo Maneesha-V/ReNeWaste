@@ -65,7 +65,7 @@ const Header = ({
           <Dropdown overlay={menu} trigger={["click"]}>
             <div className="flex items-center cursor-pointer">
               <div className="h-8 w-8 rounded-full bg-green-100 text-green-800 flex items-center justify-center">
-                <span className="font-medium">WP</span>
+                <span className="font-medium">DR</span>
               </div>
             </div>
           </Dropdown>

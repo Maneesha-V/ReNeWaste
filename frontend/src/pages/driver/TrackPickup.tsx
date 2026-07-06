@@ -172,8 +172,8 @@ if (newStatus === "Completed") {
   if (
     loading ||
     !pickup ||
-    !pickup.userAddress?.latitude ||
-    !pickup.userAddress?.longitude
+    !pickup.userAddress?.latitude == null ||
+    !pickup.userAddress?.longitude == null
   ) {
     return (
       <div className="flex justify-center items-center min-h-[200px]">

@@ -4,6 +4,7 @@ import {
   InfoWindow,
   LoadScript,
   Marker,
+  useJsApiLoader,
 } from "@react-google-maps/api";
 import { useAppDispatch } from "../../redux/hooks";
 import { fetchNearDropSpots } from "../../redux/slices/user/dropSpotSlice";
@@ -28,7 +29,10 @@ const DropSpotMap: React.FC = () => {
   useEffect(() => {
     const fetchDropSpots = async () => {
       try {
-        await dispatch(fetchNearDropSpots());
+        console.log("Fetching...");
+        const res = await dispatch(fetchNearDropSpots());
+        console.log("res",res);
+        
       } catch (error) {
         console.error("Error fetching drop spots", error);
       }
@@ -37,11 +41,18 @@ const DropSpotMap: React.FC = () => {
     fetchDropSpots();
   }, [dispatch]);
   console.log("dropSpots", dropSpots);
+const { isLoaded, loadError } = useJsApiLoader({
+  googleMapsApiKey: import.meta.env.VITE_GOOGLE_API_KEY!,
+});
 
+if (loadError) return <div>Error loading Google Maps</div>;
+if (!isLoaded) return <div>Loading map...</div>;
   return (
-    <LoadScript googleMapsApiKey={import.meta.env.VITE_GOOGLE_API_KEY!}>
+    // <LoadScript googleMapsApiKey={import.meta.env.VITE_GOOGLE_API_KEY!}>
       <GoogleMap mapContainerStyle={containerStyle} center={center} zoom={8}>
-        {dropSpots.map((spot: UserDropSpot) => (
+        {dropSpots.map((spot: UserDropSpot) => 
+        {
+        return (
           <Marker
             key={spot._id}
             position={{ lat: spot.coordinates.lat, lng: spot.coordinates.lng }}
@@ -52,7 +63,9 @@ const DropSpotMap: React.FC = () => {
               scaledSize: new window.google.maps.Size(40, 40),
             }}
           />
-        ))}
+        )
+      }
+        )}
         {selectedSpot && (
           <InfoWindow
             position={{
@@ -70,7 +83,7 @@ const DropSpotMap: React.FC = () => {
           </InfoWindow>
         )}
       </GoogleMap>
-    </LoadScript>
+    // </LoadScript>
   );
 };
 

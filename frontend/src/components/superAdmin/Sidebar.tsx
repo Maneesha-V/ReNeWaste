@@ -4,9 +4,10 @@ import {
   EnvironmentOutlined,
   DollarOutlined,
   HistoryOutlined,
+  WalletOutlined,
 } from "@ant-design/icons";
-import { AdminSidebarProps } from "../../types/adminTypes";
 import { toast } from "react-toastify";
+import { AdminSidebarProps } from "../../types/common/modalTypes";
 
 const Sidebar = ({ collapsed, isNotifOpen }: AdminSidebarProps) => {
   const navigate = useNavigate();
@@ -35,10 +36,16 @@ const Sidebar = ({ collapsed, isNotifOpen }: AdminSidebarProps) => {
       label: "Payment History",
       path: "/super-admin/payment-history",
     },
+    {
+      key: "wallet",
+      icon: <WalletOutlined />,
+      label: "Wallet",
+      path: "/super-admin/wallet",
+    },
   ];
   const handleClick = (
     path: string,
-    event: React.MouseEvent<HTMLAnchorElement>
+    event: React.MouseEvent<HTMLAnchorElement>,
   ) => {
     if (isNotifOpen) {
       event.preventDefault();

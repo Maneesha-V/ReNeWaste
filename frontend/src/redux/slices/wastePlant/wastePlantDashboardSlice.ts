@@ -4,6 +4,7 @@ import { getAxiosErrorMessage } from "../../../utils/handleAxiosError";
 import { DashboardDataResp } from "../../../types/common/commonTypes";
 import { PickupTrendResult, WPDashboardReq } from "../../../types/wasteplant/wastePlantTypes";
 import { RevenueWPTrendDTO } from "../../../types/wallet/walletTypes";
+import { ServiceRatingSummaryDTO } from "../../../types/rating/ratingTypes";
 
 interface DashboardState {
   loading: boolean;
@@ -19,6 +20,7 @@ interface DashboardState {
   pickupStatus: any;
   pickupTrends: PickupTrendResult[];
   revenueTrends: RevenueWPTrendDTO[];
+  ratings: ServiceRatingSummaryDTO | null;
 }
 
 const initialState: DashboardState = {
@@ -35,6 +37,7 @@ const initialState: DashboardState = {
   pickupStatus: null,
   pickupTrends: [],
   revenueTrends: [],
+  ratings: null,
 };
 
 export const fetchDashboardData = createAsyncThunk<
@@ -81,6 +84,7 @@ const wasteplantDashboardSlice = createSlice({
         state.pickupStatus = action.payload.pickupStatus;
         state.pickupTrends = action.payload.pickupTrends;
         state.revenueTrends = action.payload.revenueTrends;
+        state.ratings = action.payload.ratings;
       })
       .addCase(fetchDashboardData.rejected, (state, action) => {
         state.loading = false;

@@ -16,3 +16,14 @@ export interface ITruck {
 export interface ITruckDocument extends ITruck, Document {
   _id: Types.ObjectId;
 }
+
+export type PaginatedTrucksResult = {
+  trucks: ITruckDocument[];
+  total: number;
+};
+
+export type ReturnFetchAllTrucksByPlantId = {
+  active: number;
+  inactive: number;
+  maintenance: number;
+};

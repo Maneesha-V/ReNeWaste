@@ -50,7 +50,7 @@ export type TruckAvailbleDTO = {
         subscriptionPlan?: string; 
         role: string;
         services?: string[];
-        licenseDocumentPath: string;
+        // licenseDocumentPath: string;
         cloudinaryPublicId: string;
         isBlocked?: boolean;
         blockedAt?: Date | null;

@@ -35,7 +35,7 @@ export class ChatController implements IChatController {
         receiverId,
         receiverRole,
       );
-      console.log("conversationId", conversationId);
+      console.log("conversationId--", conversationId);
 
       res.status(STATUS_CODES.SUCCESS).json({
         success: true,

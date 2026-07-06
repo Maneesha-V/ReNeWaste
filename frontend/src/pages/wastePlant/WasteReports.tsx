@@ -26,6 +26,7 @@ import {
 } from "../../redux/slices/wastePlant/wastePlantReportsSlice";
 import { useAppDispatch } from "../../redux/hooks";
 import { formatDateToDDMMYYYY } from "../../utils/formatDate";
+import { PopWasteCollectionDTO } from "../../types/wasteCollections/wasteCollectionTypes";
 
 declare module "jspdf" {
   interface jsPDF {
@@ -36,10 +37,10 @@ declare module "jspdf" {
 const WasteReports = () => {
   const dispatch = useAppDispatch();
   const wasteData = useSelector(
-    (state: RootState) => state.wastePlantReports.wasteReports
+    (state: RootState) => state.wastePlantReports.wasteReports,
   );
   const filteredData = useSelector(
-    (state: RootState) => state.wastePlantReports.filterReports
+    (state: RootState) => state.wastePlantReports.filterReports,
   );
   const [showFiltered, setShowFiltered] = useState(false);
   const today = dayjs().format("YYYY-MM-DD");
@@ -57,28 +58,20 @@ const WasteReports = () => {
       setShowFiltered(true);
     }
   };
-  const exportToCSV = () => {
-    // const formattedData = dataToUse.map((item: any) => ({
-    //   "Pickup ID": item.pickupId,
-    //   "Waste Type": item.wasteType,
-    //   Status: item.status,
-    //   Driver: item.driverId?.name || "N/A",
-    //   Amount: `₹${item.payment?.amount || 0}`,
-    //   "Paid At": item.payment?.paidAt
-    //     ? formatDateToDDMMYYYY(item.payment.paidAt)
-    //     : "N/A",
-    // }));
+  const dataToUse = (showFiltered ? filteredData : wasteData) || [];
+  console.log("dataToUse", dataToUse);
 
+  const exportToCSV = () => {
     const formattedData = dataToUse.map((item: any) => ({
-      Date: item.createdAt ? formatDateToDDMMYYYY(item.createdAt) : "N/A",
+      Date: item.returnedAt ? formatDateToDDMMYYYY(item.returnedAt) : "N/A",
       "Waste Type": item.wasteType,
-      Driver: item.driverId?.name || "N/A",
-      Truck: item.truckId?.name || "N/A",
+      Driver: item.driver?.name || "N/A",
+      Truck: item.truck?.name || "N/A",
       "Measured Weight": item.measuredWeight,
       "Collected Weight": item.collectedWeight,
-      "Returned At": item.returnedAt
-        ? formatDateToDDMMYYYY(item.returnedAt)
-        : "N/A",
+      // "Returned At": item.returnedAt
+      //   ? formatDateToDDMMYYYY(item.returnedAt)
+      //   : "N/A",
     }));
 
     // const worksheet = XLSX.utils.json_to_sheet(formattedData);
@@ -120,36 +113,18 @@ const WasteReports = () => {
       "Truck",
       "Measured Weight",
       "Collected Weight",
-      "Returned At",
     ];
-    const tableRows = dataToUse.map((item: any) => [
-      item.createdAt,
+    const tableRows = dataToUse.map((item: PopWasteCollectionDTO) => [
+      item.returnedAt ? formatDateToDDMMYYYY(item.returnedAt) : "N/A",
       item.wasteType,
-      item.driverId?.name || "N/A",
-      item.truckId?.name || "N/A",
+      item.driver?.name || "N/A",
+      item.truck?.name || "N/A",
       item.measuredWeight,
       item.collectedWeight,
-      item.returnedAt ? formatDateToDDMMYYYY(item.returnedAt) : "N/A",
     ]);
     autoTable(doc, { head: [tableColumn], body: tableRows, startY: 20 });
     doc.save("WasteReport.pdf");
   };
-
-  const dataToUse = (showFiltered ? filteredData : wasteData) || [];
-
-  // const pieChartData = dataToUse.reduce((acc: any[], report: any) => {
-  //   const type = report.wasteType;
-  //   const amount = report.payment?.amount || 0;
-
-  //   const existing = acc.find((item) => item.type === type);
-  //   if (existing) {
-  //     existing.amount += amount;
-  //   } else {
-  //     acc.push({ type, amount });
-  //   }
-
-  //   return acc;
-  // }, []);
 
   const pieChartData = dataToUse.reduce((acc: any[], report: any) => {
     const type = report.wasteType;
@@ -165,29 +140,9 @@ const WasteReports = () => {
     return acc;
   }, []);
 
-  //   const lineChartData = dataToUse.reduce((acc: any[], report: any) => {
-  //   const paidDate = report.payment?.paidAt
-  //     ? formatDateToDDMMYYYY(report.payment.paidAt)
-  //     : null;
-
-  //   if (paidDate) {
-  //     const existing = acc.find((item) => item.date === paidDate);
-  //     if (existing) {
-  //       existing.amount += report.payment?.amount || 0;
-  //     } else {
-  //       acc.push({
-  //         date: paidDate,
-  //         amount: report.payment?.amount || 0,
-  //       });
-  //     }
-  //   }
-
-  //   return acc;
-  // }, []);
-
   const lineChartData = dataToUse.reduce((acc: any[], report: any) => {
-    const date = report.createdAt
-      ? formatDateToDDMMYYYY(report.createdAt)
+    const date = report.returnedAt
+      ? formatDateToDDMMYYYY(report.returnedAt)
       : null;
 
     if (date) {
@@ -208,10 +163,10 @@ const WasteReports = () => {
   const columns = [
     {
       title: "Date",
-      dataIndex: "createdAt",
-      key: "createdAt",
-      render: (createdAt: string) =>
-        createdAt ? formatDateToDDMMYYYY(createdAt) : "N/A",
+      dataIndex: "returnedAt",
+      key: "returnedAt",
+      render: (returnedAt: string) =>
+        returnedAt ? formatDateToDDMMYYYY(returnedAt) : "N/A",
     },
     { title: "Waste Type", dataIndex: "wasteType", key: "wasteType" },
     {
@@ -239,30 +194,6 @@ const WasteReports = () => {
       render: (weight: number) => `${weight} Kg`,
     },
   ];
-  // const columns = [
-  //   { title: "Pickup ID", dataIndex: "pickupId", key: "pickupId" },
-  //   { title: "Waste Type", dataIndex: "wasteType", key: "wasteType" },
-  //   { title: "Status", dataIndex: "status", key: "status" },
-  //   {
-  //     title: "Driver",
-  //     dataIndex: ["driverId", "name"],
-  //     key: "name",
-  //     render: (name: string) => name,
-  //   },
-  //   {
-  //     title: "Amount",
-  //     dataIndex: ["payment", "amount"],
-  //     key: "amount",
-  //     render: (amount: number) => `₹${amount}`,
-  //   },
-  //   {
-  //     title: "Paid At",
-  //     dataIndex: ["payment", "paidAt"],
-  //     key: "paidAt",
-  //     render: (paidAt: string) =>
-  //       paidAt ? formatDateToDDMMYYYY(paidAt) : "N/A",
-  //   },
-  // ];
 
   return (
     <div style={{ padding: "1rem" }} className="bg-green-50">

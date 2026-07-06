@@ -1,9 +1,7 @@
 import { IDriverDocument } from "../../models/driver/interfaces/driverInterface";
 import { ITruckDocument } from "../../models/truck/interfaces/truckInterface";
-import { AttendanceDTO, AttendancePieItemDTO } from "../attendance/attendanceDTO";
+import { AttendancePieItemDTO } from "../attendance/attendanceDTO";
 import { BaseDTO } from "../base/BaseDTO";
-import { TruckDTO } from "../truck/truckDTO";
-import { AddressDTO } from "../user/userDTO";
 
 export interface DriverDTO extends BaseDTO {
   name: string;
@@ -52,11 +50,23 @@ export interface DriverDashboardSummary {
   recentActivities: DriverPickupCompleted[];
   attendanceData: AttendancePieItemDTO[];
 }
+export interface Address {
+  _id: string;
+  addressLine1: string;
+  addressLine2?: string;
+  taluk: string;
+  location: string;
+  state: string;
+  pincode: string;
+  district: string;
+  latitude?: number | null;
+  longitude?: number | null;
+}
 export interface DriverPickupCompleted {
   pickupId: string;
   status: string;
   completedAt: Date;
-  selectedAddress: AddressDTO;
+  selectedAddress: Address;
 }
 export interface DriverDashboardResponse {
   summary: DriverDashboardSummary;

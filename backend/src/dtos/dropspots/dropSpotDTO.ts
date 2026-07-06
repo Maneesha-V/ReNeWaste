@@ -18,10 +18,7 @@ export type PaginatedDropSpotsResult = {
   dropspots: DropSpotDTO[];
   total: number;
 };
-export type PaginatedDropSpotsRepoRes = {
-  dropspots: IDropSpotDocument[];
-  total: number;
-};
+
 export type UpdateDataDropSpot = {
   dropSpotName: string;
   addressLine: string;

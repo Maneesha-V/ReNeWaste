@@ -2,11 +2,9 @@ import { Types } from "mongoose";
 import {
   ITruck,
   ITruckDocument,
-} from "../../../models/truck/interfaces/truckInterface";
-import {
   PaginatedTrucksResult,
   ReturnFetchAllTrucksByPlantId,
-} from "../../../dtos/truck/truckDTO";
+} from "../../../models/truck/interfaces/truckInterface";
 import { IDriverDocument } from "../../../models/driver/interfaces/driverInterface";
 
 export interface ITruckRepository {

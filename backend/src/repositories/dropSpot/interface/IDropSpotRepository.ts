@@ -2,12 +2,10 @@ import mongoose from "mongoose";
 import {
   IDropSpot,
   IDropSpotDocument,
-} from "../../../models/dropSpots/interfaces/dropSpotInterface";
-import {
-  DropSpotDataReq,
   PaginatedDropSpotsRepoRes,
-  UpdateDataDropSpot,
-} from "../../../dtos/dropspots/dropSpotDTO";
+  UpdateDataDropSpotReq,
+} from "../../../models/dropSpots/interfaces/dropSpotInterface";
+
 
 export interface IDropSpotRepository {
   createDropSpot(payload: IDropSpot): Promise<IDropSpot>;
@@ -33,6 +31,6 @@ export interface IDropSpotRepository {
   ): Promise<IDropSpotDocument | null>;
   updateDropSpot(
     dropSpotId: string,
-    updateData: UpdateDataDropSpot,
+    updateData: UpdateDataDropSpotReq,
   ): Promise<IDropSpotDocument | null>;
 }

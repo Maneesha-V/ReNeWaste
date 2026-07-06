@@ -21,7 +21,7 @@ export class AttendanceRepository
 {
   constructor(
     @inject(TYPES.DriverRepository)
-    private _driverRepository: IDriverRepository,
+    private _driverRepository: IDriverRepository, 
   ) {
     super(AttendanceModel);
   }

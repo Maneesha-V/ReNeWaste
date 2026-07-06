@@ -30,10 +30,8 @@ import {
 } from "../../redux/slices/driver/dashboardDriverSlice";
 import { useSelector } from "react-redux";
 import { RootState } from "../../redux/store";
-import {
-  EarningsData,
-} from "../../types/attendance/attendanceTypes";
-import { formatTimeTo12Hour } from "../../utils/formatDate";
+import { EarningsData } from "../../types/attendance/attendanceTypes";
+import { extractISOTimeTo12Hour } from "../../utils/formatDate";
 
 const DashboardDriver = () => {
   const dispatch = useAppDispatch();
@@ -151,7 +149,9 @@ const DashboardDriver = () => {
                 <p className="text-sm">Assigned Truck</p>
                 <p className="font-semibold">{summary?.truck?.vehicleNumber}</p>
                 <p className="text-xs text-gray-500">{summary?.truck?.name}</p>
-                <p className="text-green-600 text-xs">Active</p>
+  <p className={`text-xs ${summary?.truck ? "text-green-600" : "text-red-600"}`}>
+    {summary?.truck ? "Active" : "Inactive"}
+  </p>
               </div>
             </div>
 
@@ -265,7 +265,7 @@ const DashboardDriver = () => {
                     <span>{act.pickupId}</span>
                     <span>Completed at</span>
                     <span className="font-semibold text-green-700">
-                      {formatTimeTo12Hour(act.completedAt)}
+                      {extractISOTimeTo12Hour(act.completedAt)}
                     </span>
                     <span>in</span>
                     <span>{act.selectedAddress.addressLine1},</span>
