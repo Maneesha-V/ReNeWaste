@@ -9,7 +9,7 @@ export interface IWastePlantController {
   ): Promise<void>;
   addWastePlant(req: Request, res: Response, next: NextFunction): Promise<void>;
   viewLicenseDocument(
-    req: Request,
+    req: AuthRequest,
     res: Response,
     next: NextFunction,
   ): Promise<void>;

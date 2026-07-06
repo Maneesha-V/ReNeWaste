@@ -35,9 +35,6 @@ const EditWastePlant = () => {
     (state: RootState) => state.superAdminSubscriptionPlan
   );
 
-  // useEffect(() => {
-  //   dispatch(fetchSubscriptionPlans());
-  // }, [dispatch]);
 
   useEffect(() => {
     if (id) dispatch(fetchWastePlantById(id));
@@ -102,7 +99,7 @@ const EditWastePlant = () => {
     Object.entries(formData).forEach(([name, value]) => {
       if (["district", "state"].includes(name)) return;
       if (name === "licenseDocument") {
-        if (!wastePlant?.licenseDocumentPath && !(value instanceof File)) {
+        if (!wastePlant?.cloudinaryPublicId && !(value instanceof File)) {
           currentErrors[name] = "License Document is required.";
         }
       } else {
@@ -445,7 +442,6 @@ const EditWastePlant = () => {
           />
           {wastePlant.cloudinaryPublicId && (
             <LicenseDocumentViewer
-              apiBaseUrl={import.meta.env.VITE_SUPER_ADMIN_API_URL}
               cloudinaryPublicId={wastePlant.cloudinaryPublicId}
             />
           )}

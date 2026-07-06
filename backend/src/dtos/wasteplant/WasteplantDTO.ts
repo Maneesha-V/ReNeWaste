@@ -22,7 +22,6 @@ export interface WasteplantDTO extends BaseDTO {
   subscriptionPlan?: string;
   role: Role;
   services?: string[];
-  licenseDocumentPath: string;
   cloudinaryPublicId: string;
   isBlocked?: boolean;
   blockedAt?: Date | null;
@@ -49,7 +48,6 @@ export interface IWastePlant {
   capacity?: number;
   services?: string[];
   status?: "Pending" | "Active" | "Inactive" | "Rejected";
-  licenseDocumentPath?: string;
   cloudinaryPublicId?: string;
   subscriptionPlan?: string;
   password?: string;

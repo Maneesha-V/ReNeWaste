@@ -15,7 +15,6 @@ export interface IWastePlant {
   capacity: number;
   services: string[];
   status: "Pending" | "Active" | "Inactive" | "Rejected";
-  licenseDocumentPath?: string;
   cloudinaryPublicId?: string;
   subscriptionPlan?: string;
   password: string;
@@ -35,4 +34,13 @@ export interface IWastePlant {
 }
 export interface IWastePlantDocument extends IWastePlant, Document {
   _id: Types.ObjectId;
+}
+
+export interface PaginationInputReq {
+  page: number;
+  limit: number;
+  search: string;
+  filter?: string;
+  minCapacity?: number;
+  maxCapacity?: number;
 }

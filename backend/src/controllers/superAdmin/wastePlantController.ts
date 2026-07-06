@@ -70,7 +70,7 @@ export class WastePlantController implements IWastePlantController {
             {
               folder: "waste-plants/licenses",
               resource_type: "raw",
-              upload_preset: process.env.CLOUDINARY_UPLOAD_PRESET,
+              type: "private",
             },
             (error, result) => {
               if (result) {
@@ -85,7 +85,6 @@ export class WastePlantController implements IWastePlantController {
       };
 
       const uploadResult = await uploadFromBuffer();
-      const fileUrl = uploadResult.secure_url;
       const publicId = uploadResult.public_id;
 
       let services: string[] = [];
@@ -106,7 +105,6 @@ export class WastePlantController implements IWastePlantController {
         pincode: req.body.pincode,
         capacity: Number(req.body.capacity),
         services,
-        licenseDocumentPath: fileUrl,
         cloudinaryPublicId: publicId,
       } as IWastePlant;
 
@@ -123,22 +121,35 @@ export class WastePlantController implements IWastePlantController {
     }
   }
   async viewLicenseDocument(
-    req: Request,
+    req: AuthRequest,
     res: Response,
     next: NextFunction,
   ): Promise<void> {
     try {
+      console.log(req.user);
+
+      const role = req.user?.role;
       const publicId = req.params.publicId;
+      console.log({ role, publicId });
 
-      const fileUrl = cloudinary.url(publicId, {
-        resource_type: "raw",
-        secure: true,
+      if (!role || !publicId) {
+        throw new ApiError(
+          STATUS_CODES.UNAUTHORIZED,
+          MESSAGES.COMMON.ERROR.UNAUTHORIZED,
+        );
+      }
+      const signedUrl = await this._wastePlantService.getLicenseUrl(
+        publicId,
+        role,
+      );
+
+      const response = await axios.get(signedUrl, {
+        responseType: "stream",
       });
-
-      const response = await axios.get(fileUrl, { responseType: "stream" });
 
       res.setHeader("Content-Type", "application/pdf");
       res.setHeader("Content-Disposition", "inline");
+
       response.data.pipe(res);
     } catch (error) {
       console.error("Error while fetching license document:", error);
@@ -293,7 +304,7 @@ export class WastePlantController implements IWastePlantController {
               {
                 folder: "waste-plants/licenses",
                 resource_type: "raw",
-                upload_preset: process.env.CLOUDINARY_UPLOAD_PRESET,
+                type: "private",
               },
               (error, result) => {
                 if (result) {
@@ -308,7 +319,7 @@ export class WastePlantController implements IWastePlantController {
         };
 
         const uploadResult = await uploadFromBuffer();
-        updatedData.licenseDocumentPath = uploadResult.secure_url;
+
         updatedData.cloudinaryPublicId = uploadResult.public_id;
       }
       if (updatedData.capacity) {
@@ -378,31 +389,6 @@ export class WastePlantController implements IWastePlantController {
       next(error);
     }
   }
-  // async sendSubscribeNotification(
-  //   req: AuthRequest,
-  //   res: Response,
-  //   next: NextFunction
-  // ): Promise<void> {
-  //   try {
-  //     const adminId = req.user?.id;
-  //     if (!adminId) {
-  //        throw new ApiError(
-  //         STATUS_CODES.UNAUTHORIZED,
-  //         MESSAGES.COMMON.ERROR.UNAUTHORIZED
-  //       );
-  //     }
-  //     const plantId = req.params.id;
-  //     await this._wastePlantService.sendSubscribeNotification({
-  //       adminId,
-  //       plantId,
-  //     });
-
-  //     res.status(STATUS_CODES.SUCCESS).json({ message: MESSAGES.COMMON.SUCCESS.SEND_NOTIFICATION });
-  //   } catch (error) {
-  //     console.error("Error in sending notification:", error);
-  //     next(error);
-  //   }
-  // }
   async plantBlockStatus(
     req: AuthRequest,
     res: Response,

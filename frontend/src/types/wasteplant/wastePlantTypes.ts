@@ -4,7 +4,6 @@ import { PickupReqDTO } from "../pickupReq/pickupTypes";
 import { WasteplantDTO } from "../superadmin/superAdminTypes";
 import { UserResp } from "../user/userTypes";
 
-// type PlantStatus = "Pending" | "Active" | "Inactive" | "Rejected";
 export type LoginWPResp = {
   success: boolean;
   message: string;
@@ -29,7 +28,6 @@ export type WastePlant = {
   capacity: number;
   services: string[];
   status: string;
-  licenseDocumentPath?: string;
   cloudinaryPublicId?: string;
   subscriptionPlan?: string;
   password: string;
@@ -53,7 +51,6 @@ export type updateProfilePayload = {
   contactNo: string;
   email: string;
   capacity: number;
-  licenseDocumentPath?: string;
   cloudinaryPublicId?: string;
 };
 export type PostOffice = {
@@ -89,12 +86,7 @@ export type WastePlantFormData = {
   services: string[];
 };
 export type PartialWastePlantFormData = Partial<WastePlantFormData>;
-// export  type AddWastePlantResp = MsgSuccessResp  & {
-// newWastePlant: {
-//   autoSubscribeAt: Date;
-//   subscribeNotificationSent: boolean;
-// }
-// }
+
 export type PaymentRecord = {
   _id: string;
   pickupId: string;
