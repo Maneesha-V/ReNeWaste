@@ -37,10 +37,6 @@ export interface PaginatedReturnPaymentHis {
   total: number;
   wasteplants: SubscriptionPaymentDTO[];
 }
-export interface SubscriptionPaymentHisResult {
-  paymentHis: SubscriptionPaymentHisDTO[];
-  total: number;
-}
 export interface SubscriptionPaymentHisDTO {
   _id: string;
   wasteplantId: PopulatedWasteplant;
@@ -59,6 +55,12 @@ export interface SubscriptionPaymentHisDTO {
   refundAt: Date | null;
   inProgressExpiresAt: Date | null;
 }
+
+export interface SubscriptionPaymentHisResult {
+  paymentHis: SubscriptionPaymentHisDTO[];
+  total: number;
+}
+
 export interface PopulatedWasteplant {
   _id: string;
   plantName: string;
@@ -113,24 +115,4 @@ export type SubsptnPlanData = {
   isDeleted?: boolean;
 };
 
-export type updateSubscptnData = {
-  id: string;
-  data: Partial<SubsptnPlanData>;
-};
-export type CreateSubsptnPaymentPayload = {
-  plantId: string;
-  planId: string;
-  amount: number;
-  paymentDetails: {
-    method: string;
-    status: string;
-    razorpayOrderId: string;
-    razorpayPaymentId: string | null;
-    razorpaySignature: string | null;
-    paidAt: Date | null;
-    refundRequested: boolean;
-    refundStatus: string | null;
-    refundAt: Date | null;
-    inProgressExpiresAt: Date | null;
-  };
-};
+

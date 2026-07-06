@@ -2,20 +2,10 @@ import { inject, injectable } from "inversify";
 import TYPES from "../../config/inversify/types";
 import { WalletModel } from "../../models/wallet/walletModel";
 import BaseRepository from "../baseRepository/baseRepository";
-import { IWalletDocument } from "../../models/wallet/interfaces/walletInterface";
+import { AddMoneyToWallet, AddMoneyToWalletRepoReq, CreateWalletReq, FetchFilteredWPRevenueResp, FetchWPDashboardRepo, IWalletDocument, PaginatedGetWalletReq, PaginatedUserWallet, RevenueWPTrendRepo } from "../../models/wallet/interfaces/walletInterface";
 import { IWalletRepository } from "./interface/IWalletRepository";
 import { IUserRepository } from "../user/interface/IUserRepository";
-import {
-  AddMoneyToWallet,
-  AddMoneyToWalletReq,
-  CreateWalletReq,
-  FetchFilteredWPRevenueResp,
-  PaginatedGetWalletReq,
-  PaginatedUserWallet,
-  RevenueWPTrendDTO,
-} from "../../dtos/wallet/walletDTO";
 import mongoose, { ClientSession, PipelineStage, Types } from "mongoose";
-import { FetchWPDashboard } from "../../dtos/wasteplant/WasteplantDTO";
 import { getDateRange, getGroupFormat } from "../../utils/dateUtils";
 import { ObjectId } from "mongodb";
 
@@ -84,7 +74,7 @@ export class WalletRepository
     );
   }
   async createDrWpWallet(
-    payload: AddMoneyToWalletReq,
+    payload: AddMoneyToWalletRepoReq,
     session?: ClientSession,
   ) {
     const { accountId, accountType, data } = payload;
@@ -184,7 +174,8 @@ export class WalletRepository
             {
               $match: {
                 "transactions.type": "Credit",
-                "transactions.subType": "Settlement",
+                "transactions.subType": "SettlementEarning",
+                // "transactions.subType": "Settlement",
               },
             },
             {
@@ -319,7 +310,6 @@ export class WalletRepository
         const start = new Date(y, m - 1, d, 0, 0, 0);
         const end = new Date(y, m - 1, d, 23, 59, 59);
 
-        // searchMatch["transactions.paidAt"] = { $gte: start, $lte: end };
         searchMatch["$or"] = [
           { "transactions.updatedAt": { $gte: start, $lte: end } },
           { "transactions.paidAt": { $gte: start, $lte: end } },
@@ -331,18 +321,11 @@ export class WalletRepository
         const start = new Date(parsed.getTime() - 60000);
         const end = new Date(parsed.getTime() + 60000);
 
-        // searchMatch["transactions.paidAt"] = { $gte: start, $lte: end };
         searchMatch["$or"] = [
           { "transactions.updatedAt": { $gte: start, $lte: end } },
           { "transactions.paidAt": { $gte: start, $lte: end } },
         ];
       } else if (/^\d{1,2}:\d{2}$/.test(trimmed)) {
-        // searchMatch["$expr"] = {
-        //   $eq: [
-        //     { $dateToString: { format: "%H:%M", date: "$transactions.paidAt", timezone: "Asia/Kolkata" } },
-        //     trimmed
-        //   ]
-        // };
         searchMatch["$or"] = [
           {
             $expr: {
@@ -386,7 +369,16 @@ export class WalletRepository
     const result = await this.model.aggregate([
       { $match: { _id: new mongoose.Types.ObjectId(walletId) } },
       { $unwind: "$transactions" },
-      { $match: searchMatch },
+      // { $match: searchMatch },
+      {
+        $match: {
+          // "transactions.subType": "PickupPayment",
+          "transactions.subType": {
+            $in: ["PickupPayment","UserDeposit"]
+          },
+          ...searchMatch,
+        }
+      },
       {
         $facet: {
           metadata: [{ $count: "total" }],
@@ -412,13 +404,15 @@ export class WalletRepository
 
     return { transactions, total };
   }
-  async fetchFilteredWPRevenue(data: FetchWPDashboard): Promise<FetchFilteredWPRevenueResp> {
+  async fetchFilteredWPRevenue(
+    data: FetchWPDashboardRepo,
+  ): Promise<FetchFilteredWPRevenueResp> {
     const { plantId, filter, from, to } = data;
     const { start, end } = getDateRange(filter, from, to);
     const format = getGroupFormat(filter);
-    console.log("data",data);
-    console.log("st-en",start,end);
-    
+    console.log("data", data);
+    console.log("st-en", start, end);
+
     const pipeline: PipelineStage[] = [
       {
         $match: {
@@ -469,51 +463,51 @@ export class WalletRepository
     //   }
     // })
     pipeline.push(
-  {
-    $lookup: {
-      from: "pickuprequests",
-      localField: "transactions.pickupReqId",
-      foreignField: "_id",
-      as: "pickupData"
-    }
-  },
-  { $unwind: "$pickupData" },
-  {
-    $group: {
-      _id: {
-        date: {
-          $dateToString: {
-            format,
-            date: "$transactions.paidAt",
-            timezone: "Asia/Kolkata"
-          }
+      {
+        $lookup: {
+          from: "pickuprequests",
+          localField: "transactions.pickupReqId",
+          foreignField: "_id",
+          as: "pickupData",
         },
-        wasteType: "$pickupData.wasteType"
       },
-      totalRevenue: { $sum: "$transactions.amount" }
-    }
-  },
-  { $sort: { "_id.date": 1 } },
-  {
-    $project: {
-      _id: 0,
-      date: "$_id.date",
-      wasteType: "$_id.wasteType",
-      totalRevenue: 1
-    }
-  }
-);
+      { $unwind: "$pickupData" },
+      {
+        $group: {
+          _id: {
+            date: {
+              $dateToString: {
+                format,
+                date: "$transactions.paidAt",
+                timezone: "Asia/Kolkata",
+              },
+            },
+            wasteType: "$pickupData.wasteType",
+          },
+          totalRevenue: { $sum: "$transactions.amount" },
+        },
+      },
+      { $sort: { "_id.date": 1 } },
+      {
+        $project: {
+          _id: 0,
+          date: "$_id.date",
+          wasteType: "$_id.wasteType",
+          totalRevenue: 1,
+        },
+      },
+    );
 
-    const result = await this.model.aggregate<RevenueWPTrendDTO>(pipeline);
+    const result = await this.model.aggregate<RevenueWPTrendRepo>(pipeline);
     console.log("AGG RESULT:", result);
-  
+
     const totalRevenue = await this.model.findOne({
       accountId: plantId,
-      accountType: "WastePlant"
+      accountType: "WastePlant",
     });
     return {
       revenueTrends: result,
       wasteplantTotRevenue: totalRevenue?.balance ?? 0,
-    }
+    };
   }
 }

@@ -22,7 +22,8 @@ export const walletTransactionSchema: Schema<IWalletTransactionDocument> =
           "Withdrawal",
           "Refund",
           "UserDeposit",
-          "ExternalRefund"
+          "ExternalRefund",
+          "SubscriptionPayment"
         ],
         required: true,
       },

@@ -52,9 +52,13 @@ export function formatTimeTo12Hour(timeStr: string): string {
   hour = hour % 12 || 12;
   return `${String(hour).padStart(2, "0")}:${minute} ${ampm}`;
 }
-export function extractTime(isoString: string): string {
+export function extractISOTimeTo12Hour(isoString: string): string {
   const date = new Date(isoString);
-  return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+  return date.toLocaleTimeString("en-IN", { 
+    hour: "2-digit", 
+    minute: "2-digit",
+    hour12: true,
+  });
 }
 export function extractDateTimeParts(isoString: string) {
   const date = new Date(isoString);

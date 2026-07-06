@@ -8,6 +8,7 @@ import { IWastePlant } from "../../../models/wastePlant/interfaces/wastePlantInt
 
 export interface IWastePlantService {
   addWastePlant(data: IWastePlant): Promise<boolean>;
+  getLicenseUrl(publicId: string,role: string): Promise<string>;
   getAllWastePlants(
     data: PaginationInput,
   ): Promise<PaginatedReturnAdminWastePlants>;

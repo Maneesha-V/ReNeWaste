@@ -83,3 +83,10 @@ export type FormattedRevenueTrend = {
   Residential: number;
   Commercial: number;
 }
+export type GetWalletSAResp = {
+  transactions: TransactionDTO[];
+  balance: number;
+  holdingBalance: number;
+  total: number;
+  earnings: number;
+}

@@ -17,10 +17,7 @@ export type updateSubscptnReq = {
   id: string;
   data: Partial<SubsptnPlansDTO>;
 };
-export type PaginatedSubsptnPlansResult = {
-  subscriptionPlans: ISubscriptionPlanDocument[];
-  total: number;
-};
+
 export type FetchSubscriptionPlansResp = {
   subscriptionPlans: SubsptnPlansDTO[];
   total: number;

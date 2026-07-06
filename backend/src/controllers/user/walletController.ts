@@ -89,7 +89,7 @@ export class WalletController implements IWalletController {
             MESSAGES.COMMON.ERROR.UNAUTHORIZED,
           );
         }
-              const page = parseInt(req.query.page as string) || 1;
+      const page = parseInt(req.query.page as string) || 1;
       const limit = parseInt(req.query.limit as string) || 5;
       const search = (req.query.search as string) || "";
         const { transactions, balance, total} = await this._walletService.getWallet(

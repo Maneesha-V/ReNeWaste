@@ -66,7 +66,12 @@ export class PickupRequestMapper {
           }
         : undefined,
       location: primaryAddress?.location ?? "",
-      driverId: doc.driverId?._id?.toString(),
+      // driverId: doc.driverId?._id?.toString(),
+      driverId: {
+          _id: doc.driverId?._id?.toString() ?? "",
+          name: doc.driverId?.name?.toString() ?? "",
+          assignedZone: doc.driverId?.assignedZone?.toString() ?? "",
+      },
       wasteplantId: doc.wasteplantId?.toString(),
       // wasteplantId: {
       //   _id: doc.wasteplantId?._id?.toString() ?? "",
@@ -185,21 +190,8 @@ export class PickupRequestMapper {
             longitude: doc.address.longitude ?? 0,
           }
         : null,
-
-      // address: {
-      //   _id: doc.address._id.toString(),
-      //   addressLine1: doc.address.addressLine1 ?? "",
-      //   addressLine2: doc.address.addressLine2 ?? "",
-      //   location: doc.address.location ?? "",
-      //   taluk: doc.address.taluk ?? "",
-      //   district: doc.address.district ?? "",
-      //   pincode: doc.address.pincode ?? "",
-      //   state: doc.address.state ?? "",
-      //   latitude: doc.address.latitude ?? 0,
-      //   longitude: doc.address.longitude ?? 0,
-      // },
       addressId: doc.addressId.toString() ?? "",
-      payment: doc.payment,
+      payment: doc.payment ?? null,
       wasteplantId: doc.wasteplantId?.toString() ?? "",
       // createdAt: doc.createdAt.toISOString(),
       // updatedAt: doc.updatedAt.toISOString(),

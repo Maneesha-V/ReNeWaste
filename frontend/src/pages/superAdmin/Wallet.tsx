@@ -4,12 +4,11 @@ import React, { useEffect, useMemo } from "react";
 import { useAppDispatch } from "../../redux/hooks";
 import { useSelector } from "react-redux";
 import { RootState } from "../../redux/store";
-import { getWallet } from "../../redux/slices/wastePlant/wastePlantWalletSlice";
 import { extractDateAndTime24H } from "../../utils/formatDate";
 import PaginationSearch from "../../components/common/PaginationSearch";
 import usePagination from "../../hooks/usePagination";
 import debounce from "lodash/debounce";
-import { GetWalletWPResp, TransactionDTO } from "../../types/wallet/walletTypes";
+import { getWallet } from "../../redux/slices/superAdmin/superAdminWalletSlice";
 
 const { Title, Text } = Typography;
 
@@ -64,25 +63,22 @@ const Wallet: React.FC = () => {
     },
     {
       title: "Date",
-      key: "date",
-      render: (record: TransactionDTO) => {
-        const dateValue = record.refundAt || record.paidAt;
-        if (!dateValue) return "-";
-        const { date, time } = extractDateAndTime24H(dateValue)
+      dataIndex: "paidAt",
+      key: "paidAt",
+      render: (value: string) => {
+        const { date, time } = extractDateAndTime24H(value)
         return <Text>{date} {time}</Text>
-      }
+      } 
     },
     {
       title: "Status",
+      dataIndex: "status",
       key: "status",
-      render: (record: TransactionDTO) => {
-        const statusValue = record.refundStatus || record.status;
-        return(
-        <Text style={{ color: statusValue === "Paid" || statusValue === "Refund"  ? "green"  : "orange" }}>
-          {statusValue}
+      render: (value: string) => (
+        <Text style={{ color: value === "Success" ? "green" : "orange" }}>
+          {value}
         </Text>
-        );
-      }
+      ),
     },
   ];
 

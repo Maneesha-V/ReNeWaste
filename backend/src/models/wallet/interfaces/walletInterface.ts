@@ -2,7 +2,7 @@ import mongoose, { Document, Types } from "mongoose";
 
 export interface IWalletTransaction {
   type: "Credit"| "Debit";
-  subType: "PickupPayment"| "Settlement"|"SettlementEarning" | "DriverEarning"| "Withdrawal"| "Refund"|"ExternalRefund" |"UserDeposit";
+  subType: "PickupPayment"| "Settlement"|"SettlementEarning" | "DriverEarning"| "Withdrawal"| "Refund"|"ExternalRefund" |"UserDeposit" | "SubscriptionPayment";
   pickupReqId?: mongoose.Types.ObjectId;
   amount: number;
   description: string;
@@ -36,3 +36,57 @@ export interface IWallet {
 export interface IWalletDocument extends IWallet, Document {
   _id: Types.ObjectId;
 }
+
+export type AddMoneyToWallet = {
+  walletId: string;
+  data: {
+    amount: number;
+    description: string;
+    type: string;
+    subType: string;
+    pickupReqId: string;
+    status: string;
+    paidAt: Date;
+  };
+};
+
+export type AddMoneyToWalletRepoReq = {
+  accountId: string;
+  accountType: string;
+  data: {
+    amount: number;
+    description: string;
+    type: string;
+    subType: string;
+    pickupReqId: string;
+  };
+};
+export type CreateWalletReq = {
+  accountId: string;
+  accountType: string;
+}
+export interface RevenueWPTrendRepo { 
+  totalRevenue: number;
+  date: string; 
+  wasteType: "Residential" | "Commercial";
+}
+export type FetchFilteredWPRevenueResp = {
+  revenueTrends: RevenueWPTrendRepo[];
+  wasteplantTotRevenue: number;
+}
+export type PaginatedGetWalletReq = {
+  walletId: string;
+  page: number,
+  limit: number,
+  search: string,
+}
+export type PaginatedUserWallet = {
+    transactions: IWalletTransactionDocument[];
+    total: number;
+}
+  export type FetchWPDashboardRepo = {
+    filter: string;
+    plantId: string;
+    from: string;
+    to: string;
+  }

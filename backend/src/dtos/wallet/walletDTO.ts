@@ -41,10 +41,7 @@ export type AddMoneyToWalletReq = {
     pickupReqId: string;
   };
 };
-export type CreateWalletReq = {
-  accountId: string;
-  accountType: string;
-}
+
 export type CreateWalletOrderResp = {
   orderId: string;
   amount: number;
@@ -76,24 +73,8 @@ export type RetryWalletAddPaymentResp = {
   walletId: string;
   expiresAt: string;
 };
-export type AddMoneyToWallet = {
-  walletId: string;
-  data: {
-    amount: number;
-    description: string;
-    type: string;
-    subType: string;
-    pickupReqId: string;
-    status: string;
-    paidAt: Date;
-  };
-};
-export type PaginatedGetWalletReq = {
-  walletId: string;
-  page: number,
-  limit: number,
-  search: string,
-}
+
+
 export type GetWalletWPResp = {
   transactions: TransactionDTO[],
   balance: number;
@@ -122,18 +103,17 @@ export type GetWalletUserResp = {
   balance: number;
   total: number;
 }
-export type PaginatedUserWallet = {
-    transactions: IWalletTransactionDocument[];
-    total: number;
-}
+
 export interface RevenueWPTrendDTO { 
   totalRevenue: number;
   date: string; 
   wasteType: "Residential" | "Commercial";
 }
-export type FetchFilteredWPRevenueResp = {
-  revenueTrends: RevenueWPTrendDTO[];
-  wasteplantTotRevenue: number;
+
+export type GetWalletSAResp = {
+  transactions: TransactionDTO[],
+  balance: number;
+  holdingBalance: number;
+  total: number;
+  earnings: number;
 }
-
-
