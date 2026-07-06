@@ -280,22 +280,7 @@ const superAdminWastePlantSlice = createSlice({
       .addCase(deleteWastePlant.fulfilled, (state, action) => {
         state.message = action.payload.message;
         state.error = null;
-        // state.wastePlantWithSubPlan = state.wastePlantWithSubPlan.filter((plant: any) => {
-        //   return plant.plantData._id !== action.payload.updatedPlant.plantId;
-        // });
       })
-      // .addCase(sendSubscribeNotification.pending, (state) => {
-      //   state.loading = true;
-      //   state.error = null;
-      // })
-      // .addCase(sendSubscribeNotification.fulfilled, (state, action) => {
-      //   state.loading = false;
-      //   state.message = action.payload;
-      // })
-      // .addCase(sendSubscribeNotification.rejected, (state, action) => {
-      //   state.loading = false;
-      //   state.error = action.payload as string;
-      // })
       .addCase(fetchPostOffices.pending, (state) => {
         state.loading = true;
         state.error = null;

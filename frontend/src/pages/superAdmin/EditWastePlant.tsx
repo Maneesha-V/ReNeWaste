@@ -35,9 +35,6 @@ const EditWastePlant = () => {
     (state: RootState) => state.superAdminSubscriptionPlan
   );
 
-  // useEffect(() => {
-  //   dispatch(fetchSubscriptionPlans());
-  // }, [dispatch]);
 
   useEffect(() => {
     if (id) dispatch(fetchWastePlantById(id));
@@ -445,7 +442,6 @@ const EditWastePlant = () => {
           />
           {wastePlant.cloudinaryPublicId && (
             <LicenseDocumentViewer
-              apiBaseUrl={import.meta.env.VITE_SUPER_ADMIN_API_URL}
               cloudinaryPublicId={wastePlant.cloudinaryPublicId}
             />
           )}

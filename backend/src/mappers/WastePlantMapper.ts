@@ -21,7 +21,6 @@ export class WastePlantMapper {
       subscriptionPlan: doc.subscriptionPlan ?? "",
       role: doc.role,
       services: Array.isArray(doc.services) ? doc.services : [],
-      licenseDocumentPath: doc.licenseDocumentPath ?? "",
       cloudinaryPublicId: doc.cloudinaryPublicId ?? "",
       isBlocked: doc.isBlocked,
       blockedAt: doc.blockedAt ?? null,

@@ -1,6 +1,17 @@
 import { axiosSuperadmin } from "../../config/axiosClients";
 import { PaginationPayload } from "../../types/common/commonTypes";
 
+export const viewLicenseDoc = async (publicId: string) => {
+  const response = await axiosSuperadmin.get(
+    `/view-license/${encodeURIComponent(publicId)}`,
+    {
+      responseType: "blob",
+    },
+  );
+  console.log("response", response);
+
+  return response.data;
+};
 export const getAddWastePlant = async () => {
   const response = await axiosSuperadmin.get(`/add-waste-plant`);
   console.log("res", response);
@@ -9,7 +20,7 @@ export const getAddWastePlant = async () => {
 export const createWastePlant = async (wastePlantData: FormData) => {
   const response = await axiosSuperadmin.post(
     `/add-waste-plant`,
-    wastePlantData
+    wastePlantData,
   );
   console.log("res", response);
   return response.data;
@@ -37,7 +48,7 @@ export const updateWastePlantById = async (id: string, data: FormData) => {
       headers: {
         "Content-Type": "multipart/form-data",
       },
-    }
+    },
   );
   console.log("res", response);
   return response.data;
@@ -69,7 +80,7 @@ export const getPostOffices = async (pincode: string) => {
 };
 export const togglePlantBlockStatusService = async (
   plantId: string,
-  isBlocked: boolean
+  isBlocked: boolean,
 ) => {
   const response = await axiosSuperadmin.patch(`/${plantId}/block`, {
     isBlocked,

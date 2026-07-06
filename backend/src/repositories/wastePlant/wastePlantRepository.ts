@@ -1,17 +1,15 @@
 import { inject, injectable } from "inversify";
-import { OTPModel } from "../../models/user/otpModel";
 import {
   IWastePlant,
   IWastePlantDocument,
+  PaginationInputReq,
 } from "../../models/wastePlant/interfaces/wastePlantInterface";
 import { WastePlantModel } from "../../models/wastePlant/wastePlantModel";
 import BaseRepository from "../baseRepository/baseRepository";
 import { IWastePlantRepository } from "./interface/IWastePlantRepository";
 import TYPES from "../../config/inversify/types";
 import { IOtpRepository } from "../otp/interface/IOtpRepository";
-import { PaginationInput } from "../../dtos/common/commonDTO";
-import { Number } from "mongoose";
-import { OtpRecord } from "../../dtos/user/otpDTO";
+import { IOtp } from "../../models/user/interfaces/otpInterface";
 
 @injectable()
 export class WastePlantRepository
@@ -29,7 +27,11 @@ export class WastePlantRepository
     console.log("wastePlantData", wastePlant);
     return await wastePlant.save();
   }
-
+  async getWastePlantByPublicId(publicId: string){
+    return await this.model.findOne({
+      cloudinaryPublicId: publicId
+    })
+  }
   async findWastePlantByEmail(
     email: string,
   ): Promise<IWastePlantDocument | null> {
@@ -48,7 +50,7 @@ export class WastePlantRepository
     return await this.model.findOne({ plantName });
   }
 
-  async getAllWastePlants(data: PaginationInput) {
+  async getAllWastePlants(data: PaginationInputReq) {
     const { page, limit, search, minCapacity, maxCapacity } = data;
     const searchRegex = new RegExp(search, "i");
     const query: any = {
@@ -94,7 +96,7 @@ export class WastePlantRepository
   async reSaveOtp(email: string, otp: string): Promise<void> {
     await this.otpRepository.reSaveOtp(email, otp);
   }
-  async findOtpByEmail(email: string): Promise<OtpRecord | null> {
+  async findOtpByEmail(email: string): Promise<IOtp | null> {
     return await this.otpRepository.findOtpByEmail(email);
   }
   async deleteOtp(email: string): Promise<void> {

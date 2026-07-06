@@ -27,7 +27,6 @@ export const wastePlantSchema: Schema<IWastePlantDocument> = new Schema({
     enum: ["Pending", "Active", "Inactive", "Rejected"],
     default: "Pending",
   },
-  licenseDocumentPath: { type: String, required: true },
   cloudinaryPublicId: { type: String, required: true },
   subscriptionPlan: {
     type: String,

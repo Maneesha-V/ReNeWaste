@@ -146,7 +146,8 @@ const AddWastePlant = () => {
       toast.error(msg);
     }
   };
-
+  console.log(errors);
+  
   return (
     <div className="px-4 py-4">
       {/* <Breadcrumbs
