@@ -1,8 +1,9 @@
-import { OtpRecord } from "../../../dtos/user/otpDTO";
-import { PaginatedUsersResult, UserDTO } from "../../../dtos/user/userDTO";
+import { IOtp } from "../../../models/user/interfaces/otpInterface";
 import {
   IUser,
   IUserDocument,
+  PaginatedUsersResult,
+  UpdateUserProfileData,
 } from "../../../models/user/interfaces/userInterface";
 import IBaseRepository from "../../baseRepository/interface/IBaseRepository";
 
@@ -16,7 +17,7 @@ export interface IUserRepository extends IBaseRepository<IUserDocument> {
   findUserById(userId: string): Promise<IUserDocument | null>;
   updateUserProfileById(
     userId: string,
-    updatedData: UserDTO,
+    updatedData: UpdateUserProfileData,
   ): Promise<IUserDocument | null>;
   updatePartialProfileById(
     userId: string,
@@ -24,7 +25,7 @@ export interface IUserRepository extends IBaseRepository<IUserDocument> {
   ): Promise<IUserDocument | null>;
   saveOtp(email: string, otp: string): Promise<void>;
   reSaveOtp(email: string, otp: string): Promise<void>;
-  findOtpByEmail(email: string): Promise<OtpRecord | null>;
+  findOtpByEmail(email: string): Promise<IOtp | null>;
   deleteOtp(email: string): Promise<void>;
   updateUserPassword(email: string, hashedPassword: string): Promise<void>;
   updateAddressByIdLatLng(

@@ -14,6 +14,7 @@ import SubscriptionPlans from "../pages/superAdmin/SubscriptionPlans"
 import AddSubscriptionPlan from "../pages/superAdmin/AddSubscriptionPlan"
 import EditSubscriptionPlan from "../pages/superAdmin/EditSubscriptionPlan"
 import PaymentHistory from "../pages/superAdmin/PaymentHistory"
+import Wallet from "../pages/superAdmin/Wallet"
 
 
 const SuperAdminRoutes = () => {
@@ -37,6 +38,7 @@ const SuperAdminRoutes = () => {
           <Route path="/add-subscription-plan" element={<AddSubscriptionPlan />} />
           <Route path="/edit-subscription-plan/:id" element={<EditSubscriptionPlan />} />
           <Route path="/payment-history" element={<PaymentHistory />} />
+          <Route path="/wallet" element={<Wallet />} />
         </Route>
       </Route>
 

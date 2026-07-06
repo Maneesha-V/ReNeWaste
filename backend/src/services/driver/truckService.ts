@@ -28,14 +28,14 @@ export class TruckService implements ITruckService {
     driverId: string,
     wasteplantId: string
   ): Promise<TruckAvailbleDTO[]> {
-    const result = await this.truckRepository.getAssignedAvailableTrucks(
+    const trucks = await this.truckRepository.getAssignedAvailableTrucks(
       driverId,
       wasteplantId
     );
-    if (!result) {
-      throw new Error("Can't found trucks.");
+    if (!trucks || trucks.length === 0) {
+      return [];
     }
-    return TruckMapper.mapAvailableTrucksDTO(result);
+    return TruckMapper.mapAvailableTrucksDTO(trucks);
   }
   async requestTruck(driverId: string) {
     const driver = await this.truckRepository.reqTruckToWastePlant(driverId);

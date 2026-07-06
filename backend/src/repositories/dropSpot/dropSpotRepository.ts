@@ -3,14 +3,12 @@ import { DropSpotModel } from "../../models/dropSpots/dropSpotModel";
 import {
   IDropSpot,
   IDropSpotDocument,
+  PaginatedDropSpotsRepoRes,
+  UpdateDataDropSpotReq,
 } from "../../models/dropSpots/interfaces/dropSpotInterface";
 import { IDropSpotRepository } from "./interface/IDropSpotRepository";
 import BaseRepository from "../baseRepository/baseRepository";
 import { injectable } from "inversify";
-import {
-  PaginatedDropSpotsRepoRes,
-  UpdateDataDropSpot,
-} from "../../dtos/dropspots/dropSpotDTO";
 
 @injectable()
 export class DropSpotRepository
@@ -65,6 +63,8 @@ export class DropSpotRepository
     state: string;
     wasteplantId: mongoose.Types.ObjectId;
   }): Promise<IDropSpotDocument[]> {
+    console.log({location,district,state,wasteplantId});
+    
     return await this.model.find({
       location,
       district,
@@ -86,7 +86,7 @@ export class DropSpotRepository
     });
   }
 
-  async updateDropSpot(dropSpotId: string, updateData: UpdateDataDropSpot) {
+  async updateDropSpot(dropSpotId: string, updateData: UpdateDataDropSpotReq) {
     return await this.model.findByIdAndUpdate(dropSpotId, updateData, {
       new: true,
     });

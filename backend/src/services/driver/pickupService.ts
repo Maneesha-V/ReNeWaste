@@ -197,19 +197,20 @@ export class PickupService implements IPickupService {
       if (userWallet.holdingBalance < amount) {
         throw new Error("Insufficient holding balance");
       }
-const pickupTransaction = userWallet.transactions.find(
-  (tx) => tx.pickupReqId?.toString() === pickup._id.toString() &&
-  tx.subType === "PickupPayment"
-)
-if (!pickupTransaction) {
-  throw new Error("Pickup payment transaction not found");
-}
+      const pickupTransaction = userWallet.transactions.find(
+        (tx) =>
+          tx.pickupReqId?.toString() === pickup._id.toString() &&
+          tx.subType === "PickupPayment",
+      );
+      if (!pickupTransaction) {
+        throw new Error("Pickup payment transaction not found");
+      }
 
-if (pickupTransaction.settlementStatus === "Completed") {
-  throw new Error("Already settled");
-}
+      if (pickupTransaction.settlementStatus === "Completed") {
+        throw new Error("Already settled");
+      }
       userWallet.holdingBalance -= amount;
-pickupTransaction.settlementStatus = "Completed";
+      pickupTransaction.settlementStatus = "Completed";
       userWallet.transactions.push({
         type: "Debit",
         subType: "Settlement",
@@ -259,7 +260,7 @@ pickupTransaction.settlementStatus = "Completed";
               subType: "DriverEarning",
               pickupReqId: pickup._id.toString(),
               status: "Paid",
-              paidAt: new Date()
+              paidAt: new Date(),
             },
           },
           session,
@@ -297,7 +298,7 @@ pickupTransaction.settlementStatus = "Completed";
               subType: "SettlementEarning",
               pickupReqId: pickup._id.toString(),
               status: "Paid",
-              paidAt: new Date()
+              paidAt: new Date(),
             },
           },
           session,

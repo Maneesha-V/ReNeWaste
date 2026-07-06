@@ -9,6 +9,7 @@ import { DashboardController } from "../controllers/superAdmin/dashboardControll
 import { NotificationController } from "../controllers/superAdmin/notificationController";
 import { SubscriptionController } from "../controllers/superAdmin/subscriptionController";
 import { PaymentController } from "../controllers/superAdmin/paymentController";
+import { WalletController } from "../controllers/superAdmin/walletController";
 
 const router = express.Router();
 const superAdminCtrl = container.get<AuthController>(
@@ -28,6 +29,9 @@ const superAdminSubscriptionCtrl = container.get<SubscriptionController>(
 );
 const superAdminPaymentCtrl = container.get<PaymentController>(
   TYPES.SuperAdminPaymentController,
+);
+const superAdminWalletCtrl = container.get<WalletController>(
+  TYPES.SuperAdminWalletController,
 );
 
 router.get("/refresh-token", superAdminCtrl.refreshToken.bind(superAdminCtrl));
@@ -59,6 +63,7 @@ router.post(
 );
 router.get(
   "/view-license/:publicId(*)",
+  authenticateSuperAdmin as RequestHandler,
   superAdminPlantCtrl.viewLicenseDocument.bind(superAdminPlantCtrl),
 );
 router.get(
@@ -158,6 +163,11 @@ router.patch(
   "/payment/refund",
   authenticateSuperAdmin as RequestHandler,
   superAdminPaymentCtrl.refundPayment.bind(superAdminPaymentCtrl),
+);
+router.get(
+  "/wallet",
+  authenticateSuperAdmin as RequestHandler,
+  superAdminWalletCtrl.getWallet.bind(superAdminWalletCtrl),  
 );
 
 export default router;

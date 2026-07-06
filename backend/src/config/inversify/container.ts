@@ -15,6 +15,8 @@ import { ISubscriptionController as ISuprAdminSubscriptionController } from "../
 import { SubscriptionController as SuprAdminSubscriptionController } from "../../controllers/superAdmin/subscriptionController";
 import { IPaymentController as ISuprAdminPaymentController } from "../../controllers/superAdmin/interface/IPaymentController";
 import { PaymentController as SuprAdminPaymentController } from "../../controllers/superAdmin/paymentController";
+import { IWalletController as ISuprAdminWalletController } from "../../controllers/superAdmin/interface/IWalletController";
+import { WalletController as SuprAdminWalletController } from "../../controllers/superAdmin/walletController";
 //user
 import { UserController } from "../../controllers/user/userController";
 import { IUserController } from "../../controllers/user/interface/IUserController";
@@ -102,6 +104,8 @@ import { ISubscriptionService as ISuprAdminSubsciptionService } from "../../serv
 import { SubscriptionService as SuprAdminSubsciptionService } from "../../services/superAdmin/subscriptionService";
 import { IPaymentService as ISuprAdminPaymentService } from "../../services/superAdmin/interface/IPaymentService";
 import { PaymentService as SuprAdminPaymentService } from "../../services/superAdmin/paymentService";
+import { IWalletService as ISuprAdminWalletService } from "../../services/superAdmin/interface/IWalletService";
+import { WalletService as SuprAdminWalletService } from "../../services/superAdmin/walletService";
 
 //user
 import { IAuthService as IUserAuthService } from "../../services/user/interface/IAuthService";
@@ -239,6 +243,10 @@ container
 container
   .bind<ISuprAdminPaymentController>(TYPES.SuperAdminPaymentController)
   .to(SuprAdminPaymentController);
+container
+  .bind<ISuprAdminWalletController>(TYPES.SuperAdminWalletController)
+  .to(SuprAdminWalletController);
+
 //user
 container.bind<IUserController>(TYPES.UserAuthController).to(UserController);
 container
@@ -363,6 +371,9 @@ container
 container
   .bind<ISuprAdminPaymentService>(TYPES.SuperAdminPaymentService)
   .to(SuprAdminPaymentService);
+container
+  .bind<ISuprAdminWalletService>(TYPES.SuperAdminWalletService)
+  .to(SuprAdminWalletService);
 
 //user
 container.bind<IUserAuthService>(TYPES.UserAuthService).to(UserAuthService);

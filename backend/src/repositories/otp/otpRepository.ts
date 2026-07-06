@@ -1,9 +1,8 @@
 import { injectable } from "inversify";
-import { IOtpDocument } from "../../models/user/interfaces/otpInterface";
+import { IOtp, IOtpDocument } from "../../models/user/interfaces/otpInterface";
 import { OTPModel } from "../../models/user/otpModel";
 import BaseRepository from "../baseRepository/baseRepository";
 import { IOtpRepository } from "./interface/IOtpRepository";
-import { OtpRecord } from "../../dtos/user/otpDTO";
 
 @injectable()
 export class OtpRepository
@@ -26,7 +25,7 @@ export class OtpRepository
     );
   }
 
-  async findOtpByEmail(email: string): Promise<OtpRecord | null> {
+  async findOtpByEmail(email: string): Promise<IOtp | null> {
     return await this.model.findOne({ email });
   }
 

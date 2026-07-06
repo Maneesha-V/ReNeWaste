@@ -11,6 +11,7 @@ const TYPES = {
     "SuperAdminSubscriptionController",
   ),
   SuperAdminPaymentController: Symbol.for("SuperAdminPaymentController"),
+  SuperAdminWalletController: Symbol.for("SuperAdminWalletController"),
 
   //user
   UserAuthController: Symbol.for("UserAuthController"),
@@ -60,6 +61,7 @@ const TYPES = {
   SuperAdminNotificationService: Symbol.for("SuperAdminNotificationService"),
   SuperAdminSubscriptionService: Symbol.for("SuperAdminSubscriptionService"),
   SuperAdminPaymentService: Symbol.for("SuperAdminPaymentService"),
+  SuperAdminWalletService: Symbol.for("SuperAdminWalletService"),
 
   //user
   UserAuthService: Symbol.for("UserAuthService"),

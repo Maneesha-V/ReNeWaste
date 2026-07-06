@@ -115,7 +115,4 @@ export type PaginatedResult = {
   users: UserDTO[];
   total: number;
 };
-export type PaginatedUsersResult = {
-  users: IUserDocument[];
-  total: number;
-};
+

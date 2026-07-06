@@ -9,6 +9,7 @@ import { IWasteCollectionRepository } from "../../repositories/wasteCollection/i
 import { FetchWPDashboard } from "../../dtos/wasteplant/WasteplantDTO";
 import { IWalletRepository } from "../../repositories/wallet/interface/IWalletRepository";
 import { DashboardDataResp } from "../../dtos/common/commonDTO";
+import { IRatingRepository } from "../../repositories/rating/interface/IRatingRepository";
 
 @injectable()
 export class DashboardService implements IDashboardService {
@@ -24,16 +25,14 @@ export class DashboardService implements IDashboardService {
     @inject(TYPES.WasteCollectionRepository)
     private wasteCollectionRepository: IWasteCollectionRepository,
     @inject(TYPES.WalletRepository)
-    private _walletRepository: IWalletRepository
+    private _walletRepository: IWalletRepository,
+    @inject(TYPES.RatingRepository)
+    private _ratingRepository: IRatingRepository
   ) {}
 
   async getDashboardData(data: FetchWPDashboard): Promise<DashboardDataResp> {
     const { plantId } = data;
-    // const drivers = this.driverRepository.fetchAllDriversByPlantId(plantId);
-    // const trucks = this.truckRepository.fetchAllTrucksByPlantId(plantId);
-    // const totalPickups = this.pickupRepository.fetchAllPickupsByPlantId(plantId);
-    // const totalWaste = this.wasteCollectionRepository.totalWasteAmount(plantId);
-    // drivers, trucks, pickups, revenue, waste
+
     const [drivers, trucks, pickupStatus, totalWaste] =
       await Promise.all([
         // this.pickupRepository.totalRevenueByPlantId(plantId),
@@ -51,6 +50,8 @@ export class DashboardService implements IDashboardService {
     console.log("pickupTrends",pickupTrends);
     const { revenueTrends, wasteplantTotRevenue } = await this._walletRepository.fetchFilteredWPRevenue(data);
     console.log("revenueTrends",revenueTrends);
+    const ratings = await this._ratingRepository.getWPRatingSummary(plantId);
+    console.log("ratings",ratings);
     return {
       summary: {
         totalDrivers: drivers,
@@ -64,7 +65,8 @@ export class DashboardService implements IDashboardService {
       drivers,
       trucks,
       pickupTrends,
-      revenueTrends
+      revenueTrends,
+      ratings
     };
   }
 }

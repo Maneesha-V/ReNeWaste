@@ -2,6 +2,8 @@ import { UserModel } from "../../models/user/userModel";
 import {
   IUser,
   IUserDocument,
+  PaginatedUsersResult,
+  UpdateUserProfileData,
 } from "../../models/user/interfaces/userInterface";
 import { IUserRepository } from "./interface/IUserRepository";
 import BaseRepository from "../baseRepository/baseRepository";
@@ -9,8 +11,7 @@ import { inject, injectable } from "inversify";
 import TYPES from "../../config/inversify/types";
 import { IOtpRepository } from "../otp/interface/IOtpRepository";
 import { FilterQuery, Types, UpdateQuery } from "mongoose";
-import { PaginatedUsersResult, UserDTO } from "../../dtos/user/userDTO";
-import { OtpRecord } from "../../dtos/user/otpDTO";
+import { IOtp } from "../../models/user/interfaces/otpInterface";
 
 @injectable()
 export class UserRepository
@@ -44,7 +45,7 @@ export class UserRepository
   }
   async updateUserProfileById(
     userId: string,
-    updatedData: UserDTO,
+    updatedData: UpdateUserProfileData,
   ): Promise<IUserDocument | null> {
     return await this.model.findByIdAndUpdate(userId, updatedData, {
       new: true,
@@ -77,7 +78,7 @@ export class UserRepository
   async reSaveOtp(email: string, otp: string): Promise<void> {
     await this.otpRepository.reSaveOtp(email, otp);
   }
-  async findOtpByEmail(email: string): Promise<OtpRecord | null> {
+  async findOtpByEmail(email: string): Promise<IOtp | null> {
     return await this.otpRepository.findOtpByEmail(email);
   }
   async deleteOtp(email: string): Promise<void> {

@@ -23,8 +23,6 @@ export class AuthController implements IAuthController {
       console.log("refreshToken", refreshToken);
 
       if (!refreshToken) {
-        // res.status(STATUS_CODES.UNAUTHORIZED).json({ error: MESSAGES.COMMON.ERROR.REFRESH_TOKEN });
-        // return;
         throw new ApiError(
           STATUS_CODES.UNAUTHORIZED,
           MESSAGES.COMMON.ERROR.REFRESH_TOKEN,
@@ -58,8 +56,6 @@ export class AuthController implements IAuthController {
         );
       }
       console.log("admin", admin);
-
-      // const { password: _, ...safeAdmin } = admin.toObject();
 
       const refreshToken = await generateRefreshToken({
         userId: admin._id.toString(),

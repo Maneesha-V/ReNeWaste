@@ -63,7 +63,7 @@ export interface WasteplantDTO {
   blockedAt?: Date;
   autoUnblockAt?: Date;
   unblockNotificationSent?: Boolean;
-  licenseDocumentPath?: string;
+  // licenseDocumentPath?: string;
   cloudinaryPublicId?: string;
 }
 export interface ReturnAdminWastePlant {

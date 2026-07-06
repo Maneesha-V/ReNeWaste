@@ -12,7 +12,6 @@ import userRoutes from "./routes/userRoutes";
 import superAdminRoutes from "./routes/superAdminRoutes";
 import wastePlantRoutes from "./routes/wastePlantRoutes";
 import driverRoutes from "./routes/driverRoutes";
-import mapsRoutes from "./routes/mapRoutes";
 
 import socketHandler from "./socket/socketHandler";
 import { errorHandler } from "./middlewares/errorHandler";
@@ -71,7 +70,6 @@ app.use("/api", userRoutes);
 app.use("/api/super-admin", superAdminRoutes);
 app.use("/api/waste-plant", wastePlantRoutes);
 app.use("/api/driver", driverRoutes);
-// app.use("/api/maps", mapsRoutes);
 
 app.use((req, res, next) => {
   next(new ApiError(404, "Route not found"));

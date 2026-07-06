@@ -6,6 +6,7 @@ import superAdminSubscriptionPlanReducer from "../redux/slices/superAdmin/superA
 import superAdminNotificationsReducer from "../redux/slices/superAdmin/superAdminNotificationSlice";
 import superAdminPaymentsReducer from "../redux/slices/superAdmin/superAdminPaymentSlice";
 import superAdminDashboardReducer from "../redux/slices/superAdmin/superAdminDashboardSlice";
+import superAdminWalletReducer from "../redux/slices/superAdmin/superAdminWalletSlice";
 
 import wasteplantReducer from "../redux/slices/wastePlant/wastePlantSlice";
 import wastePlantDriverReducer from "../redux/slices/wastePlant/wastePlantDriverSlice";
@@ -60,6 +61,7 @@ export const store = configureStore({
         superAdminNotifications: superAdminNotificationsReducer,
         superAdminPayments: superAdminPaymentsReducer,
         superAdminDashboard: superAdminDashboardReducer,
+        superAdminWallet: superAdminWalletReducer,
         wasteplant: wasteplantReducer,
         wastePlantDriver: wastePlantDriverReducer,
         wastePlantTruck: wastePlantTruckReducer,

@@ -1,3 +1,4 @@
+import { GetWPRatingSummaryResp } from "../rating/ratingDTO";
 import { RevenueWPTrendDTO } from "../wallet/walletDTO";
 import { PickupTrendResult } from "../wasteplant/WasteplantDTO";
 
@@ -62,6 +63,7 @@ export type DashboardDataResp = {
   };
   pickupTrends: PickupTrendResult[];
   revenueTrends: RevenueWPTrendDTO[];
+  ratings: GetWPRatingSummaryResp;
 };
 interface EtaResult {
   text: string;
