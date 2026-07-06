@@ -69,6 +69,7 @@ export interface IPickupRequestExtDocument
     _id: Types.ObjectId;
     name: string;
     contact: string;
+    assignedZone: string;
   } | null;
 
   truckId?: {
@@ -91,7 +92,12 @@ export interface PickupReqGetDTO extends BaseDTO {
     firstName: string;
     lastName: string;
   };
-  driverId?: string;
+  // driverId?: string;
+  driverId?: {
+    _id: string;
+    name: string;
+    assignedZone: string;
+  } | null;
   wasteplantId?: string;
   truckId?: string;
   addressId: string;
@@ -222,7 +228,7 @@ export interface PickupPlansDTO {
   wasteplantId: string;
   addressId: string;
   address: Address | null;
-  payment: IPayment;
+  payment: IPayment | null;
 }
 
 export type WasteType = "Residential" | "Commercial";
@@ -237,30 +243,12 @@ export type StatusCounts = Record<PickupStatus | "Active", number>;
 
 export type PickupStatusByWasteType = Record<WasteType, StatusCounts>;
 
-// export type RevenueByWasteType = {
-//   totalResidentialRevenue: number;
-//   totalCommercialRevenue: number;
-//   totalRevenue: number;
-// };
+
 export type PickupDriverFilterParams = {
-  // wasteType?: string;
   driverId: string;
 };
-export type CheckExistingBusinessReq = {
-  userId: string;
-  frequency: string;
-  businessName: string;
-  wasteType: string;
-};
-export type CheckExistingBusinessResp = {
-  type: string;
-  data: IPickupRequestDocument;
-};
-export type CheckExistingResidReq = {
-  userId: string;
-  wasteType: string;
-  pickupDate: string;
-};
+
+
 export type cancelPickupReasonData = {
   userId: string;
   pickupReqId: string;
@@ -285,8 +273,4 @@ export type PaymentRecord = {
   userName?: string;
   dueDate: Date;
 };
-export type FindDriverPlantTruckByIdReq = {
-  truckId: string;
-  plantId: string;
-  driverId: string;
-}
+

@@ -16,7 +16,7 @@ import {
 } from "../../dtos/wasteplant/WasteplantDTO";
 import { WastePlantMapper } from "../../mappers/WastePlantMapper";
 import { IPickupRepository } from "../../repositories/pickupReq/interface/IPickupRepository";
-import { notificationPayload } from "../../dtos/notification/notificationDTO";
+import cloudinary from "../../config/cloudinary";
 
 @injectable()
 export class WastePlantService implements IWastePlantService {
@@ -56,7 +56,31 @@ export class WastePlantService implements IWastePlantService {
 
     return true;
   }
+  async getLicenseUrl(publicId: string, role: string) {
+    const plant = await this._wastePlantRepository.getWastePlantByPublicId(publicId)
 
+    if (!plant) {
+      throw new Error("Waste plant not found");
+    }
+    if (!plant.cloudinaryPublicId) {
+      throw new Error("License document not found");
+    }
+    console.log("publicid",plant.cloudinaryPublicId);
+    
+    if (role !== "superadmin") {
+      throw new Error("Unauthorized");
+    }
+    const url = cloudinary.utils.private_download_url(
+      plant.cloudinaryPublicId,
+      "pdf",
+      {
+        resource_type: "raw",
+        expires_at: Math.floor(Date.now() / 1000) + 300,
+      },
+    );
+
+    return url;
+  }
   async getAllWastePlants(
     data: PaginationInput,
   ): Promise<PaginatedReturnAdminWastePlants> {

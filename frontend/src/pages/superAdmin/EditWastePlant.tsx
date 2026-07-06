@@ -102,7 +102,7 @@ const EditWastePlant = () => {
     Object.entries(formData).forEach(([name, value]) => {
       if (["district", "state"].includes(name)) return;
       if (name === "licenseDocument") {
-        if (!wastePlant?.licenseDocumentPath && !(value instanceof File)) {
+        if (!wastePlant?.cloudinaryPublicId && !(value instanceof File)) {
           currentErrors[name] = "License Document is required.";
         }
       } else {

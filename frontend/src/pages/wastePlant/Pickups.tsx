@@ -200,13 +200,15 @@ const Pickups = () => {
               <>
                 <Table.Column
                   title="Assigned Driver"
-                  dataIndex="driverName"
+                  // dataIndex="driverName"
                   key="driverName"
+                  render={(_,record)=>record.driverId?.name || '-'}
                 />
                 <Table.Column
                   title="Assigned Zone"
-                  dataIndex="assignedZone"
+                  // dataIndex="assignedZone"
                   key="assignedZone"
+                  render={(_,record)=>record.driverId?.assignedZone || '-'}
                 />
               </>
             )}

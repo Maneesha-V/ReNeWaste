@@ -1,14 +1,5 @@
-import { PaginationInput } from "../../../dtos/common/commonDTO";
-import {
-  PaymentUpdate,
-  UpdateSubscptnPayload,
-} from "../../../dtos/pickupReq/paymentDTO";
-import {
-  CreateSubsptnPaymentPayload,
-  SubscriptionPaymentHisResult,
-  UpdateRefundStatusReq,
-} from "../../../dtos/subscription/subscptnPaymentDTO";
-import { ISubscriptionPaymentDocument } from "../../../models/subsptnPayment/interface/subsptnPaymentInterface";
+import { CreateSubsptnPaymentPayload, ISubscriptionPaymentDocument, PaymentUpdate, SubscriptionPaymentHisRepoResp, UpdateRefundStatusRepoReq, UpdateSubscptnPayload } from "../../../models/subsptnPayment/interface/subsptnPaymentInterface";
+import { PaginationInputReq } from "../../../models/wastePlant/interfaces/wastePlantInterface";
 
 export interface ISubscriptionPaymentRepository {
   createSubscriptionPayment(
@@ -31,8 +22,8 @@ export interface ISubscriptionPaymentRepository {
     ISubscriptionPaymentDocument[] | null
   >;
   getAllSubscptnPayments(
-    data: PaginationInput,
-  ): Promise<SubscriptionPaymentHisResult>;
+    data: PaginationInputReq,
+  ): Promise<SubscriptionPaymentHisRepoResp>;
   findLatestInProgressPayment(
     plantId: string,
   ): Promise<ISubscriptionPaymentDocument | null>;
@@ -43,6 +34,6 @@ export interface ISubscriptionPaymentRepository {
     subPayId: string,
   ): Promise<ISubscriptionPaymentDocument>;
   updateRefundStatusPayment(
-    data: UpdateRefundStatusReq,
+    data: UpdateRefundStatusRepoReq,
   ): Promise<ISubscriptionPaymentDocument>;
 }

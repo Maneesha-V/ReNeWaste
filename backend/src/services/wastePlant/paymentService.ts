@@ -230,7 +230,43 @@ export class PaymentService implements IPaymentService {
       message: plantMessage,
       type: "subscribe_recharged",
     });
+    const accountId = adminId;
+    const accountType = "SuperAdmin";
+    let adminWallet = await this._walletRepository.findWallet(
+      accountId,
+      accountType,
+    );
+    if (!adminWallet) {
+      try {
+        adminWallet = await this._walletRepository.createWallet({
+          accountId,
+          accountType,
+        });
+      } catch (err) {
+        console.error("Wallet creation error", err);
+        adminWallet = await this._walletRepository.findWallet(
+          accountId,
+          accountType,
+        );
+      }
+      if (!adminWallet) throw new Error("Admin wallet not found.");
+      adminWallet.balance += paymentData.amount;
 
+      adminWallet.transactions.push({
+        amount: paymentData.amount,
+        description: `Subscription payment of ${plant.plantName}, Plan:(${plant.subscriptionPlan}, ${paymentData.billingCycle})`,
+        type: "Debit",
+        subType: "SubscriptionPayment",
+        status: "Paid",
+        method: "Razorpay",
+        razorpayOrderId: paymentData.razorpay_order_id,
+        razorpayPaymentId: paymentData.razorpay_payment_id,
+        razorpaySignature: paymentData.razorpay_signature,
+        paidAt: new Date(),
+      });
+
+      await adminWallet.save();
+    }
     return {
       subPayId: updatedPayment._id.toString(),
       expiredAt: updatedPayment.expiredAt,
@@ -453,8 +489,8 @@ export class PaymentService implements IPaymentService {
     };
   }
   async refundPayment(plantId: string, data: RefundDataReq) {
-    console.log("data",data);
-    
+    console.log("data", data);
+
     const pickupReq = await this.pickupRepository.getPickupById(
       data.pickupReqId,
     );
@@ -546,17 +582,17 @@ export class PaymentService implements IPaymentService {
           accountType,
         );
         if (!wallet) throw new Error("Wallet not found for this user.");
-        console.log("wallet-raz",wallet);
-        
+        console.log("wallet-raz", wallet);
+
         const pickupTansaction = wallet.transactions.find(
           (tx) =>
             tx.subType === "PickupPayment" &&
             // tx.pickupReqId?.toString() === pickupReq._id.toString() &&
             tx.pickupReqId?.equals(pickupReq._id) &&
-            tx.method === "Razorpay"
+            tx.method === "Razorpay",
         );
-        console.log("pickupTansaction",pickupTansaction);
-        
+        console.log("pickupTansaction", pickupTansaction);
+
         if (!pickupTansaction) throw new Error("Pickup transaction not found.");
         wallet.holdingBalance -= payment.amount;
 
@@ -605,13 +641,13 @@ export class PaymentService implements IPaymentService {
     } catch (error: any) {
       // console.error("Refund failed:", JSON.stringify(error, null, 2));
       // throw new Error(error?.error?.description || "Refund failed");
-        console.error("========== REFUND ERROR ==========");
-  console.error("RAW ERROR:", error);
-  console.error("MESSAGE:", error?.message);
-  console.error("STACK:", error?.stack);
-  console.error("==================================");
+      console.error("========== REFUND ERROR ==========");
+      console.error("RAW ERROR:", error);
+      console.error("MESSAGE:", error?.message);
+      console.error("STACK:", error?.stack);
+      console.error("==================================");
 
-  throw error; // DO NOT wrap again
+      throw error; // DO NOT wrap again
     }
     // if (
     //   pickupReq.payment.razorpayPaymentId !== data.razorpayPaymentId ||

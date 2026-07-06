@@ -69,10 +69,10 @@ const PaymentHistory = () => {
       if (res.statusUpdate) {
         dispatch(updateSubRefundStatus(res.statusUpdate));
       }
-      // toast.success(res.message);
+      toast.success(res.message);
 
-      setSelectedRecord({ ...record, refundStatus: newStatus });
-      setRefundModalVisible(true);
+      // setSelectedRecord({ ...record, refundStatus: newStatus });
+      setRefundModalVisible(false);
     } catch (error) {
       toast.error(getAxiosErrorMessage(error));
     }
@@ -91,8 +91,8 @@ const PaymentHistory = () => {
 
     if (result.isConfirmed) {
       try {
-        setSelectedRecord(record);
-        setRefundModalVisible(true);
+        // setSelectedRecord(record);
+        // setRefundModalVisible(true);
         const res = await dispatch(
           refundPayment({
             subPayId: record._id,
@@ -171,13 +171,17 @@ const PaymentHistory = () => {
 
               const { refundRequested, refundStatus } = record;
               if (refundRequested && !refundStatus) {
-                record.refundStatus = "Pending";
+                // record.refundStatus = "Pending";
                 return (
                   <button
                     className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
-                    onClick={() =>
-                      handleRefundStart(record._id, record.refundStatus, record)
-                    }
+                    // onClick={() =>
+                    //   handleRefundStart(record._id, record.refundStatus, record)
+                    // }
+                          onClick={() => {
+        setSelectedRecord({...record, refundStatus: "Pending"});
+        setRefundModalVisible(true);
+      }}
                   >
                     Start Refund
                   </button>
@@ -199,13 +203,17 @@ const PaymentHistory = () => {
                   return (
                     <button
                       className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600"
-                      onClick={() =>
-                        handleRefundStart(
-                          record._id,
-                          record.refundStatus,
-                          record
-                        )
-                      }
+                      // onClick={() =>
+                      //   handleRefundStart(
+                      //     record._id,
+                      //     record.refundStatus,
+                      //     record
+                      //   )
+                      // }
+                            onClick={() => {
+        setSelectedRecord(record);
+        setRefundModalVisible(true);
+      }}
                     >
                       Process Refund
                     </button>

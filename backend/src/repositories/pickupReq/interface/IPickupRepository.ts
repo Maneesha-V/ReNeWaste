@@ -1,15 +1,7 @@
 import { ClientSession } from "mongoose";
-import { PaginationInput } from "../../../dtos/common/commonDTO";
 import {
-  CheckExistingBusinessReq,
-  CheckExistingBusinessResp,
-  CheckExistingResidReq,
-  FindDriverPlantTruckByIdReq,
   IPickupRequestExtDocument,
-  PickupDriverFilterParams,
   PickupStatusByWasteType,
-  PopulatedPIckupPlans,
-  PopulatedUserPickupReq,
 } from "../../../dtos/pickupReq/pickupReqDTO";
 import { AddressDTO } from "../../../dtos/user/userDTO";
 import {
@@ -21,9 +13,22 @@ import {
   PickupTrendResult,
 } from "../../../dtos/wasteplant/WasteplantDTO";
 import {
+  CheckExistingBusinessReq,
+  CheckExistingBusinessResp,
+  CheckExistingResidReq,
+  FetchWPDashboardRepo,
+  FilterReportRepo,
+  FindDriverPlantTruckByIdReq,
   IPickupRequest,
   IPickupRequestDocument,
+  PickupDriverFilterParamsRepo,
+  PickupFilterParamsRepo,
+  PickupTrendResultRepo,
+  PopulatedPIckupPlansRepo,
+  PopulatedUserPickupReqRepo,
 } from "../../../models/pickupRequests/interfaces/pickupInterface";
+import { FetchPaymentPayloadRepo, PaginatedPaymentsResultRepo } from "../../../models/pickupRequests/interfaces/paymentInterface";
+import { PaginationInputReq } from "../../../models/wastePlant/interfaces/wastePlantInterface";
 
 export interface EnhancedPickup extends IPickupRequest {
   userName?: string;
@@ -35,7 +40,7 @@ export interface IPickupRepository {
     pickupData: Partial<IPickupRequest>,
   ): Promise<IPickupRequestDocument>;
   getPickupsByPlantId(
-    filters: PickupFilterParams,
+    filters: PickupFilterParamsRepo,
   ): Promise<IPickupRequestDocument[]>;
   updatePickupStatusAndDriver(
     pickupReqId: string,
@@ -47,7 +52,7 @@ export interface IPickupRepository {
     updateData: any,
   ): Promise<IPickupRequestDocument>;
   getPickupsByDriverId(
-    filters: PickupDriverFilterParams,
+    filters: PickupDriverFilterParamsRepo,
   ): Promise<IPickupRequestDocument[]>;
   findPickupByIdAndDriver(
     pickupReqId: string,
@@ -59,8 +64,8 @@ export interface IPickupRepository {
   ): Promise<void>;
   getPickupPlansByUserId(
     userId: string,
-    paginationData: PaginationInput,
-  ): Promise<{ pickupPlans: PopulatedPIckupPlans[]; total: number }>;
+    paginationData: PaginationInputReq,
+  ): Promise<{ pickupPlans: PopulatedPIckupPlansRepo[]; total: number }>;
   updateTrackingStatus(
     pickupReqId: string,
     trackingStatus: string,
@@ -76,20 +81,14 @@ export interface IPickupRepository {
     pickupReqId: string,
     userId: string,
   ): Promise<IPickupRequestDocument | null>;
-  // savePaymentDetails({
-  //     pickupReqId,
-  //     paymentData,
-  //     userId,
-  //   }: SavePaymentReq): Promise<void>;
   getAllPaymentsByUser(
     userId: string,
-    paginationData: PaginationInput,
+    paginationData: PaginationInputReq,
   ): Promise<{ pickups: Partial<IPickupRequestDocument>[]; total: number }>;
   fetchAllPickupsByPlantId(plantId: string): Promise<PickupStatusByWasteType>;
-  // totalRevenueByPlantId(plantId: string): Promise<RevenueByWasteType>;
   fetchAllPaymentsByPlantId(
-    data: FetchPaymentPayload,
-  ): Promise<PaginatedPaymentsResult>;
+    data: FetchPaymentPayloadRepo,
+  ): Promise<PaginatedPaymentsResultRepo>;
   updatePaymentStatus(
     pickupReqId: string,
   ): Promise<IPickupRequestDocument | null>;
@@ -99,7 +98,7 @@ export interface IPickupRepository {
     pickupId: string,
   ): Promise<IPickupRequestDocument | null>;
   filterWasteReportsByPlantId(
-    data: FilterReport,
+    data: FilterReportRepo,
   ): Promise<IPickupRequestDocument[]>;
   fetchWasteReportsByPlantId(
     plantId: string,
@@ -118,6 +117,12 @@ export interface IPickupRepository {
     data: CheckExistingResidReq,
   ): Promise<CheckExistingBusinessResp | null>;
   findDriverPlantTruckById(data: FindDriverPlantTruckByIdReq): Promise<IPickupRequestDocument[]>;
-  getDriverCompletedPickups(driverId: string): Promise<PopulatedUserPickupReq[]>;
-  fetchAllCompletedPickups(data: FetchWPDashboard): Promise<PickupTrendResult[]>;
+  getDriverCompletedPickups(driverId: string): Promise<PopulatedUserPickupReqRepo[]>;
+  fetchAllCompletedPickups(data: FetchWPDashboardRepo): Promise<PickupTrendResultRepo[]>;
+  getRecurringPickups(): Promise<IPickupRequestDocument[]>;
+  getLatestRecurringPickup(parentPickupId: string): Promise<IPickupRequestDocument | null>;
+  existsRecurringPickup(
+    parentPickupId: string,
+    pickupDate: Date
+  ): Promise<boolean>;
 }

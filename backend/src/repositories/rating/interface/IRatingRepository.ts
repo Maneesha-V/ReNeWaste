@@ -1,6 +1,6 @@
-import { AddUserRatingReq } from "../../../dtos/rating/ratingDTO";
-import { IRatingDocument } from "../../../models/rating/interfaces/ratingInterface";
+import { AddUserRatingRepoReq, GetWPRatingSummaryRepoResp } from "../../../models/rating/interfaces/ratingInterface";
 
 export interface IRatingRepository {
-    createRating(payload: AddUserRatingReq, wasteplantId: string): Promise<boolean>;
+    createRating(payload: AddUserRatingRepoReq, wasteplantId: string): Promise<boolean>;
+    getWPRatingSummary(plantId: string): Promise<GetWPRatingSummaryRepoResp>;
 }

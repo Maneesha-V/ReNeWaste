@@ -10,8 +10,6 @@ import { PopulatedWasteCollectionDTO, WasteCollectionDTO } from "../../dtos/wast
 @injectable()
 export class ReportService implements IReportService {
   constructor(
-    // @inject(TYPES.WastePlantRepository)
-    // private wastePlantRepository: IWastePlantRepository,
     @inject(TYPES.PickupRepository)
     private pickupRepository: IPickupRepository,
     @inject(TYPES.WasteCollectionRepository)
@@ -36,6 +34,7 @@ export class ReportService implements IReportService {
     if (!wastereports) {
       throw new Error("Waste report not found.");
     }
-    return WasteCollectionMapper.mapWasteCollectionsDTO(wastereports);
+    // return WasteCollectionMapper.mapWasteCollectionsDTO(wastereports);
+    return WasteCollectionMapper.mapPopulatedWasteCollectionsDTO(wastereports);
   }
 }

@@ -69,12 +69,6 @@ const PickupPlans = () => {
     setStatusFilter,
   } = usePagination();
 
-  // const debouncedFetchPickupPlans = useCallback(
-  //   debounce((page: number, limit: number, query: string, filter?: string) => {
-  //     dispatch(fetchtPickupPlans({ page, limit, search: query, filter }));
-  //   }, 500),
-  //   [dispatch]
-  // );
   useEffect(() => {
     const debouncedFetchPickupPlans = debounce(
       (page: number, limit: number, query: string, filter?: string) => {
@@ -205,7 +199,7 @@ const PickupPlans = () => {
                         onClick={() => handleTrackClick(pickup)}
                       >
                         {pickup.trackingStatus === "Completed" &&
-                        pickup.payment.status === "Paid"
+                        pickup.payment?.status === "Paid"
                           ? "View"
                           : "Track"}
                       </Button>

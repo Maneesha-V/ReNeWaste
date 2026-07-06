@@ -5,21 +5,19 @@ import { IPickupRepository } from "../repositories/pickupReq/interface/IPickupRe
 import container from "../config/inversify/container";
 
 // Runs every night at midnight
-cron.schedule("0 12 * * *", async () => {
+cron.schedule("0 0 * * *", async () => {
   const pickupRepo = container.get<IPickupRepository>(TYPES.PickupRepository);
-  // await PickupModel.deleteMany({
-  //   wasteType: "Commercial",
-  //   frequency: { $in: ["Daily", "Weekly", "Monthly"] },
-  //   parentRequestId: null,
-  // })
-  const recurringPickups = await PickupModel.find({
-    wasteType: "Commercial",
-    frequency: { $in: ["Daily", "Weekly", "Monthly"] },
-    parentRequestId: null,
-    status: { $ne: "Cancelled" },
-  });
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const recurringPickups = await pickupRepo.getRecurringPickups();
   for (const pickup of recurringPickups) {
-    let nextDate = new Date(pickup.originalPickupDate);
+    const latestPickup = await pickupRepo.getLatestRecurringPickup(
+      pickup._id.toString(),
+    );
+    if (!latestPickup) continue;
+
+    let nextDate = new Date(latestPickup.originalPickupDate);
     switch (pickup.frequency) {
       case "Daily":
         nextDate.setDate(nextDate.getDate() + 1);
@@ -34,11 +32,32 @@ cron.schedule("0 12 * * *", async () => {
         continue;
     }
 
-    const parentId = pickup._id;
+    nextDate.setHours(0, 0, 0, 0);
+    const createDate = new Date(nextDate);
+    createDate.setDate(createDate.getDate() - 1);
+    createDate.setHours(0, 0, 0, 0);
+    const graceDate = new Date(nextDate);
+    graceDate.setDate(graceDate.getDate() + 1);
+    graceDate.setHours(0, 0, 0, 0);
 
-    const {_id, ...newPickup} = pickup.toObject();
+    if (today < createDate || today > graceDate) {
+      continue;
+    }
+
+    const alreadyExists = await pickupRepo.existsRecurringPickup(
+      pickup._id.toString(),
+      nextDate,
+    );
+
+    if (alreadyExists) continue;
+
+    const { _id, ...newPickup } = pickup.toObject();
     newPickup.originalPickupDate = nextDate;
-    newPickup.parentRequestId = parentId;
+    newPickup.parentRequestId = pickup._id;
     await pickupRepo.createPickup(newPickup);
+
+    console.log(
+      `Recurring pickup created: ${pickup.pickupId} (${pickup.frequency}) -> ${nextDate.toISOString()}`,
+    );
   }
 });

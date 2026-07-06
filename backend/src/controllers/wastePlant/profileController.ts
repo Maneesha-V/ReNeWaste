@@ -96,7 +96,7 @@ export class ProfileController implements IProfileController {
 
         const uploadResult = await uploadFromBuffer();
 
-        updatedData.licenseDocumentPath = uploadResult.secure_url;
+        // updatedData.licenseDocumentPath = uploadResult.secure_url;
         updatedData.cloudinaryPublicId = uploadResult.public_id;
       }
 

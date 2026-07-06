@@ -2,6 +2,7 @@ import { Modal } from "antd";
 import { useSelector } from "react-redux";
 import { RootState } from "../../redux/store";
 import {
+  createSubscriptionOrder,
   verifySubscriptionPayment,
 } from "../../redux/slices/wastePlant/wastePlantPaymentSlice";
 import Swal from "sweetalert2";
@@ -9,6 +10,9 @@ import { useAppDispatch } from "../../redux/hooks";
 import { SubscriptionPayModalProps } from "../../types/common/modalTypes";
 import { loadRazorpayScript } from "../../utils/razorpayUtils";
 import { updateSubPaymentStatus } from "../../redux/slices/wastePlant/wastePlantSubscriptionSlice";
+import { useState } from "react";
+import SubscriptionModal from "./SubscriptionModal";
+import { RazorpayResponse } from "../../types/pickupReq/paymentTypes";
 
 const SubscriptionPayModal = ({
   visible,
@@ -19,13 +23,17 @@ const SubscriptionPayModal = ({
   const paymentOrder = useSelector(
     (state: RootState) => state.wastePlantPayments.paymentOrder
   );
-
+  const [showPlansModal, setShowPlansModal] = useState(false);
   if (!plan) return null;
   console.log("plan", plan);
 
 
   const handlePayment = async () => {
     console.log("handlePayment called");
+    console.log("User plan:", plan);
+          const { paymentOrder } = await dispatch(
+            createSubscriptionOrder(plan._id)
+          ).unwrap();
     const res = await loadRazorpayScript();
     console.log("Razorpay script load result:", res);
     if (!res) {
@@ -42,7 +50,7 @@ const SubscriptionPayModal = ({
         name: "ReNeWaste",
         description: "Subscription Payment",
         order_id: paymentOrder.orderId,
-        handler: function (response: any) {
+        handler: function (response: RazorpayResponse) {
           const { razorpay_order_id, razorpay_payment_id, razorpay_signature } =
             response;
 
@@ -88,8 +96,12 @@ const SubscriptionPayModal = ({
       razorpay.open();
     }
   };
-
+  const handlePlansModal = () => {
+    onClose();
+    setShowPlansModal(true)
+  }
   return (
+    <>
     <Modal
       title="Confirm Subscription Payment"
       open={visible}
@@ -154,8 +166,19 @@ const SubscriptionPayModal = ({
         >
           Pay ₹{plan.price} Now
         </button>
+        <button
+  onClick={handlePlansModal}
+  className="w-full border border-green-600 text-green-700 font-medium py-2 px-4 rounded-md hover:bg-green-50 transition duration-200"
+>
+  Choose Other Plans
+</button>
       </div>
     </Modal>
+    <SubscriptionModal
+            visible={showPlansModal}
+            onClose={() => setShowPlansModal(false)}
+          />
+          </>
   );
 };
 

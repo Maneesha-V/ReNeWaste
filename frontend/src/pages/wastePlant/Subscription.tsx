@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Table, Button, Modal, Typography, Popconfirm } from "antd";
+import { Table, Button, Modal, Typography, Popconfirm, Space } from "antd";
 import { useAppDispatch } from "../../redux/hooks";
 import { useSelector } from "react-redux";
 import { RootState } from "../../redux/store";
@@ -16,12 +16,16 @@ import Swal from "sweetalert2";
 import { toast } from "react-toastify";
 import { loadRazorpayScript } from "../../utils/razorpayUtils";
 import { RazorpayResponse } from "../../types/pickupReq/paymentTypes";
-import { formatDateToDDMMYYYY } from "../../utils/formatDate";
+import {
+  extractDateTimeParts,
+  formatDateToDDMMYYYY,
+} from "../../utils/formatDate";
 import { SubscriptionPaymentHisDTO } from "../../types/subscriptionPayment/paymentTypes";
 import { getAxiosErrorMessage } from "../../utils/handleAxiosError";
 import { SubcptnPaymtPayload } from "../../types/subscription/subscriptionTypes";
 import SubscriptionPayModal from "../../components/wastePlant/SubscriptionPayModal";
 import CancelSubptnModal from "../../components/wastePlant/CancelSubptnModal";
+import { record } from "zod";
 
 const { Title } = Typography;
 
@@ -30,7 +34,7 @@ const Subscription = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isPayNowModalOpen, setIsPayNowModalOpen] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<SubcptnPaymtPayload | null>(
-    null
+    null,
   );
   const [viewData, setViewData] = useState({
     description: "",
@@ -42,11 +46,11 @@ const Subscription = () => {
   const [cancelSubsptn, setCancelSubsptn] = useState<string | null>(null);
 
   const { subscriptionData, plantData } = useSelector(
-    (state: RootState) => state.wastePlantSubscription.selectedPlan
+    (state: RootState) => state.wastePlantSubscription.selectedPlan,
   );
-  
+
   const payments = useSelector(
-    (state: RootState) => state.wastePlantSubscription.subPaymentsHis
+    (state: RootState) => state.wastePlantSubscription.subPaymentsHis,
   );
 
   console.log("subscriptionData", subscriptionData);
@@ -64,11 +68,11 @@ const Subscription = () => {
       setIsModalVisible(true);
     }
   };
-  // const handlePay = (plan: SubcptnPaymtPayload) => {
-  //   console.log("plan", plan);
-  //   setSelectedPlan(plan);
-  //   setIsPayNowModalOpen(true);
-  // };
+  const handlePay = (plan: SubcptnPaymtPayload) => {
+    console.log("plan", plan);
+    setSelectedPlan(plan);
+    setIsPayNowModalOpen(true);
+  };
   const handleCancel = (paymtId: string) => {
     setCancelSubsptn(paymtId);
     setCancelModalVisible(true);
@@ -77,11 +81,11 @@ const Subscription = () => {
     planId: string,
     amount: number,
     subPaymtId: string,
-    billingCycle: string
+    billingCycle: string,
   ) => {
     try {
       const response = await dispatch(
-        repay({ planId, amount, subPaymtId })
+        repay({ planId, amount, subPaymtId }),
       ).unwrap();
 
       const {
@@ -119,13 +123,14 @@ const Subscription = () => {
                 planId: subPlanId,
                 amount: repayAmt,
                 billingCycle,
-              })
+              }),
             )
               .unwrap()
               .then((res) => {
                 console.log("res", res);
 
-                dispatch(updateSubPaymentStatus(res.updatePayment));
+                // dispatch(updateSubPaymentStatus(res.updatePayment));
+                dispatch(fetchSubscriptionPlan());
                 Swal.fire({
                   icon: "success",
                   title: "Payment Successful!",
@@ -177,12 +182,12 @@ const Subscription = () => {
         now.getTime() - createdAt.getTime() > 24 * 60 * 60 * 1000;
       const hasPendingPayment = payments.some(
         (p: SubscriptionPaymentHisDTO) =>
-          p.status?.trim().toLowerCase() === "pending"
+          p.status?.trim().toLowerCase() === "pending",
       );
-      const hasSuccessfulPayment = payments.some(
-        (p: SubscriptionPaymentHisDTO) =>
-          p.status?.trim().toLowerCase() === "paid"
-      );
+      // const hasSuccessfulPayment = payments.some(
+      //   (p: SubscriptionPaymentHisDTO) =>
+      //     p.status?.trim().toLowerCase() === "paid",
+      // );
       if (!isAfter24Hours) {
         return (
           <span style={{ color: "#8c8c8c" }}>Pay available after 24h</span>
@@ -192,34 +197,34 @@ const Subscription = () => {
       if (hasPendingPayment) {
         return <span style={{ color: "#fa8c16" }}>Payment Pending</span>;
       }
-      if (hasSuccessfulPayment && plantData?.status === "Active") {
-        return (
-          <span style={{ color: "#52c41a", fontWeight: "bold" }}>
-            Subscribed
-          </span>
-        );
-      }
-      return null;
-      // return (
-      //   <Space>
-      //     <Button
-      //       type="primary"
-      //       onClick={() =>
-      //         handlePay({
-      //           _id: subscriptionData?._id,
-      //           planName: subscriptionData?.planName,
-      //           billingCycle: subscriptionData?.billingCycle,
-      //           price: subscriptionData?.price,
-      //           plantName: plantData?.plantName,
-      //           ownerName: plantData?.ownerName,
-      //           license: plantData?.license,
-      //         })
-      //       }
-      //     >
-      //       Pay
-      //     </Button>
-      //   </Space>
-      // );
+      // if (hasSuccessfulPayment && plantData?.status === "Active") {
+      //   return (
+      //     <span style={{ color: "#52c41a", fontWeight: "bold" }}>
+      //       Subscribed
+      //     </span>
+      //   );
+      // }
+      // return null;
+      return (
+        <Space>
+          <Button
+            type="primary"
+            onClick={() =>
+              handlePay({
+                _id: subscriptionData?._id,
+                planName: subscriptionData?.planName,
+                billingCycle: subscriptionData?.billingCycle,
+                price: subscriptionData?.price,
+                plantName: plantData?.plantName,
+                ownerName: plantData?.ownerName,
+                license: plantData?.license,
+              })
+            }
+          >
+            Pay
+          </Button>
+        </Space>
+      );
     },
   };
 
@@ -231,7 +236,6 @@ const Subscription = () => {
     dataIndex: "expiryDate",
     key: "expiryDate",
     render: (_: any, record: any) => {
-      console.log("record", record);
       const expiryDate = record.expiredAt;
       return (
         <span style={{ color: "red", fontWeight: "bold" }}>
@@ -293,20 +297,180 @@ const Subscription = () => {
       },
     },
   ];
-  const paidAtColumn = [
-    {
-      title: "Paid At",
-      dataIndex: "paidAt",
-      key: "paidAt",
-      render: (text: string) => new Date(text).toLocaleString(),
+  // const paidAtColumn = [
+  //   {
+  //     title: "Paid At",
+  //     dataIndex: "paidAt",
+  //     key: "paidAt",
+  //     render: (_: any, record: SubscriptionPaymentHisDTO) => {
+  //       if (record.status?.trim()?.toLowerCase() === "paid") {
+  //         return <span>{formatDateToDDMMYYYY(record.paidAt)}</span>;
+  //       } else {
+  //         return <span>{"Not paid"}</span>;
+  //       }
+  //     },
+  //   },
+  //   {
+  //     title: "Action",
+  //     key: "action",
+  //     render: (record: SubscriptionPaymentHisDTO) => {
+  //       if (!record) return null;
+  //       const status = record?.status?.trim()?.toLowerCase();
+  //       console.log("record",record);
+        
+  //        if (record.refundRequested) {
+  //     return <span className="text-red-500">Refund Requested</span>;
+  //   }
+  //   if (status === "paid" && record.paidAt != null) {
+
+  //     const paidDate = new Date(record.paidAt);  
+  //     const now = new Date();
+
+  //     const timeDifference = now.getTime() - paidDate.getTime();
+
+  //     const TWENTY_FOUR_HOURS = 24 * 60 * 60 * 1000;
+
+  //     const isWithin24Hours = timeDifference <= TWENTY_FOUR_HOURS;
+
+  //     if (isWithin24Hours) {
+  //       return (
+  //         <Popconfirm
+  //           title="Are you sure to cancel this pickup?"
+  //           okText="Yes"
+  //           cancelText="No"
+  //           onConfirm={() => handleCancel(record._id)}
+  //           okType="danger"
+  //         >
+  //           <Button type="default" danger>
+  //             Cancel
+  //           </Button>
+  //         </Popconfirm>
+  //       );
+  //     }
+
+  //   }
+  //    if (status === "pending" && record.paidAt === null) {
+  //     return (
+  //       <Button
+  //         type="primary"
+  //         onClick={() =>
+  //           handleRetryPayment(
+  //             record.planId?._id,
+  //             record.amount,
+  //             record._id,
+  //             record.planId?.billingCycle
+  //           )
+  //         }
+  //       >
+  //         Retry Payment
+  //       </Button>
+  //     );
+  //   }
+  //       // if (record.refundRequested) {
+  //       //   return <span className="text-red-500">Refund Requested</span>;
+  //       // } else if (
+  //       //   record.status?.trim()?.toLowerCase() === "paid" &&
+  //       //   !record.refundRequested
+  //       // ) {
+  //       //   return (
+  //       //     <Popconfirm
+  //       //       title="Are you sure to cancel this pickup?"
+  //       //       okText="Yes"
+  //       //       cancelText="No"
+  //       //       onConfirm={() => handleCancel(record._id)}
+  //       //       okType="danger"
+  //       //     >
+  //       //       <Button type="default" danger>
+  //       //         Cancel
+  //       //       </Button>
+  //       //     </Popconfirm>
+  //       //   );
+  //       // } else if (
+  //       //   record.status?.trim()?.toLowerCase() === "pending" &&
+  //       //   !record.refundRequested
+  //       // ) {
+  //       //   return (
+  //       //     <Button
+  //       //       type="primary"
+  //       //       onClick={() =>
+  //       //         handleRetryPayment(
+  //       //           record.planId._id,
+  //       //           record.amount,
+  //       //           record._id,
+  //       //           record.planId.billingCycle,
+  //       //         )
+  //       //       }
+  //       //     >
+  //       //       Retry Payment
+  //       //     </Button>
+  //       //   );
+  //       // }
+  //       return null;
+  //     },
+  //   },
+  // ];
+  // const paymtHistActionColumn = {
+  //   title: "Action",
+  //   key: "action",
+  //   render: (record: SubscriptionPaymentHisDTO) => {
+  //     if (record.status?.trim().toLowerCase() === "pending" && !record.refundRequested) {
+  //       return (
+  //         <Button
+  //           type="primary"
+  //           onClick={() =>
+  //             handleRetryPayment(
+  //               record.planId._id,
+  //               record.amount,
+  //               record._id,
+  //               record.planId.billingCycle
+  //             )
+  //           }
+  //         >
+  //           Retry Payment
+  //         </Button>
+  //       );
+  //     }
+  //     return null;
+  //   },
+  // };
+  const paidAtOnlyColumn = [
+  {
+    title: "Paid At",
+    dataIndex: "paidAt",
+    key: "paidAt",
+    render: (_: any, record: SubscriptionPaymentHisDTO) => {
+      if (record.status?.toLowerCase() === "paid") {
+        return <span>{formatDateToDDMMYYYY(record.paidAt)}</span>;
+      }
+      return <span>Not Paid</span>;
     },
-    {
-      title: "Action",
-      key: "action",
-      render: (record: SubscriptionPaymentHisDTO) => {
-        if (record.refundRequested) {
-          return <span className="text-red-500">Refund Requested</span>
-        } else if (record.status?.trim().toLowerCase() === "paid" && !record.refundRequested) {
+  },
+];
+const paymentActionColumn = [
+  {
+    title: "Action",
+    key: "action",
+    render: (_: any, record: SubscriptionPaymentHisDTO) => {
+      if (!record) return null;
+
+      const status = record.status?.toLowerCase();
+      if (record.refundRequested && record.refundStatus === "Refunded") {
+        return <span className="text-red-500">Refund Completed</span>;
+      }
+
+      if (record.refundRequested) {
+        return <span className="text-red-500">Refund Requested</span>;
+      }
+
+      // PAID → Show cancel within 24 hrs
+      if (status === "paid" && record.paidAt) {
+        const paidDate = new Date(record.paidAt);
+        const now = new Date();
+
+        const diff = now.getTime() - paidDate.getTime();
+        const isWithin24Hours = diff <= 24 * 60 * 60 * 1000;
+
+        if (isWithin24Hours) {
           return (
             <Popconfirm
               title="Are you sure to cancel this pickup?"
@@ -315,30 +479,25 @@ const Subscription = () => {
               onConfirm={() => handleCancel(record._id)}
               okType="danger"
             >
-              <Button type="default" danger>
-                Cancel
-              </Button>
+              <Button danger>Cancel</Button>
             </Popconfirm>
           );
         }
-        return null;
-      },
-    },
-  ];
-  const paymtHistActionColumn = {
-    title: "Action",
-    key: "action",
-    render: (record: SubscriptionPaymentHisDTO) => {
-      if (record.status?.trim().toLowerCase() === "pending" && !record.refundRequested) {
+
+        return <span className="text-gray-400">Expired</span>;
+      }
+
+      // PENDING → Retry
+      if (status === "pending") {
         return (
           <Button
             type="primary"
             onClick={() =>
               handleRetryPayment(
-                record.planId._id,
+                record.planId?._id,
                 record.amount,
                 record._id,
-                record.planId.billingCycle
+                record.planId?.billingCycle
               )
             }
           >
@@ -346,9 +505,11 @@ const Subscription = () => {
           </Button>
         );
       }
+
       return null;
     },
-  };
+  },
+];
   const paymentColumns = [
     {
       title: "Plant Details",
@@ -382,20 +543,24 @@ const Subscription = () => {
     },
     {
       title: "Status",
-      dataIndex: "status",
+      // dataIndex: "status",
       key: "status",
-      render: (status: string) => (
-        <span style={{ color: status === "Pending" ? "orange" : "green" }}>
-          {status}
-        </span>
-      ),
+      render: (record: SubscriptionPaymentHisDTO) => {
+        const statusValue = record.refundStatus || record.status
+        return statusValue ? <span>{statusValue}</span> : null;
+    }
+      // render: (status: string) => (
+      //   <span style={{ color: status === "Pending" ? "orange" : "green" }}>
+      //     {status}
+      //   </span>
+      // ),
     },
   ];
   const showPaidAtColumn = payments.some(
-    (payment: SubscriptionPaymentHisDTO) => payment.status === "Paid"
+    (payment: SubscriptionPaymentHisDTO) => payment.status === "Paid",
   );
   const showPaymtHistActionColumn = payments.some(
-    (payment: SubscriptionPaymentHisDTO) => payment.status !== "Paid"
+    (payment: SubscriptionPaymentHisDTO) => payment.status !== "Paid",
   );
 
   const columns =
@@ -404,31 +569,32 @@ const Subscription = () => {
       : [...subPlanColumns, subActionColumn];
   const payHistoryColumns = [
     ...paymentColumns,
-    ...(showPaidAtColumn ? paidAtColumn : []),
-    ...(showPaymtHistActionColumn ? [paymtHistActionColumn] : []),
+    ...(showPaidAtColumn ? paidAtOnlyColumn : []),
+    ...paymentActionColumn
+    // ...(showPaymtHistActionColumn ? [paymtHistActionColumn] : []),
   ];
 
   return (
     <div style={{ padding: "24px" }}>
       <Title level={3}>Your Subscription Plan</Title>
-      {subscriptionData ?  (
-      <Table
-        columns={columns}
-        dataSource={[
-          {
-            ...subscriptionData,
-            createdAt: plantData?.createdAt,
-            expiredAt: plantData?.expiredAt,
-            plantStatus: plantData?.status,
-          },
-        ]}
-        rowKey="_id"
-        pagination={false}
-        bordered
-        scroll={{ x: "max-content" }}
-      />
+      {subscriptionData ? (
+        <Table
+          columns={columns}
+          dataSource={[
+            {
+              ...subscriptionData,
+              createdAt: plantData?.createdAt,
+              expiredAt: plantData?.expiredAt,
+              plantStatus: plantData?.status,
+            },
+          ]}
+          rowKey="_id"
+          pagination={false}
+          bordered
+          scroll={{ x: "max-content" }}
+        />
       ) : (
-        <p style={{color: "gray"}}>No active subscription found.</p>
+        <p style={{ color: "gray" }}>No active subscription found.</p>
       )}
 
       <Title level={4} style={{ marginTop: "32px" }}>

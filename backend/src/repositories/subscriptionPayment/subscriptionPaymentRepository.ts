@@ -1,21 +1,10 @@
-import { inject, injectable } from "inversify";
+import { injectable } from "inversify";
 import BaseRepository from "../baseRepository/baseRepository";
-import { ISubscriptionPaymentDocument } from "../../models/subsptnPayment/interface/subsptnPaymentInterface";
+import { CreateSubsptnPaymentPayload, ISubscriptionPaymentDocument, PaymentUpdate, SubscriptionPaymentHisRepoResp, UpdateRefundStatusRepoReq, UpdateSubscptnPayload } from "../../models/subsptnPayment/interface/subsptnPaymentInterface";
 import { SubscriptionPaymentModel } from "../../models/subsptnPayment/subsptnPaymentModel";
 import { ISubscriptionPaymentRepository } from "./interface/ISubscriptionPaymentRepository";
 import mongoose, { PipelineStage } from "mongoose";
-import { PaginationInput } from "../../dtos/common/commonDTO";
-import {
-  CreateSubsptnPaymentPayload,
-  SubscriptionPaymentHisDTO,
-  SubscriptionPaymentHisResult,
-  UpdateRefundStatusReq,
-} from "../../dtos/subscription/subscptnPaymentDTO";
-import { SubscriptionPaymentMapper } from "../../mappers/SubscriptionPaymentMapper";
-import {
-  PaymentUpdate,
-  UpdateSubscptnPayload,
-} from "../../dtos/pickupReq/paymentDTO";
+import { PaginationInputReq } from "../../models/wastePlant/interfaces/wastePlantInterface";
 
 @injectable()
 export class SubscriptionPaymentRepository
@@ -94,8 +83,8 @@ export class SubscriptionPaymentRepository
   }
 
   async getAllSubscptnPayments(
-    data: PaginationInput,
-  ): Promise<SubscriptionPaymentHisResult> {
+    data: PaginationInputReq,
+  ): Promise<SubscriptionPaymentHisRepoResp> {
     const { page, limit, search } = data;
     const skip = (page - 1) * limit;
     const searchRegex = new RegExp(search, "i");
@@ -239,7 +228,7 @@ export class SubscriptionPaymentRepository
     return updatedSubptnRequest;
   }
   async updateRefundStatusPayment(
-    data: UpdateRefundStatusReq,
+    data: UpdateRefundStatusRepoReq,
   ): Promise<ISubscriptionPaymentDocument> {
     const { subPayId, refundStatus } = data;
     const payment = await this.model.findByIdAndUpdate(

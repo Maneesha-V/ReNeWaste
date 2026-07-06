@@ -59,6 +59,10 @@ export const NotificationSchema: Schema<INotificationDocument> = new Schema(
       type: Date,
       default: Date.now,
     },
+    isMeasured: {
+      type: Boolean,
+      default: false,
+    },
   },
   {
     timestamps: true,

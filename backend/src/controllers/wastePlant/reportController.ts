@@ -11,7 +11,7 @@ import { AuthRequest } from "../../dtos/base/BaseDTO";
 export class ReportController implements IReportController {
   constructor(
     @inject(TYPES.PlantReportService)
-    private reportService: IReportService,
+    private _reportService: IReportService,
   ) {}
   async getWasteReports(
     req: AuthRequest,
@@ -27,7 +27,7 @@ export class ReportController implements IReportController {
           MESSAGES.COMMON.ERROR.UNAUTHORIZED,
         );
       }
-      const wasteReports = await this.reportService.getWasteReports(plantId);
+      const wasteReports = await this._reportService.getWasteReports(plantId);
       console.log("wasteReports", wasteReports);
 
       res.status(STATUS_CODES.SUCCESS).json({
@@ -56,12 +56,14 @@ export class ReportController implements IReportController {
           MESSAGES.COMMON.ERROR.UNAUTHORIZED,
         );
       }
-      const reports = await this.reportService.filterWasteReports({
+      const reports = await this._reportService.filterWasteReports({
         from,
         to,
         plantId,
       });
 
+      console.log("reports",reports);
+      
       res.status(STATUS_CODES.SUCCESS).json({
         success: true,
         message: MESSAGES.WASTEPLANT.SUCCESS.FETCH_FILTER_WASTE_REPORT,

@@ -1,13 +1,25 @@
 import mongoose, { ClientSession, PipelineStage, Types } from "mongoose";
 import {
   Address,
+  CheckExistingBusinessReq,
+  CheckExistingResidReq,
+  FetchWPDashboardRepo,
+  FilterReportRepo,
+  FindDriverPlantTruckByIdReq,
   IPickupRequest,
   IPickupRequestDocument,
+  PickupDriverFilterParamsRepo,
+  PickupFilterParamsRepo,
+  PickupStatusByWasteTypeRepo,
+  PickupStatusRepo,
+  PickupTrendResultRepo,
   PopulatedPickup,
+  PopulatedPIckupPlansRepo,
+  PopulatedUserPickupReqRepo,
+  WasteTypeRepo,
 } from "../../models/pickupRequests/interfaces/pickupInterface";
 import { PickupModel } from "../../models/pickupRequests/pickupModel";
 import {
-  EnhancedPickup,
   IPickupRepository,
 } from "./interface/IPickupRepository";
 import BaseRepository from "../baseRepository/baseRepository";
@@ -15,29 +27,10 @@ import { inject, injectable } from "inversify";
 import TYPES from "../../config/inversify/types";
 import { IUserRepository } from "../user/interface/IUserRepository";
 import { IUserDocument } from "../../models/user/interfaces/userInterface";
-import {
-  CheckExistingBusinessReq,
-  CheckExistingResidReq,
-  FindDriverPlantTruckByIdReq,
-  PickupDriverFilterParams,
-  PickupStatus,
-  PickupStatusByWasteType,
-  PopulatedPIckupPlans,
-  PopulatedUserPickupReq,
-  WasteType,
-} from "../../dtos/pickupReq/pickupReqDTO";
-import { PaginationInput } from "../../dtos/common/commonDTO";
-import {
-  FetchPaymentPayload,
-  FetchWPDashboard,
-  FilterReport,
-  PaginatedPaymentsResult,
-  PickupFilterParams,
-  PickupTrendResult,
-} from "../../dtos/wasteplant/WasteplantDTO";
 import { IDriverRepository } from "../driver/interface/IDriverRepository";
-import { IWalletRepository } from "../wallet/interface/IWalletRepository";
 import { getDateRange, getGroupFormat } from "../../utils/dateUtils";
+import { FetchPaymentPayloadRepo, PaginatedPaymentsResultRepo } from "../../models/pickupRequests/interfaces/paymentInterface";
+import { PaginationInputReq } from "../../models/wastePlant/interfaces/wastePlantInterface";
 
 @injectable()
 export class PickupRepository
@@ -68,7 +61,7 @@ export class PickupRepository
     return await newPickup.save();
   }
   async getPickupsByPlantId(
-    filters: PickupFilterParams,
+    filters: PickupFilterParamsRepo,
   ): Promise<IPickupRequestDocument[]> {
     const { plantId, status, wasteType } = filters;
 
@@ -180,7 +173,7 @@ export class PickupRepository
 
     return updated;
   }
-  async getPickupsByDriverId(filters: PickupDriverFilterParams) {
+  async getPickupsByDriverId(filters: PickupDriverFilterParamsRepo) {
     const { driverId } = filters;
     const driver = await this._driverRepository.getDriverById(driverId);
     if (!driver) {
@@ -193,23 +186,38 @@ export class PickupRepository
         wasteType: driver.category,
         status: { $in: ["Scheduled", "Rescheduled"] },
       })
+      // .sort({
+      //   originalPickupDate: 1,
+      //   pickupTime: 1
+      // })
       .populate({
         path: "userId",
         select: "firstName lastName addresses",
       })) as unknown as PopulatedPickup[];
 
-    const enhancedPickups = pickups.map((pickup) => {
-      const user = pickup.userId;
-      const matchedAddress = user.addresses?.find(
-        (addr) => addr._id.toString() === pickup.addressId.toString(),
-      );
+    const enhancedPickups = pickups
+      .map((pickup) => {
+        const user = pickup.userId;
+        const matchedAddress = user.addresses?.find(
+          (addr) => addr._id.toString() === pickup.addressId.toString(),
+        );
 
-      return {
-        ...pickup.toObject?.(),
-        userName: `${user.firstName} ${user.lastName}`,
-        userAddress: matchedAddress,
-      };
-    });
+        return {
+          ...pickup.toObject?.(),
+          userName: `${user.firstName} ${user.lastName}`,
+          userAddress: matchedAddress,
+        };
+      })
+      .sort((a, b) => {
+        const dateA = new Date(a.rescheduledPickupDate || a.originalPickupDate);
+        const dateB = new Date(b.rescheduledPickupDate || b.originalPickupDate);
+
+        const dateDiff = dateA.getTime() - dateB.getTime();
+
+        if (dateDiff !== 0) return dateDiff;
+
+        return a.pickupTime.localeCompare(b.pickupTime);
+      });
 
     return enhancedPickups;
   }
@@ -268,7 +276,6 @@ export class PickupRepository
     pickupReqId: string,
     updateFields: {
       eta: { text: string; value: number };
-      // trackingStatus: "Assigned";
     },
   ) {
     const res = await this.model.findByIdAndUpdate(pickupReqId, {
@@ -280,8 +287,8 @@ export class PickupRepository
 
   async getPickupPlansByUserId(
     userId: string,
-    paginationData: PaginationInput,
-  ): Promise<{ pickupPlans: PopulatedPIckupPlans[]; total: number }> {
+    paginationData: PaginationInputReq,
+  ): Promise<{ pickupPlans: PopulatedPIckupPlansRepo[]; total: number }> {
     const { page, limit, search, filter } = paginationData;
     const searchRegex = new RegExp(search, "i");
 
@@ -376,6 +383,7 @@ export class PickupRepository
       );
 
       return aDateTime.getTime() - bDateTime.getTime();
+
     });
     console.log("sortedPickups", sortedPickups);
 
@@ -407,7 +415,7 @@ export class PickupRepository
             : null,
           address: address,
         };
-      }) as PopulatedPIckupPlans[],
+      }) as PopulatedPIckupPlansRepo[],
       total,
     };
   }
@@ -453,6 +461,11 @@ export class PickupRepository
         "Cannot mark pickup as completed until tracking is completed",
       );
     }
+    if (!pickup.payment) {
+      throw new Error(
+        "The user has not initiated the payment yet. Please ask the user to complete the payment.",
+      );
+    }
     if (pickup.payment.status !== "Paid") {
       throw new Error(
         "Cannot mark pickup as completed until payment is completed",
@@ -488,7 +501,7 @@ export class PickupRepository
 
   async getAllPaymentsByUser(
     userId: string,
-    paginationData: PaginationInput,
+    paginationData: PaginationInputReq,
   ): Promise<{ pickups: Partial<IPickupRequestDocument>[]; total: number }> {
     const { page, limit, search, filter } = paginationData;
     const searchRegex = new RegExp(search, "i");
@@ -572,7 +585,7 @@ export class PickupRepository
   }
   async fetchAllPickupsByPlantId(
     plantId: string,
-  ): Promise<PickupStatusByWasteType> {
+  ): Promise<PickupStatusByWasteTypeRepo> {
     const pickupCounts = await this.model.aggregate([
       {
         $match: {
@@ -589,7 +602,7 @@ export class PickupRepository
         },
       },
     ]);
-    const result: PickupStatusByWasteType = {
+    const result: PickupStatusByWasteTypeRepo = {
       Residential: {
         Pending: 0,
         Scheduled: 0,
@@ -619,8 +632,8 @@ export class PickupRepository
           status === "Completed" ||
           status === "Cancelled")
       ) {
-        const typeKey = wasteType as WasteType;
-        const statusKey = status as PickupStatus;
+        const typeKey = wasteType as WasteTypeRepo;
+        const statusKey = status as PickupStatusRepo;
         result[typeKey][statusKey] = record.totalCount;
       }
     }
@@ -631,45 +644,11 @@ export class PickupRepository
 
     return result;
   }
-  // async totalRevenueByPlantId(plantId: string): Promise<RevenueByWasteType> {
-  //   const result = await this.model.aggregate([
-  //     {
-  //       $match: {
-  //         wasteplantId: new Types.ObjectId(plantId),
-  //         "payment.status": "Paid",
-  //       },
-  //     },
-  //     {
-  //       $group: {
-  //         _id: "$wasteType",
-  //         total: { $sum: "$payment.amount" },
-  //       },
-  //     },
-  //   ]);
 
-  //   let totalResidentialRevenue = 0;
-  //   let totalCommercialRevenue = 0;
-
-  //   for (const item of result) {
-  //     if (item._id === "Residential") {
-  //       totalResidentialRevenue = item.total;
-  //     } else if (item._id === "Commercial") {
-  //       totalCommercialRevenue = item.total;
-  //     }
-  //   }
-
-  //   const totalRevenue = totalResidentialRevenue + totalCommercialRevenue;
-
-  //   return {
-  //     totalResidentialRevenue,
-  //     totalCommercialRevenue,
-  //     totalRevenue,
-  //   };
-  // }
 
   async fetchAllPaymentsByPlantId(
-    data: FetchPaymentPayload,
-  ): Promise<PaginatedPaymentsResult> {
+    data: FetchPaymentPayloadRepo,
+  ): Promise<PaginatedPaymentsResultRepo> {
     const { plantId, page, limit, search } = data;
 
     const matchStage: PipelineStage.Match = {
@@ -848,7 +827,7 @@ export class PickupRepository
     return data;
   }
   async filterWasteReportsByPlantId(
-    data: FilterReport,
+    data: FilterReportRepo,
   ): Promise<IPickupRequestDocument[]> {
     const fromDate = new Date(`${data.from}T00:00:00.000Z`);
     const toDate = new Date(`${data.to}T23:59:59.999Z`);
@@ -1005,47 +984,135 @@ export class PickupRepository
       status: { $in: ["Pending", "Scheduled", "Rescheduled"] },
     });
   }
+  // async checkExistingBusiness(data: CheckExistingBusinessReq) {
+  //   const { userId, frequency, businessName, wasteType } = data;
+  //   const now = new Date();
+  //   const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+  //   const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+  //   const startOfDay = new Date(
+  //     now.getFullYear(),
+  //     now.getMonth(),
+  //     now.getDate(),
+  //     0,
+  //     0,
+  //     0,
+  //   );
+  //   const endOfDay = new Date(
+  //     now.getFullYear(),
+  //     now.getMonth(),
+  //     now.getDate(),
+  //     23,
+  //     59,
+  //     59,
+  //   );
+
+  //   const existingMonthly = await this.model.findOne({
+  //     userId,
+  //     wasteType,
+  //     businessName,
+  //     originalPickupDate: { $gte: startOfMonth, $lte: endOfMonth },
+  //   });
+  //   if (existingMonthly) {
+  //     return { type: "monthly", data: existingMonthly };
+  //   }
+
+  //   const existingDaily = await this.model.findOne({
+  //     userId,
+  //     wasteType,
+  //     originalPickupDate: { $gte: startOfDay, $lte: endOfDay },
+  //   });
+  //   if (existingDaily) {
+  //     return { type: "daily", data: existingDaily };
+  //   }
+  //   return null;
+  // }
   async checkExistingBusiness(data: CheckExistingBusinessReq) {
     const { userId, frequency, businessName, wasteType } = data;
-    const now = new Date();
-    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-    const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
-    const startOfDay = new Date(
-      now.getFullYear(),
-      now.getMonth(),
-      now.getDate(),
-      0,
-      0,
-      0,
-    );
-    const endOfDay = new Date(
-      now.getFullYear(),
-      now.getMonth(),
-      now.getDate(),
-      23,
-      59,
-      59,
-    );
 
-    const existingMonthly = await this.model.findOne({
+    const now = new Date();
+
+    let startDate: Date;
+    let endDate: Date;
+    let type: "daily" | "weekly" | "monthly";
+
+    switch (frequency) {
+      case "Daily":
+        startDate = new Date(
+          now.getFullYear(),
+          now.getMonth(),
+          now.getDate(),
+          0,
+          0,
+          0,
+          0,
+        );
+
+        endDate = new Date(
+          now.getFullYear(),
+          now.getMonth(),
+          now.getDate(),
+          23,
+          59,
+          59,
+          999,
+        );
+
+        type = "daily";
+        break;
+
+      case "Weekly":
+        const day = now.getDay();
+        const diff = day === 0 ? 6 : day - 1;
+
+        startDate = new Date(now);
+        startDate.setDate(now.getDate() - diff);
+        startDate.setHours(0, 0, 0, 0);
+
+        endDate = new Date(startDate);
+        endDate.setDate(startDate.getDate() + 6);
+        endDate.setHours(23, 59, 59, 999);
+
+        type = "weekly";
+        break;
+
+      case "Monthly":
+        startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+
+        endDate = new Date(
+          now.getFullYear(),
+          now.getMonth() + 1,
+          0,
+          23,
+          59,
+          59,
+          999,
+        );
+
+        type = "monthly";
+        break;
+
+      default:
+        return null;
+    }
+
+    const existingPickup = await this.model.findOne({
       userId,
       wasteType,
       businessName,
-      originalPickupDate: { $gte: startOfMonth, $lte: endOfMonth },
+      originalPickupDate: {
+        $gte: startDate,
+        $lte: endDate,
+      },
     });
-    if (existingMonthly) {
-      return { type: "monthly", data: existingMonthly };
+
+    if (!existingPickup) {
+      return null;
     }
 
-    const existingDaily = await this.model.findOne({
-      userId,
-      wasteType,
-      createdAt: { $gte: startOfDay, $lte: endOfDay },
-    });
-    if (existingDaily) {
-      return { type: "daily", data: existingDaily };
-    }
-    return null;
+    return {
+      type,
+      data: existingPickup,
+    };
   }
   async checkExistingResid(data: CheckExistingResidReq) {
     const { wasteType, pickupDate, userId } = data;
@@ -1096,7 +1163,7 @@ export class PickupRepository
   }
   async getDriverCompletedPickups(
     driverId: string,
-  ): Promise<PopulatedUserPickupReq[]> {
+  ): Promise<PopulatedUserPickupReqRepo[]> {
     const startOfDay = new Date();
     startOfDay.setDate(startOfDay.getDate() - 1);
     startOfDay.setHours(0, 0, 0, 0);
@@ -1114,11 +1181,11 @@ export class PickupRepository
       .populate("userId", "addresses")
       .lean();
 
-    return pickups as unknown as PopulatedUserPickupReq[];
+    return pickups as unknown as PopulatedUserPickupReqRepo[];
   }
   async fetchAllCompletedPickups(
-    data: FetchWPDashboard,
-  ): Promise<PickupTrendResult[]> {
+    data: FetchWPDashboardRepo,
+  ): Promise<PickupTrendResultRepo[]> {
     const { plantId, filter, from, to } = data;
     const { start, end } = getDateRange(filter, from, to);
     const format = getGroupFormat(filter);
@@ -1155,7 +1222,7 @@ export class PickupRepository
             $dateToString: {
               format,
               date: "$effectivePickupDate",
-              timezone: "Asia/Kolkata"
+              timezone: "Asia/Kolkata",
             },
           },
           totalPickups: { $sum: 1 },
@@ -1182,6 +1249,33 @@ export class PickupRepository
         },
       },
     );
-    return this.model.aggregate<PickupTrendResult>(pipeline);
+    return this.model.aggregate<PickupTrendResultRepo>(pipeline);
+  }
+  async getRecurringPickups(): Promise<IPickupRequestDocument[]> {
+    return await this.model.find({
+      wasteType: "Commercial",
+      frequency: { $in: ["Daily", "Weekly", "Monthly"] },
+      parentRequestId: null,
+      status: { $ne: "Cancelled" },
+    });
+  }
+  async getLatestRecurringPickup(
+    parentPickupId: string,
+  ): Promise<IPickupRequestDocument | null> {
+    return await this.model
+      .findOne({
+        $or: [{ _id: parentPickupId }, { parentRequestId: parentPickupId }],
+      })
+      .sort({ originalPickupDate: -1 });
+  }
+  async existsRecurringPickup(
+    parentPickupId: string,
+    pickupDate: Date,
+  ): Promise<boolean> {
+    const pickup = await this.model.exists({
+      parentRequestId: parentPickupId,
+      originalPickupDate: pickupDate,
+    });
+    return !!pickup;
   }
 }

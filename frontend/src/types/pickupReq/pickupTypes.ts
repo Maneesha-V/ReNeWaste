@@ -33,7 +33,7 @@ export interface PickupPlansResp {
   wasteplantId: string;
   addressId: string;
   address: Address;
-  payment: PickupReqPayment;
+  payment: PickupReqPayment | null;
 }
 export type PickupReqGetResp = {
   _id: string;
@@ -129,7 +129,12 @@ export type CommPickupReqArgs = {
 export interface PickupReqDTO  {
   _id: string;
   userId: string;
-  driverId?: string;
+  // driverId?: string;
+  driverId?: {
+    _id: string;
+    name: string;
+    assignedZone: string;
+  };
   wasteplantId?: string;
   truckId?: string;
   addressId: string;

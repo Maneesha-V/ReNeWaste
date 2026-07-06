@@ -1,17 +1,12 @@
-import { PaginationInput } from "../../../dtos/common/commonDTO";
-import { updateSubscptnData } from "../../../dtos/subscription/subscptnPaymentDTO";
-import {
-  PaginatedSubsptnPlansResult,
-  SubsptnPlansDTO,
-} from "../../../dtos/subscription/subscptnPlanDTO";
-import { ISubscriptionPlanDocument } from "../../../models/subscriptionPlans/interfaces/subsptnPlanInterface";
+import { ISubscriptionPlanDocument, PaginatedSubsptnPlansResult, updateSubscptnData, UpdateSubsptnPlans } from "../../../models/subscriptionPlans/interfaces/subsptnPlanInterface";
+import { PaginationInputReq } from "../../../models/wastePlant/interfaces/wastePlantInterface";
 
 export interface ISubscriptionPlanRepository {
   createSubscriptionPlan(
-    data: SubsptnPlansDTO,
+    data: UpdateSubsptnPlans,
   ): Promise<ISubscriptionPlanDocument>;
   getAllSubscriptionPlans(
-    data: PaginationInput,
+    data: PaginationInputReq,
   ): Promise<PaginatedSubsptnPlansResult>;
   getActiveSubscriptionPlans(): Promise<ISubscriptionPlanDocument[]>;
   deleteSubscriptionPlanById(

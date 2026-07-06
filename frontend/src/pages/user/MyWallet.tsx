@@ -47,9 +47,6 @@ const MyWallet = () => {
     };
   }, [currentPage, pageSize, search]);
 
-  // useEffect(() => {
-  //   dispatch(getWallet());
-  // }, [dispatch]);
   const refreshWallet = () => {
     dispatch(
       getWallet({

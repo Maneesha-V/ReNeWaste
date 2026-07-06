@@ -50,7 +50,7 @@ export class PickupController implements IPickupController {
         userId,
         paginationData,
       );
-      console.log("pickups", pickups);
+      console.log("pickups--", pickups);
 
       res.status(STATUS_CODES.SUCCESS).json({ pickups, total });
     } catch (error) {

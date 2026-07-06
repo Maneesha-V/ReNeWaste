@@ -1,15 +1,15 @@
-import { inject, injectable } from "inversify";
+import { injectable } from "inversify";
 import {
   ISubscriptionPlan,
   ISubscriptionPlanDocument,
+  updateSubscptnData,
+  UpdateSubsptnPlans,
 } from "../../models/subscriptionPlans/interfaces/subsptnPlanInterface";
 import BaseRepository from "../baseRepository/baseRepository";
 import { ISubscriptionPlanRepository } from "./interface/ISubscriptionPlanRepository";
 import { SubscriptionPlanModel } from "../../models/subscriptionPlans/subscriptionPlanModel";
-import { SubsptnPlansDTO } from "../../dtos/subscription/subscptnPlanDTO";
-import { PaginationInput } from "../../dtos/common/commonDTO";
 import { FilterQuery } from "mongoose";
-import { updateSubscptnData } from "../../dtos/subscription/subscptnPaymentDTO";
+import { PaginationInputReq } from "../../models/wastePlant/interfaces/wastePlantInterface";
 
 @injectable()
 export class SubscriptionPlanRepository
@@ -20,7 +20,7 @@ export class SubscriptionPlanRepository
     super(SubscriptionPlanModel);
   }
   async createSubscriptionPlan(
-    data: SubsptnPlansDTO,
+    data: UpdateSubsptnPlans,
   ): Promise<ISubscriptionPlanDocument> {
     const newSubscriptionPlan = new this.model(data);
     return await newSubscriptionPlan.save();
@@ -32,7 +32,7 @@ export class SubscriptionPlanRepository
       planName: new RegExp(`^${planName}$`, "i"),
     });
   }
-  async getAllSubscriptionPlans(data: PaginationInput) {
+  async getAllSubscriptionPlans(data: PaginationInputReq) {
     const { page, limit, search } = data;
     const searchRegex = new RegExp(search, "i");
     const query: FilterQuery<ISubscriptionPlan> = {
