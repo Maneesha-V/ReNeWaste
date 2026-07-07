@@ -1,6 +1,5 @@
 import { ClientSession } from "mongoose";
-import { PaginatedDriverWallet, PaginatedWPWallet } from "../../../dtos/wallet/walletDTO";
-import { AddMoneyToWallet, AddMoneyToWalletRepoReq, CreateWalletReq, FetchFilteredWPRevenueResp, FetchWPDashboardRepo, IWalletDocument, PaginatedGetWalletReq, PaginatedUserWallet } from "../../../models/wallet/interfaces/walletInterface";
+import { AddMoneyToWallet, AddMoneyToWalletRepoReq, CreateWalletReq, FetchFilteredWPRevenueResp, FetchWPDashboardRepo, IWalletDocument, PaginatedDriverWallet, PaginatedGetWalletReq, PaginatedSuperAdminWallet, PaginatedUserWallet, PaginatedWPWallet } from "../../../models/wallet/interfaces/walletInterface";
 
 export interface IWalletRepository {
     findWallet(accountId: string, accountType: string, session?: ClientSession): Promise<IWalletDocument | null>
@@ -12,4 +11,5 @@ export interface IWalletRepository {
     paginatedDriverGetWallet(payload: PaginatedGetWalletReq): Promise<PaginatedDriverWallet>;
     paginatedUserGetWallet(payload: PaginatedGetWalletReq): Promise<PaginatedUserWallet>;
     fetchFilteredWPRevenue(data: FetchWPDashboardRepo): Promise<FetchFilteredWPRevenueResp>;
+    paginatedSuperAdminWallet(payload: PaginatedGetWalletReq): Promise<PaginatedSuperAdminWallet>;
 }

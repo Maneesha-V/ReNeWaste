@@ -11,7 +11,6 @@ interface WalletState {
   transactions: TransactionDTO[] | [];
   balance: number;
   total: number;
-  earnings: number;
 }
 const initialState: WalletState = {
   loading: false,
@@ -20,7 +19,6 @@ const initialState: WalletState = {
   transactions: [],
   balance: 0,
   total: 0,
-  earnings: 0,
 };
 
 export const getWallet = createAsyncThunk<
@@ -56,7 +54,6 @@ const superAdminWalletSlice = createSlice({
         state.transactions = action.payload.transactions;
         state.balance = action.payload.balance;
         state.total = action.payload.total;
-        state.earnings = action.payload.earnings;
       })
       .addCase(getWallet.rejected, (state, action) => {
         state.loading = false;

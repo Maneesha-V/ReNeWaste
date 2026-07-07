@@ -1,5 +1,7 @@
-import { Card, Typography, Button, Table, Space, Pagination } from "antd";
-import { WalletOutlined, ReloadOutlined, RiseOutlined } from "@ant-design/icons";
+import { Card, Typography, Table, Space, Pagination } from "antd";
+import {
+  WalletOutlined,
+} from "@ant-design/icons";
 import React, { useEffect, useMemo } from "react";
 import { useAppDispatch } from "../../redux/hooks";
 import { useSelector } from "react-redux";
@@ -13,31 +15,29 @@ import { getWallet } from "../../redux/slices/superAdmin/superAdminWalletSlice";
 const { Title, Text } = Typography;
 
 const Wallet: React.FC = () => {
-  
   const dispatch = useAppDispatch();
-  const { transactions, balance, total, earnings } = useSelector(
-    (state: RootState) => state.wastePlantWallet
+  const { transactions, balance, total } = useSelector(
+    (state: RootState) => state.superAdminWallet,
   );
 
   const { currentPage, setCurrentPage, pageSize, search, setSearch } =
-  usePagination();
-  console.log({ transactions, balance, total, earnings });
+    usePagination();
+  console.log({ transactions, balance, total });
 
-    const debouncedFetchWallet = useMemo(
-      () =>
+  const debouncedFetchWallet = useMemo(
+    () =>
       debounce((page: number, limit: number, query: string) => {
         dispatch(getWallet({ page, limit, search: query }));
       }, 500),
-      []
-    );
-    useEffect(() => {
-      debouncedFetchWallet(currentPage, pageSize, search);
-  
-      return () => {
-        debouncedFetchWallet.cancel();
-      };
-    }, [currentPage, pageSize, search]);
-    
+    [],
+  );
+  useEffect(() => {
+    debouncedFetchWallet(currentPage, pageSize, search);
+
+    return () => {
+      debouncedFetchWallet.cancel();
+    };
+  }, [currentPage, pageSize, search]);
 
   const columns = [
     {
@@ -66,9 +66,13 @@ const Wallet: React.FC = () => {
       dataIndex: "paidAt",
       key: "paidAt",
       render: (value: string) => {
-        const { date, time } = extractDateAndTime24H(value)
-        return <Text>{date} {time}</Text>
-      } 
+        const { date, time } = extractDateAndTime24H(value);
+        return (
+          <Text>
+            {date} {time}
+          </Text>
+        );
+      },
     },
     {
       title: "Status",
@@ -97,46 +101,24 @@ const Wallet: React.FC = () => {
           boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
         }}
       >
-        <Space direction="vertical" style={{ width: "100%" }}>
-        <Space align="center" style={{ justifyContent: "space-between", width: "100%" }}>
-          <Space align="center">
-            <WalletOutlined style={{ fontSize: 32, color: "#1890ff" }} />
-            <Title level={4} style={{ margin: 0 }}>
-              Wallet Balance
-            </Title>
-          </Space>
+        <Space direction="vertical" align="center" style={{ width: "100%" }}>
+          <WalletOutlined style={{ fontSize: 40, color: "#1890ff" }} />
 
-          <Space align="center">
-        <RiseOutlined style={{ fontSize: 24, color: "green" }} />
-        <Title level={5} style={{ margin: 0, color: "green" }}>
-          Earnings: ₹{earnings}
-        </Title>
-      </Space>
-    </Space>
+          <Title level={4} style={{ margin: 0 }}>
+            Wallet Balance
+          </Title>
+
           <Title level={2} style={{ margin: 0, color: "#1890ff" }}>
             ₹{balance}
           </Title>
-
-          <Space>
-            {/* Add money button optional for wasteplant */}
-            <Button type="primary">Add Money</Button>
-
-            <Button type="default" icon={<ReloadOutlined />}>
-              Refresh
-            </Button>
-          </Space>
         </Space>
       </Card>
-
       {/* Transactions Table */}
       <Card
         title={
           <div className="flex justify-between items-center">
             <span>Transaction History</span>
-            <PaginationSearch
-              onSearchChange={setSearch}
-              searchValue={search}
-            />
+            <PaginationSearch onSearchChange={setSearch} searchValue={search} />
           </div>
         }
         style={{
@@ -150,20 +132,20 @@ const Wallet: React.FC = () => {
           dataSource={transactions}
           pagination={false}
           style={{ marginTop: 16 }}
-    rowKey={(record) => record._id}
+          rowKey={(record) => record._id}
         />
         <div
-    className="flex justify-end items-center py-4"
-    style={{ borderTop: "1px solid #f0f0f0" }}
-  >
-            <Pagination
-              current={currentPage}
-              pageSize={pageSize}
-              total={total}
-              onChange={setCurrentPage}
-              showSizeChanger={false}
-            />
-          </div>
+          className="flex justify-end items-center py-4"
+          style={{ borderTop: "1px solid #f0f0f0" }}
+        >
+          <Pagination
+            current={currentPage}
+            pageSize={pageSize}
+            total={total}
+            onChange={setCurrentPage}
+            showSizeChanger={false}
+          />
+        </div>
       </Card>
     </div>
   );

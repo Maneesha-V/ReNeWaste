@@ -88,5 +88,4 @@ export type GetWalletSAResp = {
   balance: number;
   holdingBalance: number;
   total: number;
-  earnings: number;
 }

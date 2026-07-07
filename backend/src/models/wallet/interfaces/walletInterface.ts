@@ -90,3 +90,17 @@ export type PaginatedUserWallet = {
     from: string;
     to: string;
   }
+  export type PaginatedWPWallet = {
+    transactions: IWalletTransactionDocument[];
+    total: number;
+    earnings: number;
+  }
+  export type PaginatedDriverWallet = {
+    transactions: IWalletTransactionDocument[];
+    total: number;
+    rewards: number;
+  }
+  export type PaginatedSuperAdminWallet = {
+    transactions: IWalletTransactionDocument[];
+    total: number;
+  }

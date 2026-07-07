@@ -32,17 +32,17 @@ export class WalletController implements IWalletController{
           const limit = parseInt(req.query.limit as string) || 5;
           const search = (req.query.search as string) || "";
 
-          const { transactions, balance, total, earnings } = await this._walletService.getWallet(
+          const { transactions, balance, total } = await this._walletService.getWallet(
           accountId, 
           accountType,
           page,
           limit,
           search,
         );
-          console.log({ transactions, balance, total, earnings });
+          console.log({ transactions, balance, total });
           res
             .status(STATUS_CODES.SUCCESS)
-            .json({transactions, balance, total, earnings});
+            .json({transactions, balance, total});
         } catch (error) {
           console.log("wallet--error",error);
           

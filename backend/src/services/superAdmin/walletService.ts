@@ -20,7 +20,7 @@ export class WalletService implements IWalletService {
       if (!wallet) {
         throw new Error("Wallet not found for this superAdmin.");
       }
-      const { transactions, total, earnings } = await this._walletRepository.paginatedWPGetWallet({
+      const { transactions, total } = await this._walletRepository.paginatedSuperAdminWallet({
         walletId: wallet._id.toString(),
         page,
         limit,
@@ -31,8 +31,7 @@ export class WalletService implements IWalletService {
         transactions: WalletMapper.mapTransactionsDTO(transactions),
         balance: wallet.balance,
         holdingBalance: wallet.holdingBalance,
-        total,
-        earnings
+        total
       };
     }
 }

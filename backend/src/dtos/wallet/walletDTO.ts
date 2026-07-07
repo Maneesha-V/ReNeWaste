@@ -1,4 +1,3 @@
-import { IWalletTransactionDocument } from "../../models/wallet/interfaces/walletInterface";
 import { BaseDTO } from "../base/BaseDTO";
 
 export interface WalletDTO extends BaseDTO {
@@ -82,16 +81,7 @@ export type GetWalletWPResp = {
   total: number;
   earnings: number;
 }
-export type PaginatedWPWallet = {
-  transactions: IWalletTransactionDocument[];
-  total: number;
-  earnings: number;
-}
-export type PaginatedDriverWallet = {
-  transactions: IWalletTransactionDocument[];
-  total: number;
-  rewards: number;
-}
+
 export type GetWalletDriverResp = {
   transactions: TransactionDTO[],
   balance: number;
@@ -115,5 +105,4 @@ export type GetWalletSAResp = {
   balance: number;
   holdingBalance: number;
   total: number;
-  earnings: number;
 }
