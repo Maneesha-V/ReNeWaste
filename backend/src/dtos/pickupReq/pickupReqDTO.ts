@@ -10,6 +10,7 @@ import { ITruckDocument } from "../../models/truck/interfaces/truckInterface";
 import { IUserDocument } from "../../models/user/interfaces/userInterface";
 import { BaseDTO } from "../base/BaseDTO";
 import { AddressDTO } from "../user/userDTO";
+import { Document } from "mongodb";
 
 // export type PIckupReqStatus = "Pending" | "Scheduled" | "Completed"| "Cancelled" | "Rescheduled"
 export interface PickupReqDTO extends BaseDTO {

@@ -1,6 +1,7 @@
 import { Types } from "mongoose";
 import { ITruckDocument } from "../../models/truck/interfaces/truckInterface";
 import { BaseDTO } from "../base/BaseDTO";
+import { Document } from "mongodb";
 export interface TruckDTO extends BaseDTO {
   name: string;
   vehicleNumber: string;

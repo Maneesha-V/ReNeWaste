@@ -1,3 +1,4 @@
+import { Document } from "mongodb";
 import { Types } from "mongoose";
 
 export interface IPayment {
