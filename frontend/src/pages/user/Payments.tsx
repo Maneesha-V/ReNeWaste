@@ -2,7 +2,7 @@ import Header from "../../components/user/Header";
 import Footer from "../../components/user/Footer";
 import { useSelector } from "react-redux";
 import { RootState } from "../../redux/store";
-import { useCallback, useEffect, useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import {
   clearPaymentError,
   getAllPayments,

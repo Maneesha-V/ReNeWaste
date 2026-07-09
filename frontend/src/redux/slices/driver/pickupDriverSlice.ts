@@ -8,7 +8,6 @@ import {
   updateTrackingStatusService,
 } from "../../../services/driver/pickupService";
 import {
-  FetchDriverPickupsReq,
   FetchDriverPickupsResp,
   FetchEtaReq,
   FetchEtaResp,

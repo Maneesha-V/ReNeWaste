@@ -44,20 +44,6 @@ export const refreshAccessToken = createAsyncThunk(
   }
 );
 
-// export const refreshAccessToken = createAsyncThunk<
-//   TokenResp,
-//   void,
-//   { rejectValue: { message: string } }
-// >("superadmin/refreshAccessToken", async (_, { rejectWithValue }) => {
-//   try {
-//     const response = await getRefreshAccessToken();
-//     return response;
-//   } catch (error) {
-//     console.error("err", error);
-//     const msg = getAxiosErrorMessage(error);
-//     return rejectWithValue({ message: msg });
-//   }
-// });
 export const superAdminLogin = createAsyncThunk<
 LoginResponse,
 LoginRequest,
@@ -187,7 +173,7 @@ const superAdminSlice = createSlice({
   reducers: {},
   extraReducers: (builder) => {
     builder
-      .addCase(refreshAccessToken.fulfilled, (state, action) => {
+      .addCase(refreshAccessToken.fulfilled, (_, action) => {
         // state.token = action.payload;
         localStorage.setItem("token", action.payload);
       })

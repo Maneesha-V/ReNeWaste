@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo } from "react";
+import React, { useEffect, useMemo } from "react";
 import {
   Table,
   Button,
@@ -21,7 +21,6 @@ import PaginationSearch from "../../components/common/PaginationSearch";
 import { debounce } from "lodash";
 import { getAxiosErrorMessage } from "../../utils/handleAxiosError";
 import { UserResp } from "../../types/user/userTypes";
-import { record } from "zod";
 
 const { Title } = Typography;
 

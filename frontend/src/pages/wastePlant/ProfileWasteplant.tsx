@@ -94,7 +94,7 @@ const ProfileWasteplant = () => {
               <Descriptions.Item label="License Document">
                 {wasteplant.cloudinaryPublicId && (
                   <LicenseDocumentViewer
-                    apiBaseUrl={import.meta.env.VITE_SUPER_ADMIN_API_URL}
+                    // apiBaseUrl={import.meta.env.VITE_SUPER_ADMIN_API_URL}
                     cloudinaryPublicId={wasteplant.cloudinaryPublicId}
                   />
                 )}

@@ -9,7 +9,7 @@ import { extractDateAndTime24H } from "../../utils/formatDate";
 import PaginationSearch from "../../components/common/PaginationSearch";
 import usePagination from "../../hooks/usePagination";
 import debounce from "lodash/debounce";
-import { GetWalletWPResp, TransactionDTO } from "../../types/wallet/walletTypes";
+import { TransactionDTO } from "../../types/wallet/walletTypes";
 
 const { Title, Text } = Typography;
 

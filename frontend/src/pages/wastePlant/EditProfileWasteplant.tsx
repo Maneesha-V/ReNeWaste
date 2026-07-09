@@ -191,7 +191,7 @@ const EditProfileWasteplant = () => {
                 {wasteplant?.cloudinaryPublicId  && (
                   <LicenseDocumentViewer
                     // licenseDocumentPath={wasteplant.licenseDocumentPath}
-                    apiBaseUrl={import.meta.env.VITE_WASTE_PLANT_API_URL}
+                    // apiBaseUrl={import.meta.env.VITE_WASTE_PLANT_API_URL}
                     cloudinaryPublicId={wasteplant.cloudinaryPublicId}
                   />
                 )}

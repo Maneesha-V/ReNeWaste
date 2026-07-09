@@ -298,7 +298,7 @@ const WasteReports = () => {
                     fill="#8884d8"
                     label
                   >
-                    {pieChartData.map((entry: any, index: number) => (
+                    {pieChartData.map((_: any, index: number) => (
                       <Cell
                         key={`cell-${index}`}
                         fill={

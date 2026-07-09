@@ -1,6 +1,5 @@
 import { useSelector } from "react-redux";
 import { RootState } from "../../redux/store";
-import Breadcrumbs from "../../components/common/Breadcrumbs";
 import { FaEdit } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import { useAppDispatch } from "../../redux/hooks";

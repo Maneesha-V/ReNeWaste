@@ -1,6 +1,4 @@
 import { Modal } from "antd";
-import { useSelector } from "react-redux";
-import { RootState } from "../../redux/store";
 import {
   createSubscriptionOrder,
   verifySubscriptionPayment,
@@ -20,9 +18,6 @@ const SubscriptionPayModal = ({
   plan,
 }: SubscriptionPayModalProps) => {
   const dispatch = useAppDispatch();
-  const paymentOrder = useSelector(
-    (state: RootState) => state.wastePlantPayments.paymentOrder
-  );
   const [showPlansModal, setShowPlansModal] = useState(false);
   if (!plan) return null;
   console.log("plan", plan);

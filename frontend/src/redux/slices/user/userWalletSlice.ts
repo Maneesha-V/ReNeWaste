@@ -14,7 +14,6 @@ import {
   TransactionDTO,
   VerifyWalletAddPaymentReq,
   VerifyWalletAddPaymentResp,
-  WalletDTO,
 } from "../../../types/wallet/walletTypes";
 import { PaginationPayload } from "../../../types/common/commonTypes";
 

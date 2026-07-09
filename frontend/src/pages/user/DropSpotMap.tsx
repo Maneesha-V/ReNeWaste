@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import {
   GoogleMap,
   InfoWindow,
-  LoadScript,
   Marker,
   useJsApiLoader,
 } from "@react-google-maps/api";

@@ -39,8 +39,6 @@ const DashboardWastePlant = () => {
 
   const {
     summary,
-    pickupStatus,
-    loading,
     pickupTrends,
     revenueTrends,
     ratings,
@@ -309,7 +307,7 @@ const DashboardWastePlant = () => {
               outerRadius={110}
               label
             >
-              {wasteMetrics.map((entry, index) => (
+              {wasteMetrics.map((_, index) => (
                 <Cell
                   key={`cell-${index}`}
                   fill={PIE_COLORS[index % PIE_COLORS.length]}
@@ -401,19 +399,19 @@ const DashboardWastePlant = () => {
   );
 };
 
-const StatCard = ({
-  title,
-  value,
-  color = "bg-white",
-}: {
-  title: string;
-  value: number;
-  color?: string;
-}) => (
-  <div className={`${color} p-3 rounded-lg border border-green-100`}>
-    <p className="text-sm text-green-700">{title}</p>
-    <p className="text-lg font-semibold text-green-900">{value}</p>
-  </div>
-);
+// const StatCard = ({
+//   title,
+//   value,
+//   color = "bg-white",
+// }: {
+//   title: string;
+//   value: number;
+//   color?: string;
+// }) => (
+//   <div className={`${color} p-3 rounded-lg border border-green-100`}>
+//     <p className="text-sm text-green-700">{title}</p>
+//     <p className="text-lg font-semibold text-green-900">{value}</p>
+//   </div>
+// );
 
 export default DashboardWastePlant;

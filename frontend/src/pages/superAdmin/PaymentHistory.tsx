@@ -1,5 +1,5 @@
 import { Table, Tag, Typography, Alert, Breakpoint, Pagination } from "antd";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useAppDispatch } from "../../redux/hooks";
 import { useSelector } from "react-redux";
 import { RootState } from "../../redux/store";
@@ -27,23 +27,18 @@ const PaymentHistory = () => {
   const [selectedRecord, setSelectedRecord] =
     useState<SubscriptionPaymentHisDTO>();
   const { payments, total, error } = useSelector(
-    (state: RootState) => state.superAdminPayments
+    (state: RootState) => state.superAdminPayments,
   );
   const { currentPage, setCurrentPage, pageSize, search, setSearch } =
     usePagination();
-  // const debouncedFetchPayments = useCallback(
-  //   debounce((page: number, limit: number, query: string) => {
-  //     dispatch(fetchPaymentHistory({ page, limit, search: query }));
-  //   }, 500),
-  //   [dispatch]
-  // );
-  const debouncedFetchPayments = useMemo( 
-    () => 
-       debounce((page: number, limit: number, query: string) => {
-      dispatch(fetchPaymentHistory({ page, limit, search: query }));
-    }, 500),
-    []
-  )
+
+  const debouncedFetchPayments = useMemo(
+    () =>
+      debounce((page: number, limit: number, query: string) => {
+        dispatch(fetchPaymentHistory({ page, limit, search: query }));
+      }, 500),
+    [],
+  );
   useEffect(() => {
     debouncedFetchPayments(currentPage, pageSize, search);
     return () => {
@@ -54,24 +49,18 @@ const PaymentHistory = () => {
     setSelectedRecord(record);
     setRefundModalVisible(true);
   };
-  const handleRefundStart = async (
-    _id: string,
-    newStatus: string,
-    record: SubscriptionPaymentHisDTO
-  ) => {
+  const handleRefundStart = async (_id: string, newStatus: string) => {
     try {
       const res = await dispatch(
         updateRefundStatus({
           subPayId: _id,
           refundStatus: newStatus,
-        })
+        }),
       ).unwrap();
       if (res.statusUpdate) {
         dispatch(updateSubRefundStatus(res.statusUpdate));
       }
       toast.success(res.message);
-
-      // setSelectedRecord({ ...record, refundStatus: newStatus });
       setRefundModalVisible(false);
     } catch (error) {
       toast.error(getAxiosErrorMessage(error));
@@ -97,7 +86,7 @@ const PaymentHistory = () => {
           refundPayment({
             subPayId: record._id,
             refundStatus: "Refunded",
-          })
+          }),
         ).unwrap();
         console.log("res", res);
 
@@ -178,10 +167,10 @@ const PaymentHistory = () => {
                     // onClick={() =>
                     //   handleRefundStart(record._id, record.refundStatus, record)
                     // }
-                          onClick={() => {
-        setSelectedRecord({...record, refundStatus: "Pending"});
-        setRefundModalVisible(true);
-      }}
+                    onClick={() => {
+                      setSelectedRecord({ ...record, refundStatus: "Pending" });
+                      setRefundModalVisible(true);
+                    }}
                   >
                     Start Refund
                   </button>
@@ -210,10 +199,10 @@ const PaymentHistory = () => {
                       //     record
                       //   )
                       // }
-                            onClick={() => {
-        setSelectedRecord(record);
-        setRefundModalVisible(true);
-      }}
+                      onClick={() => {
+                        setSelectedRecord(record);
+                        setRefundModalVisible(true);
+                      }}
                     >
                       Process Refund
                     </button>

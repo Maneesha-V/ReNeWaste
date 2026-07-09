@@ -32,6 +32,8 @@ const EditProfilePage = () => {
         pincode: "",
         district: "Malappuram",
         state: "Kerala",
+        latitude: 0,
+        longitude: 0,
       },
     ],
   });
@@ -59,6 +61,8 @@ const EditProfilePage = () => {
                     pincode: "",
                     state: "Kerala",
                     district: "Malappuram",
+                    latitude: 0,
+                    longitude: 0,
                   },
                 ],
         });

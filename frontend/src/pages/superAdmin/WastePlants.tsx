@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo } from "react";
+import React, { useEffect, useMemo } from "react";
 import { Table, Button, Popconfirm, Pagination } from "antd";
 import {
   EditOutlined,
@@ -40,17 +40,7 @@ const WastePlants: React.FC = () => {
     capacityFilter,
     setCapacityFilter,
   } = usePagination();
-  // const debouncedFetchWastePlants = useCallback(
-  //   debounce(
-  //     (page: number, limit: number, query: string, capacityRange: string) => {
-  //       dispatch(
-  //         fetchWastePlants({ page, limit, search: query, capacityRange })
-  //       );
-  //     },
-  //     500
-  //   ),
-  //   [dispatch]
-  // );
+
    const debouncedFetchWastePlants = useMemo(
     () =>
     debounce(

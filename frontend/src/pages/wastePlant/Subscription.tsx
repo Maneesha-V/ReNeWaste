@@ -5,8 +5,7 @@ import { useSelector } from "react-redux";
 import { RootState } from "../../redux/store";
 import {
   cancelSubPayReq,
-  fetchSubscriptionPlan,
-  updateSubPaymentStatus,
+  fetchSubscriptionPlan
 } from "../../redux/slices/wastePlant/wastePlantSubscriptionSlice";
 import {
   repay,
@@ -17,7 +16,6 @@ import { toast } from "react-toastify";
 import { loadRazorpayScript } from "../../utils/razorpayUtils";
 import { RazorpayResponse } from "../../types/pickupReq/paymentTypes";
 import {
-  extractDateTimeParts,
   formatDateToDDMMYYYY,
 } from "../../utils/formatDate";
 import { SubscriptionPaymentHisDTO } from "../../types/subscriptionPayment/paymentTypes";
@@ -25,7 +23,6 @@ import { getAxiosErrorMessage } from "../../utils/handleAxiosError";
 import { SubcptnPaymtPayload } from "../../types/subscription/subscriptionTypes";
 import SubscriptionPayModal from "../../components/wastePlant/SubscriptionPayModal";
 import CancelSubptnModal from "../../components/wastePlant/CancelSubptnModal";
-import { record } from "zod";
 
 const { Title } = Typography;
 
@@ -559,9 +556,9 @@ const paymentActionColumn = [
   const showPaidAtColumn = payments.some(
     (payment: SubscriptionPaymentHisDTO) => payment.status === "Paid",
   );
-  const showPaymtHistActionColumn = payments.some(
-    (payment: SubscriptionPaymentHisDTO) => payment.status !== "Paid",
-  );
+  // const showPaymtHistActionColumn = payments.some(
+  //   (payment: SubscriptionPaymentHisDTO) => payment.status !== "Paid",
+  // );
 
   const columns =
     plantData?.status === "Active"

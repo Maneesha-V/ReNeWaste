@@ -1,11 +1,11 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useWastePlantValidation } from "../../hooks/useWastePlantValidation";
-import { ValidationErrors } from "../../types/wastePlantTypes";
 import { toast } from "react-toastify";
 import { useAppDispatch } from "../../redux/hooks";
 import { superAdminSignup } from "../../redux/slices/superAdmin/superAdminSlice";
 import { getAxiosErrorMessage } from "../../utils/handleAxiosError";
+import { ValidationErrors } from "../../types/pickupReq/pickupTypes";
 
 const SignupSuperAdmin: React.FC = () => {
   const [formData, setFormData] = useState({
