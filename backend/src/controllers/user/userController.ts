@@ -83,10 +83,12 @@ export class UserController implements IUserController {
         role: user.role,
       });
       const isProduction = process.env.NODE_ENV === "production";
+      console.log("NODE_ENV =", process.env.NODE_ENV);
       const cookieOptions = {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
-        sameSite: isProduction ? ("none" as const) : ("lax" as const),
+        // sameSite: isProduction ? ("none" as const) : ("lax" as const),
+        sameSite: "none" as const,
         path: "/api",
         maxAge: 7 * 24 * 60 * 60 * 1000,
       };
@@ -116,7 +118,8 @@ export class UserController implements IUserController {
       const cookieOptions = {
         httpOnly: true,
         secure: isProduction,
-        sameSite: isProduction ? ("none" as const) : ("lax" as const),
+        // sameSite: isProduction ? ("none" as const) : ("lax" as const),
+        sameSite: "none" as const,
         path: "/api",
       };
 
