@@ -90,6 +90,7 @@ useEffect(() => {
       toast("Razorpay SDK failed to load.");
       return;
     }
+    console.log("Razorpay Key:", import.meta.env.VITE_RAZORPAY_KEY_ID);
     if (paymentOrder) {
       const options = {
         key: import.meta.env.VITE_RAZORPAY_KEY_ID,

@@ -76,7 +76,10 @@ export class PaymentService implements IPaymentService {
       },
       payment_capture: true,
     });
-
+    console.log("Razorpay Key:", process.env.RAZORPAY_KEY_ID);
+    console.log("Razorpay Order:", order);
+    const fetchedOrder = await this.razorpay.orders.fetch(order.id);
+    console.log("Fetched Order:", fetchedOrder);
     pickupRequest.payment = {
       ...pickupRequest.payment,
       amount,
