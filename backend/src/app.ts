@@ -30,17 +30,22 @@ const PORT = Number(process.env.PORT) || 3000;
 
 connectDB();
 
+const allowedOrigins = [
+  "http://localhost:5173",
+  process.env.FRONTEND_URL!,
+];
+
 // CORS for Express REST API
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin: allowedOrigins,
     credentials: true,
   }),
 );
 // CORS for Socket.IO
 const io = new Server(server, {
   cors: {
-    origin: "http://localhost:5173",
+    origin: allowedOrigins,
     methods: ["GET", "POST"],
     credentials: true,
   },
