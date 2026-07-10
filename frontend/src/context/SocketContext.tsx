@@ -13,7 +13,7 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
       withCredentials: true,
       transports: ["websocket"],
     });
-
+    console.log("Socket URL:", import.meta.env.VITE_SOCKET_URL);
     newSocket.on("connect_error", (err) => {
       console.error("Socket connection error:", err);
     });
