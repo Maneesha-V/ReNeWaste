@@ -12,6 +12,7 @@ export interface NotificationDTO extends BaseDTO {
   isRead?: boolean;
   createdAt?: Date;
   isMeasured: boolean;
+  pickupRequestId?: string;
 }
 export type notificationPayload = {
   plantId: string;

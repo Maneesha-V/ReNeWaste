@@ -39,6 +39,9 @@ export const NotificationSchema: Schema<INotificationDocument> = new Schema(
         "pickup_refund-pending",
         "pickup_refund-processing",
         "pickup_refund-completed",
+        "pickup_modify-req",
+        "pickup_modify-approve",
+        "pickup_modify-reject",
         "subscribe_reminder",
         "subscribe_recharged",
         "renew_reminder",
@@ -62,6 +65,11 @@ export const NotificationSchema: Schema<INotificationDocument> = new Schema(
     isMeasured: {
       type: Boolean,
       default: false,
+    },
+    pickupRequestId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "PickupRequests",
+      default: null,
     },
   },
   {

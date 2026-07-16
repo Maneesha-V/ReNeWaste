@@ -170,3 +170,6 @@ export type WPDashboardReq = {
   residential: number;
   commercial: number;
 }
+export interface ModifyPickupResp extends MsgSuccessResp {
+  pickupReqId: string;
+}

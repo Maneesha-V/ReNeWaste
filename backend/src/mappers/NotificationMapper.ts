@@ -14,6 +14,7 @@ export class NotificationMapper {
       isRead: doc.isRead,
       createdAt: doc.createdAt,
       isMeasured: doc.isMeasured,
+      pickupRequestId: doc.pickupRequestId?.toString() ?? "",
     };
   }
   static mapNotificationsDTO(docs: INotificationDocument[]): NotificationDTO[] {

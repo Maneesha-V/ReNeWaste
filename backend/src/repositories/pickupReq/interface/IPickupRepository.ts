@@ -1,17 +1,10 @@
 import { ClientSession } from "mongoose";
 import {
   IPickupRequestExtDocument,
+  modCommPickReq,
   PickupStatusByWasteType,
 } from "../../../dtos/pickupReq/pickupReqDTO";
 import { AddressDTO } from "../../../dtos/user/userDTO";
-import {
-  FetchPaymentPayload,
-  FetchWPDashboard,
-  FilterReport,
-  PaginatedPaymentsResult,
-  PickupFilterParams,
-  PickupTrendResult,
-} from "../../../dtos/wasteplant/WasteplantDTO";
 import {
   CheckExistingBusinessReq,
   CheckExistingBusinessResp,
@@ -21,6 +14,7 @@ import {
   FindDriverPlantTruckByIdReq,
   IPickupRequest,
   IPickupRequestDocument,
+  modCommPickData,
   PickupDriverFilterParamsRepo,
   PickupFilterParamsRepo,
   PickupTrendResultRepo,

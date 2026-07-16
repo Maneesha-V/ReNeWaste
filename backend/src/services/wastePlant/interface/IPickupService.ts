@@ -28,4 +28,6 @@ export interface IPickupService {
     location: string,
     plantId: string,
   ): Promise<DriverDTO[]>;
+  approveModifyPickup(wasteplantId: string,pickupReqId: string): Promise<boolean>;
+  rejectModifyPickup(wasteplantId: string, pickupReqId: string): Promise<boolean>;
 }

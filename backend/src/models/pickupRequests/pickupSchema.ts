@@ -90,7 +90,25 @@ export const pickupRequestSchema: Schema<IPickupRequestDocument> = new Schema(
     },
     completedAt: {
       type: Date,
-      default: null
+      default: null,
+    },
+    isPaused: {
+      type: Boolean,
+      default: false,
+    },
+    pauseUntil: {
+      type: Date,
+      default: null,
+    },
+    requestedFrequency: {
+      type: String,
+      enum: ["Daily", "Weekly", "Monthly"],
+      default: null,
+    },
+    requestType: {
+      type: String,
+      enum: ["Pause", "FrequencyChange"],
+      default: null,
     },
     payment: PaymentSchema,
   },

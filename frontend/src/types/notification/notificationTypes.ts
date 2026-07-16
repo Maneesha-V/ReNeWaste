@@ -9,6 +9,7 @@ export type NotificationResp = {
   isRead: boolean;
   createdAt: string;
   isMeasured: boolean;
+  pickupRequestId: string;
 };
 export type FetchNotificationsResp = {
   notifications: NotificationResp[];

@@ -17,4 +17,9 @@ export interface IPickupController {
     res: Response,
     next: NextFunction,
   ): Promise<void>;
+  modifyCommPickupReq(
+    req: AuthRequest,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void>;
 }

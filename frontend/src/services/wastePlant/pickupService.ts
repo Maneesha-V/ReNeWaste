@@ -54,3 +54,11 @@ export const getAvailableDriversByPlace = async (location: string) => {
 
   return response.data;
 };
+export const approveModifyPickupById = async (pickupReqId: string) => {
+  const response = await axiosWasteplant.patch(`/modify-pickup/${pickupReqId}`)
+  return response.data;
+}
+export const rejectModifyPickupById = async (pickupReqId: string) => {
+  const response = await axiosWasteplant.patch(`/reject-modify-pickup/${pickupReqId}`)
+  return response.data;
+}

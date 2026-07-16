@@ -3,15 +3,18 @@ import {
   cancelPickupReqById,
   cancelUserPickup,
   getUserPickups,
+  modifyPickupReqById,
 } from "../../../services/user/pickupService";
 import {
   PickupCancelData,
   PickupCancelDataResp,
+  PickupModifyReq,
+  PickupModifyResp,
   PickupPlansResp,
   PickupPlansResponse,
 } from "../../../types/pickupReq/pickupTypes";
 import { getAxiosErrorMessage } from "../../../utils/handleAxiosError";
-import { MsgResponse, PaginationPayload } from "../../../types/common/commonTypes";
+import { MsgResponse, MsgSuccessResp, PaginationPayload } from "../../../types/common/commonTypes";
 
 interface PickupState {
   pickups: PickupPlansResp[];
@@ -71,7 +74,7 @@ PickupCancelDataResp,
 PickupCancelData,
  { rejectValue: { error: string } }
 >(
-  "userPickups/cancelPickupReq ",
+  "userPickups/cancelPickupReq",
   async ({ pickupReqId, reason }, { rejectWithValue }) => {
     try {
       const response = await cancelPickupReqById({ pickupReqId, reason });
@@ -83,6 +86,22 @@ PickupCancelData,
   }
 );
 
+export const modifyCommercialPickup = createAsyncThunk<
+PickupModifyResp,
+PickupModifyReq,
+ { rejectValue: { error: string } }
+>(
+  "userPickups/modifyCommercialPickup",
+  async (data, { rejectWithValue }) => {
+    try {
+      const response = await modifyPickupReqById(data);
+      return response;
+    } catch (err) {
+      const msg = getAxiosErrorMessage(err);
+      return rejectWithValue({ error: msg });
+    }
+  }
+);
 const userPickupSlice = createSlice({
   name: "userPickups",
   initialState,
@@ -112,6 +131,16 @@ const userPickupSlice = createSlice({
       );
       if(index !== -1){
         state.pickups[index].payment = payment
+      }
+    },
+    updateModifyCancelButton : (state, action) => {
+      const { pickupReqId, requestType } = action.payload;
+      console.log({ pickupReqId, requestType });
+      
+      const pickup = state.pickups.find((p)=>p._id === pickupReqId)
+      
+      if(pickup) {
+        pickup.requestType = requestType;
       }
     }
     
@@ -148,7 +177,8 @@ const userPickupSlice = createSlice({
 });
 
 export const { 
-  updatePickupPaymentStatus, updateCancelPickupStatus, updateCancelPickupReason 
+  updatePickupPaymentStatus, updateCancelPickupStatus, updateCancelPickupReason,
+  updateModifyCancelButton
 } = userPickupSlice.actions;
 
 export default userPickupSlice.reducer;

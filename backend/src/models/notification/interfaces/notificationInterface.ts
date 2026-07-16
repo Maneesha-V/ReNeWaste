@@ -11,6 +11,9 @@ export type NotificationType =
   | "pickup_rescheduled"
   | "pickup_cancelled"
   | "pickup_refund-req"
+  | "pickup_modify-req"
+  | "pickup_modify-approve"
+  | "pickup_modify-reject"
   | "subscribe_reminder"
   | "subscribe_recharged"
   | "renew_reminder"
@@ -26,6 +29,7 @@ export interface INotification {
   isRead?: boolean;
   createdAt?: Date;
   isMeasured: boolean;
+  pickupRequestId?: mongoose.Types.ObjectId;
 }
 
 export interface INotificationDocument extends INotification, Document {
@@ -39,4 +43,5 @@ export type CreateNotificationReq = {
   senderType: Role;
   message: string;
   type: string;
+  pickupRequestId?: string;
 };

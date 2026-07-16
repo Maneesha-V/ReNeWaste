@@ -79,12 +79,6 @@ export interface IPickupRequestExtDocument
     capacity: number;
   } | null;
 
-  // wasteplantId?: {
-  //   _id: Types.ObjectId;
-  //   businessName: string;
-  //   frequency: string;
-  //   service: string;
-  // } | null;
 }
 
 export interface PickupReqGetDTO extends BaseDTO {
@@ -121,6 +115,10 @@ export interface PickupReqGetDTO extends BaseDTO {
   userName: string;
   userAddress?: Address;
   location?: string;
+  isPaused?: boolean;
+  pauseUntil?: Date | null;
+  requestType?: string | null;
+  requestedFrequency: string | null;
 }
 export interface PopulatedUserPickupReq extends BaseDTO {
  userId: {
@@ -230,6 +228,11 @@ export interface PickupPlansDTO {
   addressId: string;
   address: Address | null;
   payment: IPayment | null;
+  frequency: string;
+  isPaused: boolean;
+  pauseUntil: string | null;
+  requestType: string | null;
+  requestedFrequency: string | null;
 }
 
 export type WasteType = "Residential" | "Commercial";
@@ -275,3 +278,10 @@ export type PaymentRecord = {
   dueDate: Date;
 };
 
+export type modCommPickReq = {
+  pickupReqId: string;
+  requestType: string;
+  pauseUntil: Date;
+  newFrequency: string;
+  reason: string;
+}

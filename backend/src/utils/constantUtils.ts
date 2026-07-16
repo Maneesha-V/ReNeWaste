@@ -98,6 +98,8 @@ export const MESSAGES = {
       FETCH_USER: "Fetch users successfully.",
       FETCH_WASTE_REPORT: "Fetch waste reports successfully.",
       FETCH_FILTER_WASTE_REPORT: "Fetch filter waste reports successfully.",
+      APPROVE_MODIFY: "Pickup modified successfully.",
+      REJECT_MODIFY: "Reject pickup modification."
     },
     ERROR: {
       ID_REQUIRED: "Plant ID is required.",
@@ -137,6 +139,7 @@ export const MESSAGES = {
       PICKUP_CREATED: "Pickup created successfully.",
       FETCH_DROPSPOTS: "Fetch dropspots successfully.",
       PROFILE_UPDATE: "Profile updated successfully.",
+      PICKUP_MODIFY_REQ: "Request submitted successfully"   
     },
     ERROR: {
       NOT_FOUND: "User not found.",
@@ -148,6 +151,7 @@ export const MESSAGES = {
       FETCH_PROFILE: "Failed to fetch Profile.",
       FETCH_EDIT_PROFILE: "Failed to fetch edit profile.",
       PROFILE_UPDATE: "Failed to update profile.",
+      PICKUP_MODIFY_REQ: "Failed to submit request."
     },
   },
 

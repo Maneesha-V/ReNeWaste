@@ -50,8 +50,8 @@ export class PickupController implements IPickupController {
         userId,
         paginationData,
       );
-      console.log("pickups--", pickups);
-
+      console.log("---pickups",pickups);
+      
       res.status(STATUS_CODES.SUCCESS).json({ pickups, total });
     } catch (error) {
       console.error("err", error);
@@ -120,6 +120,42 @@ export class PickupController implements IPickupController {
         payment,
       });
     } catch (error) {
+      console.error("error", error);
+      next(error);
+    }
+  }
+  async modifyCommPickupReq (
+    req: AuthRequest,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
+    try {
+      const userId = req.user?.id;
+      const { data } = req.body;
+      const { pickupReqId, requestType } = data
+      console.log({data});
+      
+      if (!userId) {
+        throw new ApiError(
+          STATUS_CODES.UNAUTHORIZED,
+          MESSAGES.COMMON.ERROR.UNAUTHORIZED,
+        );
+      }
+      const success = await this._pickupService.modifyCommPickupReq(userId, data)
+      console.log({ pickupReqId, requestType });
+      
+      if(success){
+         res
+          .status(STATUS_CODES.SUCCESS)
+          .json({ 
+            success: true, 
+            message: MESSAGES.USER.SUCCESS.PICKUP_MODIFY_REQ,
+            pickupReqId,
+            requestType
+           });
+      } 
+
+    } catch(error) {
       console.error("error", error);
       next(error);
     }

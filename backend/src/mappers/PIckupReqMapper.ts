@@ -73,12 +73,6 @@ export class PickupRequestMapper {
           assignedZone: doc.driverId?.assignedZone?.toString() ?? "",
       },
       wasteplantId: doc.wasteplantId?.toString(),
-      // wasteplantId: {
-      //   _id: doc.wasteplantId?._id?.toString() ?? "",
-      //   businessName: doc.wasteplantId?.businessName ?? "",
-      //   frequency: doc.wasteplantId?.frequency ?? "",
-      //   service: doc.wasteplantId?.service ?? "",
-      // },
       truckId: doc.truckId?._id?.toString(),
       addressId: doc.addressId?.toString(),
       wasteType: doc.wasteType,
@@ -93,6 +87,10 @@ export class PickupRequestMapper {
       trackingStatus: doc.trackingStatus,
       eta: doc.eta,
       payment: doc.payment,
+      isPaused: doc.isPaused,
+      pauseUntil: doc.pauseUntil ?? null,
+      requestType: doc.requestType ?? null,
+      requestedFrequency: doc.requestedFrequency ?? null
     };
   }
 
@@ -193,8 +191,11 @@ export class PickupRequestMapper {
       addressId: doc.addressId.toString() ?? "",
       payment: doc.payment ?? null,
       wasteplantId: doc.wasteplantId?.toString() ?? "",
-      // createdAt: doc.createdAt.toISOString(),
-      // updatedAt: doc.updatedAt.toISOString(),
+      frequency: doc.frequency?.toString() ?? "",
+      isPaused: doc.isPaused ?? false,
+      pauseUntil: doc.pauseUntil?.toISOString() ?? null,
+      requestType: doc.requestType ?? null,
+      requestedFrequency: doc.requestedFrequency ?? null,
     };
   }
   static mapToPickupPlansDTO(docs: PopulatedPIckupPlans[]): PickupPlansDTO[] {

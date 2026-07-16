@@ -23,6 +23,7 @@ export class NotificationRepository
       senderType: data.senderType,
       message: data.message,
       type: data.type,
+      pickupRequestId: data.pickupRequestId
     });
     return await notification.save();
   }

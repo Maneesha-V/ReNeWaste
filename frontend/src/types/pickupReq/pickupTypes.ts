@@ -1,3 +1,4 @@
+import { MsgSuccessResp } from "../common/commonTypes";
 import { Address } from "../user/userTypes";
 import { PickupReqPayment } from "./paymentTypes";
 
@@ -34,6 +35,11 @@ export interface PickupPlansResp {
   addressId: string;
   address: Address;
   payment: PickupReqPayment | null;
+  frequency: string;
+  isPaused: boolean;
+  pauseUntil: string | null;
+  requestType: string | null;
+  requestedFrequency: string | null;
 }
 export type PickupReqGetResp = {
   _id: string;
@@ -64,6 +70,10 @@ export type PickupReqGetResp = {
   userName: string;
   userAddress: Address;
   location?: string;
+  // isPaused?: boolean;
+  // pauseUntil?: Date | null;
+  // requestedFrequency? : string | null;
+  // requestType?: string | null;
 }
 export interface PickupPlansResponse {
   pickups: PickupPlansResp[];
@@ -72,6 +82,20 @@ export interface PickupPlansResponse {
 export type PickupCancelData = {
   pickupReqId: string;
   reason: string;
+};
+
+export type modifyCommPickReq = {
+    requestType: string;
+    pauseUntil: Date | null;
+    newFrequency: string;
+    reason: string;
+}
+export type PickupModifyReq = modifyCommPickReq & {
+  pickupReqId: string;
+};
+export type PickupModifyResp = MsgSuccessResp & {
+  pickupReqId: string;
+  requestType: string;
 };
 export type PickupCancelDataResp = {
   payment: PickupReqPayment;
@@ -153,4 +177,8 @@ export interface PickupReqDTO  {
     value: number | null;
   };
   payment: PickupReqPayment;
+  isPaused?: boolean;
+  pauseUntil?: Date | null;
+  requestedFrequency? : string | null;
+  requestType?: string | null;
 }

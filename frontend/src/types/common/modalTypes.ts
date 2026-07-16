@@ -1,5 +1,5 @@
 import { ReactNode } from "react";
-import { PickupCancelData } from "../pickupReq/pickupTypes";
+import { modifyCommPickReq, PickupCancelData, PickupReqDTO } from "../pickupReq/pickupTypes";
 import { SubcptnPaymtPayload } from "../subscription/subscriptionTypes";
 import { MeasureDataPayload } from "../wasteCollections/wasteCollectionTypes";
 import { AddMoneyReq } from "../wallet/walletTypes";
@@ -127,4 +127,17 @@ export type AddModalProps = {
   isOpen: boolean;
   onClose: () => void;
   onSubmit: (data: AddMoneyReq) => void;
+}
+export interface ModifyCommercialPickupModalProps {
+  open: boolean;
+  onClose: () => void;
+  onSubmit: (data: modifyCommPickReq) => void;
+  currentFrequency: string;
+}
+export interface ModifyRequestModalProps {
+  open: boolean;
+  onClose: () => void;
+  pickup: PickupReqDTO | null;
+  onApprove: (pickupReqId: string) => void;
+  onReject: (pickupReqId: string) => void;
 }

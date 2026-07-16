@@ -189,6 +189,18 @@ router.put(
   checkNotBlocked,
   plantPickupCtrl.reschedulePickup.bind(plantPickupCtrl),
 );
+router.patch(
+  "/modify-pickup/:pickupReqId",
+  authenticateWastePlant as RequestHandler,
+  checkNotBlocked,
+  plantPickupCtrl.approveModifyPickup.bind(plantPickupCtrl)
+);
+router.patch(
+  "/reject-modify-pickup/:pickupReqId",
+  authenticateWastePlant as RequestHandler,
+  checkNotBlocked,
+  plantPickupCtrl.rejectModifyPickup.bind(plantPickupCtrl)
+);
 router.get(
   "/drivers-in-place",
   authenticateWastePlant as RequestHandler,

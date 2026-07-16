@@ -8,6 +8,7 @@ import {
   FindDriverPlantTruckByIdReq,
   IPickupRequest,
   IPickupRequestDocument,
+  modCommPickData,
   PickupDriverFilterParamsRepo,
   PickupFilterParamsRepo,
   PickupStatusByWasteTypeRepo,
@@ -68,6 +69,7 @@ export class PickupRepository
     const query: any = {
       wasteplantId: new mongoose.Types.ObjectId(plantId),
       status,
+      isPaused: false
     };
 
     if (wasteType) {
@@ -590,6 +592,7 @@ export class PickupRepository
       {
         $match: {
           wasteplantId: new Types.ObjectId(plantId),
+          isPaused: false
         },
       },
       {

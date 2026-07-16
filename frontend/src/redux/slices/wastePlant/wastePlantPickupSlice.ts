@@ -1,15 +1,18 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import {
+  approveModifyPickupById,
   approvePickupService,
   cancelPickupReqById,
   getAvailableDriversByPlace,
   getPickups,
+  rejectModifyPickupById,
   reschedulePickupService,
 } from "../../../services/wastePlant/pickupService";
 import { getAxiosErrorMessage } from "../../../utils/handleAxiosError";
 import { PickupCancelData, PickupReqDTO } from "../../../types/pickupReq/pickupTypes";
-import { ApprovePickupPayload, ApprovePickupResp, FetchDriversByPlaceResp, FetchPickupReqParams, FetchPickupResp, PickupCancelResp, ReschedulePickupResp } from "../../../types/wasteplant/wastePlantTypes";
+import { ApprovePickupPayload, ApprovePickupResp, FetchDriversByPlaceResp, FetchPickupReqParams, FetchPickupResp, ModifyPickupResp, PickupCancelResp, ReschedulePickupResp } from "../../../types/wasteplant/wastePlantTypes";
 import { DriverDTO } from "../../../types/driver/driverTypes";
+import { MsgSuccessResp } from "../../../types/common/commonTypes";
 
 interface PickupState {
   pickups: PickupReqDTO[] | [];
@@ -130,10 +133,52 @@ string,
     }
   }
 );
+
+export const approveModifyPickup = createAsyncThunk<
+ModifyPickupResp,
+string,
+{rejectValue: {error: string}}
+>(
+  "wastePlantPickup/approveModifyPickup ",
+  async (pickupReqId: string, { rejectWithValue }) => {
+    try {
+      const response = await approveModifyPickupById(pickupReqId);
+      return response;
+    } catch (error) {
+      const msg = getAxiosErrorMessage(error);
+      return rejectWithValue({ error: msg });
+    }
+  }
+);
+
+export const rejectModifyPickup = createAsyncThunk<
+ModifyPickupResp,
+string,
+{rejectValue: {error: string}}
+>(
+  "wastePlantPickup/rejectModifyPickup ",
+  async (pickupReqId: string, { rejectWithValue }) => {
+    try {
+      const response = await rejectModifyPickupById(pickupReqId);
+      return response;
+    } catch (error) {
+      const msg = getAxiosErrorMessage(error);
+      return rejectWithValue({ error: msg });
+    }
+  }
+);
 const wastePlantPickupSlice = createSlice({
   name: "wastePlantPickup",
   initialState,
-  reducers: {},
+  reducers: {
+    updateModifyButton : (state,action) => {
+      const { pickupReqId } = action.payload;
+      const pickup = state.pickups.find((p)=>p._id === pickupReqId)
+      if(pickup){
+        pickup.requestType = null;
+      }
+    }
+  },
   extraReducers: (builder) => {
     builder
       .addCase(fetchPickupReqsts.pending, (state) => {
@@ -188,8 +233,15 @@ const wastePlantPickupSlice = createSlice({
       .addCase(fetchDriversByPlace.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload?.error as string;
+      })
+      .addCase(approveModifyPickup.fulfilled, (state, action) => {
+        state.loading = false;
+        state.message = action.payload.message;
       });
+      
   },
 });
+
+export const { updateModifyButton } = wastePlantPickupSlice.actions;
 
 export default wastePlantPickupSlice.reducer;

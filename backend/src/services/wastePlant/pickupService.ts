@@ -258,4 +258,89 @@ export class PickupService implements IPickupService {
     );
     return DriverMapper.mapDriversDTO(drivers);
   }
+  async approveModifyPickup(wasteplantId: string, pickupReqId: string) {
+    const pickup = await this.pickupRepository.getPickupById(pickupReqId);
+    if (!pickup) {
+      throw new Error("Pickup not found.");
+    }
+    if (pickup.wasteplantId?.toString() !== wasteplantId) {
+      throw new Error("Pickup not belongs in this wasteplant.");
+    }
+    if (pickup.requestType === "Pause") {
+      pickup.isPaused = true;
+    }
+    if (pickup.requestType === "FrequencyChange") {
+      if (!pickup.requestedFrequency) {
+        throw new Error("Requested frequency is missing.");
+      }
+      pickup.frequency = pickup.requestedFrequency;
+      pickup.pauseUntil = null;
+    }
+
+    const io = globalThis.io;
+
+    const userMessage = `Your modification request for Pickup ${pickup.pickupId} has been approved.`;
+    const userNotification =
+      await this.notificationRepository.createNotification({
+        receiverId: pickup.userId.toString(),
+        receiverType: "user",
+        senderId: wasteplantId,
+        senderType: "wasteplant",
+        message: userMessage,
+        type: "pickup_modify-approve",
+        pickupRequestId: pickup._id.toString(),
+      });
+
+    if (io) {
+      io.to(`${pickup.userId.toString()}`).emit(
+        "newNotification",
+        userNotification,
+      );
+    }
+
+    pickup.requestType = null;
+    pickup.requestedFrequency = null;
+
+    await pickup.save();
+
+    return true;
+  }
+
+  async rejectModifyPickup(wasteplantId: string, pickupReqId: string) {
+    const pickup = await this.pickupRepository.getPickupById(pickupReqId);
+    if (!pickup) {
+      throw new Error("Pickup not found.");
+    }
+    if (pickup.wasteplantId?.toString() !== wasteplantId) {
+      throw new Error("Pickup not belongs in this wasteplant.");
+    }
+
+    pickup.requestType = null;
+    pickup.requestedFrequency = null;
+    pickup.pauseUntil = null;
+
+    await pickup.save();
+
+    const io = globalThis.io;
+
+    const userMessage = `Your modification request for Pickup ${pickup.pickupId} has been rejected.`;
+    const userNotification =
+      await this.notificationRepository.createNotification({
+        receiverId: pickup.userId.toString(),
+        receiverType: "user",
+        senderId: wasteplantId,
+        senderType: "wasteplant",
+        message: userMessage,
+        type: "pickup_modify-reject",
+        pickupRequestId: pickup._id.toString(),
+      });
+
+    if (io) {
+      io.to(`${pickup.userId.toString()}`).emit(
+        "newNotification",
+        userNotification,
+      );
+    }
+    return true;
+  }
 }

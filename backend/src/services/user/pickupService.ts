@@ -6,11 +6,13 @@ import { INotificationRepository } from "../../repositories/notification/interfa
 import { PickupRequestMapper } from "../../mappers/PIckupReqMapper";
 import {
   cancelPickupReasonData,
+  modCommPickReq,
   PaymentDTO,
   PickupPlansDTO,
 } from "../../dtos/pickupReq/pickupReqDTO";
 import { PaginationInput } from "../../dtos/common/commonDTO";
 import { IWalletRepository } from "../../repositories/wallet/interface/IWalletRepository";
+import { log } from "console";
 
 @injectable()
 export class PickupService implements IPickupService {
@@ -31,7 +33,6 @@ export class PickupService implements IPickupService {
         userId,
         paginationData,
       );
-    // console.log("pickupPlans",pickupPlans);
 
     if (!pickupPlans || pickupPlans.length === 0) {
       throw new Error("No pickup plans found");
@@ -113,12 +114,64 @@ export class PickupService implements IPickupService {
         message: userMessage,
         type: "pickup_refund-req",
       });
- 
 
     if (io) {
       io.to(`${plantId}`).emit("newNotification", plantNotification);
     }
 
     return PickupRequestMapper.mapPayment(updatedPickupRequest?.payment);
+  }
+  async modifyCommPickupReq(userId: string, data: modCommPickReq) {
+    console.log({data});
+    
+    const pickup = await this._pickupRepository.getPickupByUserIdAndPickupReqId(
+      data.pickupReqId,
+      userId,
+    );
+
+    if (!pickup || !pickup.wasteplantId) {
+      throw new Error("Pickup not found");
+    }
+    if(data.requestType === "Pause") {
+      pickup.requestType = "Pause";
+      pickup.pauseUntil = data.pauseUntil;
+      pickup.requestedFrequency = null;
+    } 
+    if(data.requestType === "FrequencyChange")  {
+      pickup.requestType = "FrequencyChange";
+      pickup.requestedFrequency = data.newFrequency;
+      pickup.pauseUntil = null;
+    }
+
+    await pickup.save();
+
+    const io = globalThis.io;
+
+    const plantId = pickup?.wasteplantId.toString();
+    const pauseDate = new Date(data.pauseUntil).toLocaleDateString("en-IN");
+    let userMessage = "";
+    if (data.requestType === "Pause") {
+      userMessage = `Pickup ${pickup.pickupId} requested to pause recurring pickup until ${pauseDate}.`;
+    } else {
+      userMessage = `Pickup ${pickup.pickupId} requested to change pickup frequency from ${pickup.frequency} to ${data.newFrequency}.`;
+    }
+    if (data.reason) {
+      userMessage += ` Reason: ${data.reason}`;
+    }
+    const plantNotification =
+      await this._notificationRepository.createNotification({
+        receiverId: plantId,
+        receiverType: "wasteplant",
+        senderId: userId,
+        senderType: "user",
+        message: userMessage,
+        type: "pickup_modify-req",
+        pickupRequestId: pickup._id.toString()
+      });
+
+    if (io) {
+      io.to(`${plantId}`).emit("newNotification", plantNotification);
+    }
+    return !!plantNotification
   }
 }

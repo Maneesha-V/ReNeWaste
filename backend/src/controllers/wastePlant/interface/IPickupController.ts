@@ -19,4 +19,14 @@ export interface IPickupController {
     res: Response,
     next: NextFunction,
   ): Promise<void>;
+  approveModifyPickup(
+    req: AuthRequest,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void>;
+  rejectModifyPickup(
+    req: AuthRequest,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void>;
 }

@@ -75,6 +75,19 @@ const NotificationPanel: React.FC<WastePlantNotificationPanelProps> = ({
       navigate("/waste-plant/subscription-plan");
       onClose()
   }
+  // const handleModifyRequest = (n: NotificationResp) => {
+
+  // navigate("/waste-plant/pickups", {
+  //   state: {
+  //     pickupRequestId: n.pickupRequestId,
+  //     openModifyModal: true,
+  //     wasteType: "Commercial",
+  //     status: "Scheduled"
+  //   },
+  // });
+
+  // onClose();
+  // }
   const filteredNotifications = (
     activeTab === "unread"
       ? [...notifications.filter((n) => !n.isRead)]
@@ -157,6 +170,15 @@ const NotificationPanel: React.FC<WastePlantNotificationPanelProps> = ({
                             Subscribe
                           </button>
                         )}
+                          {/* {n.type === "pickup_modify-req" &&
+                        (
+                          <button
+                            className="px-2 py-1 text-xs cursor-pointer bg-blue-600 text-white rounded hover:bg-blue-700"
+                            onClick={() => handleModifyRequest(n)}
+                          >
+                            Modify
+                          </button>
+                        )} */}
                       {!n.isRead && (
                         <button
                           className="w-6 h-6 flex items-center justify-center cursor-pointer bg-green-100 text-green-600 rounded-full hover:bg-green-200"

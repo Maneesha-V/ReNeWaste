@@ -27,7 +27,7 @@ export class PickupController implements IPickupController {
         wasteType: wasteType as string,
         plantId: plantId as string,
       });
-       console.log("pickups", pickups);
+      console.log("pickups", pickups);
       res.status(STATUS_CODES.SUCCESS).json({
         success: true,
         pickups,
@@ -166,6 +166,68 @@ export class PickupController implements IPickupController {
         success: true,
         drivers,
       });
+    } catch (error) {
+      console.error("Error fetching pickups:", error);
+      next(error);
+    }
+  }
+  async approveModifyPickup(
+    req: AuthRequest,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> {
+    try {
+      const wasteplantId = req.user?.id;
+      if (!wasteplantId) {
+        throw new ApiError(
+          STATUS_CODES.UNAUTHORIZED,
+          MESSAGES.COMMON.ERROR.UNAUTHORIZED,
+        );
+      }
+      const { pickupReqId } = req.params;
+      console.log(pickupReqId);
+      const success = await this._pickupService.approveModifyPickup(
+        wasteplantId,
+        pickupReqId,
+      );
+      if (success) {
+        res.status(STATUS_CODES.SUCCESS).json({
+          success: true,
+          message: MESSAGES.WASTEPLANT.SUCCESS.APPROVE_MODIFY,
+          pickupReqId
+        });
+      }
+    } catch (error) {
+      console.error("Error fetching pickups:", error);
+      next(error);
+    }
+  }
+  async rejectModifyPickup(
+    req: AuthRequest,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> {
+    try {
+      const wasteplantId = req.user?.id;
+      if (!wasteplantId) {
+        throw new ApiError(
+          STATUS_CODES.UNAUTHORIZED,
+          MESSAGES.COMMON.ERROR.UNAUTHORIZED,
+        );
+      }
+      const { pickupReqId } = req.params;
+      console.log(pickupReqId);
+      const success = await this._pickupService.rejectModifyPickup(
+        wasteplantId,
+        pickupReqId,
+      );
+      if (success) {
+        res.status(STATUS_CODES.SUCCESS).json({
+          success: true,
+          message: MESSAGES.WASTEPLANT.SUCCESS.REJECT_MODIFY,
+          pickupReqId
+        });
+      }
     } catch (error) {
       console.error("Error fetching pickups:", error);
       next(error);

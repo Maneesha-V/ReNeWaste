@@ -112,6 +112,12 @@ router.get(
   checkNotBlocked,
   pickupCtrl.getPickupPlans.bind(pickupCtrl),
 );
+router.patch(
+  "/modify-pickupReq",
+  authenticateUser as RequestHandler,
+  checkNotBlocked,
+  pickupCtrl.modifyCommPickupReq.bind(pickupCtrl),
+);
 router.post(
   "/payment/create-order",
   authenticateUser as RequestHandler,

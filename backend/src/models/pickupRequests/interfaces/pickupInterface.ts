@@ -31,6 +31,10 @@ export interface IPickupRequest extends Document {
     value: number | null;
   };
   completedAt?: Date | null;
+  isPaused?: boolean;
+  pauseUntil?: Date | null;
+  requestedFrequency? : string | null;
+  requestType?: string | null;
   payment: IPayment;
   createdAt: Date;
   updatedAt: Date;
@@ -135,6 +139,10 @@ export type PickupStatusRepo =
       value: number | null;
     };
     completedAt: Date;
+    isPaused?: boolean;
+    pauseUntil?: Date | null;
+    requestedFrequency? : string | null;
+    requestType?: string | null;
     payment: PaymentRepo;
   }
   export interface PaymentRepo {
@@ -174,4 +182,11 @@ export type FetchWPDashboardRepo = {
   totalPickups: number;
   residential: number;
   commercial: number;
+}
+export interface modCommPickData {
+  pickupReqId: string;
+  requestType: string;
+  pauseUntil: Date;
+  newFrequency: string;
+  reason: string;
 }
