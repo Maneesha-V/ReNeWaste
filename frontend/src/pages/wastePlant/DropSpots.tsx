@@ -28,12 +28,6 @@ const DropSpots: React.FC = () => {
   const { currentPage, setCurrentPage, pageSize, search, setSearch } =
     usePagination();
 
-  // const debouncedFetchDropSpots = useCallback(
-  //   debounce((page: number, limit: number, query: string) => {
-  //     dispatch(fetchDropSpots({ page, limit, search: query }));
-  //   }, 500),
-  //   [dispatch]
-  // );
  const debouncedFetchDropSpots = useMemo(
   () =>
     debounce((page: number, limit: number, query: string) => {
@@ -121,29 +115,26 @@ const DropSpots: React.FC = () => {
     navigate("/waste-plant/add-drop-spot");
   };
   return (
-    <div>
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          marginBottom: 16,
-        }}
-      >
+    <div className="space-y-4">
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
         <Title level={3} style={{ margin: 0 }}>
           Available Dropspots
         </Title>
-        <Button type="primary" onClick={handleCreate}>
+        <Button type="primary" onClick={handleCreate} className="bg-blue-600 hover:bg-blue-700"> 
           Create Drop Spot
         </Button>
       </div>
+      <div className="overflow-x-auto space-y-2">
       <PaginationSearch onSearchChange={setSearch} searchValue={search} />
       <Table
         rowKey="_id"
         dataSource={dropSpots}
         columns={columns}
+        bordered
+        className="shadow-sm"
         pagination={false}
       />
+      </div>
       <div className="flex justify-end pt-4">
         <Pagination
           current={currentPage}

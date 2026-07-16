@@ -140,10 +140,11 @@ const Payments = () => {
     }
   };
   return (
-    <div className="p-6 bg-green-50 min-h-screen">
+    <div className="space-y-4">
       <h2 className="text-2xl font-bold mb-6 text-green-700">
         Payment Transactions
       </h2>
+      <div className="overflow-x-auto space-y-2">
       <PaginationSearch onSearchChange={setSearch} searchValue={search} />
       <Table bordered pagination={false} dataSource={dataWithSerial}>
         <Table.Column title="S.No" dataIndex="serial" key="serial" />
@@ -250,6 +251,7 @@ const Payments = () => {
           }}
         />
       </Table>
+      </div>
       <div className="flex justify-end pt-4">
         <Pagination
           current={currentPage}

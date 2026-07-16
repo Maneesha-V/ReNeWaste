@@ -1,7 +1,5 @@
 import { Card, Typography, Table, Space, Pagination } from "antd";
-import {
-  WalletOutlined,
-} from "@ant-design/icons";
+import { WalletOutlined } from "@ant-design/icons";
 import React, { useEffect, useMemo } from "react";
 import { useAppDispatch } from "../../redux/hooks";
 import { useSelector } from "react-redux";
@@ -87,7 +85,7 @@ const Wallet: React.FC = () => {
   ];
 
   return (
-    <div style={{ padding: "20px" }}>
+    <div className="p-4 sm:p-6">
       <Title level={3} style={{ marginBottom: 20 }}>
         My Wallet
       </Title>
@@ -101,7 +99,12 @@ const Wallet: React.FC = () => {
           boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
         }}
       >
-        <Space direction="vertical" align="center" style={{ width: "100%" }}>
+        <Space
+          direction="vertical"
+          align="center"
+          size="middle"
+          style={{ width: "100%" }}
+        >
           <WalletOutlined style={{ fontSize: 40, color: "#1890ff" }} />
 
           <Title level={4} style={{ margin: 0 }}>
@@ -116,7 +119,7 @@ const Wallet: React.FC = () => {
       {/* Transactions Table */}
       <Card
         title={
-          <div className="flex justify-between items-center">
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
             <span>Transaction History</span>
             <PaginationSearch onSearchChange={setSearch} searchValue={search} />
           </div>
@@ -127,15 +130,18 @@ const Wallet: React.FC = () => {
           paddingBottom: 0,
         }}
       >
-        <Table
-          columns={columns}
-          dataSource={transactions}
-          pagination={false}
-          style={{ marginTop: 16 }}
-          rowKey={(record) => record._id}
-        />
+        <div className="overflow-x-auto">
+          <Table
+            columns={columns}
+            dataSource={transactions}
+            pagination={false}
+            style={{ marginTop: 16 }}
+            rowKey={(record) => record._id}
+            scroll={{ x: 700 }}
+          />
+        </div>
         <div
-          className="flex justify-end items-center py-4"
+          className="flex justify-center sm:justify-end py-4"
           style={{ borderTop: "1px solid #f0f0f0" }}
         >
           <Pagination

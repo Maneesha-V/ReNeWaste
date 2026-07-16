@@ -26,12 +26,6 @@ const Drivers: React.FC = () => {
   const { currentPage, setCurrentPage, pageSize, search, setSearch } =
     usePagination();
 
-  // const debouncedFetchDrivers = useCallback(
-  //   debounce((page: number, limit: number, query: string) => {
-  //     dispatch(fetchDrivers({ page, limit, search: query }));
-  //   }, 500),
-  //   [dispatch]
-  // );
     const debouncedFetchDrivers = useMemo(
       () =>
     debounce((page: number, limit: number, query: string) => {

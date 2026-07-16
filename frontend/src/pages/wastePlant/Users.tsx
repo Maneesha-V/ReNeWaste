@@ -124,19 +124,22 @@ const Users: React.FC = () => {
   ];
 
   return (
-    <div>
+    <div className="space-y-4">
       <Title level={3} style={{ marginBottom: 16 }}>
         User Management
       </Title>
+      <div className="overflow-x-auto space-y-2">
+        <PaginationSearch onSearchChange={setSearch} searchValue={search} />
 
-      <PaginationSearch onSearchChange={setSearch} searchValue={search} />
-
-      <Table
-        rowKey="_id"
-        dataSource={users}
-        columns={columns}
-        pagination={false}
-      />
+        <Table
+          rowKey="_id"
+          dataSource={users}
+          columns={columns}
+          bordered
+          className="shadow-sm"
+          pagination={false}
+        />
+      </div>
       <div className="flex justify-end pt-4">
         <Pagination
           current={currentPage}

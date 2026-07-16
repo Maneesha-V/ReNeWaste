@@ -27,12 +27,6 @@ const Trucks: React.FC = () => {
 
   console.log("trucks", trucks);
 
-  // const debouncedFetchTrucks = useCallback(
-  //   debounce((page: number, limit: number, query: string) => {
-  //     dispatch(fetchTrucks({ page, limit, search: query }));
-  //   }, 500),
-  //   [dispatch]
-  // );
   const debouncedFetchTrucks = useMemo(
     () =>
     debounce((page: number, limit: number, query: string) => {

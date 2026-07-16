@@ -13,29 +13,29 @@ import { extractDateAndTime24H } from "../../utils/formatDate";
 const { Title, Text } = Typography;
 
 const Wallet: React.FC = () => {
-    const dispatch = useAppDispatch();
-    const { transactions, balance, total, rewards } = useSelector(
-      (state: RootState) => state.driverWallet
-    );
+  const dispatch = useAppDispatch();
+  const { transactions, balance, total, rewards } = useSelector(
+    (state: RootState) => state.driverWallet,
+  );
 
-    const { currentPage, setCurrentPage, pageSize, search, setSearch } =
+  const { currentPage, setCurrentPage, pageSize, search, setSearch } =
     usePagination();
-    console.log({ transactions, balance, total, rewards });
-  
-      const debouncedFetchWallet = useMemo(
-        () =>
-        debounce((page: number, limit: number, query: string) => {
-          dispatch(getWallet({ page, limit, search: query }));
-        }, 500),
-        []
-      );
-      useEffect(() => {
-        debouncedFetchWallet(currentPage, pageSize, search);
-    
-        return () => {
-          debouncedFetchWallet.cancel();
-        };
-      }, [currentPage, pageSize, search]);
+  console.log({ transactions, balance, total, rewards });
+
+  const debouncedFetchWallet = useMemo(
+    () =>
+      debounce((page: number, limit: number, query: string) => {
+        dispatch(getWallet({ page, limit, search: query }));
+      }, 500),
+    [],
+  );
+  useEffect(() => {
+    debouncedFetchWallet(currentPage, pageSize, search);
+
+    return () => {
+      debouncedFetchWallet.cancel();
+    };
+  }, [currentPage, pageSize, search]);
 
   const columns = [
     {
@@ -53,10 +53,14 @@ const Wallet: React.FC = () => {
       title: "Date",
       dataIndex: "paidAt",
       key: "paidAt",
-       render: (value: string) => {
-              const { date, time } = extractDateAndTime24H(value)
-              return <Text>{date} {time}</Text>
-            } 
+      render: (value: string) => {
+        const { date, time } = extractDateAndTime24H(value);
+        return (
+          <Text>
+            {date} {time}
+          </Text>
+        );
+      },
     },
     {
       title: "Type",
@@ -72,7 +76,7 @@ const Wallet: React.FC = () => {
   ];
 
   return (
-    <div style={{ padding: 24 }}>
+    <div className="p-4 sm:p-6">
       {/* Wallet Card */}
       <Card
         style={{
@@ -82,82 +86,82 @@ const Wallet: React.FC = () => {
           boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
         }}
       >
-        <Space
-          direction="vertical"
-          style={{ width: "100%" }}
-          size="middle"
-        >
-          {/* Wallet Balance */}
-          <Space align="center">
-            <WalletOutlined style={{ fontSize: 32, color: "#1890ff" }} />
-            <div>
-              <Title level={4} style={{ margin: 0 }}>
-                Driver Wallet
-              </Title>
-              <Title level={2} style={{ margin: 0, color: "#1890ff" }}>
-                ₹{balance}
-              </Title>
-            </div>
-          </Space>
-
-          {/* Rewards Box */}
-          <Card
-            style={{
-              backgroundColor: "#f6ffed",
-              border: "1px solid #b7eb8f",
-              borderRadius: 10,
-            }}
-          >
-            <Space align="center">
-              <GiftOutlined style={{ fontSize: 28, color: "green" }} />
-              <div>
-                <Text strong style={{ fontSize: 16, color: "green" }}>
-                  Total Rewards Earned
-                </Text>
-                <Title level={4} style={{ margin: 0, color: "green" }}>
-                  ₹{rewards}
-                </Title>
-              </div>
-            </Space>
-          </Card>
+        <Space direction="vertical" size="middle" style={{ width: "100%" }}>
+          <div className="flex flex-col lg:flex-row gap-4">
+            <Card className="flex-1">
+              {/* Wallet Balance */}
+              <Space align="center">
+                <WalletOutlined style={{ fontSize: 32, color: "#1890ff" }} />
+                <div>
+                  <Title level={4} style={{ margin: 0 }}>
+                    Driver Wallet
+                  </Title>
+                  <Title level={2} style={{ margin: 0, color: "#1890ff" }}>
+                    ₹{balance}
+                  </Title>
+                </div>
+              </Space>
+            </Card>
+            {/* Rewards Box */}
+            <Card
+              style={{
+                backgroundColor: "#f6ffed",
+                border: "1px solid #b7eb8f",
+                borderRadius: 10,
+              }}
+            >
+              <Space align="center">
+                <GiftOutlined style={{ fontSize: 28, color: "green" }} />
+                <div>
+                  <Text strong style={{ fontSize: 16, color: "green" }}>
+                    Total Rewards Earned
+                  </Text>
+                  <Title level={4} style={{ margin: 0, color: "green" }}>
+                    ₹{rewards}
+                  </Title>
+                </div>
+              </Space>
+            </Card>
+          </div>
         </Space>
       </Card>
 
       {/* Transaction Table */}
-      <Card title={
-        <div className="flex justify-between items-center">
-        <span>Transaction History</span>
-        <PaginationSearch
-          onSearchChange={setSearch}
-          searchValue={search}
-        />
-      </div>
-      }
-      style={{
-        borderRadius: 10,
-        boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
-        paddingBottom: 0,
-      }}
-      >
-        <Table
-          columns={columns}
-          dataSource={transactions}
-          rowKey={(record) => record._id}
-          pagination={false}
-          style={{ marginTop: 16 }}
-        />
-                <div
-    className="flex justify-end items-center py-4"
-    style={{ borderTop: "1px solid #f0f0f0" }}
-  >
-            <Pagination
-              current={currentPage}
-              pageSize={pageSize}
-              total={total}
-              onChange={setCurrentPage}
-              showSizeChanger={false}
-            />
+      <Card
+        title={
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
+            <span>Transaction History</span>
+            <PaginationSearch onSearchChange={setSearch} searchValue={search} />
           </div>
+        }
+        style={{
+          borderRadius: 10,
+          boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
+          paddingBottom: 0,
+        }}
+      >
+        <div className="overflow-x-auto">
+          <Table
+            columns={columns}
+            dataSource={transactions}
+            rowKey={(record) => record._id}
+            pagination={false}
+            scroll={{ x: 700 }}
+            style={{ marginTop: 16 }}
+          />
+        </div>
+        <div
+          className="flex justify-center sm:justify-end  py-4"
+          style={{ borderTop: "1px solid #f0f0f0" }}
+        >
+          <Pagination
+            current={currentPage}
+            pageSize={pageSize}
+            total={total}
+            onChange={setCurrentPage}
+            showSizeChanger={false}
+          />
+        </div>
       </Card>
     </div>
   );

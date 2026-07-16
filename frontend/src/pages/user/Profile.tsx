@@ -18,18 +18,7 @@ const ProfilePage = () => {
   useEffect(() => {
       dispatch(fetchUserProfile());
     }, [dispatch]);
-  // useEffect(() => {
-  //   const fetchProfile = async () => {
-  //     if (!token) return;
-  //     try {
-  //       const res = await dispatch(fetchUserProfile()).unwrap();
-  //       setUser(userData);
-  //     } catch (error: any) {
-  //       toast.error("Error fetching profile:", error);
-  //     }
-  //   };
-  //   fetchProfile();
-  // }, [token]);
+
   console.log("user", user);
 
   const handleEdit = () => {
@@ -44,9 +33,9 @@ const ProfilePage = () => {
       />
 
       {/* Profile Section */}
-      <div className="flex justify-center pt-2 pb-6">
+      <div className="flex justify-center px-4 sm:px-6 pt-2 pb-6">
         <div className="bg-white rounded-lg shadow-md w-full max-w-2xl p-6">
-          <div className="flex justify-between items-center mb-6">
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
             <h1 className="text-2xl font-bold text-gray-800">Profile</h1>
             <button
               onClick={handleEdit}
@@ -58,25 +47,25 @@ const ProfilePage = () => {
           </div>
 
           <div className="space-y-4">
-            <div className="flex items-center">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-0">
               <span className="w-32 font-medium text-gray-700">
                 First Name:
               </span>
               <span className="text-gray-900">{user?.firstName}</span>
             </div>
-            <div className="flex items-center">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-0">
               <span className="w-32 font-medium text-gray-700">Last Name:</span>
               <span className="text-gray-900">{user?.lastName}</span>
             </div>
-            <div className="flex items-center">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-0">
               <span className="w-32 font-medium text-gray-700">Email:</span>
               <span className="text-gray-900">{user?.email}</span>
             </div>
-            <div className="flex items-center">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-0">
               <span className="w-32 font-medium text-gray-700">Phone:</span>
               <span className="text-gray-900">{user?.phone}</span>
             </div>
-            <div className="flex items-center">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-0">
               <span className="w-32 font-medium text-gray-700">Address:</span>
               <span className="text-gray-900">
                 {user?.addresses?.[0]

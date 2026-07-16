@@ -69,13 +69,8 @@ const WasteReports = () => {
       Truck: item.truck?.name || "N/A",
       "Measured Weight": item.measuredWeight,
       "Collected Weight": item.collectedWeight,
-      // "Returned At": item.returnedAt
-      //   ? formatDateToDDMMYYYY(item.returnedAt)
-      //   : "N/A",
     }));
 
-    // const worksheet = XLSX.utils.json_to_sheet(formattedData);
-    // const workbook = XLSX.utils.book_new();
     const worksheet = XLSX.utils.json_to_sheet([]);
 
     // Add heading as the first row (merged cell appearance is not supported here)
@@ -196,28 +191,17 @@ const WasteReports = () => {
   ];
 
   return (
-    <div style={{ padding: "1rem" }} className="bg-green-50">
-      <h2
-        style={{ textAlign: "center", marginBottom: "1rem" }}
-        className="text-green-700 text-2xl font-bold"
-      >
+    <div className="bg-green-50 p-3 sm:p-6">
+      <h2 className="text-center mb-4 text-xl sm:text-2xl lg:text-3xl font-bold text-green-700">
         Waste Reports
       </h2>
 
       {/* Date Filter + Actions */}
-      <div
-        style={{
-          marginBottom: 20,
-          display: "flex",
-          flexWrap: "wrap",
-          gap: "10px",
-          alignItems: "center",
-          justifyContent: "center",
-        }}
-      >
-        <div>
+
+      <div className="mb-5 flex flex-col sm:flex-row flex-wrap gap-3 items-center justify-center">
+        <div className="w-full sm:w-auto">
           <span style={{ marginRight: 5 }}>From:</span>
-          <DatePicker
+          <DatePicker className="w-full sm:w-48"
             onChange={(_, dateString) => {
               if (typeof dateString === "string") {
                 setFromDate(dateString);
@@ -226,9 +210,9 @@ const WasteReports = () => {
           />
         </div>
 
-        <div>
+        <div className="w-full sm:w-auto">
           <span style={{ marginRight: 5 }}>To:</span>
-          <DatePicker
+          <DatePicker className="w-full sm:w-48"
             onChange={(_, dateString) => {
               if (typeof dateString === "string") {
                 setToDate(dateString);
@@ -237,26 +221,21 @@ const WasteReports = () => {
           />
         </div>
 
-        <Button type="primary" onClick={handleFilter}>
+        <Button type="primary" onClick={handleFilter} className="w-full sm:w-auto">
           Filter
         </Button>
 
-        <Button onClick={exportToCSV}>Export CSV</Button>
-        <Button onClick={exportToPDF}>Export PDF</Button>
-        <Button onClick={() => setShowLineChart(!showLineChart)}>
+        <Button onClick={exportToCSV} className="w-full sm:w-auto">Export CSV</Button>
+        <Button onClick={exportToPDF} className="w-full sm:w-auto">Export PDF</Button>
+        <Button onClick={() => setShowLineChart(!showLineChart)} className="w-full sm:w-auto">
           {showLineChart ? "Show Pie Chart" : "Show Line Chart"}
         </Button>
       </div>
 
       {/* Chart Section */}
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          marginBottom: "2rem",
-        }}
-      >
-        <div style={{ width: "100%", maxWidth: "800px", padding: "0 1rem" }}>
+
+      <div className="flex justify-center mb-8">
+        <div className="w-full max-w-5xl px-2 sm:px-4">
           {showLineChart ? (
             <>
               <h3 style={{ textAlign: "center" }}>
@@ -283,7 +262,7 @@ const WasteReports = () => {
             </>
           ) : (
             <>
-              <h3 style={{ textAlign: "center" }}>
+              <h3 className="text-center text-base sm:text-lg font-semibold mb-3">
                 Payment Distribution (Pie Chart)
               </h3>
               <ResponsiveContainer width="100%" height={300}>
@@ -294,7 +273,8 @@ const WasteReports = () => {
                     nameKey="type"
                     cx="50%"
                     cy="50%"
-                    outerRadius={100}
+                    // outerRadius={100}
+                    outerRadius={window.innerWidth < 640 ? 70 : 100}
                     fill="#8884d8"
                     label
                   >
@@ -319,11 +299,14 @@ const WasteReports = () => {
       </div>
 
       {/* Table Section */}
-      <div style={{ overflowX: "auto" }}>
+      <div className="overflow-x-auto space-y-2">
         <Table
+          scroll={{ x: "max-content" }}
           dataSource={dataToUse}
           columns={columns}
           rowKey="_id"
+          bordered
+          className="shadow-sm"
           pagination={{ pageSize: 5 }}
         />
       </div>

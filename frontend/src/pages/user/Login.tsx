@@ -28,7 +28,6 @@ const Login = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      console.log("Login Data:", formData);
       await dispatch(login(formData)).unwrap();
       navigate("/home");
     } catch (error: unknown) {
