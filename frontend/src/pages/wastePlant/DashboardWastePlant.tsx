@@ -107,16 +107,6 @@ const DashboardWastePlant = () => {
       value: summary?.totalActivePickups || 0,
       icon: <Activity className="text-green-600 w-6 h-6" />,
     },
-    // {
-    //   title: "Residential Waste",
-    //   value: `${summary?.totalWasteCollected?.totalResidWaste || 0} Kg`,
-    //   icon: <Recycle className="text-green-600 w-6 h-6" />,
-    // },
-    // {
-    //   title: "Commercial Waste",
-    //   value: `${summary?.totalWasteCollected?.totalCommWaste || 0} Kg`,
-    //   icon: <Recycle className="text-green-600 w-6 h-6" />,
-    // },
     {
       title: "Total Revenue",
       value: `${summary?.totalRevenue || 0} Rs`,
@@ -140,7 +130,7 @@ const DashboardWastePlant = () => {
         Waste Plant Dashboard
       </h1>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
+<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6 mb-8">
         {stats.map((stat, index) => (
           <div
             key={index}
@@ -321,76 +311,6 @@ const DashboardWastePlant = () => {
         </ResponsiveContainer>
       </div>
 
-      {/* Pickup Status Section */}
-      {/* {pickupStatus && (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-              <div className="bg-white p-6 rounded-lg shadow-md border border-green-200">
-                <h2 className="text-lg font-semibold text-green-800 mb-4">
-                  Residential Pickups
-                </h2>
-                <div className="grid grid-cols-2 gap-4">
-                  <StatCard
-                    title="Pending"
-                    value={pickupStatus.Residential.Pending}
-                  />
-                  <StatCard
-                    title="Scheduled"
-                    value={pickupStatus.Residential.Scheduled}
-                  />
-                  <StatCard
-                    title="Rescheduled"
-                    value={pickupStatus.Residential.Rescheduled}
-                  />
-                  <StatCard
-                    title="Completed"
-                    value={pickupStatus.Residential.Completed}
-                  />
-                  <StatCard
-                    title="Cancelled"
-                    value={pickupStatus.Residential.Cancelled}
-                  />
-                  <StatCard
-                    title="Active"
-                    value={pickupStatus.Residential.Active}
-                    color="bg-green-100"
-                  />
-                </div>
-              </div>
-
-              <div className="bg-white p-6 rounded-lg shadow-md border border-green-200">
-                <h2 className="text-lg font-semibold text-green-800 mb-4">
-                  Commercial Pickups
-                </h2>
-                <div className="grid grid-cols-2 gap-4">
-                  <StatCard
-                    title="Pending"
-                    value={pickupStatus.Commercial.Pending}
-                  />
-                  <StatCard
-                    title="Scheduled"
-                    value={pickupStatus.Commercial.Scheduled}
-                  />
-                  <StatCard
-                    title="Rescheduled"
-                    value={pickupStatus.Commercial.Rescheduled}
-                  />
-                  <StatCard
-                    title="Completed"
-                    value={pickupStatus.Commercial.Completed}
-                  />
-                  <StatCard
-                    title="Cancelled"
-                    value={pickupStatus.Commercial.Cancelled}
-                  />
-                  <StatCard
-                    title="Active"
-                    value={pickupStatus.Commercial.Active}
-                    color="bg-green-100"
-                  />
-                </div>
-              </div>
-            </div>
-          )} */}
       <SubscriptionModal
         visible={showSubscriptionModal}
         onClose={() => setShowSubscriptionModal(false)}
@@ -399,19 +319,5 @@ const DashboardWastePlant = () => {
   );
 };
 
-// const StatCard = ({
-//   title,
-//   value,
-//   color = "bg-white",
-// }: {
-//   title: string;
-//   value: number;
-//   color?: string;
-// }) => (
-//   <div className={`${color} p-3 rounded-lg border border-green-100`}>
-//     <p className="text-sm text-green-700">{title}</p>
-//     <p className="text-lg font-semibold text-green-900">{value}</p>
-//   </div>
-// );
 
 export default DashboardWastePlant;

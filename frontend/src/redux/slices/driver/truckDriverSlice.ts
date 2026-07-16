@@ -122,6 +122,7 @@ const driverTruckSlice = createSlice({
       .addCase(markTruckReturned.fulfilled, (state) => {
         state.loading = false;
         state.error = null;
+        state.availableTrucks = [];
       })
       .addCase(markTruckReturned.rejected, (state, action) => {
         state.loading = false;

@@ -9,7 +9,9 @@ import {
   cancelPickupPlan,
   cancelPickupReq,
   fetchtPickupPlans,
+  modifyCommercialPickup,
   updateCancelPickupStatus,
+  updateModifyCancelButton,
 } from "../../redux/slices/user/userPickupSlice";
 import {
   Spin,
@@ -31,11 +33,15 @@ import { useLocation } from "react-router-dom";
 import { setPaymentData } from "../../redux/slices/user/userPaymentSlice";
 import PayNow from "./PayNow";
 import InputMessage from "../../components/common/InputMessage";
-import { PickupPlansResp } from "../../types/pickupReq/pickupTypes";
+import {
+  modifyCommPickReq,
+  PickupPlansResp,
+} from "../../types/pickupReq/pickupTypes";
 import usePagination from "../../hooks/usePagination";
 import { debounce } from "lodash";
 import PaginationSearch from "../../components/common/PaginationSearch";
 import { getAxiosErrorMessage } from "../../utils/handleAxiosError";
+import ModifyCommercialPickupModal from "../../components/user/ModifyCommercialPickupModal";
 
 const { Meta } = Card;
 
@@ -52,12 +58,15 @@ const PickupPlans = () => {
 
   const dispatch = useAppDispatch();
   const { pickups, total, loading } = useSelector(
-    (state: RootState) => state.userPickups
+    (state: RootState) => state.userPickups,
   );
   const location = useLocation();
   const [cancelModalVisible, setCancelModalVisible] = useState(false);
   const [cancelPickup, setCancelPickup] = useState<string | null>(null);
-
+  const [modifyCommModalVisible, setModifyComModalVisible] = useState(false);
+  const [selectedPickup, setSelectedPickup] = useState<PickupPlansResp | null>(
+    null,
+  );
   console.log("pickups", pickups);
   const {
     currentPage,
@@ -74,7 +83,7 @@ const PickupPlans = () => {
       (page: number, limit: number, query: string, filter?: string) => {
         dispatch(fetchtPickupPlans({ page, limit, search: query, filter }));
       },
-      500
+      500,
     );
     debouncedFetchPickupPlans(currentPage, pageSize, search, statusFilter);
     return () => {
@@ -91,7 +100,7 @@ const PickupPlans = () => {
           limit: pageSize,
           search,
           filter: statusFilter,
-        })
+        }),
       );
     }
   }, [shouldRefresh, currentPage, pageSize, search, statusFilter, dispatch]);
@@ -104,23 +113,79 @@ const PickupPlans = () => {
     setIsModalOpen(true);
   };
   const handleCancel = async (pickup: PickupPlansResp) => {
-    if (pickup?.payment?.status === "Paid") {
+    console.log("---pickup", pickup);
+
+    // if (
+    //   pickup.wasteType === "Commercial" &&
+    //   (pickup.status === "Scheduled" || pickup.status === "Rescheduled")
+    // ) {
+    //   setSelectedPickup(pickup);
+    //   setModifyComModalVisible(true);
+    //   return;
+    // }
+
+    if (pickup.payment?.status === "Paid") {
       setCancelPickup(pickup._id);
       setCancelModalVisible(true);
-    } else {
-      try {
-        const res = await dispatch(cancelPickupPlan(pickup._id)).unwrap();
-        toast.success(res.message);
-        setSelectedPickupId("");
-        setSelectedTrackingStatus(null);
-        setSelectedEta(null);
-        setIsModalOpen(false);
-        await dispatch(updateCancelPickupStatus({ pickupReqId: pickup._id }));
-      } catch (err) {
-        toast.error(getAxiosErrorMessage(err));
-      }
+      return;
+    }
+
+    // if (pickup?.payment?.status === "Paid") {
+    //   setCancelPickup(pickup._id);
+    //   setCancelModalVisible(true);
+    // }
+
+    try {
+      const res = await dispatch(cancelPickupPlan(pickup._id)).unwrap();
+      toast.success(res.message);
+      setSelectedPickupId("");
+      setSelectedTrackingStatus(null);
+      setSelectedEta(null);
+      setIsModalOpen(false);
+      await dispatch(updateCancelPickupStatus({ pickupReqId: pickup._id }));
+    } catch (err) {
+      toast.error(getAxiosErrorMessage(err));
     }
   };
+  const handleUpdate = (pickup: PickupPlansResp) => {
+    setSelectedPickup(pickup);
+    setModifyComModalVisible(true);
+  };
+  const handleModifyCommercialPickup = async (data: modifyCommPickReq) => {
+    console.log("data--", data);
+
+    try {
+      const res = await dispatch(
+        modifyCommercialPickup({
+          pickupReqId: selectedPickup!._id,
+          ...data,
+        }),
+      ).unwrap();
+      dispatch(
+        updateModifyCancelButton({
+          pickupReqId: selectedPickup!._id,
+          requestType: data.requestType,
+        }),
+      );
+      console.log({ res });
+
+      toast.success(res?.message);
+      setSelectedPickup(null);
+      setModifyComModalVisible(false);
+
+      dispatch(
+        fetchtPickupPlans({
+          page: currentPage,
+          limit: pageSize,
+          search,
+          filter: statusFilter,
+        }),
+      );
+    } catch (err) {
+      toast.error(getAxiosErrorMessage(err));
+    }
+  };
+
   const handlePay = async (pickup: PickupPlansResp) => {
     console.log("pickup", pickup);
 
@@ -154,6 +219,17 @@ const PickupPlans = () => {
                 const isCooldownExpired = !expiresAt || expiresAt <= now;
 
                 const isRetryCase = status === "Pending" && !!orderId;
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+
+                const pickupDate = new Date(pickup.originalPickupDate);
+                pickupDate.setHours(0, 0, 0, 0);
+
+                const canUpdate =
+                  pickup.status === "Pending" &&
+                  pickup.wasteType === "Commercial" &&
+                  pickup.requestType === null &&
+                  pickupDate > today;
 
                 return (
                   <>
@@ -218,6 +294,20 @@ const PickupPlans = () => {
                         </Popconfirm>
                       )
                     )}
+                    {/* UPDATE button */}
+                    {canUpdate && (
+                      <Popconfirm
+                        title="Are you sure to update this pickup?"
+                        okText="Yes"
+                        cancelText="No"
+                        onConfirm={() => handleUpdate(pickup)}
+                        okType="danger"
+                      >
+                        <Button type="primary" className="ml-2">
+                          Update
+                        </Button>
+                      </Popconfirm>
+                    )}
                   </>
                 );
               })()}
@@ -251,20 +341,20 @@ const PickupPlans = () => {
                           pickup.status === "Rescheduled"
                             ? "text-green-600"
                             : pickup.status === "Completed"
-                            ? "text-blue-600"
-                            : pickup.status === "Cancelled"
-                            ? "text-red-600"
-                            : "text-yellow-500"
+                              ? "text-blue-600"
+                              : pickup.status === "Cancelled"
+                                ? "text-red-600"
+                                : "text-yellow-500"
                         }
                       >
                         {pickup.status === "Scheduled" ||
                         pickup.status === "Rescheduled"
                           ? "Assigned Driver"
                           : pickup.status === "Completed"
-                          ? "Completed"
-                          : pickup.status === "Cancelled"
-                          ? "Cancelled"
-                          : "Not Assigned Yet"}
+                            ? "Completed"
+                            : pickup.status === "Cancelled"
+                              ? "Cancelled"
+                              : "Not Assigned Yet"}
                       </span>
                     </p>
 
@@ -344,6 +434,15 @@ const PickupPlans = () => {
           pickupId={cancelPickup}
           cancelAction={cancelPickupReq}
         />
+
+        {selectedPickup && (
+          <ModifyCommercialPickupModal
+            open={modifyCommModalVisible}
+            onClose={() => setModifyComModalVisible(false)}
+            currentFrequency={selectedPickup.frequency}
+            onSubmit={handleModifyCommercialPickup}
+          />
+        )}
       </div>
       <Footer />
     </div>
