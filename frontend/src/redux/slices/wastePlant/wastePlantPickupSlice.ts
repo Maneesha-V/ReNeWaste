@@ -12,7 +12,6 @@ import { getAxiosErrorMessage } from "../../../utils/handleAxiosError";
 import { PickupCancelData, PickupReqDTO } from "../../../types/pickupReq/pickupTypes";
 import { ApprovePickupPayload, ApprovePickupResp, FetchDriversByPlaceResp, FetchPickupReqParams, FetchPickupResp, ModifyPickupResp, PickupCancelResp, ReschedulePickupResp } from "../../../types/wasteplant/wastePlantTypes";
 import { DriverDTO } from "../../../types/driver/driverTypes";
-import { MsgSuccessResp } from "../../../types/common/commonTypes";
 
 interface PickupState {
   pickups: PickupReqDTO[] | [];
