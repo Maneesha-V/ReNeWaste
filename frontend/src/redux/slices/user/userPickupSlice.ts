@@ -14,7 +14,7 @@ import {
   PickupPlansResponse,
 } from "../../../types/pickupReq/pickupTypes";
 import { getAxiosErrorMessage } from "../../../utils/handleAxiosError";
-import { MsgResponse, MsgSuccessResp, PaginationPayload } from "../../../types/common/commonTypes";
+import { MsgResponse, PaginationPayload } from "../../../types/common/commonTypes";
 
 interface PickupState {
   pickups: PickupPlansResp[];
