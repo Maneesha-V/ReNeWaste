@@ -246,10 +246,13 @@ console.log({
                 {pickup.status}
               </Tag>
             </p>
+            { pickup?.trackingStatus !== "Completed" && (
             <p>
               <strong>ETA:</strong>
               {eta?.duration?.text || pickup?.eta?.text || "Calculating..."}
             </p>
+            )}
+
 
             {/* <hr className="my-2" /> */}
 

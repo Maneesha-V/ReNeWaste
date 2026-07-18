@@ -7,8 +7,7 @@ import container from "../config/inversify/container";
 cron.schedule("*/10 * * * * *", async () => {
   const pickupRepo = container.get<IPickupRepository>(TYPES.PickupRepository);
   const today = new Date();
-  today.setHours(0, 0, 0, 0);
-
+  today.setUTCHours(0, 0, 0, 0);
   const recurringPickups = await pickupRepo.getRecurringPickups();
 
   for (const pickup of recurringPickups) {
@@ -18,29 +17,19 @@ cron.schedule("*/10 * * * * *", async () => {
     if (!latestPickup) continue;
     if (pickup.isPaused && pickup.pauseUntil) {
       const resumeDate = new Date(pickup.pauseUntil);
-      resumeDate.setDate(resumeDate.getDate() + 1);
-      resumeDate.setHours(0, 0, 0, 0);
+      resumeDate.setUTCDate(resumeDate.getUTCDate() + 1);
+      resumeDate.setUTCHours(0, 0, 0, 0);
 
       const createResumePickupDate = new Date(resumeDate);
-      createResumePickupDate.setDate(createResumePickupDate.getDate() - 1);
-      createResumePickupDate.setDate(createResumePickupDate.getDate());
-      createResumePickupDate.setHours(0, 0, 0, 0);
-      console.log("Today:", today);
-      console.log("Resume:", resumeDate);
-      console.log("Create Resume:", createResumePickupDate);
-      console.log(latestPickup);
+      createResumePickupDate.setUTCDate(createResumePickupDate.getUTCDate() - 1);
+
 
       // One day before resume date
       if (today.getTime() === createResumePickupDate.getTime()) {
-        console.log(
-          "Condition:",
-          today.getTime(),
-          createResumePickupDate.getTime(),
-          today.getTime() === createResumePickupDate.getTime(),
-        );
+
         const isFirstPickup =
           latestPickup?._id.toString() === pickup._id.toString();
-        console.log("isFirstPickup:", isFirstPickup);
+
         if (isFirstPickup) {
           pickup.originalPickupDate = resumeDate;
           pickup.isPaused = false;
@@ -58,7 +47,7 @@ cron.schedule("*/10 * * * * *", async () => {
           pickup._id.toString(),
           resumeDate,
         );
-        console.log("alreadyExists:", alreadyExists);
+
         if (!alreadyExists) {
           const { _id, ...newPickup } = pickup.toObject();
 
