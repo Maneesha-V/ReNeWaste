@@ -15,6 +15,7 @@ import { NotificationController } from "../controllers/user/notificationControll
 import { checkWastePlantNotBlocked } from "../middlewares/checkWastePlantNotBlocked";
 import { WalletController } from "../controllers/user/walletController";
 import { RatingController } from "../controllers/user/ratingController";
+import { HomeController } from "../controllers/user/homeController";
 
 const router: Router = Router();
 
@@ -42,7 +43,9 @@ const walletCtrl = container.get<WalletController>(
 const ratingCtrl = container.get<RatingController>(
   TYPES.UserRatingController
 );
-
+const homeCtrl = container.get<HomeController>(
+  TYPES.UserHomeController
+);
 router.get("/refresh-token", userCtrl.refreshToken.bind(userCtrl));
 router.post("/signup", userCtrl.signup.bind(userCtrl));
 router.post("/", userCtrl.login.bind(userCtrl));
@@ -56,6 +59,13 @@ router.post("/verify-otp", userCtrl.verifyOtp.bind(userCtrl));
 router.post("/reset-password", userCtrl.resetPassword.bind(userCtrl));
 router.post("/google-signup", userCtrl.googleSignUp.bind(userCtrl));
 router.post("/google-login", userCtrl.googleLogin.bind(userCtrl));
+router.get("/search", homeCtrl.searchLocation.bind(homeCtrl));
+router.get("/check-service/:description", homeCtrl.checkWPServiceAvailability.bind(homeCtrl));
+router.get("/check-current-location", homeCtrl.checkCurrentLocation.bind(homeCtrl));
+router.patch(
+  "/service-address",
+  proflCtrl.updateUserServiceAddress.bind(proflCtrl),
+)
 router.get(
   "/profile",
   authenticateUser as RequestHandler,

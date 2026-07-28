@@ -4,7 +4,7 @@ const Unauthorized = () => {
   const navigate = useNavigate();
 
   const handleGoLogin = () => {
-    navigate("/");
+    navigate("/login");
   };
 
   return (

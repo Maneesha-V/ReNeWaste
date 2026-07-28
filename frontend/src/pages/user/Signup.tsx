@@ -19,6 +19,7 @@ const Signup = ({
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const dispatch = useAppDispatch();
+  
   const { loading, error } = useSelector((state: RootState) => state.user);
 
   const { formData, errors, handleChange, handleBlur, setErrors } =
@@ -120,18 +121,6 @@ const Signup = ({
             )}
           </div>
 
-          {/* <div className="mb-4">
-            <input
-              name="password"
-              value={formData.password}
-              onChange={handleChange}
-              onBlur={handleBlur}
-              placeholder="Password"
-              autoComplete="new-password"
-              className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
-            />
-            {errors.password && <p className="text-red-500 text-sm">{errors.password}</p>}
-          </div> */}
           <div className="mb-4 relative">
             <input
               name="password"
@@ -210,7 +199,7 @@ const Signup = ({
         <div className="mt-4 text-center">
           <span className="text-sm text-green-700">
             Already have an account?{" "}
-            <Link to="/" className="text-green-600 hover:underline">
+            <Link to="/login" className="text-green-600 hover:underline">
               Login
             </Link>
           </span>

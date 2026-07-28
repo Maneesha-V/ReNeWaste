@@ -33,7 +33,7 @@ export type SignUpResponse = {
   // role: string;
   success: boolean;
   // token: string;
-  // userId: string;
+  userId: string;
 };
 export type Address = {
   _id?: string;

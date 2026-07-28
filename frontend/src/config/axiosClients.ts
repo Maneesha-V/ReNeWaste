@@ -27,7 +27,7 @@ export const axiosWasteplant = createAxiosInstance({
 export const axiosUser = createAxiosInstance({
   role: "user",
   baseURL: import.meta.env.VITE_API_URL,
-  allowedRoutes: ["/", "/signup", "/send-otp", "/resend-otp", "/verify-otp", "/reset-password", "/logout",
+  allowedRoutes: ["/", "/signup", "/send-otp", "/resend-otp", "/verify-otp", "/reset-password", "/logout", "/login",
       "/send-otp-signup", "/resend-otp-signup", "/verify-otp-signup", "/google-signup", "/google-login"
   ],
   logoutHandler: handleUserLogout,

@@ -132,8 +132,6 @@ router.patch(
     superAdminNotificationCtrl,
   ),
 );
-// router.post("/notification/renew-remind", authenticateSuperAdmin as RequestHandler, superAdminNotificationCtrl.remindRenewNotification.bind(superAdminNotificationCtrl));
-// router.post("/notification/recharge-remind", authenticateSuperAdmin as RequestHandler, superAdminNotificationCtrl.remindRechargeNotification.bind(superAdminNotificationCtrl));
 router.post(
   "/location/:pincode",
   authenticateSuperAdmin as RequestHandler,

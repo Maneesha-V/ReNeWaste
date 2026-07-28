@@ -79,3 +79,47 @@ export interface GetAndSaveETAResponse {
   duration: EtaResult;
   location: Location;
 }
+
+export interface PlacePrediction {
+  place_id: string;
+  description: string;
+}
+
+export interface GoogleAutocompleteResponse {
+  predictions: PlacePrediction[];
+  status: string;
+}
+
+export interface LocationSuggestion {
+  placeId: string;
+  description: string;
+}
+export interface WPServiceResp {
+  serviceAvailable: boolean;
+  plantName?: string;
+  plantId?: string;
+  taluk?: string;
+  location?: string;
+  district?: string;
+  state?: string;
+  pincode?: string;
+}
+export interface CurrentLocationResp {
+  serviceAvailable: boolean;
+  plantName?: string;
+  plantId?: string;
+  taluk?: string;
+  location?: string;
+  district?: string;
+  state?: string;
+  pincode?: string;
+}
+export interface UpdateUserServiceAdd {
+  userId: string;
+  wasteplantId: string;
+  taluk: string;
+  location: string;
+  district: string;
+  state: string;
+  pincode: string;
+}

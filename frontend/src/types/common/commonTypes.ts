@@ -3,41 +3,41 @@ import { PickupTrendResult } from "../wasteplant/wastePlantTypes";
 import { RevenueWPTrendDTO } from "../wallet/walletTypes";
 import { ServiceRatingSummaryDTO } from "../rating/ratingTypes";
 
-  export type LoginRequest = {
-    email: string;
-    password: string;
-  }
-  
+export type LoginRequest = {
+  email: string;
+  password: string;
+};
+
 export type TokenResp = {
   token: string;
-}
+};
 export type MsgResp = {
   message: string;
-}
+};
 export type MsgSuccessResp = {
   message: string;
   success: boolean;
-}
+};
 export type SendOtpError = {
-   message: string;
-}
+  message: string;
+};
 export type VerifyOtpReq = {
-  email: string; 
-  otp: string
-}
+  email: string;
+  otp: string;
+};
 export type ResetPasswordReq = {
-  email: string; 
-  password: string
-}
+  email: string;
+  password: string;
+};
 export type GoogleSignUpArgs = {
   auth: Auth;
   googleProvider: GoogleAuthProvider;
-}; 
+};
 export type GoogleSignUpResp = {
   message: string;
   role: string;
   token: string;
-}
+};
 
 export type PaginationPayload = {
   page?: number;
@@ -45,7 +45,7 @@ export type PaginationPayload = {
   search: string;
   filter?: string;
   capacityRange?: string;
-}
+};
 export interface PaginationSearchProps {
   total: number;
   currentPage: number;
@@ -55,7 +55,10 @@ export interface PaginationSearchProps {
   searchValue: string;
 }
 
-export interface PaginationSearchFilterProps extends Pick<PaginationSearchProps, "searchValue" | "onSearchChange"> {
+export interface PaginationSearchFilterProps extends Pick<
+  PaginationSearchProps,
+  "searchValue" | "onSearchChange"
+> {
   filterValue?: string;
   onFilterChange?: (value: string) => void;
   placeholder?: string;
@@ -66,14 +69,14 @@ export interface PaginationSearchFilterProps extends Pick<PaginationSearchProps,
 }
 export type MsgResponse = {
   message: string;
-}
+};
 export type NotificationBadgeProps = {
   count: number;
 };
 export interface ValidationErrors {
   [field: string]: string;
 }
-export type  DashboardDataResp = {
+export type DashboardDataResp = {
   summary: {
     totalDrivers: {
       active: number;
@@ -125,17 +128,17 @@ export type  DashboardDataResp = {
   revenueTrends: RevenueWPTrendDTO[];
   ratings: ServiceRatingSummaryDTO;
 };
- export type FormErrors = {
-    firstName?: string;
-    lastName?: string;
-    phone?: string;
-    email?: string;
-    password?: string;
-    confirmPassword?: string;  
-    agreeToTerms?: string;
-  };
-  export interface ProtectedRouteProps {
-    allowedRoles: string[];
+export type FormErrors = {
+  firstName?: string;
+  lastName?: string;
+  phone?: string;
+  email?: string;
+  password?: string;
+  confirmPassword?: string;
+  agreeToTerms?: string;
+};
+export interface ProtectedRouteProps {
+  allowedRoles: string[];
 }
 interface BreadcrumbItem {
   label: string;
@@ -155,4 +158,38 @@ export interface ProfValidationErrors {
 }
 export interface SocketProviderProps {
   children: React.ReactNode;
+}
+
+export interface LocationSuggestion {
+  placeId: string;
+  description: string;
+}
+export interface WPServiceResp {
+  serviceAvailable: boolean;
+  plantName?: string;
+  plantId?: string;
+  taluk?: string;
+  location?: string;
+  district?: string;
+  state?: string;
+  pincode?: string;
+}
+export interface CurrentLocationResp {
+  serviceAvailable: boolean;
+  plantName?: string;
+  plantId?: string;
+  taluk?: string;
+  location?: string;
+  district?: string;
+  state?: string;
+  pincode?: string;
+}
+export interface UpdateUserServiceAdd {
+  userId: string;
+  wasteplantId: string;
+  taluk: string;
+  location: string;
+  district: string;
+  state: string;
+  pincode: string;
 }

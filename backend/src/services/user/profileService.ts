@@ -5,6 +5,7 @@ import { IUserRepository } from "../../repositories/user/interface/IUserReposito
 import { IWastePlantRepository } from "../../repositories/wastePlant/interface/IWastePlantRepository";
 import { UserMapper } from "../../mappers/UserMapper";
 import { UserDTO } from "../../dtos/user/userDTO";
+import { UpdateUserServiceAdd } from "../../dtos/common/commonDTO";
 
 @injectable()
 export class ProfileService implements IProfileService {
@@ -44,5 +45,12 @@ export class ProfileService implements IProfileService {
       updatedData,
     );
     return !!updated;
+  }
+  async  updateUserServiceAddress(locationData: UpdateUserServiceAdd) {
+    
+    const updated = await this.userRepository.updateUserAddressById(
+      locationData
+    );
+    return updated;
   }
 }

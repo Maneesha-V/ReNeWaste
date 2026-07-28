@@ -1,3 +1,4 @@
+import { UpdateUserServiceAdd } from "../../../dtos/common/commonDTO";
 import { IOtp } from "../../../models/user/interfaces/otpInterface";
 import {
   IUser,
@@ -46,4 +47,5 @@ export interface IUserRepository extends IBaseRepository<IUserDocument> {
     search: string,
   ): Promise<PaginatedUsersResult>;
   fetchAllUsersByPlantId(plantId: string): Promise<number>;
+  updateUserAddressById(locationData: UpdateUserServiceAdd): Promise<boolean>;
 }

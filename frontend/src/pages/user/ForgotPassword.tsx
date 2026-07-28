@@ -32,7 +32,7 @@ const ForgotPassword = () => {
   const { loading } = useSelector((state: RootState) => state.user);
 
   useEffect(() => {
-    let countdown: NodeJS.Timeout;
+    let countdown: ReturnType<typeof setInterval>;
     if (timer > 0) {
       countdown = setInterval(() => {
         setTimer((prev) => prev - 1);
@@ -239,7 +239,7 @@ const ForgotPassword = () => {
 
         <div className="mt-4">
           <button
-            onClick={() => navigate("/")}
+            onClick={() => navigate("/login")}
             className="w-full bg-green-500 text-white p-2 rounded hover:bg-green-700"
           >
             Back to Login

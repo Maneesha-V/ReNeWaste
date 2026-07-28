@@ -38,6 +38,8 @@ import { IWalletController as IUserWalletController } from "../../controllers/us
 import { WalletController as UserWalletController } from "../../controllers/user/walletController";
 import { IRatingController as IUserRatingController } from "../../controllers/user/interface/IRatingController";
 import { RatingController as UserRatingController } from "../../controllers/user/ratingController";
+import { IHomeController as IUserHomeController } from "../../controllers/user/interface/IHomeController";
+import { HomeController as UserHomeController } from "../../controllers/user/homeController";
 
 //wasteplant
 import { AuthController as PlantAuthController } from "../../controllers/wastePlant/authController";
@@ -128,6 +130,8 @@ import { IWalletService as IUserWalletService } from "../../services/user/interf
 import { WalletService as UserWalletService } from "../../services/user/walletService";
 import { IRatingService as IUserRatingService } from "../../services/user/interface/IRatingService";
 import { RatingService as UserRatingService } from "../../services/user/ratingService";
+import { IHomeService as IUserHomeService } from "../../services/user/interface/IHomeService";
+import { HomeService as UserHomeService } from "../../services/user/homeService";
 
 //wasteplant
 import { IAuthService as IPlantAuthService } from "../../services/wastePlant/interface/IAuthService";
@@ -276,7 +280,9 @@ container
 container
   .bind<IUserRatingController>(TYPES.UserRatingController)
   .to(UserRatingController);
-
+container
+.bind<IUserHomeController>(TYPES.UserHomeController)
+.to(UserHomeController);
 
 //wasteplant
 container
@@ -404,6 +410,9 @@ container
 container
   .bind<IUserRatingService>(TYPES.UserRatingService)
   .to(UserRatingService);
+container
+.bind<IUserHomeService>(TYPES.UserHomeService)
+.to(UserHomeService);
 
 //wasteplant
 container.bind<IPlantAuthService>(TYPES.PlantAuthService).to(PlantAuthService);

@@ -1,4 +1,4 @@
-import { NextFunction, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import { AuthRequest } from "../../../dtos/base/BaseDTO";
 
 export interface IProfileController {
@@ -14,6 +14,11 @@ export interface IProfileController {
   ): Promise<void>;
   updateUserProfileHandler(
     req: AuthRequest,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void>;
+  updateUserServiceAddress(
+    req: Request,
     res: Response,
     next: NextFunction,
   ): Promise<void>;

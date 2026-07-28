@@ -58,21 +58,7 @@ export const deleteWastePlantById = async (id: string) => {
   console.log("res", response);
   return response.data;
 };
-// export const sendSubscribeNotificationById = async (id: string) => {
-//   const response = await axiosSuperadmin.post(
-//     `/notification/subscribe-remind/${id}`
-//   );
-//   console.log("res", response);
-//   return response.data;
-// };
 
-// export const sendRechargeNotificationService = async (plantId: string) => {
-//   const response = await axiosSuperadmin.post(`/notification/recharge-remind`, {
-//     plantId,
-//   });
-//   console.log("res", response);
-//   return response.data;
-// };
 export const getPostOffices = async (pincode: string) => {
   const response = await axiosSuperadmin.post(`/location/${pincode}`);
   console.log("res", response);

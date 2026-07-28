@@ -56,8 +56,8 @@ export class UserController implements IUserController {
       res.status(STATUS_CODES.CREATED).json({
         success: true,
         message: MESSAGES.COMMON.SUCCESS.SIGNUP,
+        userId: user._id,
         // role: user.role,
-        // userId: user._id,
         // token,
       });
     } catch (error) {

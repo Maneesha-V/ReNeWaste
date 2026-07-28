@@ -151,7 +151,9 @@ export const MESSAGES = {
       FETCH_PROFILE: "Failed to fetch Profile.",
       FETCH_EDIT_PROFILE: "Failed to fetch edit profile.",
       PROFILE_UPDATE: "Failed to update profile.",
-      PICKUP_MODIFY_REQ: "Failed to submit request."
+      PICKUP_MODIFY_REQ: "Failed to submit request.",
+      LOC_REQUIRED: "Location is required.",
+      PLACE_REQUIRED: "Place is required."
     },
   },
 

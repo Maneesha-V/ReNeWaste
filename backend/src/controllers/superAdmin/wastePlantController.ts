@@ -166,7 +166,7 @@ export class WastePlantController implements IWastePlantController {
 
     try {
       const response = await axios.get<IndiaPostAPIResponse[]>(
-        `https://api.postalpincode.in/pincode/${pincode}`,
+        `${process.env.INDIA_POST_API_URL}/pincode/${pincode}`,
         {
           maxRedirects: 5,
         },

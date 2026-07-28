@@ -12,6 +12,7 @@ import TYPES from "../../config/inversify/types";
 import { IOtpRepository } from "../otp/interface/IOtpRepository";
 import { FilterQuery, Types, UpdateQuery } from "mongoose";
 import { IOtp } from "../../models/user/interfaces/otpInterface";
+import { UpdateUserServiceAdd } from "../../dtos/common/commonDTO";
 
 @injectable()
 export class UserRepository
@@ -182,5 +183,26 @@ export class UserRepository
       wasteplantId: objectId,
     });
     return totalCount;
+  }
+  async updateUserAddressById(locationData: UpdateUserServiceAdd) {
+    const { userId } = locationData;
+    const wasteplantId = new Types.ObjectId(locationData.wasteplantId)
+    const updated = await this.model.findByIdAndUpdate(
+      userId,
+      {
+        wasteplantId,
+        $push: {
+          addresses: {
+            taluk: locationData.taluk,
+            location: locationData.location,
+            state: locationData.state,
+            district: locationData.district,
+            pincode: locationData.pincode,
+          },
+        },
+      },
+      { new: true },
+    );
+    return !!updated;
   }
 }

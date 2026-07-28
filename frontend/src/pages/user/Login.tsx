@@ -29,9 +29,14 @@ const Login = () => {
     e.preventDefault();
     try {
       await dispatch(login(formData)).unwrap();
-      navigate("/home");
+      const redirect = localStorage.getItem("redirectAfterLogin");
+      if(redirect) {
+        localStorage.removeItem("redirectAfterLogin");
+        navigate(redirect);
+      } else {
+        navigate("/home");
+      }
     } catch (error: unknown) {
-
       const errorMessage = getAxiosErrorMessage(error);
 
       if (errorMessage.includes("blocked")) {
@@ -93,9 +98,16 @@ const Login = () => {
         <div className="mt-4 text-start">
           <span className="text-sm text-green-700">
             Don't have an account?{" "}
-            <a href="/signup" className="text-green-600 hover:underline">
+            {/* <a href="/signup" className="text-green-600 hover:underline">
               Sign Up
-            </a>
+            </a> */}
+            <button
+              type="button"
+              onClick={() => navigate("/signup")}
+              className="text-green-600 hover:underline"
+            >
+              Sign Up
+            </button>
           </span>
         </div>
       </div>

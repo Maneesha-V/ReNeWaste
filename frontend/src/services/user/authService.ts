@@ -1,6 +1,7 @@
 import { Auth, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 import { GoogleLoginReq, LoginRequest, SignupRequest } from "../../types/user/userTypes";
 import { axiosUser } from "../../config/axiosClients";
+import { UpdateUserServiceAdd } from "../../types/common/commonTypes";
 
 export const signupUser = async (userData: SignupRequest) => {
     const response = await axiosUser.post(`/signup`, userData);
@@ -95,3 +96,7 @@ export const googleSignInService = async (userData: GoogleLoginReq) => {
     return response.data;
 
 };
+export const updateUserLocationService = async (locationData: UpdateUserServiceAdd) => {
+  const response = await axiosUser.patch(`/service-address`, locationData);
+  return response.data;
+}

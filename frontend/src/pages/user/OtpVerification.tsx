@@ -1,6 +1,11 @@
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
-import { signup, verifyOtpSignup, resendOtpSignup } from "../../redux/slices/user/userSlice";
+import {
+  signup,
+  verifyOtpSignup,
+  resendOtpSignup,
+  updateUserLocation,
+} from "../../redux/slices/user/userSlice";
 import { useAppDispatch } from "../../redux/hooks";
 import { useNavigate } from "react-router-dom";
 import { getAxiosErrorMessage } from "../../utils/handleAxiosError";
@@ -16,7 +21,7 @@ const OtpVerification = ({ formData }: { formData: any }) => {
   const canResend = timer === 0;
 
   useEffect(() => {
-    let interval: NodeJS.Timeout;
+    let interval: ReturnType<typeof setInterval>;
 
     if (timer > 0) {
       interval = setInterval(() => {
@@ -31,12 +36,29 @@ const OtpVerification = ({ formData }: { formData: any }) => {
     try {
       await dispatch(verifyOtpSignup({ email: formData.email, otp })).unwrap();
       const res = await dispatch(signup(formData)).unwrap();
+      const userId = res?.userId;
+
       toast.success(res?.message);
-      navigate("/");
+      const saved = localStorage.getItem("serviceLocation");
+      console.log("saved:", saved);
+      if (saved) {
+        const serviceLocation = JSON.parse(saved);
+        console.log("userId:", userId);
+        await dispatch(
+          updateUserLocation({
+            userId,
+            ...serviceLocation,
+          }),
+        ).unwrap();
+
+        localStorage.removeItem("serviceLocation");
+      }
+      navigate("/login");
+      
     } catch (error) {
       const msg = getAxiosErrorMessage(error);
       toast.error(msg);
-      setOtp("");       
+      setOtp("");
       setTimer(0);
     }
   };
@@ -48,8 +70,8 @@ const OtpVerification = ({ formData }: { formData: any }) => {
       setResendLoading(true);
       const res = await dispatch(resendOtpSignup(formData.email)).unwrap();
       toast.info(res?.message);
-      setOtp("");       
-      setTimer(30);     
+      setOtp("");
+      setTimer(30);
     } catch (error) {
       const msg = getAxiosErrorMessage(error);
       toast.error(msg);
@@ -93,8 +115,8 @@ const OtpVerification = ({ formData }: { formData: any }) => {
           {resendLoading
             ? "Resending..."
             : canResend
-            ? "Resend OTP"
-            : `Resend OTP (${timer}s)`}
+              ? "Resend OTP"
+              : `Resend OTP (${timer}s)`}
         </button>
       </div>
     </div>

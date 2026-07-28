@@ -16,6 +16,7 @@ import DropSpotMap from "../pages/user/DropSpotMap";
 import Blocked from "../pages/user/Blocked";
 import ServicesUnavailable from "../pages/user/ServicesUnavailable";
 import MyWallet from "../pages/user/MyWallet";
+import LandingPage from "../pages/user/LandingPage";
 
 const UserRoutes = () => {
   return (
@@ -23,8 +24,9 @@ const UserRoutes = () => {
       {/* ProtectedAuthRoute */}
       <Route element={<ProtectedAuthRoute />}>
         <Route path="/signup" element={<OtpVerificationWrapper />} />
-        <Route path="/" element={<Login />} />
+        <Route path="/login" element={<Login />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/" element={<LandingPage />} />
       </Route>
 
       {/* Protected routes */}

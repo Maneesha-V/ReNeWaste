@@ -12,6 +12,7 @@ import {
   sendOtpSignupService,
   resendOtpSignupService,
   verifyOtpSignupService,
+  updateUserLocationService,
 } from "../../../services/user/authService";
 import { getAxiosErrorMessage } from "../../../utils/handleAxiosError";
 import {
@@ -25,8 +26,10 @@ import {
 import {
   GoogleSignUpArgs,
   GoogleSignUpResp,
+  MsgSuccessResp,
   ResetPasswordReq,
   SendOtpError,
+  UpdateUserServiceAdd,
   VerifyOtpReq,
 } from "../../../types/common/commonTypes";
 
@@ -233,6 +236,22 @@ export const googleLogin = createAsyncThunk<
     return rejectWithValue({ message: msg });
   }
 });
+export const updateUserLocation = createAsyncThunk<
+  MsgSuccessResp,
+  UpdateUserServiceAdd,
+  { rejectValue: { message: string } }
+>("user/updateUserLocation", async (locationData: UpdateUserServiceAdd, { rejectWithValue }) => {
+  try {
+    const response = await updateUserLocationService(locationData);
+    console.log("resppp", response);
+
+    return response;
+  } catch (error) {
+    const msg = getAxiosErrorMessage(error);
+    return rejectWithValue({ message: msg });
+  }
+});
+
 const userSlice = createSlice({
   name: "user",
   initialState,

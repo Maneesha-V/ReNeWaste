@@ -7,7 +7,7 @@ import { AuthRequest } from "../../dtos/base/BaseDTO";
 import { ApiError } from "../../utils/ApiError";
 import { MESSAGES, STATUS_CODES } from "../../utils/constantUtils";
 
-injectable();
+injectable()
 export class DropSpotController implements IDropSpotController {
   constructor(
     @inject(TYPES.UserDropSpotService)

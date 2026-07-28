@@ -24,6 +24,7 @@ const TYPES = {
   UserNotificationController: Symbol.for("UserNotificationController"),
   UserWalletController: Symbol.for("UserWalletController"),
   UserRatingController: Symbol.for("UserRatingController"),
+  UserHomeController: Symbol.for("UserHomeController"),
 
   //wasteplant
   PlantAuthController: Symbol.for("PlantAuthController"),
@@ -74,7 +75,8 @@ const TYPES = {
   UserNotificationService: Symbol.for("UserNotificationService"),
   UserWalletService: Symbol.for("UserWalletService"),
   UserRatingService: Symbol.for("UserRatingService"),
-
+  UserHomeService: Symbol.for("UserHomeService"),
+  
   //wasteplant
   PlantAuthService: Symbol.for("PlantAuthService"),
   PlantChatService: Symbol.for("PlantChatService"),

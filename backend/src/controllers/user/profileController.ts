@@ -105,4 +105,26 @@ export class ProfileController implements IProfileController {
       next(error);
     }
   }
+  async updateUserServiceAddress(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> {
+    try {
+
+      console.log(req.body);
+      
+      const locationData = req.body;
+      const result = await this.profileService.updateUserServiceAddress(
+        locationData
+      );
+      res.status(STATUS_CODES.SUCCESS).json({
+        success: result,
+        message: MESSAGES.USER.SUCCESS.PROFILE_UPDATE 
+      });
+    } catch(error){
+      console.error("Error updating profile:", error);
+      next(error);
+    }
+  }
 }
