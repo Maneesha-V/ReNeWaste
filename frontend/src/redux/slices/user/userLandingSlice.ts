@@ -2,7 +2,6 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { getAxiosErrorMessage } from "../../../utils/handleAxiosError";
 import { checkCurrentLocationService, checkServiceAvailbleService, searchLocationService } from "../../../services/user/landingService";
 import { CurrentLocationResp, LocationSuggestion, WPServiceResp } from "../../../types/common/commonTypes";
-import _, { startCase } from "lodash";
 
 interface UserLandingState {
   loading: boolean;

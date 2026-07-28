@@ -1,8 +1,6 @@
 import Header from "../../components/user/Header";
 import Footer from "../../components/user/Footer";
 import homeBannerImg from "../../assets/home_banner_img.jpg";
-import sustainableImg from "../../assets/sustainable_img.jpg";
-import chooseUsImg from "../../assets/choose_us_img.jpg";
 import { useNavigate } from "react-router-dom";
 
 const Home = () => {
