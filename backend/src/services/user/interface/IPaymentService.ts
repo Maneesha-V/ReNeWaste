@@ -2,15 +2,12 @@ import { PaginationInput } from "../../../dtos/common/commonDTO";
 import {
   CreatePaymentReq,
   CreatePaymentResp,
+  GenReceiptResp,
   VerifyPaymentReq,
   VerifyPaymentResp,
   VerifyWalletPickupPaymentReq,
 } from "../../../dtos/pickupReq/paymentDTO";
 import { PickupPaymentSummaryDTO } from "../../../dtos/pickupReq/pickupReqDTO";
-import {
-  IPickupRequest,
-  IPickupRequestDocument,
-} from "../../../models/pickupRequests/interfaces/pickupInterface";
 
 export interface IPaymentService {
   createPaymentOrderService(data: CreatePaymentReq): Promise<CreatePaymentResp>;
@@ -34,4 +31,5 @@ export interface IPaymentService {
     expiresAt: string;
   }>;
   verifyWalletPickupPayment( userId: string, paymentData: VerifyWalletPickupPaymentReq): Promise<VerifyPaymentResp>
+  generateReceipt(pickupReqId: string): Promise<GenReceiptResp>;
 }

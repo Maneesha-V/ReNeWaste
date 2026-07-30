@@ -26,7 +26,7 @@ export class ResidentialService implements IResidentialService {
     userId: string,
     updatedData: UpdatedResidentialData,
   ): Promise<boolean> {
-    const { wasteType, pickupDate } = updatedData;
+    const { wasteType, pickupDate, selectedAddressId } = updatedData;
     const existing = await this.pickupRepository.checkExistingResid({
       userId,
       wasteType,
@@ -42,33 +42,64 @@ export class ResidentialService implements IResidentialService {
       throw new Error("Monthly residential pickup limit exceeded (max 4).");
     }
     const user = await this.userRepository.findUserById(userId);
-    if (!user) throw new Error("User not found");
+    if (!user) {
+      throw new Error("User not found.");
+    }
 
     const updatedUser = await this.userRepository.updatePartialProfileById(
       userId,
       updatedData,
     );
-    if (!updatedUser) throw new Error("User update failed");
-    let addressIdToUse: Types.ObjectId;
-    if (updatedUser.addresses?.length) {
-      const addressList = updatedUser.addresses;
-      const latestAddress = addressList[addressList.length - 1] as IAddress & {
-        _id: Types.ObjectId;
-      };
-      if (!latestAddress || !latestAddress._id)
-        throw new Error("Address ID not found");
-
-      addressIdToUse = new Types.ObjectId(latestAddress._id);
-    } else if (updatedData.selectedAddressId) {
-      addressIdToUse = new Types.ObjectId(updatedData.selectedAddressId);
-    } else {
-      throw new Error("No address provided or selected.");
+    if (!updatedUser) {
+      throw new Error("User update failed.");
     }
+    let selectedAddress = null;
+
+    if (selectedAddressId) {
+      selectedAddress =
+        updatedUser.addresses?.find(
+          (addr) => addr._id?.toString() === selectedAddressId,
+        ) ?? null;
+    } else {
+      selectedAddress =
+        updatedUser.addresses?.[updatedUser.addresses.length - 1] ?? null;
+    }
+
+    if (!selectedAddress) {
+      throw new Error("No address found.");
+    }
+    if (
+      !selectedAddress.addressLine1?.trim() ||
+      !selectedAddress.addressLine2?.trim() ||
+      !selectedAddress.location?.trim()
+    ) {
+      throw new Error(
+        "Please complete your address before scheduling a pickup.",
+      );
+    }
+
+    // let addressIdToUse: Types.ObjectId;
+    // if (updatedUser.addresses?.length) {
+    //   const addressList = updatedUser.addresses;
+    //   const latestAddress = addressList[addressList.length - 1] as IAddress & {
+    //     _id: Types.ObjectId;
+    //   };
+    //   if (!latestAddress || !latestAddress._id)
+    //     throw new Error("Address ID not found");
+    //   if (!latestAddress.addressLine1 || !latestAddress.addressLine2 || !latestAddress.location){
+    //     throw new Error("Please complete your address before scheduling a pickup.")
+    //   }
+    //   addressIdToUse = new Types.ObjectId(latestAddress._id);
+    // } else if (updatedData.selectedAddressId) {
+    //   addressIdToUse = new Types.ObjectId(updatedData.selectedAddressId);
+    // } else {
+    //   throw new Error("No address provided or selected.");
+    // }
 
     const newPickuData = {
       userId: new Types.ObjectId(userId),
       wasteplantId: user?.wasteplantId,
-      addressId: addressIdToUse,
+      addressId: new Types.ObjectId(selectedAddress._id),
       wasteType: updatedData.wasteType,
       originalPickupDate: new Date(updatedData.pickupDate),
       pickupTime: updatedData.pickupTime,
@@ -77,5 +108,6 @@ export class ResidentialService implements IResidentialService {
 
     const created = await this.pickupRepository.createPickup(newPickuData);
     return !!created;
+
   }
 }

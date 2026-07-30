@@ -17,11 +17,14 @@ export interface CreatePaymentResp
 //   razorpay_payment_id: string;
 //   razorpay_signature: string;
 // }
-export type VerifyPaymentReq = Pick<CreatePaymentReq, "amount" | "pickupReqId" | "userId"> & {
+export type VerifyPaymentReq = Pick<
+  CreatePaymentReq,
+  "amount" | "pickupReqId" | "userId"
+> & {
   razorpay_order_id: string;
   razorpay_payment_id: string;
   razorpay_signature: string;
-}
+};
 export interface VerifyPaymentResp {
   pickupReqId: string;
   payment: PaymentDTO;
@@ -65,7 +68,11 @@ export type UpdateSubscptnPayload = {
   plantId: string;
 };
 export type VerifyWalletPickupPaymentReq = {
-pickupReqId: string;
-        amount: number;
-        method: string;
-}
+  pickupReqId: string;
+  amount: number;
+  method: string;
+};
+export type GenReceiptResp = {
+  doc: PDFKit.PDFDocument;
+  pickupId: string;
+};

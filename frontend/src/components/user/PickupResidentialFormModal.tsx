@@ -19,6 +19,8 @@ const PickupResidentialFormModal: React.FC<PickupResidentialFormModalProps> = ({
   const [selectedAddressIndex, setSelectedAddressIndex] = useState<
     number | "add-new"
   >(0);
+  console.log("selectedAddressIndex",selectedAddressIndex);
+
   const [newAddress, setNewAddress] = useState({
     addressLine1: "",
     addressLine2: "",
@@ -174,7 +176,18 @@ const PickupResidentialFormModal: React.FC<PickupResidentialFormModalProps> = ({
       onClose();
       setTimeout(() => navigate("/residential"), 2000);
     } catch(error) {
-      toast.error(getAxiosErrorMessage(error))  
+      const msg = getAxiosErrorMessage(error);
+      if(msg.includes("Please complete your address")){
+        toast.error(msg);
+        onClose();
+        navigate("/edit-profile", {
+          state: {
+            returnTo: "/residential"
+          }
+        });
+        return;
+      }
+      toast.error(msg);
     }
   };
 
@@ -239,7 +252,7 @@ const PickupResidentialFormModal: React.FC<PickupResidentialFormModalProps> = ({
                 // Show address dropdown if user has addresses
                 <select
                   id="addressSelect"
-                  className="w-full p-2 border rounded"
+                  className="w-full max-w-full p-2 border rounded text-sm overflow-hidden"
                   value={selectedAddressIndex}
                   onChange={(e) =>
                     setSelectedAddressIndex(
@@ -252,7 +265,7 @@ const PickupResidentialFormModal: React.FC<PickupResidentialFormModalProps> = ({
                   {user.addresses.map((addr: Address, index: number) => (
                     <option key={index} value={index.toString()}>
                       {addr.addressLine1},{addr.addressLine2},{addr.location},{" "}
-                      {addr.pincode},{addr.district},{addr.state}
+                      {addr.pincode},{addr.district}
                     </option>
                   ))}
                   <option value="add-new">+ Add New Address</option>
@@ -263,13 +276,14 @@ const PickupResidentialFormModal: React.FC<PickupResidentialFormModalProps> = ({
                   type="button"
                   className="w-full p-2 border rounded bg-blue-600 text-white hover:bg-blue-700"
                   onClick={() => {
-                    onClose(); // Close the modal
-                    navigate("/edit-profile"); // Navigate to profile page
+                    onClose(); 
+                    navigate("/edit-profile");
                   }}
                 >
                   + Add Address
                 </button>
               )}
+
             </div>
 
             {/* Show New Address Fields if "add-new" selected */}

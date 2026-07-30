@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useProfileValidation } from "../../hooks/useProfileValidation";
 import Header from "../../components/user/Header";
@@ -16,7 +16,6 @@ import { getAxiosErrorMessage } from "../../utils/handleAxiosError";
 const EditProfilePage = () => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
-  // const { user } = useSelector((state: RootState) => state.userProfile);
   const { validate, getErrorMessages } = useProfileValidation();
   const [user, setUser] = useState<UserProfileReq>({
     firstName: "",
@@ -37,16 +36,14 @@ const EditProfilePage = () => {
       },
     ],
   });
-  // useEffect(() => {
-  //     dispatch(getUserEditProfile());
-  //   }, [dispatch]);
+  const location = useLocation();
+  const redirectTo = location.state?.returnTo;
   useEffect(() => {
     const fetchUserProfile = async () => {
       try {
         const res = await dispatch(getUserEditProfile()).unwrap();
         console.log("resss", res);
 
-        // setUser(res.user);
         setUser({
           ...res.user,
           addresses:
@@ -99,24 +96,44 @@ const EditProfilePage = () => {
       }
     });
 
-    user.addresses.forEach((address, index) => {
-      Object.entries(address).forEach(([key, value]) => {
-        const fieldName = `addresses[${index}].${key}`;
-        if (key !== "latitude" && key !== "longitude") {
-          if (typeof value === "string" && value.trim() !== "") {
-            validate(fieldName, value);
-          } else {
-            newErrors[fieldName] = ["This field is required."];
-            hasErrors = true;
-          }
+    // user.addresses.forEach((address, index) => {
+    //   Object.entries(address).forEach(([key, value]) => {
+    //     const fieldName = `addresses[${index}].${key}`;
+    //     if (key !== "latitude" && key !== "longitude") {
+    //       if (typeof value === "string" && value.trim() !== "") {
+    //         validate(fieldName, value);
+    //       } else {
+    //         newErrors[fieldName] = ["This field is required."];
+    //         hasErrors = true;
+    //       }
 
-          if (getErrorMessages(fieldName).length > 0) {
-            newErrors[fieldName] = getErrorMessages(fieldName);
-            hasErrors = true;
-          }
-        }
-      });
-    });
+    //       if (getErrorMessages(fieldName).length > 0) {
+    //         newErrors[fieldName] = getErrorMessages(fieldName);
+    //         hasErrors = true;
+    //       }
+    //     }
+    //   });
+    // });
+
+    const address = user.addresses[0];
+
+Object.entries(address).forEach(([key, value]) => {
+  const fieldName = `addresses[0].${key}`;
+
+  if (key !== "latitude" && key !== "longitude") {
+    if (typeof value === "string" && value.trim() !== "") {
+      validate(fieldName, value);
+    } else {
+      newErrors[fieldName] = ["This field is required."];
+      hasErrors = true;
+    }
+
+    if (getErrorMessages(fieldName).length > 0) {
+      newErrors[fieldName] = getErrorMessages(fieldName);
+      hasErrors = true;
+    }
+  }
+});
 
     if (hasErrors) {
       console.log("newErrors", newErrors);
@@ -141,7 +158,12 @@ const EditProfilePage = () => {
 
       const res = await dispatch(updateProfile(updatedUser)).unwrap();
       toast.success(res.message);
-      navigate("/profile");
+      if(redirectTo) {
+        navigate(redirectTo)
+      } else{
+        navigate("/profile");
+      }
+      
     } catch (error) {
       toast.error(getAxiosErrorMessage(error));
     }

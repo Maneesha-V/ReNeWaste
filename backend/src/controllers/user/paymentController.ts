@@ -35,7 +35,7 @@ export class PaymentController implements IPaymentController {
           amount,
           pickupReqId,
           userId,
-          method
+          method,
         },
       );
       console.log("paymentOrder", paymentOrder);
@@ -187,24 +187,52 @@ export class PaymentController implements IPaymentController {
     res: Response,
     next: NextFunction,
   ): Promise<void> {
-    try{
-    console.log("body", req.body);
-     const userId = req.user?.id;
+    try {
+      console.log("body", req.body);
+      const userId = req.user?.id;
       if (!userId) {
         throw new ApiError(
           STATUS_CODES.UNAUTHORIZED,
           MESSAGES.COMMON.ERROR.UNAUTHORIZED,
         );
       }
-      const walletPickupPayResp = await this._paymentService.verifyWalletPickupPayment(userId,req.body.paymentData);
+      const walletPickupPayResp =
+        await this._paymentService.verifyWalletPickupPayment(
+          userId,
+          req.body.paymentData,
+        );
 
-      console.log("walletPickupPayResp",walletPickupPayResp);
-      
-       res.status(STATUS_CODES.SUCCESS).json({
+      console.log("walletPickupPayResp", walletPickupPayResp);
+
+      res.status(STATUS_CODES.SUCCESS).json({
         message: MESSAGES.COMMON.SUCCESS.WALLET_PAYMENT_SUCCESS,
         walletPickupPayResp,
       });
-    } catch(error){
+    } catch (error) {
+      next(error);
+    }
+  }
+  async downloadReceipt(
+    req: AuthRequest,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> {
+    try {
+      console.log(req.params);
+      const { pickupReqId } = req.params;
+      const { doc, pickupId } =
+        await this._paymentService.generateReceipt(pickupReqId);
+
+      res.setHeader("Content-Type", "application/pdf");
+      res.setHeader(
+        "Content-Disposition",
+        `attachment; filename=receipt-${pickupId}.pdf`,
+      );
+
+      doc.pipe(res);
+      doc.end();
+    } catch (error) {
+       console.error("Error Download Receipt:", error);
       next(error);
     }
   }

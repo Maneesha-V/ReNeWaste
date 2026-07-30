@@ -1,6 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import {
   createPaymentOrderService,
+  downloadReceiptService,
   getAllPaymentsService,
   repayService,
   verifyPaymentService,
@@ -121,6 +122,22 @@ export const repay = createAsyncThunk<
     console.log(pickupReqId, amount);
 
     const response = await repayService(pickupReqId, amount);
+    return response;
+  } catch (err) {
+    console.log("err", err);
+    const msg = getAxiosErrorMessage(err);
+    return rejectWithValue({ error: msg });
+  }
+});
+export const downloadReceipt = createAsyncThunk<
+  Blob,
+  string,
+  { rejectValue: { error: string } }
+>("userPayment/downloadReceipt", async ( pickupReqId, { rejectWithValue }) => {
+  try {
+    const response = await downloadReceiptService(pickupReqId);
+    console.log("response",response);
+    
     return response;
   } catch (err) {
     console.log("err", err);

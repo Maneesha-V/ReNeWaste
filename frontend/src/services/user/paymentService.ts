@@ -32,3 +32,9 @@ export const verifyWalletPaymentService = async(paymentData: VerifyWalletPayment
   });
   return response.data;
 }
+export const downloadReceiptService = async (pickupReqId: string) => {
+  const response = await axiosUser.get(`/payment/receipt/${pickupReqId}`,{
+    responseType: "blob",
+  })
+  return response.data;
+}

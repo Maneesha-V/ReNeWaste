@@ -5,6 +5,7 @@ import { RootState } from "../../redux/store";
 import { useEffect, useMemo } from "react";
 import {
   clearPaymentError,
+  downloadReceipt,
   getAllPayments,
   repay,
   verifyPayment,
@@ -14,7 +15,10 @@ import { useAppDispatch } from "../../redux/hooks";
 import { toast } from "react-toastify";
 import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
-import { PaymentSummary, RazorpayResponse } from "../../types/pickupReq/paymentTypes";
+import {
+  PaymentSummary,
+  RazorpayResponse,
+} from "../../types/pickupReq/paymentTypes";
 import usePagination from "../../hooks/usePagination";
 import { debounce } from "lodash";
 import PaginationSearch from "../../components/common/PaginationSearch";
@@ -25,7 +29,7 @@ const Payments = () => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const { payments, total, error } = useSelector(
-    (state: RootState) => state.userPayment
+    (state: RootState) => state.userPayment,
   );
 
   useEffect(() => {
@@ -49,12 +53,15 @@ const Payments = () => {
     setStatusFilter,
   } = usePagination();
 
-    const debouncedFetchPayments = useMemo(
-      () =>
-    debounce((page: number, limit: number, query: string, filter?: string) => {
-      dispatch(getAllPayments({ page, limit, search: query, filter }));
-    }, 500),
-    []
+  const debouncedFetchPayments = useMemo(
+    () =>
+      debounce(
+        (page: number, limit: number, query: string, filter?: string) => {
+          dispatch(getAllPayments({ page, limit, search: query, filter }));
+        },
+        500,
+      ),
+    [],
   );
   useEffect(() => {
     debouncedFetchPayments(currentPage, pageSize, search, statusFilter);
@@ -94,7 +101,7 @@ const Payments = () => {
               razorpay_signature,
               pickupReqId: pickupId,
               amount: repayAmt,
-            })
+            }),
           )
             .unwrap()
             .then((res) => {
@@ -130,7 +137,22 @@ const Payments = () => {
       razorpay.open();
     }
   };
+  const handleDownload = async (pickupReqId: string, pickupId: string) => {
+    const blob = await dispatch(downloadReceipt(pickupReqId)).unwrap();
 
+    const url = window.URL.createObjectURL(blob);
+
+    const link = document.createElement("a");
+
+    link.href = url;
+    link.download = `Receipt-${pickupId}.pdf`;
+
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+
+    window.URL.revokeObjectURL(url);
+  };
   return (
     <div className="min-h-screen bg-green-50">
       <Header />
@@ -173,8 +195,8 @@ const Payments = () => {
                         payment?.payment?.refundStatus === "Pending"
                           ? "bg-yellow-100 text-yellow-700 border border-yellow-500"
                           : payment?.payment?.refundStatus === "Processing"
-                          ? "bg-blue-100 text-blue-700 border border-blue-500"
-                          : "bg-purple-100 text-purple-700 border border-purple-500"
+                            ? "bg-blue-100 text-blue-700 border border-blue-500"
+                            : "bg-purple-100 text-purple-700 border border-purple-500"
                       }`}
                     >
                       Refund Status: {payment?.payment?.refundStatus}
@@ -187,12 +209,14 @@ const Payments = () => {
                     <strong>Order ID:</strong>{" "}
                     {payment?.payment?.razorpayOrderId}
                   </p> */}
- {(payment?.payment?.walletOrderId || payment?.payment?.razorpayOrderId) && (
-    <p>
-      <strong>Order ID:</strong>{" "}
-      {payment?.payment?.walletOrderId || payment?.payment?.razorpayOrderId}
-    </p>
-  )}
+                  {(payment?.payment?.walletOrderId ||
+                    payment?.payment?.razorpayOrderId) && (
+                    <p>
+                      <strong>Order ID:</strong>{" "}
+                      {payment?.payment?.walletOrderId ||
+                        payment?.payment?.razorpayOrderId}
+                    </p>
+                  )}
                   <p>
                     <strong>Pickup ID:</strong> {payment.pickupId}
                   </p>
@@ -201,7 +225,8 @@ const Payments = () => {
                   </p>
                   {payment.payment.status === "Paid" && (
                     <>
-                      {payment.payment.refundRequested && payment.payment.refundStatus !== null ? (
+                      {payment.payment.refundRequested &&
+                      payment.payment.refundStatus !== null ? (
                         <p>
                           <strong>Refund Date:</strong>{" "}
                           {formatDateToDDMMYYYY(payment?.payment?.refundAt)}
@@ -214,9 +239,19 @@ const Payments = () => {
                       )}
                     </>
                   )}
-                   <p>
+                  <p>
                     <strong>Payment Method:</strong> {payment?.payment?.method}
                   </p>
+                  {payment?.payment?.status === "Paid" && (
+                    <button
+                      onClick={() =>
+                        handleDownload(payment._id, payment.pickupId)
+                      }
+                      className="bg-green-600 hover:bg-green-700 text-white px-3 py-2 mt-2 rounded"
+                    >
+                      Download Receipt
+                    </button>
+                  )}
                 </div>
 
                 {(() => {

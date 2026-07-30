@@ -111,7 +111,6 @@ export class ProfileController implements IProfileController {
     next: NextFunction,
   ): Promise<void> {
     try {
-
       console.log(req.body);
       
       const locationData = req.body;

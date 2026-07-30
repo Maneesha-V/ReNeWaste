@@ -12,13 +12,13 @@ import {
   VerifyWalletPickupPaymentReq,
 } from "../../dtos/pickupReq/paymentDTO";
 import {
-  PaymentDTO,
   PickupPaymentSummaryDTO,
 } from "../../dtos/pickupReq/pickupReqDTO";
 import { PickupRequestMapper } from "../../mappers/PIckupReqMapper";
 import { PaginationInput } from "../../dtos/common/commonDTO";
 import { IWalletRepository } from "../../repositories/wallet/interface/IWalletRepository";
-import { IPickupRequestDocument } from "../../models/pickupRequests/interfaces/pickupInterface";
+import { IUserRepository } from "../../repositories/user/interface/IUserRepository";
+import PDFDocument from "pdfkit";
 
 @injectable()
 export class PaymentService implements IPaymentService {
@@ -28,6 +28,8 @@ export class PaymentService implements IPaymentService {
     private _pickupRepository: IPickupRepository,
     @inject(TYPES.WalletRepository)
     private _walletRepository: IWalletRepository,
+    @inject(TYPES.UserRepository)
+    private _userRepository: IUserRepository,
   ) {
     const key_id = process.env.RAZORPAY_KEY_ID!;
     const key_secret = process.env.RAZORPAY_KEY_SECRET!;
@@ -173,20 +175,23 @@ export class PaymentService implements IPaymentService {
     //     accountType
     //   });
     // }
-if (!wallet) {
-  try {
-    wallet = await this._walletRepository.createWallet({
-      accountId,
-      accountType
-    });
-  } catch(err) {
-     console.error("Wallet creation error", err);
-    wallet = await this._walletRepository.findWallet(accountId, accountType);
-  }
-}
+    if (!wallet) {
+      try {
+        wallet = await this._walletRepository.createWallet({
+          accountId,
+          accountType,
+        });
+      } catch (err) {
+        console.error("Wallet creation error", err);
+        wallet = await this._walletRepository.findWallet(
+          accountId,
+          accountType,
+        );
+      }
+    }
 
-if (!wallet) throw new Error("Wallet creation failed");
-console.log("Wallet found:", wallet);
+    if (!wallet) throw new Error("Wallet creation failed");
+    console.log("Wallet found:", wallet);
     wallet.holdingBalance += amount;
 
     wallet.transactions.push({
@@ -203,7 +208,7 @@ console.log("Wallet found:", wallet);
       razorpaySignature: razorpay_signature,
       paidAt: new Date(),
     });
-    
+
     await wallet.save();
 
     return PickupRequestMapper.toPaymentDTO(pickupRequest);
@@ -267,7 +272,7 @@ console.log("Wallet found:", wallet);
     payment.razorpayRefundId = null;
 
     await pickupRequest.save();
-  
+
     return {
       orderId: payment.razorpayOrderId,
       amount: payment.amount,
@@ -368,5 +373,105 @@ console.log("Wallet found:", wallet);
     await pickupRequest.save();
 
     return PickupRequestMapper.toPaymentDTO(pickupRequest);
+  }
+  async generateReceipt(pickupReqId: string) {
+    const pickup = await this._pickupRepository.getPickupById(pickupReqId);
+    if (!pickup) {
+      throw new Error("Pickup not found.");
+    }
+    if (!pickup.payment) {
+      throw new Error("Pickup payment not found.");
+    }
+    const user = await this._userRepository.findUserById(
+      pickup.userId.toString(),
+    );
+    if (!user) {
+      throw new Error("User not found.");
+    }
+    const payment = pickup.payment;
+
+    const doc = new PDFDocument({
+      margin: 50,
+      size: "A4",
+    });
+    doc
+      .fillColor("#16a34a")
+      .fontSize(24)
+      .text("ReNeWaste", { align: "center" });
+
+    doc
+      .moveDown()
+      .fillColor("black")
+      .fontSize(18)
+      .text("Waste Collection Receipt", {
+        align: "center",
+      });
+
+    doc.moveDown();
+
+    doc.moveTo(50, doc.y).lineTo(550, doc.y).stroke();
+    doc.moveDown();
+
+    doc.fontSize(12);
+
+    doc.text(`Receipt No : REC-${pickup.pickupId}`);
+    doc.text(`Payment ID : ${payment.razorpayPaymentId}`);
+    doc.text(`Order ID   : ${payment.razorpayOrderId}`);
+    doc.text(`Date       : ${new Date(payment.paidAt!).toLocaleString()}`);
+
+    doc.moveDown();
+
+    doc.fontSize(16).text("Customer Details");
+
+    doc.moveDown(0.5);
+
+    doc.fontSize(12);
+    doc.text(`Name  : ${user.firstName} ${user.lastName}`);
+    doc.text(`Email : ${user.email}`);
+
+    doc.moveDown();
+    doc.fontSize(16).text("Service Details");
+
+    doc.moveDown(0.5);
+
+    doc.fontSize(12);
+    doc.text(`Service     : ${pickup.wasteType} Service`);
+    doc.text(`Waste Type  : ${pickup.wasteType}`);
+    const pickupDate = pickup.rescheduledPickupDate || pickup.originalPickupDate
+    doc.text(
+      `Pickup Date : ${new Date(pickupDate).toLocaleString()}`,
+    );
+    doc.text(`Pickup Time : ${pickup.pickupTime}`);
+
+    doc.moveDown();
+
+    doc.fontSize(16).text("Payment Details");
+
+    doc.moveDown(0.5);
+
+    doc.fontSize(12);
+    doc.text(`Amount Paid : ₹${payment.amount}`);
+    doc.text(`Status      : ${payment.status}`);
+    doc.text(`Method      : ${payment.method}`);
+
+    doc.moveDown(3);
+    doc
+      .fillColor("#16a34a")
+      .fontSize(13)
+      .text("Thank you for choosing ReNeWaste!", {
+        align: "center",
+      });
+
+    doc
+      .fillColor("gray")
+      .fontSize(11)
+      .text("Together, let's build a cleaner tomorrow.", {
+        align: "center",
+      });
+
+    return {
+      doc,
+      pickupId: pickup.pickupId
+    };
   }
 }

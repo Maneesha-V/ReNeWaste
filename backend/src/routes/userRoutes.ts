@@ -161,6 +161,12 @@ router.post(
   paymentCtrl.rePayment.bind(paymentCtrl),
 );
 router.get(
+  "/payment/receipt/:pickupReqId",
+  authenticateUser as RequestHandler,
+  checkNotBlocked,
+  paymentCtrl.downloadReceipt.bind(paymentCtrl),
+);
+router.get(
   "/drop-spots",
   authenticateUser as RequestHandler,
   checkNotBlocked,

@@ -11,15 +11,15 @@ export class UserMapper {
   static mapAddressDTO(doc: IAddressDocument): AddressDTO {
     return {
       _id: doc._id.toString(),
-      addressLine1: doc.addressLine1,
-      addressLine2: doc.addressLine2,
-      taluk: doc.taluk,
-      location: doc.location,
-      state: doc.state,
-      pincode: doc.pincode,
-      district: doc.district,
-      latitude: doc.latitude,
-      longitude: doc.longitude,
+      addressLine1: doc.addressLine1 ?? "",
+      addressLine2: doc.addressLine2 ?? "",
+      taluk: doc.taluk ?? "",
+      location: doc.location ?? "",
+      state: doc.state ?? "",
+      pincode: doc.pincode ?? "",
+      district: doc.district ?? "",
+      latitude: doc.latitude ?? 0,
+      longitude: doc.longitude ?? 0,
     };
   }
   static mapUserDTO(doc: IUserDocument): UserDTO {

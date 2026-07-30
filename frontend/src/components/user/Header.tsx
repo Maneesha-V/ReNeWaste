@@ -84,7 +84,7 @@ const Header = () => {
 
             {/* "More" Dropdown Menu */}
             {isMoreOpen && (
-              <div className="absolute right-0 mt-2 w-48 bg-gray-700 text-white rounded-lg shadow-lg">
+              <div className="absolute right-0 mt-2 w-48 bg-gray-700 text-white rounded-lg shadow-lg z-50">
                 <button
                   onClick={() => handleNavigation("/drop-spots")}
                   className="block w-full px-4 py-2 text-left hover:bg-gray-600"

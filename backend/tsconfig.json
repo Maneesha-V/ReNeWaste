@@ -26,7 +26,8 @@
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "skipLibCheck": true,
-    "types": ["node", "./src/types/global.d.ts"]
+    "types": ["node", "./src/types/global.d.ts"],
+    "allowSyntheticDefaultImports": true
   },
   "include": ["src"]
 }
