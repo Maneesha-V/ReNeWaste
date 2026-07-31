@@ -14,8 +14,10 @@ const GoogleSignUpButton = () => {
       const res = await dispatch(
         googleSignUp({ auth, googleProvider })
       ).unwrap();
+      console.log("res",res);
+      
       toast.success(res.message || "Google Signup successful!");
-      navigate("/home");
+      navigate("/login");
     } catch (err) {  
       const error = err as { message: string };
       toast.error(error.message || "Google Signup failed. Please try again.");

@@ -212,7 +212,7 @@ export const googleSignUp = createAsyncThunk<
   async ({ auth, googleProvider }, { rejectWithValue }) => {
     try {
       const response = await googleSignUpService(auth, googleProvider);
-      return response.data;
+      return response;
     } catch (error) {
       console.log("Google Sign-Up error:", error);
       const msg = getAxiosErrorMessage(error);
@@ -255,7 +255,11 @@ export const updateUserLocation = createAsyncThunk<
 const userSlice = createSlice({
   name: "user",
   initialState,
-  reducers: {},
+  reducers: {
+    clearError: (state) => {
+      state.error = null;
+    }
+  },
   extraReducers: (builder) => {
     builder
       .addCase(signup.pending, (state) => {
@@ -409,5 +413,7 @@ const userSlice = createSlice({
       });
   },
 });
+
+export const { clearError } = userSlice.actions;
 
 export default userSlice.reducer;

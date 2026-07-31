@@ -70,6 +70,7 @@ export const googleSignUpService = async (
 ) => {
     const result = await signInWithPopup(auth, googleProvider);
     const { user } = result;
+    
     const response = await axiosUser.post(`/google-signup`, {
       email: user.email,
       displayName: user.displayName,

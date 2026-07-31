@@ -2,11 +2,11 @@ import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { toast } from "react-toastify";
 import GoogleSignUpButton from "../../components/user/GoogleSignUpButton";
-import { sendOtpSignup } from "../../redux/slices/user/userSlice";
+import { clearError, sendOtpSignup } from "../../redux/slices/user/userSlice";
 import { useAppDispatch } from "../../redux/hooks";
 import { validateForm } from "../../utils/formValidationUtils";
 import useFormValidation from "../../hooks/useFormValidation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { SignupRequest } from "../../types/user/userTypes";
 import { RootState } from "../../redux/store";
 import { getAxiosErrorMessage } from "../../utils/handleAxiosError";
@@ -21,6 +21,9 @@ const Signup = ({
   const dispatch = useAppDispatch();
   
   const { loading, error } = useSelector((state: RootState) => state.user);
+  useEffect(()=>{
+    dispatch(clearError());
+  },[dispatch])
 
   const { formData, errors, handleChange, handleBlur, setErrors } =
     useFormValidation<SignupRequest>(

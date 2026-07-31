@@ -177,7 +177,18 @@ const PickupCommercialFormModal: React.FC<PickupCommercialFormModalProps> = ({
       onClose();
       setTimeout(() => navigate("/commercial"), 2000);
     } catch(error) {
-      toast.error(getAxiosErrorMessage(error));
+      const msg = getAxiosErrorMessage(error);
+      if(msg.includes("Please complete your address")){
+        toast.error(msg);
+        onClose();
+        navigate("/edit-profile", {
+          state: {
+            returnTo: "/commercial"
+          }
+        });
+        return;
+      }
+      toast.error(msg);
     }
   };
 

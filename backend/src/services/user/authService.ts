@@ -52,8 +52,9 @@ export class AuthService implements IAuthService {
     }
   }
   async signupUser(userData: IUser): Promise<SignupResponse> {
+    const email = userData.email.trim();
     const existingUser = await this._userRepository.findUserByEmail(
-      userData.email,
+      email
     );
     if (existingUser) {
       throw new Error("Email already exists. Please use a different email.");
@@ -66,6 +67,7 @@ export class AuthService implements IAuthService {
 
     const newUserData: IUser = {
       ...userData,
+      email,
       password: hashedPassword,
       addresses: userData.addresses || [],
     };
@@ -78,7 +80,6 @@ export class AuthService implements IAuthService {
       userId: newUser._id.toString(),
       role: newUser.role,
     });
-    // return { user: newUser, token };
     return { user: UserMapper.mapUserLoginDTO(newUser), token };
   }
 

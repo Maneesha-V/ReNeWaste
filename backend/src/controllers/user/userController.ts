@@ -350,8 +350,7 @@ export class UserController implements IUserController {
           STATUS_CODES.NOT_FOUND,
           MESSAGES.COMMON.ERROR.EMAIL_UID_REQUIRED,
         );
-        // res.status(400).json({ message: "Email and UID are required" });
-        // return;
+
       }
       const { role, token } = await this._authService.googleSignUpService({
         email,

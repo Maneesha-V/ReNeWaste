@@ -55,6 +55,13 @@ const AssignDriverModal = ({
     }
   }, [trucks, form]);
 
+  useEffect(() => {
+  if (!visible) {
+    form.resetFields();
+    setSelectedDriver(null);
+  }
+}, [visible, form]);
+
   const filteredDrivers = Array.isArray(drivers)
     ? drivers.filter((d: DriverDTO) => {
         return (
@@ -90,6 +97,8 @@ const AssignDriverModal = ({
       console.log("result",result);
 
       toast.success(result?.message);
+   
+
       onSuccess();
       onClose();
     } catch (err) {

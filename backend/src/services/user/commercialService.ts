@@ -64,27 +64,53 @@ export class CommercialService implements ICommercialService {
       updatedData,
     );
     if (!updatedUser) throw new Error("User update failed");
-    let addressIdToUse: Types.ObjectId;
-    if (updatedUser.addresses?.length) {
-      const addressList = updatedUser.addresses;
-      const latestAddress = addressList[addressList.length - 1] as IAddress & {
-        _id: Types.ObjectId;
-      };
-      console.log("latestAddress", latestAddress);
 
-      if (!latestAddress || !latestAddress._id)
-        throw new Error("Address ID not found");
+    // let addressIdToUse: Types.ObjectId;
+    // if (updatedUser.addresses?.length) {
+    //   const addressList = updatedUser.addresses;
+    //   const latestAddress = addressList[addressList.length - 1] as IAddress & {
+    //     _id: Types.ObjectId;
+    //   };
+    //   console.log("latestAddress", latestAddress);
 
-      addressIdToUse = new Types.ObjectId(latestAddress._id);
-    } else if (updatedData.selectedAddressId) {
-      addressIdToUse = new Types.ObjectId(updatedData.selectedAddressId);
-    } else {
-      throw new Error("No address provided or selected.");
-    }
+    //   if (!latestAddress || !latestAddress._id)
+    //     throw new Error("Address ID not found");
+
+    //   addressIdToUse = new Types.ObjectId(latestAddress._id);
+    // } else if (updatedData.selectedAddressId) {
+    //   addressIdToUse = new Types.ObjectId(updatedData.selectedAddressId);
+    // } else {
+    //   throw new Error("No address provided or selected.");
+    // }
+let selectedAddress = null;
+
+if (updatedData.selectedAddressId) {
+  selectedAddress =
+    updatedUser.addresses?.find(
+      (addr) => addr._id?.toString() === updatedData.selectedAddressId
+    ) ?? null;
+} else {
+  selectedAddress =
+    updatedUser.addresses?.[updatedUser.addresses.length - 1] ?? null;
+}
+
+if (!selectedAddress) {
+  throw new Error("No address found.");
+}
+
+if (
+  !selectedAddress.addressLine1?.trim() ||
+  !selectedAddress.addressLine2?.trim() ||
+  !selectedAddress.location?.trim()
+) {
+  throw new Error(
+    "Please complete your address before scheduling a pickup."
+  );
+}
     const newPickuData = {
       userId: new Types.ObjectId(userId),
       wasteplantId: user?.wasteplantId,
-      addressId: addressIdToUse,
+      addressId: new Types.ObjectId(selectedAddress._id),
       wasteType: updatedData.wasteType,
       originalPickupDate: updatedData.pickupDate,
       pickupTime: updatedData.pickupTime,

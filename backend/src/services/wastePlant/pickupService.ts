@@ -17,7 +17,6 @@ import {
 } from "../../dtos/wasteplant/WasteplantDTO";
 import { PickupRequestMapper } from "../../mappers/PIckupReqMapper";
 import {
-  PickupReqDTO,
   PickupReqGetDTO,
 } from "../../dtos/pickupReq/pickupReqDTO";
 import { DriverMapper } from "../../mappers/DriverMapper";
