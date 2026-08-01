@@ -112,6 +112,7 @@ const userLandingSlice = createSlice({
         state.loading = false;
         state.error = action.payload?.message || "Something went wrong";
         state.success = false;
+        state.hasCheckedService = true;
       })
       .addCase(checkCurrentLocation.pending, (state) => {
         state.loading = true;

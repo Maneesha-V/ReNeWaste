@@ -16,6 +16,7 @@ import { RootState } from "../../redux/store";
 import { LocationSuggestion } from "../../types/common/commonTypes";
 import { toast } from "react-toastify";
 import _ from "lodash";
+import { getAxiosErrorMessage } from "../../utils/handleAxiosError";
 
 const LandingPage = () => {
   const navigate = useNavigate();
@@ -23,7 +24,7 @@ const LandingPage = () => {
   const [isFetchingLocation, setIsFetchingLocation] = useState(false);
   const [selectedLocation, setSelectedLocation] =
     useState<LocationSuggestion | null>(null);
-  const { suggestions, success, hasCheckedService, plantName } = useSelector(
+  const { suggestions, success, hasCheckedService, plantName, error } = useSelector(
     (state: RootState) => state.userLanding,
   );
 
@@ -61,7 +62,7 @@ const LandingPage = () => {
   };
   const handleCheckService = async () => {
     if (!selectedLocation) return;
-
+    try {
     const result = await dispatch(
       checkServiceAvailability(selectedLocation.description),
     ).unwrap();
@@ -78,6 +79,9 @@ const LandingPage = () => {
         }),
       );
     }
+  } catch(error) {
+    toast.error(getAxiosErrorMessage(error))
+  }
   };
   const handleCurrentLocation = () => {
     if (!navigator.geolocation) {
@@ -209,8 +213,7 @@ const LandingPage = () => {
                   </div>
                 ) : (
                   <div className="mt-4 bg-red-100 border border-red-500 text-red-700 rounded-lg p-3">
-                    ❌ Sorry, waste collection service is not available in your
-                    area.
+                    ❌ {error || "Sorry, waste collection service is not available in your area."}
                   </div>
                 ))}
             </div>
