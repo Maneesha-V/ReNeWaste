@@ -10,7 +10,6 @@ import { extractDateTimeParts, sortByDateDesc } from "../../utils/formatDate";
 import { Check } from "lucide-react";
 import { useSelector } from "react-redux";
 import { RootState } from "../../redux/store";
-import { useNavigate } from "react-router-dom";
 import { NotificationResp } from "../../types/notification/notificationTypes";
 import { WastePlantNotificationPanelProps } from "../../types/common/modalTypes";
 
@@ -25,7 +24,6 @@ const NotificationPanel: React.FC<WastePlantNotificationPanelProps> = ({
     (state: RootState) => state.wastePlantNotifications.notifications
   );
 
-  const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const socket = useSafeSocket();
 
@@ -71,23 +69,7 @@ const NotificationPanel: React.FC<WastePlantNotificationPanelProps> = ({
       notificationId: notification._id,
     });
   };
-  const handleSubscription = () => {
-      navigate("/waste-plant/subscription-plan");
-      onClose()
-  }
-  // const handleModifyRequest = (n: NotificationResp) => {
-
-  // navigate("/waste-plant/pickups", {
-  //   state: {
-  //     pickupRequestId: n.pickupRequestId,
-  //     openModifyModal: true,
-  //     wasteType: "Commercial",
-  //     status: "Scheduled"
-  //   },
-  // });
-
-  // onClose();
-  // }
+ 
   const filteredNotifications = (
     activeTab === "unread"
       ? [...notifications.filter((n) => !n.isRead)]

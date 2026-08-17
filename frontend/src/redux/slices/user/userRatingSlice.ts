@@ -39,7 +39,7 @@ const userRatingSlice = createSlice({
         state.loading = true;
         state.error = null;
       })
-      .addCase(addRating.fulfilled, (state, action) => {
+      .addCase(addRating.fulfilled, (state) => {
         state.loading = false;
       })
       .addCase(addRating.rejected, (state, action) => {

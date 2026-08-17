@@ -1,6 +1,5 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import {
-  getRefreshAccessToken,
   loginSuperAdmin,
   logoutSuperAdmin,
   resendOtpService,
@@ -31,18 +30,6 @@ const initialState: SuperAdminState = {
   role: null
 };
 
-export const refreshAccessToken = createAsyncThunk(
-  "superadmin/refreshAccessToken",
-  async (_, { rejectWithValue }) => {
-    try {
-      const response = await getRefreshAccessToken();    
-      return response.token;
-    } catch (error: any) {
-      console.error("err", error);
-      return rejectWithValue(error);
-    }
-  }
-);
 
 export const superAdminLogin = createAsyncThunk<
 LoginResponse,
@@ -173,10 +160,6 @@ const superAdminSlice = createSlice({
   reducers: {},
   extraReducers: (builder) => {
     builder
-      .addCase(refreshAccessToken.fulfilled, (_, action) => {
-        // state.token = action.payload;
-        localStorage.setItem("token", action.payload);
-      })
       .addCase(superAdminLogin.pending, (state) => {
         state.loading = true;
         state.error = null;

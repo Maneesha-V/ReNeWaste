@@ -101,7 +101,7 @@ const userWalletSlice = createSlice({
         state.loading = true;
         state.error = null;
       })
-      .addCase(createAddMoneyOrder.fulfilled, (state, action) => {
+      .addCase(createAddMoneyOrder.fulfilled, (state) => {
         state.loading = false;
       })
       .addCase(createAddMoneyOrder.rejected, (state, action) => {
@@ -126,7 +126,7 @@ const userWalletSlice = createSlice({
         state.loading = true;
         state.error = null;
       })
-      .addCase(retryAddMoney.fulfilled, (state, action) => {
+      .addCase(retryAddMoney.fulfilled, (state) => {
         state.loading = false;
       })
       .addCase(retryAddMoney.rejected, (state, action) => {

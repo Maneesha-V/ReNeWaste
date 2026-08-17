@@ -24,7 +24,6 @@ import {
   Modal,
   Pagination,
   Tag,
-  Divider,
 } from "antd";
 import {
   formatDateToDDMMYYYY,
@@ -46,7 +45,6 @@ import { getAxiosErrorMessage } from "../../utils/handleAxiosError";
 import ModifyCommercialPickupModal from "../../components/user/ModifyCommercialPickupModal";
 import { CalendarOutlined, CarOutlined, ClockCircleOutlined, CloseCircleOutlined, DollarOutlined, EditOutlined, EnvironmentOutlined, EyeOutlined, SyncOutlined, UserOutlined } from "@ant-design/icons";
 
-const { Meta } = Card;
 
 const PickupPlans = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);

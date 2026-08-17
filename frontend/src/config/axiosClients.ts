@@ -1,7 +1,5 @@
 import { createAxiosInstance } from "./axiosInstance";
 
-import { store } from "../redux/store";
-import { refreshAccessToken } from "../redux/slices/superAdmin/superAdminSlice";
 import { handleAdminLogout, handleDriverLogout, handlePlantBlock, handlePlantLogout, handleUserBlock, handleUserLogout } from "../utils/apiUtils";
 
 // Driver

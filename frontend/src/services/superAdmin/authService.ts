@@ -1,13 +1,6 @@
 import { axiosSuperadmin } from "../../config/axiosClients";
 import { LoginRequest, SignUpReq } from "../../types/superadmin/superAdminTypes";
 
-export const getRefreshAccessToken = async () => {
-    const response = await axiosSuperadmin.get(`/refresh-token`);
-
-    console.log("ref-repsone", response);
-
-    return response.data;
-};
 export const loginSuperAdmin = async (superAdminData: LoginRequest) => {
     const response = await axiosSuperadmin.post("/", superAdminData);
     console.log("res", response);

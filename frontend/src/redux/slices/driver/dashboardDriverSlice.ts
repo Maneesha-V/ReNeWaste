@@ -10,7 +10,6 @@ import {
   DashboardSummary,
   DriverSupportInfo,
 } from "../../../types/driver/driverTypes";
-import { MsgSuccessResp } from "../../../types/common/commonTypes";
 import {
   DriverEarnRewardStat,
   FetchDriverEarnStatsReq,

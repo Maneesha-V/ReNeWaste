@@ -1,4 +1,4 @@
-import { Table, Tag, Typography, Alert, Breakpoint, Pagination } from "antd";
+import { Table, Typography, Alert, Breakpoint, Pagination } from "antd";
 import { useEffect, useMemo, useState } from "react";
 import { useAppDispatch } from "../../redux/hooks";
 import { useSelector } from "react-redux";
