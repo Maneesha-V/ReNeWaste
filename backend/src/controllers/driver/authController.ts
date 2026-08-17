@@ -48,7 +48,7 @@ export class AuthController implements IAuthController {
         email,
         password,
       });
-      //  const { password: _, ...safeDriver } = driver.toObject();
+
       const refreshToken = await generateRefreshToken({
         userId: driver._id.toString(),
         role: driver.role,
@@ -61,7 +61,7 @@ export class AuthController implements IAuthController {
         // sameSite: "strict" as "strict",
         sameSite: isProduction ? ("none" as const) : ("lax" as const),
         path: "/api/driver",
-        maxAge: 7 * 24 * 60 * 60 * 1000,
+        maxAge: Number(process.env.MAX_AGE),
       };
       res
         .cookie("refreshToken", refreshToken, cookieOptions)

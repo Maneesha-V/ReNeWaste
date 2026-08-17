@@ -10,6 +10,7 @@ import { IWastePlantRepository } from "./interface/IWastePlantRepository";
 import TYPES from "../../config/inversify/types";
 import { IOtpRepository } from "../otp/interface/IOtpRepository";
 import { IOtp } from "../../models/user/interfaces/otpInterface";
+import mongoose from "mongoose";
 
 @injectable()
 export class WastePlantRepository
@@ -81,8 +82,14 @@ export class WastePlantRepository
     const total = await this.model.countDocuments(query);
     return { wasteplants, total };
   }
-  async getWastePlantById(id: string) {
-    return await this.model.findById(id);
+  async getWastePlantById(id: string, session?: mongoose.ClientSession) {
+    const query = this.model.findById(id);
+    console.log({query});
+    
+    if(session){
+      query.session(session)
+    }
+    return query;
   }
   async updateWastePlantById(
     id: string,

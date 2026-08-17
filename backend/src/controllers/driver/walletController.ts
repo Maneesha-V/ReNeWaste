@@ -11,12 +11,12 @@ import { MESSAGES, STATUS_CODES } from "../../utils/constantUtils";
 export class WalletController implements IWalletController {
   constructor(
     @inject(TYPES.DriverWalletService)
-    private _walletService: IWalletService
+    private _walletService: IWalletService,
   ) {}
   async getWallet(
     req: AuthRequest,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ): Promise<void> {
     try {
       const accountId = req.user?.id;
@@ -25,7 +25,7 @@ export class WalletController implements IWalletController {
       if (!accountId) {
         throw new ApiError(
           STATUS_CODES.UNAUTHORIZED,
-          MESSAGES.COMMON.ERROR.UNAUTHORIZED
+          MESSAGES.COMMON.ERROR.UNAUTHORIZED,
         );
       }
       const page = parseInt(req.query.page as string) || 1;
@@ -38,7 +38,7 @@ export class WalletController implements IWalletController {
           accountType,
           page,
           limit,
-          search
+          search,
         );
 
       res

@@ -5,6 +5,8 @@ import { IUserRepository } from "../../repositories/user/interface/IUserReposito
 import { IDropSpotRepository } from "../../repositories/dropSpot/interface/IDropSpotRepository";
 import { DropSpotDTO } from "../../dtos/dropspots/dropSpotDTO";
 import { DropSpotMapper } from "../../mappers/DropSpotMapper";
+import { ApiError } from "../../utils/ApiError";
+import { MESSAGES, STATUS_CODES } from "../../utils/constantUtils";
 
 @injectable()
 export class DropSpotService implements IDropSpotService {
@@ -17,19 +19,26 @@ export class DropSpotService implements IDropSpotService {
   async getAllNearDropSpots(userId: string): Promise<DropSpotDTO[]> {
     const user = await this.userRepository.findUserById(userId);
 
-    if (!user) throw new Error("User not found");
+    if (!user) {
+      throw new ApiError(STATUS_CODES.NOT_FOUND, MESSAGES.USER.ERROR.NOT_FOUND);
+    }
     if (!user.addresses || user.addresses.length === 0) {
-      throw new Error("No address found for user");
+      throw new ApiError(
+        STATUS_CODES.SERVER_ERROR,
+        MESSAGES.USER.ERROR.NO_ADDRESS,
+      );
     }
 
     const userAddress = user.addresses[0];
-    console.log("userAddress",userAddress);
     
     const { location, district, state } = userAddress;
     const wasteplantId = user.wasteplantId;
-  
+
     if (!wasteplantId) {
-      throw new Error("User's wasteplantId is missing");
+      throw new ApiError(
+        STATUS_CODES.SERVER_ERROR,
+        MESSAGES.WASTEPLANT.ERROR.ID_MISSING,
+      );
     }
     const dropspots =
       await this.dropSpotRepository.getDropSpotsByLocationAndWasteplant({
@@ -38,10 +47,13 @@ export class DropSpotService implements IDropSpotService {
         state,
         wasteplantId,
       });
-      console.log("drops",dropspots);
-      
+    console.log("drops", dropspots);
+
     if (!dropspots) {
-      throw new Error("Drop spots not found.");
+      throw new ApiError(
+        STATUS_CODES.SERVER_ERROR,
+        MESSAGES.USER.ERROR.DROPSPOTS_NOT_FOUND,
+      );
     }
     return DropSpotMapper.mapDropSpotsDTO(dropspots);
   }

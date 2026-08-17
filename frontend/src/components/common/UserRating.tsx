@@ -14,21 +14,20 @@ const UserRating = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-try {
-    if (rating === 0) {
-      toast.error("Please select a rating before submitting.");
-      return;
+    try {
+      if (rating === 0) {
+        toast.error("Please select a rating before submitting.");
+        return;
+      }
+
+      const res = await dispatch(addRating({ rating, comment })).unwrap();
+      toast.success(res?.message);
+      
+      setSubmitted(true);
+    } catch (error) {
+      console.error("Error submitting rating:", error);
+      toast.error(getAxiosErrorMessage(error));
     }
-    console.log("Submitted Rating:", rating, "Comment:", comment);
-
-    const res = await dispatch(addRating({rating, comment})).unwrap();
-    toast.success(res?.message);
-   setSubmitted(true);
-} catch (error) {
-    console.error("Error submitting rating:", error);
-    toast.error(getAxiosErrorMessage(error));
-  }
-
   };
 
   return (

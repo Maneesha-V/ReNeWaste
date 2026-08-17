@@ -1,9 +1,9 @@
-import { ClientSession } from "mongoose";
+import mongoose, { ClientSession } from "mongoose";
 import { AddMoneyToWallet, AddMoneyToWalletRepoReq, CreateWalletReq, FetchFilteredWPRevenueResp, FetchWPDashboardRepo, IWalletDocument, PaginatedDriverWallet, PaginatedGetWalletReq, PaginatedSuperAdminWallet, PaginatedUserWallet, PaginatedWPWallet } from "../../../models/wallet/interfaces/walletInterface";
 
 export interface IWalletRepository {
     findWallet(accountId: string, accountType: string, session?: ClientSession): Promise<IWalletDocument | null>
-    createWallet(payload: CreateWalletReq): Promise<IWalletDocument>
+    createWallet(payload: CreateWalletReq, session?: mongoose.ClientSession): Promise<IWalletDocument>
     findWalletByWalletId(walletId: string): Promise<IWalletDocument | null>
     addMoney(payload: AddMoneyToWallet, session?: ClientSession): Promise<IWalletDocument | null>
     createDrWpWallet(payload: AddMoneyToWalletRepoReq, session?: ClientSession): Promise<IWalletDocument>

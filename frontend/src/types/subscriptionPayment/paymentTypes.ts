@@ -93,6 +93,7 @@ export  type SubscptnCancelResp = {
 export type UpdateRefundStatusReq = {
   subPayId: string;
   refundStatus:  string
+  rejectionMessage?: string
 }
 export type UpdateRefundStatusResp = {
   message: string;

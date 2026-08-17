@@ -19,7 +19,7 @@ export class HomeController implements IHomeController {
   ): Promise<void> {
     try {
       const location = req.query.location as string;
-      console.log(location);
+
       if (!location) {
         throw new ApiError(
           STATUS_CODES.BAD_REQUEST,
@@ -41,7 +41,7 @@ export class HomeController implements IHomeController {
   ): Promise<void> {
     try {
       const location = req.params.description as string;
-      console.log(location);
+
       if (!location) {
         throw new ApiError(
           STATUS_CODES.BAD_REQUEST,
@@ -65,7 +65,7 @@ export class HomeController implements IHomeController {
     try {
       const latitude = Number(req.query.latitude);
       const longitude = Number(req.query.longitude);
-      console.log({ latitude, longitude });
+
       if (!latitude || !longitude) {
         throw new ApiError(
           STATUS_CODES.BAD_REQUEST,

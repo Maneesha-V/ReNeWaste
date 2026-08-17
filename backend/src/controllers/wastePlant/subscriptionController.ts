@@ -33,10 +33,11 @@ export class SubscriptionController implements ISubscriptionController {
 
       const selectedPlan =
         await this._subscriptionService.fetchSubscriptionPlan(plantId);
-      console.log("selectedPlan", selectedPlan);
+      console.log({selectedPlan});
+      
       const subPaymentHistory =
         await this._paymentService.fetchSubscriptionPayments(plantId);
-      console.log("subPaymentHistory", subPaymentHistory);
+console.log({subPaymentHistory});
       res.status(STATUS_CODES.SUCCESS).json({
         success: true,
         message: MESSAGES.WASTEPLANT.SUCCESS.SUBSCRIPTION_PLAN,
@@ -65,7 +66,6 @@ export class SubscriptionController implements ISubscriptionController {
 
       const subscriptionPlans =
         await this._subscriptionService.fetchSubscriptionPlans(plantId);
-      // console.log("subscriptionPlans", subscriptionPlans);
 
       res.status(STATUS_CODES.SUCCESS).json({
         success: true,
@@ -92,14 +92,12 @@ export class SubscriptionController implements ISubscriptionController {
           MESSAGES.COMMON.ERROR.UNAUTHORIZED,
         );
       }
-      console.log({ subPayId, plantId, reason });
 
       const payment = await this._subscriptionService.cancelSubcptReason(
         plantId,
         subPayId,
         reason,
       );
-      console.log("payment", payment);
 
       res.status(STATUS_CODES.SUCCESS).json({
         message: MESSAGES.WASTEPLANT.SUCCESS.SUBSCRIPTION_CANCEL,

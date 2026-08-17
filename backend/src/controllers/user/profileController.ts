@@ -28,7 +28,7 @@ export class ProfileController implements IProfileController {
         );
       }
       const user = await this.profileService.getUserProfile(userId);
-      console.log("user", user);
+
       if (user) {
         res.status(STATUS_CODES.SUCCESS).json({ user });
       } else {
@@ -37,7 +37,6 @@ export class ProfileController implements IProfileController {
           .json({ message: MESSAGES.USER.ERROR.FETCH_PROFILE });
       }
     } catch (error) {
-      // res.status(400).json({ error: error.message });
       next(error);
     }
   }
@@ -65,7 +64,6 @@ export class ProfileController implements IProfileController {
           .json({ message: MESSAGES.USER.ERROR.FETCH_EDIT_PROFILE });
       }
     } catch (error) {
-      // res.status(400).json({ error: error.message });
       next(error);
     }
   }
@@ -84,7 +82,6 @@ export class ProfileController implements IProfileController {
         );
       }
       const updatedData = req.body;
-      console.log("updatedData", updatedData);
 
       const updatedUser = await this.profileService.updateUserProfile(
         userId,
@@ -111,8 +108,7 @@ export class ProfileController implements IProfileController {
     next: NextFunction,
   ): Promise<void> {
     try {
-      console.log(req.body);
-      
+
       const locationData = req.body;
       const result = await this.profileService.updateUserServiceAddress(
         locationData

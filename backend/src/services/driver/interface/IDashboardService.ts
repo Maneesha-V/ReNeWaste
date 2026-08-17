@@ -1,4 +1,4 @@
-import { AttendanceDTO, DriverEarnRewardStatResp, FetchDriverEarnStats } from "../../../dtos/attendance/attendanceDTO";
+import { AttendancePieItemDTO, DriverEarnRewardStatResp, FetchDriverEarnStats } from "../../../dtos/attendance/attendanceDTO";
 import {
   DriverDashboardResponse,
   DriverSupportInfo,
@@ -7,6 +7,6 @@ import {
 export interface IDashboardService {
   fetchDriverDashboard(driverId: string): Promise<DriverDashboardResponse>;
   fetchWastePlantSupport(driverId: string): Promise<DriverSupportInfo>;
-  markAttendance(driverId: string, status: string): Promise<AttendanceDTO>;
+  markAttendance(driverId: string, status: string): Promise<AttendancePieItemDTO[]>;
   fetchDriverEarnStats( data: FetchDriverEarnStats): Promise<DriverEarnRewardStatResp[]>;
 }

@@ -27,7 +27,6 @@ const Commercial = () => {
   );
 
   const startOfMonth = currentMonth.startOf("month");
-  // const endOfMonth = currentMonth.endOf("month");
   const startDay = startOfMonth.day();
   const daysInMonth = currentMonth.daysInMonth();
 
@@ -61,8 +60,7 @@ const Commercial = () => {
           wasteplantId: user!.wasteplantId!,
         })
       ).unwrap();
-      console.log("comm-check",response);
-      
+
       if (response?.available) {
         setServiceAvailable(true);
       } else {

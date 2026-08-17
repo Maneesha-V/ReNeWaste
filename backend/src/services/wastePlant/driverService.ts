@@ -13,6 +13,8 @@ import {
   ReturnGetEditDriver,
   ReturnTaluk,
 } from "../../dtos/driver/driverDTO";
+import { ApiError } from "../../utils/ApiError";
+import { MESSAGES, STATUS_CODES } from "../../utils/constantUtils";
 
 @injectable()
 export class DriverService implements IDriverService {
@@ -34,7 +36,10 @@ export class DriverService implements IDriverService {
       data.wasteplantId!.toString(),
     );
     if (!plant) {
-      throw new Error("Plant not found.");
+      throw new ApiError(
+        STATUS_CODES.NOT_FOUND,
+        MESSAGES.WASTEPLANT.ERROR.NOT_FOUND,
+      );
     }
     if (plant.status === "Active") {
       const purchasedPlan =
@@ -42,11 +47,15 @@ export class DriverService implements IDriverService {
           plant.subscriptionPlan!,
         );
       if (!purchasedPlan) {
-        throw new Error("Subscription plan not found.");
+        throw new ApiError(
+          STATUS_CODES.NOT_FOUND,
+          MESSAGES.SUPERADMIN.ERROR.SUBSCRIPTION_NOT_FOUND,
+        );
       }
       if (totalDriverCount >= purchasedPlan?.driverLimit) {
-        throw new Error(
-          `You can't add new driver bcoz your plan driver limit is ${purchasedPlan?.driverLimit}.`,
+        throw new ApiError(
+          STATUS_CODES.BAD_REQUEST,
+          `${MESSAGES.WASTEPLANT.ERROR.DRIVER_LIMIT} ${purchasedPlan?.driverLimit}.`,
         );
       }
     }
@@ -55,19 +64,25 @@ export class DriverService implements IDriverService {
       data.email,
     );
     if (existingEmail) {
-      throw new Error("Email already exists");
+      throw new ApiError(
+        STATUS_CODES.CONFLICT,
+        MESSAGES.USER.ERROR.EMAIL_EXIST,
+      );
     }
     const existingName = await this.driverRepository.findDriverByName(
       data.name,
     );
     if (existingName) {
-      throw new Error("Name already exists");
+      throw new ApiError(STATUS_CODES.CONFLICT, MESSAGES.USER.ERROR.NAME_EXIST);
     }
     const existingLicenseNo = await this.driverRepository.findDriverByLicense(
       data.licenseNumber,
     );
     if (existingLicenseNo) {
-      throw new Error("License number already exists");
+      throw new ApiError(
+        STATUS_CODES.CONFLICT,
+        MESSAGES.USER.ERROR.LICEENSE_EXIST,
+      );
     }
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(data.password, salt);
@@ -77,7 +92,10 @@ export class DriverService implements IDriverService {
     };
     const created = await this.driverRepository.createDriver(newData);
     if (!created) {
-      throw new Error("Can't create driver.");
+      throw new ApiError(
+        STATUS_CODES.SERVER_ERROR,
+        MESSAGES.WASTEPLANT.ERROR.FAILED_DRIVER,
+      );
     }
     return true;
   }
@@ -99,7 +117,12 @@ export class DriverService implements IDriverService {
     plantId: string,
   ): Promise<ReturnGetEditDriver> {
     const driver = await this.driverRepository.getDriverById(driverId);
-    if (!driver) throw new Error("Driver not found");
+    if (!driver) {
+      throw new ApiError(
+        STATUS_CODES.NOT_FOUND,
+        MESSAGES.DRIVER.ERROR.NOT_FOUND,
+      );
+    }
     const { taluk } = await this.getTalukByPlantIdService(plantId);
     return {
       driver: DriverMapper.mapDriverDTO(driver),
@@ -112,7 +135,10 @@ export class DriverService implements IDriverService {
   ): Promise<DriverDTO> {
     const driver = await this.driverRepository.updateDriverById(driverId, data);
     if (!driver) {
-      throw new Error("Driver not found.");
+      throw new ApiError(
+        STATUS_CODES.NOT_FOUND,
+        MESSAGES.DRIVER.ERROR.NOT_FOUND,
+      );
     }
     return DriverMapper.mapDriverDTO(driver);
   }
@@ -122,7 +148,12 @@ export class DriverService implements IDriverService {
   }
   async getTalukByPlantIdService(plantId: string): Promise<ReturnTaluk> {
     const res = await this.wastePlantRepository.getWastePlantById(plantId);
-    if (!res?.taluk) throw new Error("Taluk not found in plant record");
+    if (!res?.taluk) {
+      throw new ApiError(
+        STATUS_CODES.NOT_FOUND,
+        MESSAGES.WASTEPLANT.ERROR.TALUK_NOT_FOUND,
+      );
+    }
     return { taluk: res.taluk };
   }
 }

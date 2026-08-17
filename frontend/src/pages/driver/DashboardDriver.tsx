@@ -149,9 +149,11 @@ const DashboardDriver = () => {
                 <p className="text-sm">Assigned Truck</p>
                 <p className="font-semibold">{summary?.truck?.vehicleNumber}</p>
                 <p className="text-xs text-gray-500">{summary?.truck?.name}</p>
-  <p className={`text-xs ${summary?.truck ? "text-green-600" : "text-red-600"}`}>
-    {summary?.truck ? "Active" : "Inactive"}
-  </p>
+                <p
+                  className={`text-xs ${summary?.truck ? "text-green-600" : "text-red-600"}`}
+                >
+                  {summary?.truck ? "Active" : "Inactive"}
+                </p>
               </div>
             </div>
 
@@ -238,18 +240,24 @@ const DashboardDriver = () => {
                 )}
               </div>
             </div>
+            {(earningsData?.length ?? 0) > 0 ? (
+              <ResponsiveContainer width="100%" height={300}>
+                <BarChart data={earningsData}>
+                  <XAxis dataKey="name" />
+                  <YAxis />
+                  <Tooltip />
+                  <Legend />
 
-            <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={earningsData}>
-                <XAxis dataKey="name" />
-                <YAxis />
-                <Tooltip />
-                <Legend />
-
-                <Bar dataKey="earning" name="Earnings" fill="#4CAF50" />
-                <Bar dataKey="reward" name="Rewards" fill="#FFC107" />
-              </BarChart>
-            </ResponsiveContainer>
+                  <Bar dataKey="earning" name="Earnings" fill="#4CAF50" />
+                  <Bar dataKey="reward" name="Rewards" fill="#FFC107" />
+                </BarChart>
+              </ResponsiveContainer>
+            ) : (
+              <div className="h-[300px] flex flex-col items-center justify-center text-gray-500">
+                <Wallet className="w-10 h-10 mb-2 text-gray-300" />
+                <p className="text-sm">No earnings data available</p>
+              </div>
+            )}
           </div>
 
           {/* Recent Activity */}
@@ -290,25 +298,33 @@ const DashboardDriver = () => {
               <Leaf className="text-green-600 w-5 h-5" />
               <span>Driver Attendance Breakdown</span>
             </h2>
-
-            <ResponsiveContainer width="100%" height={250}>
-              <PieChart>
-                <Pie
-                  data={summary?.attendanceData}
-                  cx="50%"
-                  cy="50%"
-                  outerRadius={80}
-                  dataKey="count"
-                  nameKey="workType"
-                  label
-                >
-                  {summary?.attendanceData.map((_, i) => (
-                    <Cell key={i} fill={COLORS[i]} />
-                  ))}
-                </Pie>
-                <Tooltip />
-              </PieChart>
-            </ResponsiveContainer>
+            {summary?.attendanceData && summary.attendanceData.length > 0 ? (
+              <div className="flex flex-col items-center">
+                <ResponsiveContainer width="100%" height={250}>
+                  <PieChart>
+                    <Pie
+                      data={summary?.attendanceData}
+                      cx="50%"
+                      cy="50%"
+                      outerRadius={80}
+                      dataKey="count"
+                      nameKey="workType"
+                      label
+                    >
+                      {summary?.attendanceData.map((_, i) => (
+                        <Cell key={i} fill={COLORS[i]} />
+                      ))}
+                    </Pie>
+                    <Tooltip />
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+            ) : (
+              <div className="h-[250px] flex flex-col items-center justify-center text-gray-500">
+                <Leaf className="w-10 h-10 mb-2 text-gray-300" />
+                <p className="text-sm">No attendance data available</p>
+              </div>
+            )}
           </div>
 
           {/* Assigned Route */}

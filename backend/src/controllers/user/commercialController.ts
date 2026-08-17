@@ -1,4 +1,4 @@
-import { NextFunction, Request, Response } from "express";
+import { NextFunction, Response } from "express";
 import moment from "moment";
 import { ICommercialController } from "./interface/ICommercialController";
 import { inject, injectable } from "inversify";
@@ -28,7 +28,6 @@ export class CommercialController implements ICommercialController {
         );
       }
       const user = await this.commercialService.getCommercialService(userId);
-      console.log("user", user);
 
       res
         .status(STATUS_CODES.SUCCESS)
@@ -81,7 +80,6 @@ export class CommercialController implements ICommercialController {
           MESSAGES.COMMON.ERROR.UNAUTHORIZED,
         );
       }
-      console.log(req.body);
 
       const updatedData = req.body;
       const pickupDateString = updatedData.pickupDate;

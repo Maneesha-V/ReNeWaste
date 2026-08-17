@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-import { Truck, Users, Recycle, Activity } from "lucide-react";
+import { Truck, Users, Recycle, Activity, Leaf } from "lucide-react";
 import { useAppDispatch } from "../../redux/hooks";
 import { RootState } from "../../redux/store";
 import { fetchDashboardData } from "../../redux/slices/wastePlant/wastePlantDashboardSlice";
@@ -37,12 +37,9 @@ const DashboardWastePlant = () => {
     to: "",
   });
 
-  const {
-    summary,
-    pickupTrends,
-    revenueTrends,
-    ratings,
-  } = useSelector((state: RootState) => state.wastePlantDashboard);
+  const { summary, pickupTrends, revenueTrends, ratings } = useSelector(
+    (state: RootState) => state.wastePlantDashboard,
+  );
 
   useEffect(() => {
     if (trendFilter !== "custom") {
@@ -130,7 +127,7 @@ const DashboardWastePlant = () => {
         Waste Plant Dashboard
       </h1>
 
-<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6 mb-8">
         {stats.map((stat, index) => (
           <div
             key={index}
@@ -233,21 +230,33 @@ const DashboardWastePlant = () => {
               <h3 className="text-md font-semibold text-green-700 mb-2">
                 Pickup Trends
               </h3>
-
-              <ResponsiveContainer width="100%" height={280}>
-                <LineChart data={pickupTrends}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="date" />
-                  <YAxis />
-                  <Tooltip />
-                  <Line
-                    dataKey="residential"
-                    stroke="#16a34a"
-                    strokeWidth={3}
-                  />
-                  <Line dataKey="commercial" stroke="#2563eb" strokeWidth={3} />
-                </LineChart>
-              </ResponsiveContainer>
+              {pickupTrends.length > 0 ? (
+                <div className="flex flex-col items-center">
+                  <ResponsiveContainer width="100%" height={280}>
+                    <LineChart data={pickupTrends}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="date" />
+                      <YAxis />
+                      <Tooltip />
+                      <Line
+                        dataKey="residential"
+                        stroke="#16a34a"
+                        strokeWidth={3}
+                      />
+                      <Line
+                        dataKey="commercial"
+                        stroke="#2563eb"
+                        strokeWidth={3}
+                      />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </div>
+              ) : (
+                <div className="h-[250px] flex flex-col items-center justify-center text-gray-500">
+                  <Leaf className="w-10 h-10 mb-2 text-gray-300" />
+                  <p className="text-sm">No pickup data available</p>
+                </div>
+              )}
             </div>
 
             {/* Revenue Trends */}
@@ -255,28 +264,36 @@ const DashboardWastePlant = () => {
               <h3 className="text-md font-semibold text-green-700 mb-2">
                 Revenue Trends
               </h3>
-
-              <ResponsiveContainer width="100%" height={280}>
-                <BarChart data={formattedRevenueTrends}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="date" />
-                  <YAxis />
-                  <Tooltip />
-                  <Bar
-                    dataKey="Residential"
-                    // stroke="#f59e0b"
-                    fill="#f59e0b"
-                    // fill="#10b981"
-                    radius={[6, 6, 0, 0]}
-                  />
-                  <Bar
-                    dataKey="Commercial"
-                    fill="#10b981"
-                    // fill="#3b82f6"
-                    radius={[6, 6, 0, 0]}
-                  />
-                </BarChart>
-              </ResponsiveContainer>
+              {formattedRevenueTrends.length > 0 ? (
+                <div className="flex flex-col items-center">
+                  <ResponsiveContainer width="100%" height={280}>
+                    <BarChart data={formattedRevenueTrends}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="date" />
+                      <YAxis />
+                      <Tooltip />
+                      <Bar
+                        dataKey="Residential"
+                        // stroke="#f59e0b"
+                        fill="#f59e0b"
+                        // fill="#10b981"
+                        radius={[6, 6, 0, 0]}
+                      />
+                      <Bar
+                        dataKey="Commercial"
+                        fill="#10b981"
+                        // fill="#3b82f6"
+                        radius={[6, 6, 0, 0]}
+                      />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              ) : (
+                <div className="h-[250px] flex flex-col items-center justify-center text-gray-500">
+                  <Leaf className="w-10 h-10 mb-2 text-gray-300" />
+                  <p className="text-sm">No pickup data available</p>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -286,29 +303,38 @@ const DashboardWastePlant = () => {
           Waste Collection Metrics
         </h2>
         <div className="h-px bg-green-100 mb-4" />
-        <ResponsiveContainer width="100%" height={320}>
-          <PieChart>
-            <Pie
-              data={wasteMetrics}
-              dataKey="value"
-              nameKey="name"
-              cx="50%"
-              cy="50%"
-              outerRadius={110}
-              label
-            >
-              {wasteMetrics.map((_, index) => (
-                <Cell
-                  key={`cell-${index}`}
-                  fill={PIE_COLORS[index % PIE_COLORS.length]}
-                />
-              ))}
-            </Pie>
+        {wasteMetrics.length > 0 ? (
+          <div className="flex flex-col items-center">
+            <ResponsiveContainer width="100%" height={320}>
+              <PieChart>
+                <Pie
+                  data={wasteMetrics}
+                  dataKey="value"
+                  nameKey="name"
+                  cx="50%"
+                  cy="50%"
+                  outerRadius={110}
+                  label
+                >
+                  {wasteMetrics.map((_, index) => (
+                    <Cell
+                      key={`cell-${index}`}
+                      fill={PIE_COLORS[index % PIE_COLORS.length]}
+                    />
+                  ))}
+                </Pie>
 
-            <Tooltip />
-            <Legend />
-          </PieChart>
-        </ResponsiveContainer>
+                <Tooltip />
+                <Legend />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
+        ) : (
+          <div className="h-[250px] flex flex-col items-center justify-center text-gray-500">
+            <Leaf className="w-10 h-10 mb-2 text-gray-300" />
+            <p className="text-sm">No pickup data available</p>
+          </div>
+        )}
       </div>
 
       <SubscriptionModal
@@ -318,6 +344,5 @@ const DashboardWastePlant = () => {
     </div>
   );
 };
-
 
 export default DashboardWastePlant;

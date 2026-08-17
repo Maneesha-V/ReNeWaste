@@ -1,4 +1,4 @@
-import { NextFunction, Request, Response } from "express";
+import { NextFunction, Response } from "express";
 import { IPickupController } from "./interface/IPickupController";
 import { inject, injectable } from "inversify";
 import TYPES from "../../config/inversify/types";
@@ -27,7 +27,7 @@ export class PickupController implements IPickupController {
         wasteType: wasteType as string,
         plantId: plantId as string,
       });
-      console.log("pickups", pickups);
+
       res.status(STATUS_CODES.SUCCESS).json({
         success: true,
         pickups,
@@ -123,7 +123,7 @@ export class PickupController implements IPickupController {
         pickupReqId,
         rescheduleData,
       );
-      console.log("updatedPickup", updatedPickup);
+
 
       res.status(STATUS_CODES.SUCCESS).json({
         success: true,
@@ -143,7 +143,7 @@ export class PickupController implements IPickupController {
     try {
       const location = req.query.location as string;
       const plantId = req.user?.id;
-      console.log({ location, plantId });
+
       if (!location) {
         throw new ApiError(
           STATUS_CODES.BAD_REQUEST,
@@ -160,7 +160,6 @@ export class PickupController implements IPickupController {
         location,
         plantId,
       );
-      console.log("drivers", drivers);
 
       res.status(STATUS_CODES.SUCCESS).json({
         success: true,
@@ -185,7 +184,7 @@ export class PickupController implements IPickupController {
         );
       }
       const { pickupReqId } = req.params;
-      console.log(pickupReqId);
+
       const success = await this._pickupService.approveModifyPickup(
         wasteplantId,
         pickupReqId,
@@ -216,7 +215,7 @@ export class PickupController implements IPickupController {
         );
       }
       const { pickupReqId } = req.params;
-      console.log(pickupReqId);
+
       const success = await this._pickupService.rejectModifyPickup(
         wasteplantId,
         pickupReqId,

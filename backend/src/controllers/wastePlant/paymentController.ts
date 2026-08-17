@@ -37,7 +37,6 @@ export class PaymentController implements IPaymentController {
         limit,
         search,
       });
-      console.log("payments", payments);
 
       res.status(STATUS_CODES.SUCCESS).json({
         success: true,
@@ -59,8 +58,6 @@ export class PaymentController implements IPaymentController {
       const plantId = req.user?.id;
       const { planId } = req.body;
 
-      console.log("plant", plantId);
-      console.log("amount", planId);
       if (!plantId || !planId) {
         throw new ApiError(
           STATUS_CODES.UNAUTHORIZED,
@@ -71,7 +68,6 @@ export class PaymentController implements IPaymentController {
         planId,
         plantId,
       });
-      console.log("paymentOrder", paymentOrder);
 
       res.status(STATUS_CODES.SUCCESS).json({ success: true, paymentOrder });
     } catch (error) {
@@ -115,7 +111,6 @@ export class PaymentController implements IPaymentController {
   ): Promise<void> {
     try {
       const plantId = req.user?.id;
-      console.log("plantId", plantId);
 
       if (!plantId) {
         throw new ApiError(
@@ -125,7 +120,6 @@ export class PaymentController implements IPaymentController {
       }
       const payments =
         await this._paymentService.fetchSubscriptionPayments(plantId);
-      console.log("payments", payments);
 
       res.status(STATUS_CODES.SUCCESS).json({ success: true, payments });
     } catch (error) {
@@ -142,7 +136,7 @@ export class PaymentController implements IPaymentController {
     try {
       const plantId = req.user?.id;
       const { planId, amount, subPaymtId } = req.body;
-      console.log("body", req.body);
+
       if (!plantId) {
         throw new ApiError(
           STATUS_CODES.UNAUTHORIZED,
@@ -157,7 +151,6 @@ export class PaymentController implements IPaymentController {
           amount,
           subPaymtId,
         });
-      console.log("repaymentOrder", repaymentOrder);
 
       res.status(STATUS_CODES.SUCCESS).json({
         success: true,
@@ -183,7 +176,6 @@ export class PaymentController implements IPaymentController {
           MESSAGES.COMMON.ERROR.UNAUTHORIZED,
         );
       }
-      console.log("body", req.body);
 
       const statusUpdateData = req.body.statusUpdateData;
 
@@ -201,7 +193,7 @@ export class PaymentController implements IPaymentController {
           statusUpdateData,
         },
       );
-      console.log("statusUpdate", statusUpdate);
+
       res.status(STATUS_CODES.SUCCESS).json({
         message: MESSAGES.COMMON.SUCCESS.REFUND_UPDTAE_SUCCESS,
         statusUpdate,
@@ -225,7 +217,6 @@ export class PaymentController implements IPaymentController {
           MESSAGES.COMMON.ERROR.UNAUTHORIZED,
         );
       }
-      console.log("body", req.body);
 
       const refundData = req.body;
 
@@ -233,7 +224,6 @@ export class PaymentController implements IPaymentController {
         plantId,
         refundData,
       );
-      console.log("updatedData", updatedData);
 
       res.status(STATUS_CODES.SUCCESS).json({
         success: true,

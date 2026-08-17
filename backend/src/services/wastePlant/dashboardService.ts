@@ -1,7 +1,6 @@
 import { inject, injectable } from "inversify";
 import TYPES from "../../config/inversify/types";
 import { IDashboardService } from "./interface/IDashboardService";
-import { IWastePlantRepository } from "../../repositories/wastePlant/interface/IWastePlantRepository";
 import { IDriverRepository } from "../../repositories/driver/interface/IDriverRepository";
 import { ITruckRepository } from "../../repositories/truck/interface/ITruckRepository";
 import { IPickupRepository } from "../../repositories/pickupReq/interface/IPickupRepository";
@@ -14,8 +13,6 @@ import { IRatingRepository } from "../../repositories/rating/interface/IRatingRe
 @injectable()
 export class DashboardService implements IDashboardService {
   constructor(
-    @inject(TYPES.WastePlantRepository)
-    private wastePlantRepository: IWastePlantRepository,
     @inject(TYPES.DriverRepository)
     private driverRepository: IDriverRepository,
     @inject(TYPES.TruckRepository)
@@ -47,11 +44,12 @@ export class DashboardService implements IDashboardService {
     const totalCompletedPickups =
       pickupStatus.Residential.Completed + pickupStatus.Commercial.Completed;
     const pickupTrends = await this.pickupRepository.fetchAllCompletedPickups(data); 
-    console.log("pickupTrends",pickupTrends);
+      console.log({pickupTrends});
+      
     const { revenueTrends, wasteplantTotRevenue } = await this._walletRepository.fetchFilteredWPRevenue(data);
-    console.log("revenueTrends",revenueTrends);
+ 
     const ratings = await this._ratingRepository.getWPRatingSummary(plantId);
-    console.log("ratings",ratings);
+
     return {
       summary: {
         totalDrivers: drivers,

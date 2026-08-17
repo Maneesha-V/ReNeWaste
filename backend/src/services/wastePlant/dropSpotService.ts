@@ -10,6 +10,8 @@ import {
   PaginatedDropSpotsResult,
   UpdateDataDropSpot,
 } from "../../dtos/dropspots/dropSpotDTO";
+import { ApiError } from "../../utils/ApiError";
+import { MESSAGES, STATUS_CODES } from "../../utils/constantUtils";
 
 @injectable()
 export class DropSpotService implements IDropSpotService {
@@ -24,32 +26,41 @@ export class DropSpotService implements IDropSpotService {
     const apiKey = process.env.GOOGLE_MAPS_API_KEY;
     const geoBaseUrl = process.env.GOOGLE_MAPS_GEOCODE_URL;
     const encodedAddress = encodeURIComponent(fullAddress);
-    try {
-      const geocodeUrl = `${geoBaseUrl}?address=${encodedAddress}&key=${apiKey}`;
+    // try {
+    const geocodeUrl = `${geoBaseUrl}?address=${encodedAddress}&key=${apiKey}`;
 
-      const response = await axios.get(geocodeUrl);
-      console.log("response", response);
+    const response = await axios.get(geocodeUrl);
+    console.log("response", response);
 
-      if (
-        response.data.status === "OK" &&
-        response.data.results &&
-        response.data.results.length > 0
-      ) {
-        const location = response.data.results[0].geometry.location;
-        payload.coordinates = {
-          lat: location.lat,
-          lng: location.lng,
-        };
-      } else {
-        throw new Error("Unable to fetch coordinates for the given address.");
-      }
-
-      const created = await this.dropSpotRepository.createDropSpot(payload);
-      return !!created;
-    } catch (error) {
-      console.error("Error in createDropSpotService:", error);
-      throw error;
+    if (
+      response.data.status === "OK" &&
+      response.data.results &&
+      response.data.results.length > 0
+    ) {
+      const location = response.data.results[0].geometry.location;
+      payload.coordinates = {
+        lat: location.lat,
+        lng: location.lng,
+      };
+    } else {
+      throw new ApiError(
+        STATUS_CODES.BAD_REQUEST,
+        MESSAGES.WASTEPLANT.ERROR.DROPSPOT_INVALID_ADDRESS,
+      );
     }
+
+    const created = await this.dropSpotRepository.createDropSpot(payload);
+    if (!created) {
+      throw new ApiError(
+        STATUS_CODES.SERVER_ERROR,
+        MESSAGES.WASTEPLANT.ERROR.DROPSPOT_CREATE_FAILED,
+      );
+    }
+    return true;
+    // } catch (error) {
+    //   console.error("Error in createDropSpotService:", error);
+    //   throw error;
+    // }
   }
   async getAllDropSpots(
     wasteplantId: string,
@@ -65,7 +76,10 @@ export class DropSpotService implements IDropSpotService {
         search,
       );
     if (!dropspots) {
-      throw new Error("Dropspots not found.");
+      throw new ApiError(
+        STATUS_CODES.NOT_FOUND,
+        MESSAGES.WASTEPLANT.ERROR.DROPSPOT_NOT_FOUND,
+      );
     }
 
     return {
@@ -82,7 +96,10 @@ export class DropSpotService implements IDropSpotService {
       wasteplantId,
     );
     if (!dropSpot) {
-      throw new Error("Dropspot not found.");
+      throw new ApiError(
+        STATUS_CODES.NOT_FOUND,
+        MESSAGES.WASTEPLANT.ERROR.DROPSPOT_NOT_FOUND,
+      );
     }
     return DropSpotMapper.mapDropSpotDTO(dropSpot);
   }
@@ -96,7 +113,10 @@ export class DropSpotService implements IDropSpotService {
       wasteplantId,
     );
     if (!dropSpot) {
-      throw new Error("Dropspot not found.");
+      throw new ApiError(
+        STATUS_CODES.NOT_FOUND,
+        MESSAGES.WASTEPLANT.ERROR.DROPSPOT_NOT_FOUND,
+      );
     }
     return DropSpotMapper.mapDropSpotDTO(dropSpot);
   }
@@ -111,7 +131,10 @@ export class DropSpotService implements IDropSpotService {
       wasteplantId,
     );
     if (!dropSpot) {
-      throw new Error("Dropspot not found.");
+      throw new ApiError(
+        STATUS_CODES.NOT_FOUND,
+        MESSAGES.WASTEPLANT.ERROR.DROPSPOT_NOT_FOUND,
+      );
     }
 
     const updatedDropSpot = await this.dropSpotRepository.updateDropSpot(
@@ -119,7 +142,10 @@ export class DropSpotService implements IDropSpotService {
       updateData,
     );
     if (!updatedDropSpot) {
-      throw new Error("Dropspot updation failed.");
+      throw new ApiError(
+        STATUS_CODES.SERVER_ERROR,
+        MESSAGES.WASTEPLANT.ERROR.DROPSPOT_UPDATE_FAILED,
+      );
     }
     return DropSpotMapper.mapDropSpotDTO(updatedDropSpot);
   }

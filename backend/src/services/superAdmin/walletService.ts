@@ -4,6 +4,8 @@ import { IWalletService } from "./interface/IWalletService";
 import { GetWalletSAResp } from "../../dtos/wallet/walletDTO";
 import { IWalletRepository } from "../../repositories/wallet/interface/IWalletRepository";
 import { WalletMapper } from "../../mappers/WalletMapper";
+import { MESSAGES, STATUS_CODES } from "../../utils/constantUtils";
+import { ApiError } from "../../utils/ApiError";
 
 @injectable()
 export class WalletService implements IWalletService {
@@ -11,27 +13,36 @@ export class WalletService implements IWalletService {
     @inject(TYPES.WalletRepository)
     private _walletRepository: IWalletRepository,
   ) {}
-    async getWallet(accountId: string, accountType: string,
-      page: number,
-      limit: number,
-      search: string,
-    ): Promise<GetWalletSAResp> {
-      const wallet = await this._walletRepository.findWallet(accountId, accountType);
-      if (!wallet) {
-        throw new Error("Wallet not found for this superAdmin.");
-      }
-      const { transactions, total } = await this._walletRepository.paginatedSuperAdminWallet({
+  async getWallet(
+    accountId: string,
+    accountType: string,
+    page: number,
+    limit: number,
+    search: string,
+  ): Promise<GetWalletSAResp> {
+    const wallet = await this._walletRepository.findWallet(
+      accountId,
+      accountType,
+    );
+    if (!wallet) {
+      throw new ApiError(
+        STATUS_CODES.NOT_FOUND,
+        MESSAGES.COMMON.ERROR.WALLET_NOT_FOUND,
+      );
+    }
+    const { transactions, total } =
+      await this._walletRepository.paginatedSuperAdminWallet({
         walletId: wallet._id.toString(),
         page,
         limit,
-        search
-      })
+        search,
+      });
 
-      return {
-        transactions: WalletMapper.mapTransactionsDTO(transactions),
-        balance: wallet.balance,
-        holdingBalance: wallet.holdingBalance,
-        total
-      };
-    }
+    return {
+      transactions: WalletMapper.mapTransactionsDTO(transactions),
+      balance: wallet.balance,
+      holdingBalance: wallet.holdingBalance,
+      total,
+    };
+  }
 }

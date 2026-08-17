@@ -161,7 +161,7 @@ const NotificationPanel: React.FC<WastePlantNotificationPanelProps> = ({
                           </button>
                         ))
                         }
-                         {n.type === "subscribe_reminder" &&
+                         {/* {n.type === "subscribe_reminder" &&
                         (
                           <button
                             className="px-2 py-1 text-xs cursor-pointer bg-blue-600 text-white rounded hover:bg-blue-700"
@@ -169,16 +169,8 @@ const NotificationPanel: React.FC<WastePlantNotificationPanelProps> = ({
                           >
                             Subscribe
                           </button>
-                        )}
-                          {/* {n.type === "pickup_modify-req" &&
-                        (
-                          <button
-                            className="px-2 py-1 text-xs cursor-pointer bg-blue-600 text-white rounded hover:bg-blue-700"
-                            onClick={() => handleModifyRequest(n)}
-                          >
-                            Modify
-                          </button>
                         )} */}
+                         
                       {!n.isRead && (
                         <button
                           className="w-6 h-6 flex items-center justify-center cursor-pointer bg-green-100 text-green-600 rounded-full hover:bg-green-200"

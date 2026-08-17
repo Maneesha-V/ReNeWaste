@@ -28,10 +28,10 @@ export class RatingController implements IRatingController {
           MESSAGES.COMMON.ERROR.UNAUTHORIZED,
         );
       }
-      const success = await this._ratingService.addUserRating({userId, data});
+      await this._ratingService.addUserRating({userId, data});
       res
-          .status(STATUS_CODES.CREATED)
-          .json({ message: MESSAGES.COMMON.SUCCESS.RATING_SUCCESS });
+      .status(STATUS_CODES.CREATED)
+      .json({ message: MESSAGES.COMMON.SUCCESS.RATING_SUCCESS });
     } catch (error) {
       next(error);
     }

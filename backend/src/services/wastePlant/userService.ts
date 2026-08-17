@@ -5,6 +5,8 @@ import TYPES from "../../config/inversify/types";
 import { IUserRepository } from "../../repositories/user/interface/IUserRepository";
 import { PaginatedResult } from "../../dtos/user/userDTO";
 import { UserMapper } from "../../mappers/UserMapper";
+import { ApiError } from "../../utils/ApiError";
+import { MESSAGES, STATUS_CODES } from "../../utils/constantUtils";
 
 @injectable()
 export class UserService implements IUserService {
@@ -41,7 +43,10 @@ export class UserService implements IUserService {
       !user.wasteplantId ||
       String(user.wasteplantId) !== String(wasteplantId)
     ) {
-      throw new Error("User not found");
+      throw new ApiError(
+        STATUS_CODES.NOT_FOUND,
+        MESSAGES.USER.ERROR.NOT_FOUND
+      );
     }
     user.isBlocked = isBlocked;
     await user.save({ validateModifiedOnly: true });

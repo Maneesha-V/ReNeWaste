@@ -33,8 +33,6 @@ export class PaymentController implements IPaymentController {
         search,
       });
 
-      console.log({ total, paymentHis });
-
       res.status(STATUS_CODES.SUCCESS).json({
         message: MESSAGES.SUPERADMIN.SUCCESS.PAYMENT_HISTORY,
         paymentHis,
@@ -50,7 +48,6 @@ export class PaymentController implements IPaymentController {
     next: NextFunction,
   ): Promise<void> {
     try {
-      console.log("params", req.body);
       const adminId = req.user?.id;
       if (!adminId) {
         throw new ApiError(
@@ -58,7 +55,9 @@ export class PaymentController implements IPaymentController {
           MESSAGES.COMMON.ERROR.UNAUTHORIZED,
         );
       }
-      const { subPayId, refundStatus } = req.body;
+      const { subPayId, refundStatus, rejectionMessage } = req.body;
+      console.log(req.body);
+      
       if (!subPayId || !refundStatus) {
         throw new ApiError(
           STATUS_CODES.BAD_REQUEST,
@@ -68,14 +67,17 @@ export class PaymentController implements IPaymentController {
 
       const allowedStatuses = ["Pending", "Processing", "Refunded", "Rejected"];
       if (!allowedStatuses.includes(refundStatus)) {
-        res.status(400).json({ error: "Invalid refund status." });
-        return;
+        throw new ApiError(
+          STATUS_CODES.SERVER_ERROR,
+          MESSAGES.SUPERADMIN.ERROR.INVALID_REF_STAT,
+        );
       }
 
       const statusUpdate = await this.paymentService.updateRefundStatusPayment({
         adminId,
         subPayId,
         refundStatus,
+        rejectionMessage
       });
       console.log("statusUpdate", statusUpdate);
       res.status(STATUS_CODES.SUCCESS).json({
@@ -111,8 +113,12 @@ export class PaymentController implements IPaymentController {
 
       const allowedStatuses = ["Pending", "Processing", "Refunded", "Rejected"];
       if (!allowedStatuses.includes(refundStatus)) {
-        res.status(400).json({ error: "Invalid refund status." });
-        return;
+        throw new ApiError(
+          STATUS_CODES.SERVER_ERROR,
+          MESSAGES.SUPERADMIN.ERROR.INVALID_REF_STAT,
+        );
+        // res.status(400).json({ error: "Invalid refund status." });
+        // return;
       }
 
       const statusUpdate = await this.paymentService.refundPayment({

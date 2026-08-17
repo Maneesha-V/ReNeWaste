@@ -21,7 +21,7 @@ export class AuthController implements IAuthController {
   ): Promise<void> {
     try {
       const refreshToken = req.cookies?.refreshToken;
-      console.log("refreshToken", refreshToken);
+
       if (!refreshToken) {
         throw new ApiError(
           STATUS_CODES.UNAUTHORIZED,
@@ -42,14 +42,11 @@ export class AuthController implements IAuthController {
     next: NextFunction,
   ): Promise<void> {
     try {
-      console.log("body", req.body);
       const { email, password } = req.body;
       const { wastePlant, token } = await this._authService.loginWastePlant({
         email,
         password,
       });
-      // const { password: _, ...safeWastePlant } = wastePlant.toObject();
-      console.log("wastePlant", wastePlant);
 
       const refreshToken = await generateRefreshToken({
         userId: wastePlant._id.toString(),
@@ -63,7 +60,7 @@ export class AuthController implements IAuthController {
         secure: isProduction,
         sameSite: isProduction ? ("none" as const) : ("lax" as const),
         path: "/api/waste-plant",
-        maxAge: 7 * 24 * 60 * 60 * 1000,
+        maxAge: Number(process.env.MAX_AGE),
       };
       res
         .cookie("refreshToken", refreshToken, cookieOptions)

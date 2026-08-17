@@ -9,6 +9,8 @@ import TYPES from "../../config/inversify/types";
 import { IWastePlantRepository } from "../../repositories/wastePlant/interface/IWastePlantRepository";
 import { WastePlantMapper } from "../../mappers/WastePlantMapper";
 import { LoginRequest } from "../../dtos/user/userDTO";
+import { ApiError } from "../../utils/ApiError";
+import { MESSAGES, STATUS_CODES } from "../../utils/constantUtils";
 
 @injectable()
 export class AuthService implements IAuthService {
@@ -29,7 +31,10 @@ export class AuthService implements IAuthService {
       console.log("wastePlant", wastePlant);
 
       if (!wastePlant) {
-        throw new Error("Wasteplant not found");
+        throw new ApiError(
+          STATUS_CODES.NOT_FOUND,
+          MESSAGES.WASTEPLANT.ERROR.NOT_FOUND,
+        );
       }
 
       const accessToken = jwt.sign(
@@ -40,22 +45,36 @@ export class AuthService implements IAuthService {
       return { token: accessToken };
     } catch (error) {
       console.error("Refresh token error", error);
-      throw new Error("Invalid or expired refresh token");
+      if (error instanceof ApiError) {
+        throw error;
+      }
+      throw new ApiError(
+        STATUS_CODES.UNAUTHORIZED,
+        MESSAGES.COMMON.ERROR.INVALID_TOKEN,
+      );
     }
   }
   async loginWastePlant({ email, password }: LoginRequest) {
     const wastePlant =
       await this.wastePlantRepository.findWastePlantByEmail(email);
-
-    if (
-      !wastePlant ||
-      !(await bcrypt.compare(password, wastePlant.password || ""))
-    ) {
-      throw new Error("Invalid email or password.");
+    if (!wastePlant) {
+      throw new ApiError(
+        STATUS_CODES.NOT_FOUND,
+        MESSAGES.WASTEPLANT.ERROR.NOT_FOUND,
+      );
+    }
+    if (!(await bcrypt.compare(password, wastePlant.password || ""))) {
+      throw new ApiError(
+        STATUS_CODES.UNAUTHORIZED,
+        MESSAGES.USER.ERROR.INVALID_PASS,
+      );
     }
 
     if (wastePlant?.isBlocked) {
-      throw new Error("Your account has been blocked by the superadmin.");
+      throw new ApiError(
+        STATUS_CODES.FORBIDDEN,
+        MESSAGES.WASTEPLANT.ERROR.ACCOUNT_BLOCK,
+      );
     }
     const token = generateToken({
       userId: wastePlant._id.toString(),
@@ -67,7 +86,10 @@ export class AuthService implements IAuthService {
     const wastePlant =
       await this.wastePlantRepository.findWastePlantByEmail(email);
     if (!wastePlant) {
-      throw new Error("Wasteplant not found.");
+      throw new ApiError(
+        STATUS_CODES.NOT_FOUND,
+        MESSAGES.WASTEPLANT.ERROR.NOT_FOUND,
+      );
     }
     const otp = generateOtp();
     console.log(`Generated OTP for ${email}:`, otp);
@@ -83,7 +105,10 @@ export class AuthService implements IAuthService {
     const wastePlant =
       await this.wastePlantRepository.findWastePlantByEmail(email);
     if (!wastePlant) {
-      throw new Error("User not found.");
+      throw new ApiError(
+        STATUS_CODES.NOT_FOUND,
+        MESSAGES.WASTEPLANT.ERROR.NOT_FOUND,
+      );
     }
     const otp = generateOtp();
     console.log(`Resend OTP for ${email}:`, otp);
@@ -100,7 +125,7 @@ export class AuthService implements IAuthService {
     if (!storedOtp || storedOtp.otp !== otp) return false;
     const createdAt = storedOtp.createdAt;
     if (!createdAt) {
-      throw new Error("OTP creation date is missing.");
+      throw new ApiError(STATUS_CODES.NOT_FOUND, MESSAGES.USER.ERROR.OTP_DATE);
     }
     const otpAge =
       (new Date().getTime() - new Date(createdAt).getTime()) / 1000;
@@ -116,7 +141,12 @@ export class AuthService implements IAuthService {
   ): Promise<void> {
     const wastePlant =
       await this.wastePlantRepository.findWastePlantByEmail(email);
-    if (!wastePlant) throw new Error("User not found");
+    if (!wastePlant) {
+      throw new ApiError(
+        STATUS_CODES.NOT_FOUND,
+        MESSAGES.WASTEPLANT.ERROR.NOT_FOUND,
+      );
+    }
     const hashedPassword = await bcrypt.hash(newPassword, 10);
     await this.wastePlantRepository.updateWastePlantPassword(
       email,

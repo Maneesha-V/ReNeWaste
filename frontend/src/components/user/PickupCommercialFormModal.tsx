@@ -87,8 +87,7 @@ const PickupCommercialFormModal: React.FC<PickupCommercialFormModalProps> = ({
       if (isToday) {
         const now = new Date();
         const currentMinutes = now.getHours() * 60 + now.getMinutes();
-        console.log("totalMinutes",totalMinutes);
-         console.log("currentMinutes",currentMinutes);
+
         if (totalMinutes < currentMinutes) {
           return "Pickup time cannot be earlier than the current time.";
         }

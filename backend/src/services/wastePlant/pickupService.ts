@@ -1,4 +1,3 @@
-import { IPickupRequest } from "../../models/pickupRequests/interfaces/pickupInterface";
 import { IPickupService } from "./interface/IPickupService";
 import { inject, injectable } from "inversify";
 import TYPES from "../../config/inversify/types";
@@ -9,17 +8,16 @@ import { ITruckRepository } from "../../repositories/truck/interface/ITruckRepos
 import { IWastePlantRepository } from "../../repositories/wastePlant/interface/IWastePlantRepository";
 import { IUserRepository } from "../../repositories/user/interface/IUserRepository";
 import { ISubscriptionPlanRepository } from "../../repositories/subscriptionPlan/interface/ISubscriptionPlanRepository";
-import { setDriver } from "mongoose";
 import {
   ApprovePickupDTO,
   PickupFilterParams,
   ReschedulePickupDTO,
 } from "../../dtos/wasteplant/WasteplantDTO";
 import { PickupRequestMapper } from "../../mappers/PIckupReqMapper";
-import {
-  PickupReqGetDTO,
-} from "../../dtos/pickupReq/pickupReqDTO";
+import { PickupReqGetDTO } from "../../dtos/pickupReq/pickupReqDTO";
 import { DriverMapper } from "../../mappers/DriverMapper";
+import { ApiError } from "../../utils/ApiError";
+import { MESSAGES, STATUS_CODES } from "../../utils/constantUtils";
 
 @injectable()
 export class PickupService implements IPickupService {
@@ -43,7 +41,6 @@ export class PickupService implements IPickupService {
     filters: PickupFilterParams,
   ): Promise<PickupReqGetDTO[]> {
     const pickups = await this.pickupRepository.getPickupsByPlantId(filters);
-    console.log("pickups-pickups", pickups);
 
     return PickupRequestMapper.mapPickupReqsGetDTO(pickups);
   }
@@ -52,13 +49,15 @@ export class PickupService implements IPickupService {
     const { plantId, pickupReqId, status, driverId, assignedTruckId } = data;
     const totalUserCount =
       await this.userRepository.fetchAllUsersByPlantId(plantId);
-    console.log("totalUserCount", totalUserCount);
 
     const existingPlant =
       await this.wastePlantRepository.getWastePlantById(plantId);
-    console.log("existingPlant", existingPlant);
+
     if (!existingPlant) {
-      throw new Error("Plant not found.");
+      throw new ApiError(
+        STATUS_CODES.NOT_FOUND,
+        MESSAGES.WASTEPLANT.ERROR.NOT_FOUND,
+      );
     }
     if (existingPlant.status === "Active") {
       const purchasedPlan =
@@ -66,10 +65,14 @@ export class PickupService implements IPickupService {
           existingPlant.subscriptionPlan!,
         );
       if (!purchasedPlan) {
-        throw new Error("Subscription plan not found.");
+        throw new ApiError(
+          STATUS_CODES.NOT_FOUND,
+          MESSAGES.SUPERADMIN.ERROR.PLAN_NOT_EXIST,
+        );
       }
       if (totalUserCount >= purchasedPlan?.userLimit) {
-        throw new Error(
+        throw new ApiError(
+          STATUS_CODES.CONFLICT,
           `You can't approve this request bcoz your plan user limit is ${purchasedPlan?.userLimit}.`,
         );
       }
@@ -82,23 +85,34 @@ export class PickupService implements IPickupService {
         truckId: assignedTruckId,
       });
 
-    if (!updatedPickup) throw new Error("Pickup  not found or update failed");
+    if (!updatedPickup) {
+      throw new ApiError(
+        STATUS_CODES.SERVER_ERROR,
+        MESSAGES.WASTEPLANT.ERROR.PICKUP_FAILED,
+      );
+    }
 
     if (updatedPickup.wasteplantId?.toString() !== plantId) {
-      throw new Error("Pickup  not belongs to this wasteplant");
+      throw new ApiError(
+        STATUS_CODES.FORBIDDEN,
+        MESSAGES.SUPERADMIN.ERROR.NOT_IN_PLANT,
+      );
     }
 
     await this.driverRepository.updateDriverTruck(driverId, assignedTruckId);
     const driver = await this.driverRepository.getDriverById(driverId);
     const truck = await this.truckRepository.getTruckById(assignedTruckId);
 
-    if (!driver || !truck) throw new Error("Driver or Truck or User not found");
+    if (!driver || !truck) {
+      throw new ApiError(STATUS_CODES.NOT_FOUND, "Driver or Truck not found");
+    }
     const plant = await this.wastePlantRepository.getWastePlantById(
       driver.wasteplantId!.toString(),
     );
 
     if (!plant || String(plant._id) !== String(updatedPickup.wasteplantId)) {
-      throw new Error(
+      throw new ApiError(
+        STATUS_CODES.FORBIDDEN,
         "Driver's plant does not match pickup's plant. Skipping notification.",
       );
     }
@@ -158,7 +172,6 @@ export class PickupService implements IPickupService {
         message: userMessage,
         type: "pickup_cancelled",
       });
-    console.log("userNotification", userNotification);
 
     if (io) {
       io.to(`${userId}`).emit("newNotification", userNotification);
@@ -175,10 +188,16 @@ export class PickupService implements IPickupService {
       await this.pickupRepository.getPickupById(pickupReqId);
 
     if (!existingPickup) {
-      throw new Error("Pickup request not found");
+      throw new ApiError(
+        STATUS_CODES.NOT_FOUND,
+        MESSAGES.WASTEPLANT.ERROR.PICKUP_NOT_FOUND,
+      );
     }
     if (existingPickup?.wasteplantId?.toString() !== wasteplantId.toString()) {
-      throw new Error("Pickup not belongs this wasteplant.");
+      throw new ApiError(
+        STATUS_CODES.FORBIDDEN,
+        MESSAGES.SUPERADMIN.ERROR.NOT_IN_PLANT,
+      );
     }
     const driver = await this.driverRepository.updateDriverAssignedZone(
       data.driverId,
@@ -186,11 +205,17 @@ export class PickupService implements IPickupService {
     );
 
     if (!driver) {
-      throw new Error("Driver not found.");
+      throw new ApiError(
+        STATUS_CODES.NOT_FOUND,
+        MESSAGES.DRIVER.ERROR.NOT_FOUND,
+      );
     }
     const truckId = driver?.assignedTruckId;
     if (!truckId) {
-      throw new Error("Truck ID is missing for the assigned driver.");
+      throw new ApiError(
+        STATUS_CODES.BAD_REQUEST,
+        MESSAGES.WASTEPLANT.ERROR.TRUCK_ID_MISS,
+      );
     }
     const truck = await this.truckRepository.getTruckById(truckId.toString());
 
@@ -204,7 +229,10 @@ export class PickupService implements IPickupService {
       },
     );
     if (!updatedPickup) {
-      throw new Error("Failed to reschedule pickup");
+      throw new ApiError(
+        STATUS_CODES.SERVER_ERROR,
+        MESSAGES.WASTEPLANT.ERROR.PICKUP_FAILED,
+      );
     }
     const plant =
       await this.wastePlantRepository.getWastePlantById(wasteplantId);
@@ -226,7 +254,6 @@ export class PickupService implements IPickupService {
         message: driverMessage,
         type: "pickup_rescheduled",
       });
-    console.log("driverNotification", driverNotification);
 
     if (io) {
       io.to(`${data.driverId}`).emit("newNotification", driverNotification);
@@ -243,7 +270,6 @@ export class PickupService implements IPickupService {
         message: userMessage,
         type: "pickup_rescheduled",
       });
-    console.log("userNotification", userNotification);
 
     if (io) {
       io.to(`${userId}`).emit("newNotification", userNotification);
@@ -260,17 +286,26 @@ export class PickupService implements IPickupService {
   async approveModifyPickup(wasteplantId: string, pickupReqId: string) {
     const pickup = await this.pickupRepository.getPickupById(pickupReqId);
     if (!pickup) {
-      throw new Error("Pickup not found.");
+      throw new ApiError(
+        STATUS_CODES.NOT_FOUND,
+        MESSAGES.WASTEPLANT.ERROR.PICKUP_NOT_FOUND,
+      );
     }
     if (pickup.wasteplantId?.toString() !== wasteplantId) {
-      throw new Error("Pickup not belongs in this wasteplant.");
+      throw new ApiError(
+        STATUS_CODES.FORBIDDEN,
+        MESSAGES.SUPERADMIN.ERROR.NOT_IN_PLANT,
+      );
     }
     if (pickup.requestType === "Pause") {
       pickup.isPaused = true;
     }
     if (pickup.requestType === "FrequencyChange") {
       if (!pickup.requestedFrequency) {
-        throw new Error("Requested frequency is missing.");
+        throw new ApiError(
+          STATUS_CODES.BAD_REQUEST,
+          MESSAGES.WASTEPLANT.ERROR.REQ_FREQ_MISS,
+        );
       }
       pickup.frequency = pickup.requestedFrequency;
       pickup.pauseUntil = null;
@@ -308,10 +343,16 @@ export class PickupService implements IPickupService {
   async rejectModifyPickup(wasteplantId: string, pickupReqId: string) {
     const pickup = await this.pickupRepository.getPickupById(pickupReqId);
     if (!pickup) {
-      throw new Error("Pickup not found.");
+      throw new ApiError(
+        STATUS_CODES.NOT_FOUND,
+        MESSAGES.WASTEPLANT.ERROR.NOT_FOUND,
+      );
     }
     if (pickup.wasteplantId?.toString() !== wasteplantId) {
-      throw new Error("Pickup not belongs in this wasteplant.");
+      throw new ApiError(
+        STATUS_CODES.FORBIDDEN,
+        MESSAGES.SUPERADMIN.ERROR.NOT_IN_PLANT,
+      );
     }
 
     pickup.requestType = null;

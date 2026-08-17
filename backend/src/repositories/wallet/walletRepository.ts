@@ -2,7 +2,18 @@ import { inject, injectable } from "inversify";
 import TYPES from "../../config/inversify/types";
 import { WalletModel } from "../../models/wallet/walletModel";
 import BaseRepository from "../baseRepository/baseRepository";
-import { AddMoneyToWallet, AddMoneyToWalletRepoReq, CreateWalletReq, FetchFilteredWPRevenueResp, FetchWPDashboardRepo, IWalletDocument, PaginatedGetWalletReq, PaginatedSuperAdminWallet, PaginatedUserWallet, RevenueWPTrendRepo } from "../../models/wallet/interfaces/walletInterface";
+import {
+  AddMoneyToWallet,
+  AddMoneyToWalletRepoReq,
+  CreateWalletReq,
+  FetchFilteredWPRevenueResp,
+  FetchWPDashboardRepo,
+  IWalletDocument,
+  PaginatedGetWalletReq,
+  PaginatedSuperAdminWallet,
+  PaginatedUserWallet,
+  RevenueWPTrendRepo,
+} from "../../models/wallet/interfaces/walletInterface";
 import { IWalletRepository } from "./interface/IWalletRepository";
 import { IUserRepository } from "../user/interface/IUserRepository";
 import mongoose, { ClientSession, PipelineStage, Types } from "mongoose";
@@ -36,16 +47,32 @@ export class WalletRepository
 
     return query;
   }
-  async createWallet(payload: CreateWalletReq) {
-    console.log("🔥 Creating wallet", payload);
+  async createWallet(
+    payload: CreateWalletReq,
+    session?: mongoose.ClientSession,
+  ) {
     const { accountId, accountType } = payload;
-    return await this.model.create({
+    const walletData = {
       accountId: new Types.ObjectId(accountId),
       accountType,
       balance: 0,
       holdingBalance: 0,
       transactions: [],
-    });
+    };
+
+    if (session) {
+      const [wallet] = await this.model.create([walletData], { session });
+      return wallet;
+    }
+
+    return this.model.create(walletData);
+    // return await this.model.create({
+    //   accountId: new Types.ObjectId(accountId),
+    //   accountType,
+    //   balance: 0,
+    //   holdingBalance: 0,
+    //   transactions: [],
+    // });
   }
   async findWalletByWalletId(walletId: string) {
     return await this.model.findOne({
@@ -126,7 +153,6 @@ export class WalletRepository
 
         searchMatch["transactions.paidAt"] = { $gte: start, $lte: end };
       } else if (/^\d{2}-\d{2}-\d{4}\s+\d{1,2}:\d{2}$/.test(trimmed)) {
-
         const parsed = moment(trimmed, "DD-MM-YYYY HH:mm").toDate();
         const start = new Date(parsed.getTime() - 60000);
         const end = new Date(parsed.getTime() + 60000);
@@ -218,7 +244,6 @@ export class WalletRepository
 
         searchMatch["transactions.paidAt"] = { $gte: start, $lte: end };
       } else if (/^\d{2}-\d{2}-\d{4}\s+\d{1,2}:\d{2}$/.test(trimmed)) {
-
         const parsed = moment(trimmed, "DD-MM-YYYY HH:mm").toDate();
         const start = new Date(parsed.getTime() - 60000);
         const end = new Date(parsed.getTime() + 60000);
@@ -313,7 +338,6 @@ export class WalletRepository
           { "transactions.paidAt": { $gte: start, $lte: end } },
         ];
       } else if (/^\d{2}-\d{2}-\d{4}\s+\d{1,2}:\d{2}$/.test(trimmed)) {
-
         const parsed = moment(trimmed, "DD-MM-YYYY HH:mm").toDate();
         const start = new Date(parsed.getTime() - 60000);
         const end = new Date(parsed.getTime() + 60000);
@@ -371,10 +395,10 @@ export class WalletRepository
         $match: {
           // "transactions.subType": "PickupPayment",
           "transactions.subType": {
-            $in: ["PickupPayment","UserDeposit"]
+            $in: ["PickupPayment", "UserDeposit"],
           },
           ...searchMatch,
-        }
+        },
       },
       {
         $facet: {
@@ -507,8 +531,10 @@ export class WalletRepository
       wasteplantTotRevenue: totalRevenue?.balance ?? 0,
     };
   }
-  async paginatedSuperAdminWallet(payload: PaginatedGetWalletReq): Promise<PaginatedSuperAdminWallet>{
-     const { walletId, page, limit, search } = payload;
+  async paginatedSuperAdminWallet(
+    payload: PaginatedGetWalletReq,
+  ): Promise<PaginatedSuperAdminWallet> {
+    const { walletId, page, limit, search } = payload;
     const skip = (page - 1) * limit;
 
     let searchMatch: any = {};
@@ -529,7 +555,6 @@ export class WalletRepository
 
         searchMatch["transactions.paidAt"] = { $gte: start, $lte: end };
       } else if (/^\d{2}-\d{2}-\d{4}\s+\d{1,2}:\d{2}$/.test(trimmed)) {
-
         const parsed = moment(trimmed, "DD-MM-YYYY HH:mm").toDate();
         const start = new Date(parsed.getTime() - 60000);
         const end = new Date(parsed.getTime() + 60000);
@@ -561,10 +586,11 @@ export class WalletRepository
     const result = await this.model.aggregate([
       { $match: { _id: new mongoose.Types.ObjectId(walletId) } },
       { $unwind: "$transactions" },
-      { $match: {
-        "transactions.subType":"SubscriptionPayment"
-        ,...searchMatch 
-       }
+      {
+        $match: {
+          "transactions.subType": "SubscriptionPayment",
+          ...searchMatch,
+        },
       },
       {
         $facet: {

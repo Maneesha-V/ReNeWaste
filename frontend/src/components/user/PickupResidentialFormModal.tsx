@@ -19,7 +19,6 @@ const PickupResidentialFormModal: React.FC<PickupResidentialFormModalProps> = ({
   const [selectedAddressIndex, setSelectedAddressIndex] = useState<
     number | "add-new"
   >(0);
-  console.log("selectedAddressIndex",selectedAddressIndex);
 
   const [newAddress, setNewAddress] = useState({
     addressLine1: "",
@@ -87,8 +86,7 @@ const PickupResidentialFormModal: React.FC<PickupResidentialFormModalProps> = ({
       if (isToday) {
         const now = new Date();
         const currentMinutes = now.getHours() * 60 + now.getMinutes();
-        console.log("totalMinutes", totalMinutes);
-        console.log("currentMinutes", currentMinutes);
+ 
         if (totalMinutes < currentMinutes) {
           return "Pickup time cannot be earlier than the current time.";
         }

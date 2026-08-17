@@ -1,12 +1,13 @@
 import { IResidentialService } from "./interface/IResidentialService";
 import { Types } from "mongoose";
-import { IAddress } from "../../models/user/interfaces/addressInterface";
 import { inject, injectable } from "inversify";
 import TYPES from "../../config/inversify/types";
 import { IUserRepository } from "../../repositories/user/interface/IUserRepository";
 import { IPickupRepository } from "../../repositories/pickupReq/interface/IPickupRepository";
 import { UpdatedResidentialData, UserDTO } from "../../dtos/user/userDTO";
 import { UserMapper } from "../../mappers/UserMapper";
+import { ApiError } from "../../utils/ApiError";
+import { MESSAGES, STATUS_CODES } from "../../utils/constantUtils";
 
 @injectable()
 export class ResidentialService implements IResidentialService {
@@ -18,7 +19,9 @@ export class ResidentialService implements IResidentialService {
   ) {}
   async getResidentialService(userId: string): Promise<UserDTO> {
     const user = await this.userRepository.findUserById(userId);
-    if (!user) throw new Error("User not found");
+    if (!user) {
+      throw new ApiError(STATUS_CODES.NOT_FOUND, MESSAGES.USER.ERROR.NOT_FOUND);
+    }
     return UserMapper.mapUserDTO(user);
   }
 
@@ -33,17 +36,23 @@ export class ResidentialService implements IResidentialService {
       pickupDate,
     });
     if (existing?.type === "daily") {
-      throw new Error("You can only request one residential pickup per day.");
+      throw new ApiError(
+        STATUS_CODES.BAD_REQUEST,
+        MESSAGES.USER.ERROR.RESIDENTIAL_LIMIT,
+      );
     }
     const pickupCount =
       await this.pickupRepository.getMonthlyPickupPlansByUserId(userId);
 
     if (pickupCount.count >= 4) {
-      throw new Error("Monthly residential pickup limit exceeded (max 4).");
+      throw new ApiError(
+        STATUS_CODES.BAD_REQUEST,
+        MESSAGES.USER.ERROR.MONTHLY_LIMIT,
+      );
     }
     const user = await this.userRepository.findUserById(userId);
     if (!user) {
-      throw new Error("User not found.");
+      throw new ApiError(STATUS_CODES.NOT_FOUND, MESSAGES.USER.ERROR.NOT_FOUND);
     }
 
     const updatedUser = await this.userRepository.updatePartialProfileById(
@@ -51,7 +60,10 @@ export class ResidentialService implements IResidentialService {
       updatedData,
     );
     if (!updatedUser) {
-      throw new Error("User update failed.");
+      throw new ApiError(
+        STATUS_CODES.SERVER_ERROR,
+        MESSAGES.USER.ERROR.PROFILE_UPDATE,
+      );
     }
     let selectedAddress = null;
 
@@ -66,35 +78,21 @@ export class ResidentialService implements IResidentialService {
     }
 
     if (!selectedAddress) {
-      throw new Error("No address found.");
+      throw new ApiError(
+        STATUS_CODES.SERVER_ERROR,
+        MESSAGES.USER.ERROR.NO_ADDRESS,
+      );
     }
     if (
       !selectedAddress.addressLine1?.trim() ||
       !selectedAddress.addressLine2?.trim() ||
       !selectedAddress.location?.trim()
     ) {
-      throw new Error(
-        "Please complete your address before scheduling a pickup.",
+      throw new ApiError(
+        STATUS_CODES.SERVER_ERROR,
+        MESSAGES.USER.ERROR.COMPLETE_ADDRESS,
       );
     }
-
-    // let addressIdToUse: Types.ObjectId;
-    // if (updatedUser.addresses?.length) {
-    //   const addressList = updatedUser.addresses;
-    //   const latestAddress = addressList[addressList.length - 1] as IAddress & {
-    //     _id: Types.ObjectId;
-    //   };
-    //   if (!latestAddress || !latestAddress._id)
-    //     throw new Error("Address ID not found");
-    //   if (!latestAddress.addressLine1 || !latestAddress.addressLine2 || !latestAddress.location){
-    //     throw new Error("Please complete your address before scheduling a pickup.")
-    //   }
-    //   addressIdToUse = new Types.ObjectId(latestAddress._id);
-    // } else if (updatedData.selectedAddressId) {
-    //   addressIdToUse = new Types.ObjectId(updatedData.selectedAddressId);
-    // } else {
-    //   throw new Error("No address provided or selected.");
-    // }
 
     const newPickuData = {
       userId: new Types.ObjectId(userId),
@@ -108,6 +106,5 @@ export class ResidentialService implements IResidentialService {
 
     const created = await this.pickupRepository.createPickup(newPickuData);
     return !!created;
-
   }
 }

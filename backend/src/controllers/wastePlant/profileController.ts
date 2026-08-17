@@ -64,11 +64,9 @@ export class ProfileController implements IProfileController {
     next: NextFunction,
   ): Promise<void> {
     try {
-      console.log("file", req.file);
-
       const plantId = req.user?.id;
       const updatedData = req.body;
-      console.log({ plantId, updatedData });
+
       if (!plantId) {
         throw new ApiError(
           STATUS_CODES.UNAUTHORIZED,
@@ -104,7 +102,6 @@ export class ProfileController implements IProfileController {
         plantId,
         updatedData,
       );
-      console.log("updatedPlant", updatedPlant);
 
       res.status(STATUS_CODES.SUCCESS).json({ updatedPlant });
     } catch (error) {

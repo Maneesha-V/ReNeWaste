@@ -27,14 +27,12 @@ export class DropSpotController implements IDropSpotController {
         );
       }
       const dropspots = await this.dropSpotService.getAllNearDropSpots(userId);
-      console.log("dropspots", dropspots);
 
       res.status(STATUS_CODES.SUCCESS).json({
         message: MESSAGES.USER.SUCCESS.FETCH_DROPSPOTS,
         dropspots,
       });
     } catch (error) {
-      console.error("err", error);
       next(error);
     }
   }

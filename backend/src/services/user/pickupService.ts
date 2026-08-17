@@ -12,7 +12,6 @@ import {
 } from "../../dtos/pickupReq/pickupReqDTO";
 import { PaginationInput } from "../../dtos/common/commonDTO";
 import { IWalletRepository } from "../../repositories/wallet/interface/IWalletRepository";
-import { log } from "console";
 
 @injectable()
 export class PickupService implements IPickupService {

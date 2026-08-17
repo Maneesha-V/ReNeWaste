@@ -11,14 +11,14 @@ import {
   VerifyPaymentResp,
   VerifyWalletPickupPaymentReq,
 } from "../../dtos/pickupReq/paymentDTO";
-import {
-  PickupPaymentSummaryDTO,
-} from "../../dtos/pickupReq/pickupReqDTO";
+import { PickupPaymentSummaryDTO } from "../../dtos/pickupReq/pickupReqDTO";
 import { PickupRequestMapper } from "../../mappers/PIckupReqMapper";
 import { PaginationInput } from "../../dtos/common/commonDTO";
 import { IWalletRepository } from "../../repositories/wallet/interface/IWalletRepository";
 import { IUserRepository } from "../../repositories/user/interface/IUserRepository";
 import PDFDocument from "pdfkit";
+import { ApiError } from "../../utils/ApiError";
+import { MESSAGES, STATUS_CODES } from "../../utils/constantUtils";
 
 @injectable()
 export class PaymentService implements IPaymentService {
@@ -54,7 +54,7 @@ export class PaymentService implements IPaymentService {
         pickupReqId,
         userId,
       );
-    console.log("pickupRequest ", pickupRequest);
+
     if (!pickupRequest) {
       throw new Error("Pickup request not found for the user.");
     }
@@ -62,8 +62,9 @@ export class PaymentService implements IPaymentService {
     const now = new Date();
     const payment = pickupRequest.payment;
     if (payment?.inProgressExpiresAt && payment?.inProgressExpiresAt > now) {
-      throw new Error(
-        "A payment is already in progress. Please wait a few minutes before retrying.",
+      throw new ApiError(
+        STATUS_CODES.CONFLICT,
+        MESSAGES.COMMON.ERROR.PAYMENT_IN_PROGRESS,
       );
     }
     const order = await this.razorpay.orders.create({
@@ -78,10 +79,9 @@ export class PaymentService implements IPaymentService {
       },
       payment_capture: true,
     });
-    console.log("Razorpay Key:", process.env.RAZORPAY_KEY_ID);
-    console.log("Razorpay Order:", order);
+
     const fetchedOrder = await this.razorpay.orders.fetch(order.id);
-    console.log("Fetched Order:", fetchedOrder);
+
     pickupRequest.payment = {
       ...pickupRequest.payment,
       amount,
@@ -124,7 +124,10 @@ export class PaymentService implements IPaymentService {
       .digest("hex");
 
     if (expectedSignature !== razorpay_signature) {
-      throw new Error("Invalid signature. Payment could not be verified.");
+      throw new ApiError(
+        STATUS_CODES.BAD_REQUEST,
+        MESSAGES.COMMON.ERROR.INVALID_SIGNATURE,
+      );
     }
     const pickupRequest =
       await this._pickupRepository.getPickupByUserIdAndPickupReqId(
@@ -133,19 +136,31 @@ export class PaymentService implements IPaymentService {
       );
 
     if (!pickupRequest) {
-      throw new Error("pickupRequest not found.");
+      throw new ApiError(
+        STATUS_CODES.NOT_FOUND,
+        MESSAGES.USER.ERROR.PICKUP_NOT_FOUND,
+      );
     }
     const payment = pickupRequest.payment;
 
     if (!payment) {
-      throw new Error("Payment details not found in the pickup request.");
+      throw new ApiError(
+        STATUS_CODES.NOT_FOUND,
+        MESSAGES.USER.ERROR.PAYMENT_NOT_FOUND,
+      );
     }
     if (payment.status === "Paid") {
-      throw new Error("Payment already completed");
+      throw new ApiError(
+        STATUS_CODES.SERVER_ERROR,
+        MESSAGES.USER.ERROR.PAYMENT_COMPLETE,
+      );
     }
 
     if (payment.amount !== amount) {
-      throw new Error("Payment amount mismatch");
+      throw new ApiError(
+        STATUS_CODES.SERVER_ERROR,
+        MESSAGES.USER.ERROR.PAYMENT_MISMATCH,
+      );
     }
     pickupRequest.payment = {
       ...pickupRequest.payment,
@@ -160,21 +175,15 @@ export class PaymentService implements IPaymentService {
     };
     pickupRequest.markModified("payment");
     await pickupRequest.save();
-    console.log("✅ Saved payment status:", pickupRequest.payment);
+
     const accountId = userId;
     const accountType = "User";
-    console.log("➡ Before wallet lookup");
+
     let wallet = await this._walletRepository.findWallet(
       accountId,
       accountType,
     );
-    console.log("➡ After wallet lookup", wallet);
-    // if (!wallet) {
-    //    wallet = await this._walletRepository.createWallet({
-    //     accountId,
-    //     accountType
-    //   });
-    // }
+
     if (!wallet) {
       try {
         wallet = await this._walletRepository.createWallet({
@@ -190,8 +199,13 @@ export class PaymentService implements IPaymentService {
       }
     }
 
-    if (!wallet) throw new Error("Wallet creation failed");
-    console.log("Wallet found:", wallet);
+    if (!wallet) {
+      throw new ApiError(
+        STATUS_CODES.BAD_REQUEST,
+        MESSAGES.COMMON.ERROR.WALLET_CREATION_FAILED,
+      );
+    }
+
     wallet.holdingBalance += amount;
 
     wallet.transactions.push({
@@ -232,12 +246,18 @@ export class PaymentService implements IPaymentService {
       );
     console.log("pickupRequest ", pickupRequest);
     if (!pickupRequest) {
-      throw new Error("pickupRequest not found.");
+      throw new ApiError(
+        STATUS_CODES.NOT_FOUND,
+        MESSAGES.USER.ERROR.PICKUP_NOT_FOUND,
+      );
     }
     const payment = pickupRequest.payment;
 
     if (!payment) {
-      throw new Error("Payment details not found in the pickup request.");
+      throw new ApiError(
+        STATUS_CODES.NOT_FOUND,
+        MESSAGES.USER.ERROR.PAYMENT_NOT_FOUND,
+      );
     }
 
     const now = new Date();
@@ -254,8 +274,9 @@ export class PaymentService implements IPaymentService {
       payment.inProgressExpiresAt &&
       payment.inProgressExpiresAt > now
     ) {
-      throw new Error(
-        "A payment is already in progress. Please wait a few minutes before retrying.",
+      throw new ApiError(
+        STATUS_CODES.CONFLICT,
+        MESSAGES.COMMON.ERROR.PAYMENT_IN_PROGRESS,
       );
     }
     const expiresIn = 5 * 60 * 1000;
@@ -295,10 +316,16 @@ export class PaymentService implements IPaymentService {
       );
 
     if (!pickupRequest) {
-      throw new Error("Pickup request not found for this user.");
+      throw new ApiError(
+        STATUS_CODES.NOT_FOUND,
+        MESSAGES.USER.ERROR.PICKUP_NOT_FOUND,
+      );
     }
     if (pickupRequest.payment?.status === "Paid") {
-      throw new Error("Payment already completed");
+      throw new ApiError(
+        STATUS_CODES.SERVER_ERROR,
+        MESSAGES.USER.ERROR.PAYMENT_COMPLETE,
+      );
     }
 
     if (!pickupRequest.payment) {
@@ -327,8 +354,9 @@ export class PaymentService implements IPaymentService {
     const payment = pickupRequest.payment;
 
     if (payment.inProgressExpiresAt && payment.inProgressExpiresAt > now) {
-      throw new Error(
-        "A payment is already in progress. Please wait a few minutes before retrying.",
+      throw new ApiError(
+        STATUS_CODES.CONFLICT,
+        MESSAGES.COMMON.ERROR.PAYMENT_IN_PROGRESS,
       );
     }
 
@@ -337,10 +365,16 @@ export class PaymentService implements IPaymentService {
       accountType,
     );
     if (!wallet) {
-      throw new Error("Wallet not found for this user.");
+      throw new ApiError(
+        STATUS_CODES.NOT_FOUND,
+        MESSAGES.COMMON.ERROR.WALLET_NOT_FOUND,
+      );
     }
     if (wallet.balance < amount) {
-      throw new Error("Insufficient wallet balance.");
+      throw new ApiError(
+        STATUS_CODES.BAD_REQUEST,
+        MESSAGES.COMMON.ERROR.INSUFFICIENT_BAL,
+      );
     }
     wallet.balance -= amount;
     wallet.holdingBalance += amount;
@@ -377,16 +411,22 @@ export class PaymentService implements IPaymentService {
   async generateReceipt(pickupReqId: string) {
     const pickup = await this._pickupRepository.getPickupById(pickupReqId);
     if (!pickup) {
-      throw new Error("Pickup not found.");
+      throw new ApiError(
+        STATUS_CODES.NOT_FOUND,
+        MESSAGES.USER.ERROR.PICKUP_NOT_FOUND,
+      );
     }
     if (!pickup.payment) {
-      throw new Error("Pickup payment not found.");
+      throw new ApiError(
+        STATUS_CODES.NOT_FOUND,
+        MESSAGES.USER.ERROR.PAYMENT_NOT_FOUND,
+      );
     }
     const user = await this._userRepository.findUserById(
       pickup.userId.toString(),
     );
     if (!user) {
-      throw new Error("User not found.");
+      throw new ApiError(STATUS_CODES.NOT_FOUND, MESSAGES.USER.ERROR.NOT_FOUND);
     }
     const payment = pickup.payment;
 
@@ -437,10 +477,9 @@ export class PaymentService implements IPaymentService {
     doc.fontSize(12);
     doc.text(`Service     : ${pickup.wasteType} Service`);
     doc.text(`Waste Type  : ${pickup.wasteType}`);
-    const pickupDate = pickup.rescheduledPickupDate || pickup.originalPickupDate
-    doc.text(
-      `Pickup Date : ${new Date(pickupDate).toLocaleString()}`,
-    );
+    const pickupDate =
+      pickup.rescheduledPickupDate || pickup.originalPickupDate;
+    doc.text(`Pickup Date : ${new Date(pickupDate).toLocaleString()}`);
     doc.text(`Pickup Time : ${pickup.pickupTime}`);
 
     doc.moveDown();
@@ -471,7 +510,7 @@ export class PaymentService implements IPaymentService {
 
     return {
       doc,
-      pickupId: pickup.pickupId
+      pickupId: pickup.pickupId,
     };
   }
 }

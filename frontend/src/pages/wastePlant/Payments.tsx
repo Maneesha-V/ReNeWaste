@@ -42,12 +42,7 @@ const Payments = () => {
       dispatch(clearPaymentError());
     }
   }, [error, dispatch]);
-  // const debouncedFetchPayments = useCallback(
-  //   debounce((page: number, limit: number, query: string) => {
-  //     dispatch(fetchPayments({ page, limit, search: query }));
-  //   }, 500),
-  //   [dispatch]
-  // );
+
     const debouncedFetchPayments = useMemo(
       () =>
     debounce((page: number, limit: number, query: string) => {

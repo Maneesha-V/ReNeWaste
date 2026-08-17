@@ -32,7 +32,6 @@ export class WastePlantController implements IWastePlantController {
     try {
       const subscriptionPlans =
         await this.subscriptionService.fetchActiveSubscriptionPlans();
-      // console.log("subscriptionPlans", subscriptionPlans);
 
       res.status(STATUS_CODES.SUCCESS).json({
         success: true,
@@ -49,8 +48,6 @@ export class WastePlantController implements IWastePlantController {
     next: NextFunction,
   ): Promise<void> {
     try {
-      console.log("file", req.file);
-
       if (!req.file) {
         throw new ApiError(
           STATUS_CODES.NOT_FOUND,
@@ -108,9 +105,8 @@ export class WastePlantController implements IWastePlantController {
         cloudinaryPublicId: publicId,
       } as IWastePlant;
 
-      const newWastePlant =
-        await this._wastePlantService.addWastePlant(wastePlantData);
-      console.log("✅ Inserted Waste Plant:", newWastePlant);
+      await this._wastePlantService.addWastePlant(wastePlantData);
+
       res.status(STATUS_CODES.CREATED).json({
         success: true,
         message: MESSAGES.WASTEPLANT.SUCCESS.CREATED,
@@ -126,11 +122,8 @@ export class WastePlantController implements IWastePlantController {
     next: NextFunction,
   ): Promise<void> {
     try {
-      console.log(req.user);
-
       const role = req.user?.role;
       const publicId = req.params.publicId;
-      console.log({ role, publicId });
 
       if (!role || !publicId) {
         throw new ApiError(
@@ -237,8 +230,6 @@ export class WastePlantController implements IWastePlantController {
           maxCapacity,
         });
 
-      console.log({ total, wasteplants });
-
       res.status(STATUS_CODES.SUCCESS).json({
         success: true,
         message: MESSAGES.WASTEPLANT.SUCCESS.FETCH,
@@ -265,7 +256,6 @@ export class WastePlantController implements IWastePlantController {
       }
       const wastePlant =
         await this._wastePlantService.getWastePlantByIdService(id);
-      console.log("wastePlant", wastePlant);
 
       res.status(STATUS_CODES.SUCCESS).json({
         success: true,
@@ -341,7 +331,7 @@ export class WastePlantController implements IWastePlantController {
           id,
           updatedData,
         );
-      console.log("wastePlant", updatedWastePlant);
+
       if (!updatedWastePlant) {
         res.status(STATUS_CODES.SERVER_ERROR).json({
           message: MESSAGES.WASTEPLANT.ERROR.FAILED,

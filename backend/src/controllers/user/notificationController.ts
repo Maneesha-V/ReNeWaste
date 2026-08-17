@@ -46,7 +46,6 @@ export class NotificationController implements INotificationController {
 
       res.status(STATUS_CODES.SUCCESS).json(updatedNotification);
     } catch (error) {
-      // res.status(500).json({ error: "Failed to mark notification as read." });
       next(error);
     }
   }

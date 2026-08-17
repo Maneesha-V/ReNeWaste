@@ -22,8 +22,6 @@ export const getAllPaymentsService = async ({page, limit, search, filter}: Pagin
 
 export const repayService = async (pickupReqId: string, amount: number): Promise<RepaymentOrderResponse> => {
   const response = await axiosUser.post(`/payment/repay`, { pickupReqId, amount});
-  console.log("res",response);
-  
   return response.data.repaymentOrder;
 };
 export const verifyWalletPaymentService = async(paymentData: VerifyWalletPaymentReq) => {

@@ -28,10 +28,61 @@ export class SubscriptionController implements ISubscriptionController {
         );
       }
 
+      const { driverLimit, price, trialDays, truckLimit, userLimit } = req.body;
+
+      if (typeof price !== "number" || !Number.isFinite(price) || price <= 0) {
+        throw new ApiError(
+          STATUS_CODES.BAD_REQUEST,
+          MESSAGES.SUPERADMIN.ERROR.PRICE_LIMIT,
+        );
+      }
+
+      if (
+        typeof driverLimit !== "number" ||
+        !Number.isInteger(driverLimit) ||
+        driverLimit < 1
+      ) {
+        throw new ApiError(
+          STATUS_CODES.BAD_REQUEST,
+          MESSAGES.SUPERADMIN.ERROR.DRIVER_LIMIT,
+        );
+      }
+
+      if (
+        typeof userLimit !== "number" ||
+        !Number.isInteger(userLimit) ||
+        userLimit < 1
+      ) {
+        throw new ApiError(
+          STATUS_CODES.BAD_REQUEST,
+          MESSAGES.SUPERADMIN.ERROR.USER_LIMIT,
+        );
+      }
+
+      if (
+        typeof truckLimit !== "number" ||
+        !Number.isInteger(truckLimit) ||
+        truckLimit < 1
+      ) {
+        throw new ApiError(
+          STATUS_CODES.BAD_REQUEST,
+          MESSAGES.SUPERADMIN.ERROR.TRUCK_LIMIT,
+        );
+      }
+
+      if (
+        typeof trialDays !== "number" ||
+        !Number.isInteger(trialDays) ||
+        trialDays < 0
+      ) {
+        throw new ApiError(
+          STATUS_CODES.BAD_REQUEST,
+          MESSAGES.SUPERADMIN.ERROR.TRIAL_LIMIT,
+        );
+      }
       const subptnPlanData = req.body;
-      const newSubptnPlan =
-        await this.subscriptionService.createSubscriptionPlan(subptnPlanData);
-      console.log("newSubptnPlan", newSubptnPlan);
+
+      await this.subscriptionService.createSubscriptionPlan(subptnPlanData);
 
       res.status(STATUS_CODES.CREATED).json({
         success: true,
@@ -64,7 +115,6 @@ export class SubscriptionController implements ISubscriptionController {
           limit,
           search,
         });
-      // console.log("subscriptionPlans", subscriptionPlans);
 
       res.status(STATUS_CODES.SUCCESS).json({
         success: true,
@@ -117,7 +167,6 @@ export class SubscriptionController implements ISubscriptionController {
       }
       const subscriptionPlan =
         await this.subscriptionService.getSubscriptionPlanById(id);
-      console.log("subscriptionPlan", subscriptionPlan);
 
       res.status(STATUS_CODES.SUCCESS).json({ subscriptionPlan });
     } catch (error) {
@@ -139,6 +188,58 @@ export class SubscriptionController implements ISubscriptionController {
           MESSAGES.COMMON.ERROR.ID_REQUIRED,
         );
       }
+      const { driverLimit, price, trialDays, truckLimit, userLimit } = req.body;
+
+      if (typeof price !== "number" || !Number.isFinite(price) || price <= 0) {
+        throw new ApiError(
+          STATUS_CODES.BAD_REQUEST,
+          MESSAGES.SUPERADMIN.ERROR.PRICE_LIMIT,
+        );
+      }
+
+      if (
+        typeof driverLimit !== "number" ||
+        !Number.isInteger(driverLimit) ||
+        driverLimit < 1
+      ) {
+        throw new ApiError(
+          STATUS_CODES.BAD_REQUEST,
+          MESSAGES.SUPERADMIN.ERROR.DRIVER_LIMIT,
+        );
+      }
+
+      if (
+        typeof userLimit !== "number" ||
+        !Number.isInteger(userLimit) ||
+        userLimit < 1
+      ) {
+        throw new ApiError(
+          STATUS_CODES.BAD_REQUEST,
+          MESSAGES.SUPERADMIN.ERROR.USER_LIMIT,
+        );
+      }
+
+      if (
+        typeof truckLimit !== "number" ||
+        !Number.isInteger(truckLimit) ||
+        truckLimit < 1
+      ) {
+        throw new ApiError(
+          STATUS_CODES.BAD_REQUEST,
+          MESSAGES.SUPERADMIN.ERROR.TRUCK_LIMIT,
+        );
+      }
+
+      if (
+        typeof trialDays !== "number" ||
+        !Number.isInteger(trialDays) ||
+        trialDays < 0
+      ) {
+        throw new ApiError(
+          STATUS_CODES.BAD_REQUEST,
+          MESSAGES.SUPERADMIN.ERROR.TRIAL_LIMIT,
+        );
+      }
       const updatedData = req.body;
 
       const updatedSubscriptionPlan =
@@ -146,7 +247,6 @@ export class SubscriptionController implements ISubscriptionController {
           id,
           data: updatedData,
         });
-      console.log("updatedSubscriptionPlan", updatedSubscriptionPlan);
 
       res.status(STATUS_CODES.SUCCESS).json({
         message: MESSAGES.SUPERADMIN.SUCCESS.SUBSCRIPTION_UPDATED,

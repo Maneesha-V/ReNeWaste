@@ -21,11 +21,8 @@ export class UserController implements IUserController {
   ): Promise<void> {
     try {
       const refreshToken = req.cookies?.refreshToken;
-      console.log("refreshToken", refreshToken);
 
       if (!refreshToken) {
-        // res.status(STATUS_CODES.UNAUTHORIZED).json({ error: MESSAGES.COMMON.ERROR.REFRESH_TOKEN });
-        // return;
         throw new ApiError(
           STATUS_CODES.UNAUTHORIZED,
           MESSAGES.COMMON.ERROR.REFRESH_TOKEN,
@@ -35,15 +32,13 @@ export class UserController implements IUserController {
       res.status(STATUS_CODES.SUCCESS).json({ token });
     } catch (error) {
       console.error("err", error);
-      // res.status(401).json({ error: error.message });
       next(error);
     }
   }
   async signup(req: Request, res: Response, next: NextFunction): Promise<void> {
-    console.log("body", req.body);
     try {
       const userData = req.body;
-      console.log("userData", userData);
+
       if (userData.password !== userData.confirmPassword) {
         throw new Error("Passwords do not match.");
       }
@@ -51,7 +46,6 @@ export class UserController implements IUserController {
 
       const { user, token } =
         await this._authService.signupUser(userWithoutConfirm);
-      console.log("user", user);
 
       res.status(STATUS_CODES.CREATED).json({
         success: true,
@@ -87,10 +81,9 @@ export class UserController implements IUserController {
       const cookieOptions = {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
-        // sameSite: isProduction ? ("none" as const) : ("lax" as const),
         sameSite: "none" as const,
         path: "/api",
-        maxAge: 7 * 24 * 60 * 60 * 1000,
+        maxAge: Number(process.env.MAX_AGE),
       };
       res
         .cookie("refreshToken", refreshToken, cookieOptions)
@@ -156,7 +149,6 @@ export class UserController implements IUserController {
         .json({ message: MESSAGES.COMMON.SUCCESS.OTP_SENT });
     } catch (error) {
       console.error("Error sending OTP:", error);
-      // res.status(500).json({ error: error.message || "Internal Server Error" });
       next(error);
     }
   }
@@ -186,7 +178,6 @@ export class UserController implements IUserController {
           .json({ message: MESSAGES.COMMON.ERROR.RESENT_OTP });
       }
     } catch (error) {
-      // res.status(500).json({ error: "Server error, please try again later" });
       next(error);
     }
   }
@@ -199,10 +190,6 @@ export class UserController implements IUserController {
       const { email, otp } = req.body;
 
       if (!email || !otp) {
-        // res
-        //   .status(STATUS_CODES.NOT_FOUND)
-        //   .json({ error: MESSAGES.COMMON.ERROR.EMAIL_OTP_REQUIRED });
-        // return;
         throw new ApiError(
           STATUS_CODES.NOT_FOUND,
           MESSAGES.COMMON.ERROR.EMAIL_OTP_REQUIRED,
@@ -333,7 +320,6 @@ export class UserController implements IUserController {
     } catch (error) {
       console.error(error);
       next(error);
-      // res.status(500).json({ message: "Server error" });
     }
   }
 
@@ -350,7 +336,6 @@ export class UserController implements IUserController {
           STATUS_CODES.NOT_FOUND,
           MESSAGES.COMMON.ERROR.EMAIL_UID_REQUIRED,
         );
-
       }
       const { role, token } = await this._authService.googleSignUpService({
         email,
@@ -388,7 +373,7 @@ export class UserController implements IUserController {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
         sameSite: "strict" as "strict",
-        maxAge: 7 * 24 * 60 * 60 * 1000,
+        maxAge: Number(process.env.MAX_AGE),
       };
       res
         .cookie("refreshToken", refreshToken, cookieOptions)
@@ -402,9 +387,6 @@ export class UserController implements IUserController {
     } catch (error) {
       console.error("Google login error:", error);
       next(error);
-      // res.status(500).json({
-      //   message: error.message || "Something went wrong during login",
-      // });
     }
   }
 }

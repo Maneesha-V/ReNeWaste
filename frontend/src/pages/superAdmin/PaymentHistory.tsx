@@ -49,12 +49,17 @@ const PaymentHistory = () => {
     setSelectedRecord(record);
     setRefundModalVisible(true);
   };
-  const handleRefundStart = async (_id: string, newStatus: string) => {
+  const handleRefundStart = async (_id: string, newStatus: string, rejectionMessage?: string) => {
+    console.log("rejectionMessage",rejectionMessage);
+    
     try {
       const res = await dispatch(
         updateRefundStatus({
           subPayId: _id,
           refundStatus: newStatus,
+          ...(newStatus === "Rejected" && {
+            rejectionMessage,
+          })
         }),
       ).unwrap();
       if (res.statusUpdate) {
@@ -80,8 +85,6 @@ const PaymentHistory = () => {
 
     if (result.isConfirmed) {
       try {
-        // setSelectedRecord(record);
-        // setRefundModalVisible(true);
         const res = await dispatch(
           refundPayment({
             subPayId: record._id,
@@ -141,16 +144,29 @@ const PaymentHistory = () => {
         ]
       : []),
 
+    // {
+    //   title: "Payment Status",
+    //   key: "status",
+    //   render: (record: SubscriptionPaymentHisDTO) => {
+    //     const statusToShow = record.refundStatus || record.status;
+    //     return statusToShow ? <Tag>{statusToShow}</Tag> : null;
+    //   },
+    // },
     {
       title: "Payment Status",
-      // dataIndex: "status",
       key: "status",
-      render: (record: SubscriptionPaymentHisDTO) => {
-        const statusToShow = record.refundStatus || record.status;
-        return statusToShow ? <Tag>{statusToShow}</Tag> : null;
-      },
+      render: (record: SubscriptionPaymentHisDTO) => record.status,
     },
-    ...(payments.some((p) => p.refundRequested)
+    ...(payments.some((p) => p.refundStatus !== null)
+      ? [
+          {
+            title: "Refund Status",
+            key: "refundStatus",
+            render: (record: SubscriptionPaymentHisDTO) => record.refundStatus,
+          },
+        ]
+      : []),
+    ...(payments.some((p) => p.refundRequested || p.refundStatus)
       ? [
           {
             title: "Action",

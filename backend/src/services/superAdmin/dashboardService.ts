@@ -8,6 +8,8 @@ import { IDriverRepository } from "../../repositories/driver/interface/IDriverRe
 import { IWasteCollectionRepository } from "../../repositories/wasteCollection/interface/IWasteCollectionRepository";
 import { IPickupRepository } from "../../repositories/pickupReq/interface/IPickupRepository";
 import { SuperAdminDashboardData } from "../../dtos/superadmin/superadminDTO";
+import { ApiError } from "../../utils/ApiError";
+import { MESSAGES, STATUS_CODES } from "../../utils/constantUtils";
 
 @injectable()
 export class DashboardService implements IDashboardService {
@@ -30,7 +32,10 @@ export class DashboardService implements IDashboardService {
   ): Promise<SuperAdminDashboardData> {
     const admin = await this._superAdminRepository.getSuperAdminById(adminId);
     if (!admin) {
-      throw new Error("Admin not found.");
+      throw new ApiError(
+        STATUS_CODES.NOT_FOUND,
+        MESSAGES.SUPERADMIN.ERROR.NOT_FOUND,
+      );
     }
 
     const adminData = {
@@ -43,14 +48,14 @@ export class DashboardService implements IDashboardService {
     const totalWasteCollected =
       await this._wasteCollectionRepository.getTotalWasteCollected();
     const monthlyRevenue = await this._pickupRepository.totalRevenueByMonth();
-    console.log({
-      adminData,
-      totalPlants,
-      totalTrucks,
-      totalDrivers,
-      totalWasteCollected,
-      monthlyRevenue,
-    });
+    // console.log({
+    //   adminData,
+    //   totalPlants,
+    //   totalTrucks,
+    //   totalDrivers,
+    //   totalWasteCollected,
+    //   monthlyRevenue,
+    // });
     return {
       adminData,
       totalPlants,

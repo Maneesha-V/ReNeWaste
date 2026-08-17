@@ -20,10 +20,21 @@ import { ProtectedRouteProps } from "../../types/common/commonTypes";
     return <Outlet />;
   };
   
+  // export const ProtectedAuthRoute = () => {
+  //   const token = localStorage.getItem("token");
+  //   const role = localStorage.getItem("role");
+  //   const isLoggedIn = !!token && !!role;
+  //   return isLoggedIn ? <Navigate to="/super-admin/dashboard" replace /> : <Outlet />;
+  // };
   export const ProtectedAuthRoute = () => {
     const token = localStorage.getItem("token");
     const role = localStorage.getItem("role");
-    const isLoggedIn = !!token && !!role;
-    // const isLoggedIn = !!token;
-    return isLoggedIn ? <Navigate to="/super-admin/dashboard" replace /> : <Outlet />;
+    
+    if(!token){
+      return <Outlet />
+    }
+    if(role === "superadmin"){
+      return <Navigate to="/super-admin/dashboard" replace />
+    }
+    return <Outlet />;
   };

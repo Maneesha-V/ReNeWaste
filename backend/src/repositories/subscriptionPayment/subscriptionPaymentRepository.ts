@@ -1,6 +1,13 @@
 import { injectable } from "inversify";
 import BaseRepository from "../baseRepository/baseRepository";
-import { CreateSubsptnPaymentPayload, ISubscriptionPaymentDocument, PaymentUpdate, SubscriptionPaymentHisRepoResp, UpdateRefundStatusRepoReq, UpdateSubscptnPayload } from "../../models/subsptnPayment/interface/subsptnPaymentInterface";
+import {
+  CreateSubsptnPaymentPayload,
+  ISubscriptionPaymentDocument,
+  PaymentUpdate,
+  SubscriptionPaymentHisRepoResp,
+  UpdateRefundStatusRepoReq,
+  UpdateSubscptnPayload,
+} from "../../models/subsptnPayment/interface/subsptnPaymentInterface";
 import { SubscriptionPaymentModel } from "../../models/subsptnPayment/subsptnPaymentModel";
 import { ISubscriptionPaymentRepository } from "./interface/ISubscriptionPaymentRepository";
 import mongoose, { PipelineStage } from "mongoose";
@@ -57,8 +64,17 @@ export class SubscriptionPaymentRepository
       .populate({ path: "wasteplantId", select: "plantName ownerName" })
       .populate({ path: "planId", select: "planName billingCycle" });
   }
-  async findSubscriptionPaymentById(id: string) {
-    return await this.model.findById(id);
+  async findSubscriptionPaymentById(
+    id: string,
+    session?: mongoose.ClientSession,
+  ) {
+    const query = this.model.findById(id);
+
+    if (session) {
+      query.session(session);
+    }
+
+    return query;
   }
   async updateSubscriptionPaymentById(
     id: string,
@@ -95,6 +111,7 @@ export class SubscriptionPaymentRepository
       $match: {
         $or: [
           { status: { $regex: searchRegex } },
+          {refundStatus: {$regex: searchRegex}},
           { method: { $regex: searchRegex } },
           { "wasteplant.plantName": { $regex: searchRegex } },
           { "plan.planName": { $regex: searchRegex } },
@@ -161,7 +178,9 @@ export class SubscriptionPaymentRepository
       },
     ];
 
+
     const result = await this.model.aggregate(aggregation);
+// console.log(result);
 
     const totalAggregation: PipelineStage[] = [
       ...baseAggregation,

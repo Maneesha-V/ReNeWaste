@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import { CreateSubsptnPaymentPayload, ISubscriptionPaymentDocument, PaymentUpdate, SubscriptionPaymentHisRepoResp, UpdateRefundStatusRepoReq, UpdateSubscptnPayload } from "../../../models/subsptnPayment/interface/subsptnPaymentInterface";
 import { PaginationInputReq } from "../../../models/wastePlant/interfaces/wastePlantInterface";
 
@@ -13,6 +14,7 @@ export interface ISubscriptionPaymentRepository {
   ): Promise<ISubscriptionPaymentDocument[] | null>;
   findSubscriptionPaymentById(
     id: string,
+    session?: mongoose.ClientSession,
   ): Promise<ISubscriptionPaymentDocument | null>;
   updateSubscriptionPaymentById(
     id: string,

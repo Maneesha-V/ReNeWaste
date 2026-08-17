@@ -28,7 +28,6 @@ export class ReportController implements IReportController {
         );
       }
       const wasteReports = await this._reportService.getWasteReports(plantId);
-      console.log("wasteReports", wasteReports);
 
       res.status(STATUS_CODES.SUCCESS).json({
         success: true,
@@ -48,7 +47,6 @@ export class ReportController implements IReportController {
     try {
       const { from, to } = req.params;
       const plantId = req.user?.id;
-      console.log({ from, to, plantId });
 
       if (!plantId) {
         throw new ApiError(
@@ -62,8 +60,6 @@ export class ReportController implements IReportController {
         plantId,
       });
 
-      console.log("reports",reports);
-      
       res.status(STATUS_CODES.SUCCESS).json({
         success: true,
         message: MESSAGES.WASTEPLANT.SUCCESS.FETCH_FILTER_WASTE_REPORT,

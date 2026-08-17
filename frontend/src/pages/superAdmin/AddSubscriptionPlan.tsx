@@ -27,20 +27,6 @@ const AddSubscriptionPlan = () => {
       toast.success(result?.message);
       form.resetFields();
       navigate("/super-admin/subscription-plans");
-      // if (createSubscriptionPlan.fulfilled.match(resultAction)) {
-      //   toast.success("Subscription Plan added successfully!");
-      //   form.resetFields();
-      //   navigate("/super-admin/subscription-plans");
-      // } else {
-      //   const errorPayload = resultAction.payload as any;
-      //   console.log("err",errorPayload);
-        
-      //   if (errorPayload?.error === "Plan name already exists.") {
-      //     toast.error("Plan name already exists.");
-      //   } else {
-      //     toast.error("Failed to add Subscription Plan");
-      //   }
-      // }
     } catch (error) {
       const msg = getAxiosErrorMessage(error);
       toast.error(msg);
@@ -79,7 +65,6 @@ const AddSubscriptionPlan = () => {
           <Form.Item
             label="Plan Name"
             name="planName"
-            // rules={[{ required: true, message: "Please enter the plan name" }]}
             rules={[
               { required: true, message: "Please enter the plan name" },
               { validator: validatePlanName },
@@ -92,9 +77,11 @@ const AddSubscriptionPlan = () => {
               <Form.Item
                 label="Price (₹)"
                 name="price"
-                rules={[{ required: true, message: "Please enter the price" }]}
+                rules={[                 
+                  { required: true, message: "Please enter the price" },
+                ]}
               >
-                <InputNumber min={0} style={{ width: "100%" }} />
+                <InputNumber style={{ width: "100%" }} placeholder="Enter price" />
               </Form.Item>
             </Col>
             <Col span={12}>
@@ -130,7 +117,7 @@ const AddSubscriptionPlan = () => {
                   { required: true, message: "Please enter number of drivers" },
                 ]}
               >
-                <InputNumber min={0} style={{ width: "100%" }} />
+                <InputNumber style={{ width: "100%" }} placeholder="Enter number of drivers" />
               </Form.Item>
             </Col>
             <Col span={12}>
@@ -141,7 +128,7 @@ const AddSubscriptionPlan = () => {
                   { required: true, message: "Please enter number of users" },
                 ]}
               >
-                <InputNumber min={0} style={{ width: "100%" }} />
+                <InputNumber style={{ width: "100%" }} placeholder="Enter number of users" />
               </Form.Item>
             </Col>
           </Row>
@@ -154,7 +141,7 @@ const AddSubscriptionPlan = () => {
                   { required: true, message: "Please enter number of trucks" },
                 ]}
               >
-                <InputNumber min={0} style={{ width: "100%" }} />
+                <InputNumber style={{ width: "100%" }} placeholder="Enter number of trucks" />
               </Form.Item>
             </Col>
             <Col span={12}>
@@ -164,11 +151,11 @@ const AddSubscriptionPlan = () => {
                 rules={[
                   {
                     required: true,
-                    message: "Please enter number of trial days",
+                    message: "Enter trial days",
                   },
                 ]}
               >
-                <InputNumber min={0} style={{ width: "100%" }} />
+                <InputNumber style={{ width: "100%" }} placeholder="Enter trial days" />
               </Form.Item>
             </Col>
           </Row>

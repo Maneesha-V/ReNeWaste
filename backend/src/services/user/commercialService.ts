@@ -1,7 +1,5 @@
 import { ICommercialService } from "./interface/ICommercialService";
 import { Types } from "mongoose";
-import { IAddress } from "../../models/user/interfaces/addressInterface";
-import { IPickupRequestDocument } from "../../models/pickupRequests/interfaces/pickupInterface";
 import { inject, injectable } from "inversify";
 import TYPES from "../../config/inversify/types";
 import { IUserRepository } from "../../repositories/user/interface/IUserRepository";
@@ -9,6 +7,8 @@ import { IWastePlantRepository } from "../../repositories/wastePlant/interface/I
 import { IPickupRepository } from "../../repositories/pickupReq/interface/IPickupRepository";
 import { UpdatedCommercialDataDTO, UserDTO } from "../../dtos/user/userDTO";
 import { UserMapper } from "../../mappers/UserMapper";
+import { ApiError } from "../../utils/ApiError";
+import { MESSAGES, STATUS_CODES } from "../../utils/constantUtils";
 
 @injectable()
 export class CommercialService implements ICommercialService {
@@ -22,7 +22,9 @@ export class CommercialService implements ICommercialService {
   ) {}
   async getCommercialService(userId: string): Promise<UserDTO> {
     const user = await this.userRepository.findUserById(userId);
-    if (!user) throw new Error("User not found");
+    if (!user) {
+      throw new ApiError(STATUS_CODES.NOT_FOUND, MESSAGES.USER.ERROR.NOT_FOUND);
+    }
     return UserMapper.mapUserDTO(user);
   }
   async availableWasteService(
@@ -47,66 +49,62 @@ export class CommercialService implements ICommercialService {
       wasteType,
     });
     if (existing?.type === "monthly") {
-      throw new Error(
-        "You already submitted a pickup for this business this month.",
+      throw new ApiError(
+        STATUS_CODES.BAD_REQUEST,
+        MESSAGES.USER.ERROR.COMM_MONTHLY_LIMIT,
       );
     }
     if (existing?.type === "daily") {
-      throw new Error(
-        "You can only submit one commercial pickup request per day.",
+      throw new ApiError(
+        STATUS_CODES.BAD_REQUEST,
+        MESSAGES.USER.ERROR.COMMERCIAL_LIMIT,
       );
     }
     const user = await this.userRepository.findUserById(userId);
-    if (!user) throw new Error("User not found");
+    if (!user) {
+      throw new ApiError(STATUS_CODES.NOT_FOUND, MESSAGES.USER.ERROR.NOT_FOUND);
+    }
 
     const updatedUser = await this.userRepository.updatePartialProfileById(
       userId,
       updatedData,
     );
-    if (!updatedUser) throw new Error("User update failed");
+    if (!updatedUser) {
+      throw new ApiError(
+        STATUS_CODES.SERVER_ERROR,
+        MESSAGES.USER.ERROR.PROFILE_UPDATE,
+      );
+    }
 
-    // let addressIdToUse: Types.ObjectId;
-    // if (updatedUser.addresses?.length) {
-    //   const addressList = updatedUser.addresses;
-    //   const latestAddress = addressList[addressList.length - 1] as IAddress & {
-    //     _id: Types.ObjectId;
-    //   };
-    //   console.log("latestAddress", latestAddress);
+    let selectedAddress = null;
 
-    //   if (!latestAddress || !latestAddress._id)
-    //     throw new Error("Address ID not found");
+    if (updatedData.selectedAddressId) {
+      selectedAddress =
+        updatedUser.addresses?.find(
+          (addr) => addr._id?.toString() === updatedData.selectedAddressId,
+        ) ?? null;
+    } else {
+      selectedAddress =
+        updatedUser.addresses?.[updatedUser.addresses.length - 1] ?? null;
+    }
 
-    //   addressIdToUse = new Types.ObjectId(latestAddress._id);
-    // } else if (updatedData.selectedAddressId) {
-    //   addressIdToUse = new Types.ObjectId(updatedData.selectedAddressId);
-    // } else {
-    //   throw new Error("No address provided or selected.");
-    // }
-let selectedAddress = null;
+    if (!selectedAddress) {
+      throw new ApiError(
+        STATUS_CODES.SERVER_ERROR,
+        MESSAGES.USER.ERROR.NO_ADDRESS,
+      );
+    }
 
-if (updatedData.selectedAddressId) {
-  selectedAddress =
-    updatedUser.addresses?.find(
-      (addr) => addr._id?.toString() === updatedData.selectedAddressId
-    ) ?? null;
-} else {
-  selectedAddress =
-    updatedUser.addresses?.[updatedUser.addresses.length - 1] ?? null;
-}
-
-if (!selectedAddress) {
-  throw new Error("No address found.");
-}
-
-if (
-  !selectedAddress.addressLine1?.trim() ||
-  !selectedAddress.addressLine2?.trim() ||
-  !selectedAddress.location?.trim()
-) {
-  throw new Error(
-    "Please complete your address before scheduling a pickup."
-  );
-}
+    if (
+      !selectedAddress.addressLine1?.trim() ||
+      !selectedAddress.addressLine2?.trim() ||
+      !selectedAddress.location?.trim()
+    ) {
+      throw new ApiError(
+        STATUS_CODES.SERVER_ERROR,
+        MESSAGES.USER.ERROR.COMPLETE_ADDRESS,
+      );
+    }
     const newPickuData = {
       userId: new Types.ObjectId(userId),
       wasteplantId: user?.wasteplantId,

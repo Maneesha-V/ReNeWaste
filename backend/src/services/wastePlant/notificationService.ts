@@ -7,6 +7,8 @@ import { IPickupRepository } from "../../repositories/pickupReq/interface/IPicku
 import { NotificationMapper } from "../../mappers/NotificationMapper";
 import { NotificationDTO } from "../../dtos/notification/notificationDTO";
 import { InputWasteMeasurement } from "../../dtos/wasteCollection/wasteCollectionDTO";
+import { ApiError } from "../../utils/ApiError";
+import { MESSAGES, STATUS_CODES } from "../../utils/constantUtils";
 
 @injectable()
 export class NotificationService implements INotificationService {
@@ -23,7 +25,10 @@ export class NotificationService implements INotificationService {
     const notifications =
       await this.notificationRepository.findByReceiverId(wasteplantId);
     if (!notifications) {
-      throw new Error("Notification not found.");
+      throw new ApiError(
+        STATUS_CODES.NOT_FOUND,
+        MESSAGES.COMMON.ERROR.NOTIFICATION_NOT_FOUND,
+      );
     }
     return NotificationMapper.mapNotificationsDTO(notifications);
   }
@@ -34,7 +39,10 @@ export class NotificationService implements INotificationService {
     const notification =
       await this.notificationRepository.markAsReadById(notifId);
     if (!notification || !notification.message) {
-      throw new Error("Notification not found.");
+      throw new ApiError(
+        STATUS_CODES.NOT_FOUND,
+        MESSAGES.COMMON.ERROR.NOTIFICATION_NOT_FOUND,
+      );
     }
 
     if (
@@ -49,7 +57,10 @@ export class NotificationService implements INotificationService {
         pickupId,
       );
       if (!pickupReq) {
-        throw new Error("PickupRequest not found.");
+        throw new ApiError(
+          STATUS_CODES.NOT_FOUND,
+          MESSAGES.USER.ERROR.PICKUP_NOT_FOUND,
+        );
       }
       pickupReq.payment.refundStatus = "Pending";
       await pickupReq.save();
@@ -67,7 +78,6 @@ export class NotificationService implements INotificationService {
           message: userMessage,
           type: "pickup_refund-pending",
         });
-      console.log("userNotification", userNotification);
 
       if (io) {
         io.to(`${userId}`).emit("newNotification", userNotification);

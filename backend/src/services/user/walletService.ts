@@ -10,11 +10,12 @@ import {
   RetryWalletAddPaymentResp,
   VerifyWalletAddPaymentReq,
   VerifyWalletAddPaymentResp,
-  WalletDTO,
 } from "../../dtos/wallet/walletDTO";
 import Razorpay from "razorpay";
 import crypto from "crypto";
 import { WalletMapper } from "../../mappers/WalletMapper";
+import { ApiError } from "../../utils/ApiError";
+import { MESSAGES, STATUS_CODES } from "../../utils/constantUtils";
 
 @injectable()
 export class WalletService implements IWalletService {
@@ -22,8 +23,6 @@ export class WalletService implements IWalletService {
   constructor(
     @inject(TYPES.WalletRepository)
     private _walletRepository: IWalletRepository,
-    @inject(TYPES.UserRepository)
-    private _userRepository: IUserRepository
   ) {
     const key_id = process.env.RAZORPAY_KEY_ID!;
     const key_secret = process.env.RAZORPAY_KEY_SECRET!;
@@ -59,7 +58,6 @@ export class WalletService implements IWalletService {
         accountType
       });
     }
-    console.log("userWallet", userWallet);
 
     const now = new Date();
     const transactions = userWallet.transactions;
@@ -70,11 +68,11 @@ export class WalletService implements IWalletService {
         tx.inProgressExpiresAt > now
     );
     if (activeTransaction) {
-      throw new Error(
-        "A payment is already in progress. Please wait a few minutes before retrying."
-      );
+      throw new ApiError(
+        STATUS_CODES.CONFLICT,
+        MESSAGES.COMMON.ERROR.PAYMENT_IN_PROGRESS
+      )
     }
-    console.log("activeTransaction", activeTransaction);
 
     let expiredTransaction = transactions.find(
       (tx) =>
@@ -97,7 +95,6 @@ export class WalletService implements IWalletService {
       });
       expiredTransaction.razorpayOrderId = order.id;
       expiredTransaction.inProgressExpiresAt = inProgressExpiresAt;
-      console.log("expiredTransaction", expiredTransaction);
     } else {
       order = await this._razorpay.orders.create({
         amount: amount * 100,
@@ -133,7 +130,7 @@ export class WalletService implements IWalletService {
   async verifyWalletAddPayment(
     payload: VerifyWalletAddPaymentReq
   ): Promise<VerifyWalletAddPaymentResp> {
-    const { accountId, accountType, data } = payload;
+    const { data } = payload;
     const {
       razorpay_order_id,
       razorpay_payment_id,
@@ -149,19 +146,28 @@ export class WalletService implements IWalletService {
       .digest("hex");
 
     if (expectedSignature !== razorpay_signature) {
-      throw new Error("Invalid signature. Payment could not be verified.");
+      throw new ApiError(
+        STATUS_CODES.BAD_REQUEST,
+        MESSAGES.COMMON.ERROR.INVALID_SIGNATURE
+      )
     }
     const userWallet =
       await this._walletRepository.findWalletByWalletId(walletId);
     if (!userWallet) {
-      throw new Error("Wallet or transaction not found.");
+      throw new ApiError(
+        STATUS_CODES.NOT_FOUND,
+        MESSAGES.COMMON.ERROR.WALLET_NOT_FOUND
+      )
     }
     const transaction = userWallet.transactions.find(
       (t) => t.razorpayOrderId === razorpay_order_id
     );
 
     if (!transaction) {
-      throw new Error("Transaction not found.");
+      throw new ApiError(
+        STATUS_CODES.NOT_FOUND,
+        MESSAGES.COMMON.ERROR.TRANSACTION_NOT_FOUND
+      )
     }
     transaction.settlementStatus = "NotApplicable";
     transaction.status = "Paid";
@@ -189,9 +195,12 @@ export class WalletService implements IWalletService {
       accountType
     );
     if (!userWallet) {
-      throw new Error("Wallet not found for this user");
+      throw new ApiError(
+        STATUS_CODES.NOT_FOUND,
+        MESSAGES.COMMON.ERROR.WALLET_NOT_FOUND
+      )
     }
-    console.log("userWallet", userWallet);
+
     const { transactions, total } =
       await this._walletRepository.paginatedUserGetWallet({
         walletId: userWallet._id.toString(),
@@ -199,7 +208,7 @@ export class WalletService implements IWalletService {
         limit,
         search,
       });
-      console.log({transactions, total});
+
       
     return {
       transactions: WalletMapper.mapTransactionsDTO(transactions),
@@ -216,11 +225,21 @@ export class WalletService implements IWalletService {
       accountId,
       accountType
     );
-    if (!userWallet) throw new Error("Wallet not found for this user.");
+    if (!userWallet) {
+      throw new ApiError(
+        STATUS_CODES.NOT_FOUND,
+        MESSAGES.COMMON.ERROR.WALLET_NOT_FOUND
+      )
+    }
     const transaction = userWallet?.transactions.find(
       (tx) => tx._id.toString() === transactionId
     );
-    if (!transaction) throw new Error("Transaction not found.");
+    if (!transaction) {
+      throw new ApiError(
+        STATUS_CODES.NOT_FOUND,
+        MESSAGES.COMMON.ERROR.TRANSACTION_NOT_FOUND
+      )
+    }
     const now = new Date();
     if (
       transaction.status === "InProgress" &&
@@ -235,9 +254,10 @@ export class WalletService implements IWalletService {
       transaction.inProgressExpiresAt &&
       transaction.inProgressExpiresAt > now
     ) {
-      throw new Error(
-        "A payment is already in progress. Please wait a few minutes before retrying."
-      );
+      throw new ApiError(
+        STATUS_CODES.CONFLICT,
+        MESSAGES.COMMON.ERROR.PAYMENT_IN_PROGRESS
+      )
     }
 
     const expiresIn = 5 * 60 * 1000;

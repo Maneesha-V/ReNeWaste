@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction, ErrorRequestHandler } from "express";
 import { AxiosError } from "axios";
+import axios from "axios";
 import { ApiError } from "../utils/ApiError";
 
 export const errorHandler: ErrorRequestHandler = (
@@ -8,7 +9,7 @@ export const errorHandler: ErrorRequestHandler = (
   res: Response,
   next: NextFunction,
 ): void => {
-  if (isAxiosError(err)) {
+  if (axios.isAxiosError(err)) {
     res
       .status(502)
       .json({ message: "External API error", detail: err.message });
@@ -29,6 +30,6 @@ export const errorHandler: ErrorRequestHandler = (
   res.status(500).json({ message: "An unknown error occurred" });
 };
 
-function isAxiosError(error: unknown): error is AxiosError {
-  return typeof error === "object" && error !== null && "isAxiosError" in error;
-}
+// function isAxiosError(error: unknown): error is AxiosError {
+//   return typeof error === "object" && error !== null && "isAxiosError" in error;
+// }

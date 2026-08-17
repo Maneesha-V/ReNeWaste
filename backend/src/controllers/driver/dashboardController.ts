@@ -29,7 +29,6 @@ export class DashboardController implements IDashboardController {
 
       const dashboardData =
         await this._dashboardService.fetchDriverDashboard(driverId);
-      console.log("dashboardData", dashboardData);
 
       res.status(STATUS_CODES.SUCCESS).json({
         dashboardData,
@@ -56,7 +55,6 @@ export class DashboardController implements IDashboardController {
 
       const supportData =
         await this._dashboardService.fetchWastePlantSupport(driverId);
-      console.log("supportData", supportData);
 
       res.status(STATUS_CODES.SUCCESS).json({
         supportData,
@@ -74,8 +72,7 @@ export class DashboardController implements IDashboardController {
   ): Promise<void> {
     try {
       const driverId = req.user?.id;
-      console.log("body",req.body);
-      
+
       const status = req.body.status;
       if (!driverId) {
         throw new ApiError(
@@ -84,13 +81,15 @@ export class DashboardController implements IDashboardController {
         );
       }
 
-      const result =
-        await this._dashboardService.markAttendance(driverId, status);
-      console.log("result", result);
+      const result = await this._dashboardService.markAttendance(
+        driverId,
+        status,
+      );
 
       res.status(STATUS_CODES.SUCCESS).json({
         message: MESSAGES.DRIVER.SUCCESS.MARK_ATTENDANCE,
         success: true,
+        attendanceData: result
       });
     } catch (error) {
       console.error("err", error);
@@ -100,11 +99,11 @@ export class DashboardController implements IDashboardController {
   async fetchDriverEarnStats(
     req: AuthRequest,
     res: Response,
-    next: NextFunction, 
+    next: NextFunction,
   ): Promise<void> {
-        try {
+    try {
       const driverId = req.user?.id;
-      console.log("query",req.query);
+      console.log("query", req.query);
 
       const filter = req.query.filter as string;
       const from = req.query.from as string;
@@ -117,18 +116,18 @@ export class DashboardController implements IDashboardController {
         );
       }
 
-      const earnRewardStats =
-        await this._dashboardService.fetchDriverEarnStats({
-          driverId, 
+      const earnRewardStats = await this._dashboardService.fetchDriverEarnStats(
+        {
+          driverId,
           filter,
           from,
-          to
-        });
-      console.log("earnRewardStats", earnRewardStats);
+          to,
+        },
+      );
 
       res.status(STATUS_CODES.SUCCESS).json({
         success: true,
-        earnRewardStats
+        earnRewardStats,
       });
     } catch (error) {
       console.error("err", error);

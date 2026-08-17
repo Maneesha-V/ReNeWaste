@@ -101,6 +101,7 @@ export type UpdateRefundStatusReq = {
   adminId: string;
   subPayId: string;
   refundStatus: RefundStatus;
+  rejectionMessage?: string;
 };
 export type SubsptnPlanData = {
   billingCycle: string;

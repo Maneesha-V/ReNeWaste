@@ -5,36 +5,43 @@ import { IPickupRepository } from "../../repositories/pickupReq/interface/IPicku
 import { IWasteCollectionRepository } from "../../repositories/wasteCollection/interface/IWasteCollectionRepository";
 import { FilterReport } from "../../dtos/wasteplant/WasteplantDTO";
 import { WasteCollectionMapper } from "../../mappers/WasteCollectionMapper";
-import { PopulatedWasteCollectionDTO, WasteCollectionDTO } from "../../dtos/wasteCollection/wasteCollectionDTO";
+import { PopulatedWasteCollectionDTO } from "../../dtos/wasteCollection/wasteCollectionDTO";
+import { ApiError } from "../../utils/ApiError";
+import { MESSAGES, STATUS_CODES } from "../../utils/constantUtils";
 
 @injectable()
 export class ReportService implements IReportService {
   constructor(
-    @inject(TYPES.PickupRepository)
-    private pickupRepository: IPickupRepository,
     @inject(TYPES.WasteCollectionRepository)
     private wasteCollectionRepository: IWasteCollectionRepository,
   ) {}
-  async getWasteReports(plantId: string): Promise<PopulatedWasteCollectionDTO[]> {
+  async getWasteReports(
+    plantId: string,
+  ): Promise<PopulatedWasteCollectionDTO[]> {
     const wastereports =
       await this.wasteCollectionRepository.fetchWasteCollectionReportsByPlantId(
         plantId,
       );
     if (!wastereports) {
-      throw new Error("Waste report not found.");
+      throw new ApiError(
+        STATUS_CODES.NOT_FOUND,
+        MESSAGES.WASTEPLANT.ERROR.WASTE_REP_NOT_FOUND,
+      );
     }
     return WasteCollectionMapper.mapPopulatedWasteCollectionsDTO(wastereports);
   }
   async filterWasteReports(data: FilterReport) {
-    const { plantId, from, to } = data;
     const wastereports =
       await this.wasteCollectionRepository.filterWasteCollectionReportsByPlantId(
         data,
       );
     if (!wastereports) {
-      throw new Error("Waste report not found.");
+      throw new ApiError(
+        STATUS_CODES.NOT_FOUND,
+        MESSAGES.WASTEPLANT.ERROR.WASTE_REP_NOT_FOUND,
+      );
     }
-    // return WasteCollectionMapper.mapWasteCollectionsDTO(wastereports);
+
     return WasteCollectionMapper.mapPopulatedWasteCollectionsDTO(wastereports);
   }
 }

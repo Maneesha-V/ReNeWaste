@@ -10,6 +10,8 @@ import { IUserRepository } from "../../repositories/user/interface/IUserReposito
 import { IDriverRepository } from "../../repositories/driver/interface/IDriverRepository";
 import { LoginRequest, LoginResponse } from "../../dtos/driver/driverDTO";
 import { DriverMapper } from "../../mappers/DriverMapper";
+import { ApiError } from "../../utils/ApiError";
+import { MESSAGES, STATUS_CODES } from "../../utils/constantUtils";
 
 @injectable()
 export class AuthService implements IAuthService {
@@ -31,7 +33,10 @@ export class AuthService implements IAuthService {
     const driver = await this.driverRepository.getDriverById(decoded.userId);
 
     if (!driver) {
-      throw new Error("Driver not found");
+      throw new ApiError(
+        STATUS_CODES.NOT_FOUND,
+        MESSAGES.DRIVER.ERROR.NOT_FOUND,
+      );
     }
 
     const accessToken = jwt.sign(
@@ -44,9 +49,17 @@ export class AuthService implements IAuthService {
   }
   async loginDriver({ email, password }: LoginRequest): Promise<LoginResponse> {
     const driver = await this.driverRepository.findDriverByEmail(email);
-
-    if (!driver || !(await bcrypt.compare(password, driver.password || ""))) {
-      throw new Error("Invalid email or password.");
+    if (!driver) {
+      throw new ApiError(
+        STATUS_CODES.UNAUTHORIZED,
+        MESSAGES.USER.ERROR.INVALID_PASS,
+      );
+    }
+    if (!(await bcrypt.compare(password, driver.password || ""))) {
+      throw new ApiError(
+        STATUS_CODES.UNAUTHORIZED,
+        MESSAGES.USER.ERROR.INVALID_PASS,
+      );
     }
     const token = generateToken({
       userId: driver._id.toString(),
@@ -60,7 +73,10 @@ export class AuthService implements IAuthService {
   async sendOtpService(email: string) {
     const driver = await this.driverRepository.findDriverByEmail(email);
     if (!driver) {
-      throw new Error("Driver not found.");
+      throw new ApiError(
+        STATUS_CODES.NOT_FOUND,
+        MESSAGES.DRIVER.ERROR.NOT_FOUND,
+      );
     }
     const otp = generateOtp();
     console.log(`Generated OTP for ${email}:`, otp);
@@ -75,7 +91,10 @@ export class AuthService implements IAuthService {
   async resendOtpService(email: string) {
     const driver = await this.driverRepository.findDriverByEmail(email);
     if (!driver) {
-      throw new Error("Driver not found.");
+      throw new ApiError(
+        STATUS_CODES.NOT_FOUND,
+        MESSAGES.DRIVER.ERROR.NOT_FOUND,
+      );
     }
     const otp = generateOtp();
     console.log(`Resend OTP for ${email}:`, otp);
@@ -92,7 +111,7 @@ export class AuthService implements IAuthService {
     if (!storedOtp || storedOtp.otp !== otp) return false;
     const createdAt = storedOtp.createdAt;
     if (!createdAt) {
-      throw new Error("OTP creation date is missing.");
+      throw new ApiError(STATUS_CODES.NOT_FOUND, MESSAGES.USER.ERROR.OTP_DATE);
     }
     const otpAge =
       (new Date().getTime() - new Date(createdAt).getTime()) / 1000;
@@ -107,7 +126,12 @@ export class AuthService implements IAuthService {
     newPassword: string,
   ): Promise<void> {
     const driver = await this.driverRepository.findDriverByEmail(email);
-    if (!driver) throw new Error("Driver not found");
+    if (!driver) {
+      throw new ApiError(
+        STATUS_CODES.NOT_FOUND,
+        MESSAGES.DRIVER.ERROR.NOT_FOUND,
+      );
+    }
     const hashedPassword = await bcrypt.hash(newPassword, 10);
     await this.driverRepository.updateDriverPassword(email, hashedPassword);
   }

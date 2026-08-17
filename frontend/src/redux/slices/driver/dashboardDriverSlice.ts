@@ -11,7 +11,12 @@ import {
   DriverSupportInfo,
 } from "../../../types/driver/driverTypes";
 import { MsgSuccessResp } from "../../../types/common/commonTypes";
-import { DriverEarnRewardStat, FetchDriverEarnStatsReq, FetchDriverEarnStatsResp } from "../../../types/attendance/attendanceTypes";
+import {
+  DriverEarnRewardStat,
+  FetchDriverEarnStatsReq,
+  FetchDriverEarnStatsResp,
+  MarkAttendanceResp,
+} from "../../../types/attendance/attendanceTypes";
 
 interface DashboardState {
   loading: boolean;
@@ -62,14 +67,13 @@ export const fetchWastePlantSupport = createAsyncThunk<
 });
 
 export const markAttendance = createAsyncThunk<
-  MsgSuccessResp,
+  MarkAttendanceResp,
   string,
   { rejectValue: { message: string } }
 >("driverDashboard/markAttendance", async (status, { rejectWithValue }) => {
   try {
     const response = await markDriverAttendance(status);
     console.log("respppp", response);
-
     return response;
   } catch (err) {
     const msg = getAxiosErrorMessage(err);
@@ -81,17 +85,20 @@ export const fetchEarnDriverStats = createAsyncThunk<
   FetchDriverEarnStatsResp,
   FetchDriverEarnStatsReq,
   { rejectValue: { message: string } }
->("driverDashboard/fetchEarnDriverStats", async (filterData, { rejectWithValue }) => {
-  try {
-    const response = await fetchDriverEarnStats(filterData);
-    console.log("respppp", response);
+>(
+  "driverDashboard/fetchEarnDriverStats",
+  async (filterData, { rejectWithValue }) => {
+    try {
+      const response = await fetchDriverEarnStats(filterData);
+      console.log("respppp", response);
 
-    return response;
-  } catch (err) {
-    const msg = getAxiosErrorMessage(err);
-    return rejectWithValue({ message: msg });
-  }
-});
+      return response;
+    } catch (err) {
+      const msg = getAxiosErrorMessage(err);
+      return rejectWithValue({ message: msg });
+    }
+  },
+);
 
 const driverDashboardSlice = createSlice({
   name: "driverDashboard",
@@ -105,7 +112,6 @@ const driverDashboardSlice = createSlice({
       })
       .addCase(fetchDriverDashboard.fulfilled, (state, action) => {
         console.log("accc", action.payload);
-
         state.loading = false;
         state.summary = action.payload.summary;
       })
@@ -129,15 +135,16 @@ const driverDashboardSlice = createSlice({
       })
       .addCase(markAttendance.fulfilled, (state, action) => {
         console.log("accc", action.payload);
-
         state.loading = false;
-        // state.supportInfo = action.payload.supportInfo;
+        if (state.summary) {
+          state.summary.attendanceData = action.payload.attendanceData;
+        }
       })
       .addCase(markAttendance.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload?.message || "Something went wrong";
       })
-        .addCase(fetchEarnDriverStats.pending, (state) => {
+      .addCase(fetchEarnDriverStats.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
@@ -150,7 +157,7 @@ const driverDashboardSlice = createSlice({
       .addCase(fetchEarnDriverStats.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload?.message || "Something went wrong";
-      })
+      });
   },
 });
 

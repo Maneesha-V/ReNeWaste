@@ -16,7 +16,6 @@ export function getAxiosErrorMessage(error: unknown): string {
       "Something went wrong. Please try again."
     );
   }
-
   // Native JS Error
   if (error instanceof Error && typeof error.message === "string") {
     return error.message;
@@ -35,3 +34,37 @@ export function getAxiosErrorMessage(error: unknown): string {
   return "Something went wrong. Please try again.";
 }
 
+// import axios from "axios";
+
+// export function getAxiosErrorMessage(error: unknown): string {
+//   if (axios.isAxiosError(error)) {
+//     return (
+//       error.response?.data?.message ||
+//       error.response?.data?.error ||
+//       error.message ||
+//       "Something went wrong. Please try again."
+//     );
+//   }
+
+//   if (error instanceof Error) {
+//     return error.message;
+//   }
+
+//   if (typeof error === "object" && error !== null) {
+//     if (
+//       "message" in error &&
+//       typeof error.message === "string"
+//     ) {
+//       return error.message;
+//     }
+
+//     if (
+//       "error" in error &&
+//       typeof error.error === "string"
+//     ) {
+//       return error.error;
+//     }
+//   }
+
+//   return "Something went wrong. Please try again.";
+// }

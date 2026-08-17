@@ -23,6 +23,8 @@ import {
   LoginResponse,
   SignupResponse,
 } from "../../dtos/user/userDTO";
+import { ApiError } from "../../utils/ApiError";
+import { MESSAGES, STATUS_CODES } from "../../utils/constantUtils";
 
 @injectable()
 export class AuthService implements IAuthService {
@@ -38,7 +40,10 @@ export class AuthService implements IAuthService {
       };
       const user = await this._userRepository.findUserById(decoded.userId);
       if (!user) {
-        throw new Error("USer not found");
+        throw new ApiError(
+          STATUS_CODES.NOT_FOUND,
+          MESSAGES.USER.ERROR.NOT_FOUND,
+        );
       }
 
       const accessToken = jwt.sign(
@@ -53,11 +58,12 @@ export class AuthService implements IAuthService {
   }
   async signupUser(userData: IUser): Promise<SignupResponse> {
     const email = userData.email.trim();
-    const existingUser = await this._userRepository.findUserByEmail(
-      email
-    );
+    const existingUser = await this._userRepository.findUserByEmail(email);
     if (existingUser) {
-      throw new Error("Email already exists. Please use a different email.");
+      throw new ApiError(
+        STATUS_CODES.CONFLICT,
+        MESSAGES.USER.ERROR.EMAIL_EXIST,
+      );
     }
 
     const salt = await bcrypt.genSalt(10);
@@ -85,11 +91,23 @@ export class AuthService implements IAuthService {
 
   async loginUser({ email, password }: LoginRequest): Promise<LoginResponse> {
     const user = await this._userRepository.findUserByEmail(email);
-    if (!user || !(await bcrypt.compare(password, user.password || ""))) {
-      throw new Error("Invalid email or password.");
+    if (!user) {
+       throw new ApiError(
+        STATUS_CODES.UNAUTHORIZED,
+        MESSAGES.USER.ERROR.INVALID_PASS,
+      );
+    }
+    if (!(await bcrypt.compare(password, user.password || ""))) {
+      throw new ApiError(
+        STATUS_CODES.UNAUTHORIZED,
+        MESSAGES.USER.ERROR.INVALID_PASS,
+      );
     }
     if (user.isBlocked) {
-      throw new Error("Your account has been blocked by the waste plant.");
+      throw new ApiError(
+        STATUS_CODES.FORBIDDEN,
+        MESSAGES.USER.ERROR.ACCOUNT_BLOCK,
+      );
     }
     const token = generateToken({
       userId: user._id.toString(),
@@ -100,7 +118,10 @@ export class AuthService implements IAuthService {
   async sendOtpSignupService(email: string): Promise<boolean> {
     const existingUser = await this._userRepository.findUserByEmail(email);
     if (existingUser) {
-      throw new Error("User already exists.");
+      throw new ApiError(
+        STATUS_CODES.CONFLICT,
+        MESSAGES.USER.ERROR.EMAIL_EXIST,
+      );
     }
     const otp = generateOtp();
     console.log(`Generated OTP for ${email}:`, otp);
@@ -115,7 +136,10 @@ export class AuthService implements IAuthService {
   async resendOtpSignupService(email: string): Promise<boolean> {
     const existingUser = await this._userRepository.findUserByEmail(email);
     if (existingUser) {
-      throw new Error("User already exists.");
+      throw new ApiError(
+        STATUS_CODES.CONFLICT,
+        MESSAGES.USER.ERROR.EMAIL_EXIST,
+      );
     }
     const otp = generateOtp();
     console.log(`Resend OTP for ${email}:`, otp);
@@ -132,7 +156,7 @@ export class AuthService implements IAuthService {
     if (!storedOtp || storedOtp.otp !== otp) return false;
     const createdAt = storedOtp.createdAt;
     if (!createdAt) {
-      throw new Error("OTP creation date is missing.");
+      throw new ApiError(STATUS_CODES.NOT_FOUND, MESSAGES.USER.ERROR.OTP_DATE);
     }
     const otpAge =
       (new Date().getTime() - new Date(createdAt).getTime()) / 1000;
@@ -145,7 +169,7 @@ export class AuthService implements IAuthService {
   async sendOtpService(email: string): Promise<void> {
     const user = await this._userRepository.findUserByEmail(email);
     if (!user) {
-      throw new Error("User not found.");
+      throw new ApiError(STATUS_CODES.NOT_FOUND, MESSAGES.USER.ERROR.NOT_FOUND);
     }
     const otp = generateOtp();
     console.log(`Generated OTP for ${email}:`, otp);
@@ -159,7 +183,7 @@ export class AuthService implements IAuthService {
   async resendOtpService(email: string): Promise<boolean> {
     const user = await this._userRepository.findUserByEmail(email);
     if (!user) {
-      throw new Error("User not found.");
+      throw new ApiError(STATUS_CODES.NOT_FOUND, MESSAGES.USER.ERROR.NOT_FOUND);
     }
     const otp = generateOtp();
     console.log(`Resend OTP for ${email}:`, otp);
@@ -176,7 +200,7 @@ export class AuthService implements IAuthService {
     if (!storedOtp || storedOtp.otp !== otp) return false;
     const createdAt = storedOtp.createdAt;
     if (!createdAt) {
-      throw new Error("OTP creation date is missing.");
+      throw new ApiError(STATUS_CODES.NOT_FOUND, MESSAGES.USER.ERROR.OTP_DATE);
     }
     const otpAge =
       (new Date().getTime() - new Date(createdAt).getTime()) / 1000;
@@ -191,7 +215,9 @@ export class AuthService implements IAuthService {
     newPassword: string,
   ): Promise<void> {
     const user = await this._userRepository.findUserByEmail(email);
-    if (!user) throw new Error("User not found");
+    if (!user) {
+      throw new ApiError(STATUS_CODES.NOT_FOUND, MESSAGES.USER.ERROR.NOT_FOUND);
+    }
     const hashedPassword = await bcrypt.hash(newPassword, 10);
     await this._userRepository.updateUserPassword(email, hashedPassword);
   }
@@ -232,11 +258,14 @@ export class AuthService implements IAuthService {
       googleId,
     );
     if (!user) {
-      throw new Error("User could not be created or found");
+      throw new ApiError(STATUS_CODES.NOT_FOUND, MESSAGES.USER.ERROR.NOT_FOUND);
     }
 
     if (user.isBlocked) {
-      throw new Error("Your account has been blocked.");
+      throw new ApiError(
+        STATUS_CODES.FORBIDDEN,
+        MESSAGES.USER.ERROR.ACCOUNT_BLOCK,
+      );
     }
 
     const token = generateToken({

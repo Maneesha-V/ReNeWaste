@@ -42,11 +42,8 @@ export const createAddMoneyOrder = createAsyncThunk<
 >("userWallet/createAddMoneyOrder", async (data, { rejectWithValue }) => {
   try {
     const response = await addMoneyService(data);
-    console.log("response", response);
-
     return response;
   } catch (err) {
-    console.error("err", err);
     const msg = getAxiosErrorMessage(err);
     return rejectWithValue({ error: msg });
   }
@@ -58,11 +55,8 @@ export const verifyWalletAddPayment = createAsyncThunk<
 >("userWallet/verifyWalletAddPayment", async (data, { rejectWithValue }) => {
   try {
     const response = await verifyWalletPaymentService(data);
-    console.log("response", response);
-
     return response;
   } catch (err) {
-    console.error("err", err);
     const msg = getAxiosErrorMessage(err);
     return rejectWithValue({ error: msg });
   }
@@ -75,8 +69,6 @@ export const getWallet = createAsyncThunk<
   { page, limit, search }: PaginationPayload, { rejectWithValue }) => {
   try {
     const response = await getWalletService({ page, limit, search });
-    console.log("response", response);
-
     return response;
   } catch (err) {
     console.error("err", err);
@@ -92,11 +84,8 @@ export const retryAddMoney = createAsyncThunk<
 >("userWallet/retryAddMoney", async (transactionId, { rejectWithValue }) => {
   try {
     const response = await retryAddMoneyService(transactionId);
-    console.log("response", response);
-
     return response;
   } catch (err) {
-    console.error("err", err);
     const msg = getAxiosErrorMessage(err);
     return rejectWithValue({ error: msg });
   }
@@ -113,7 +102,6 @@ const userWalletSlice = createSlice({
         state.error = null;
       })
       .addCase(createAddMoneyOrder.fulfilled, (state, action) => {
-        console.log("acc", action.payload);
         state.loading = false;
       })
       .addCase(createAddMoneyOrder.rejected, (state, action) => {
@@ -125,7 +113,6 @@ const userWalletSlice = createSlice({
         state.error = null;
       })
       .addCase(getWallet.fulfilled, (state, action) => {
-        console.log("acc", action.payload);
         state.loading = false;
         state.transactions = action.payload.transactions;
         state.total = action.payload.total;
@@ -140,7 +127,6 @@ const userWalletSlice = createSlice({
         state.error = null;
       })
       .addCase(retryAddMoney.fulfilled, (state, action) => {
-        console.log("acc", action.payload);
         state.loading = false;
       })
       .addCase(retryAddMoney.rejected, (state, action) => {

@@ -41,18 +41,6 @@ const EditSubscriptionPlan = () => {
       ).unwrap();
       toast.success(resultAction?.message);
       navigate("/super-admin/subscription-plans");
-
-      // if (updateSubscriptionPlan.fulfilled.match(resultAction)) {
-      //   toast.success("Plan updated successfully!");
-      //   navigate("/super-admin/subscription-plans");
-      // } else {
-      //   const errorPayload = resultAction.payload as any;
-      //   if (errorPayload?.error === "Plan name already exists.") {
-      //     toast.error("Plan name already exists.");
-      //   } else {
-      //     toast.error("Failed to update Subscription Plan");
-      //   }
-      // }
     } catch (err) {
       const msg = getAxiosErrorMessage(err);
       toast.error(msg);
@@ -93,9 +81,11 @@ const EditSubscriptionPlan = () => {
               <Form.Item
                 label="Price (₹)"
                 name="price"
-                rules={[{ required: true, message: "Please enter the price" }]}
+                rules={[
+                  { required: true, message: "Please enter the price" },
+                ]}
               >
-                <InputNumber min={0} style={{ width: "100%" }} />
+                <InputNumber style={{ width: "100%" }} placeholder="Enter price" />
               </Form.Item>
             </Col>
             <Col span={12}>
@@ -129,18 +119,22 @@ const EditSubscriptionPlan = () => {
               <Form.Item
                 label="Number of Drivers"
                 name="driverLimit"
-                rules={[{ required: true, message: "Enter driver limit" }]}
+                rules={[
+                  { required: true, message: "Enter driver limit" },
+                ]}
               >
-                <InputNumber min={0} style={{ width: "100%" }} />
+                <InputNumber style={{ width: "100%" }} placeholder="Enter number of drivers" />
               </Form.Item>
             </Col>
             <Col span={12}>
               <Form.Item
                 label="Number of Users"
                 name="userLimit"
-                rules={[{ required: true, message: "Enter user limit" }]}
+                rules={[
+                  { required: true, message: "Enter user limit" },
+                ]}
               >
-                <InputNumber min={0} style={{ width: "100%" }} />
+                <InputNumber style={{ width: "100%" }} placeholder="Enter number of users" />
               </Form.Item>
             </Col>
           </Row>
@@ -150,18 +144,22 @@ const EditSubscriptionPlan = () => {
               <Form.Item
                 label="Number of Trucks"
                 name="truckLimit"
-                rules={[{ required: true, message: "Enter truck limit" }]}
+                rules={[
+                  { required: true, message: "Enter truck limit" },
+                ]}
               >
-                <InputNumber min={0} style={{ width: "100%" }} />
+                <InputNumber style={{ width: "100%" }} placeholder="Enter number of trucks" />
               </Form.Item>
             </Col>
             <Col span={12}>
               <Form.Item
                 label="Trial Days"
                 name="trialDays"
-                rules={[{ required: true, message: "Enter trial days" }]}
+                rules={[
+                  { required: true, message: "Enter trial days" },
+                ]}
               >
-                <InputNumber min={0} style={{ width: "100%" }} />
+                <InputNumber style={{ width: "100%" }} placeholder="Enter trial days" />
               </Form.Item>
             </Col>
           </Row>

@@ -14,6 +14,9 @@ import { IWastePlantRepository } from "../../repositories/wastePlant/interface/I
 import { sendNotification } from "../../utils/notificationUtils";
 import Razorpay from "razorpay";
 import { IWalletRepository } from "../../repositories/wallet/interface/IWalletRepository";
+import { ApiError } from "../../utils/ApiError";
+import { MESSAGES, STATUS_CODES } from "../../utils/constantUtils";
+import mongoose from "mongoose";
 
 @injectable()
 export class PaymentService implements IPaymentService {
@@ -46,7 +49,10 @@ export class PaymentService implements IPaymentService {
     const paymentHisData =
       await this._subscriptionPaymentRepository.getAllSubscptnPayments(data);
     if (!paymentHisData) {
-      throw new Error("Payment history not found.");
+      throw new ApiError(
+        STATUS_CODES.NOT_FOUND,
+        MESSAGES.SUPERADMIN.ERROR.PAYMENT_HIS_NOT_FOUND,
+      );
     }
 
     return paymentHisData;
@@ -54,31 +60,28 @@ export class PaymentService implements IPaymentService {
   async updateRefundStatusPayment(
     data: UpdateRefundStatusReq,
   ): Promise<SubscriptionPaymentDTO> {
-    const { subPayId, refundStatus, adminId } = data;
+    const { subPayId, refundStatus, adminId, rejectionMessage } = data;
+    console.log(data);
+
     const payment =
       await this._subscriptionPaymentRepository.findSubscriptionPaymentById(
         subPayId,
       );
     if (!payment) {
-      throw new Error("Payment not found");
+      throw new ApiError(
+        STATUS_CODES.NOT_FOUND,
+        MESSAGES.SUPERADMIN.ERROR.PAYMENT_NOT_FOUND,
+      );
     }
     console.log("RefundPaym..", payment);
-    const currentStatus = payment.refundStatus;
+    let currentStatus = payment.refundStatus;
     const inProgressExpiresAt = payment.inProgressExpiresAt;
 
     if (!refundStatus) {
-      throw new Error("Refund status cannot be null.");
-    }
-    if (!currentStatus) {
-      throw new Error("Current status cannot be null.");
-    }
-    if (
-      (currentStatus === "Pending" &&
-        !["Processing", "Rejected"].includes(refundStatus)) ||
-      (currentStatus === "Processing" && refundStatus !== "Refunded") ||
-      ["Refunded", "Rejected"].includes(currentStatus)
-    ) {
-      throw new Error("Invalid refund status transition.");
+      throw new ApiError(
+        STATUS_CODES.NOT_FOUND,
+        MESSAGES.SUPERADMIN.ERROR.REF_STAT_NOT_NULL,
+      );
     }
     if (
       currentStatus === "Processing" &&
@@ -93,9 +96,49 @@ export class PaymentService implements IPaymentService {
           hour12: true,
         },
       );
-      throw new Error(
+      throw new ApiError(
+        STATUS_CODES.CONFLICT,
         `Refund is already being processed. Try again after ${expireTime}.`,
       );
+    }
+    // if (!currentStatus) {
+    //   throw new ApiError(
+    //     STATUS_CODES.NOT_FOUND,
+    //     MESSAGES.SUPERADMIN.ERROR.CURR_STAT_NOT_NULL,
+    //   );
+    // }
+    // if (
+    //   (currentStatus === "Pending" &&
+    //     !["Processing", "Rejected"].includes(refundStatus)) ||
+    //   (currentStatus === "Processing" && refundStatus !== "Refunded") ||
+    //   ["Refunded", "Rejected"].includes(currentStatus)
+    // ) {
+    //   throw new ApiError(
+    //     STATUS_CODES.NOT_FOUND,
+    //     MESSAGES.SUPERADMIN.ERROR.INVALID_STAT_TRANSITION,
+    //   );
+    // }
+    if (!currentStatus) {
+      // Initial refund status
+      if (refundStatus !== "Pending") {
+        throw new ApiError(
+          STATUS_CODES.BAD_REQUEST,
+          MESSAGES.SUPERADMIN.ERROR.INVALID_STAT_TRANSITION,
+        );
+      }
+    } else {
+      // Current status exists, so now currentStatus is a RefundStatus
+      if (
+        (currentStatus === "Pending" &&
+          !["Processing", "Rejected"].includes(refundStatus)) ||
+        (currentStatus === "Processing" && refundStatus !== "Refunded") ||
+        ["Refunded", "Rejected"].includes(currentStatus)
+      ) {
+        throw new ApiError(
+          STATUS_CODES.BAD_REQUEST,
+          MESSAGES.SUPERADMIN.ERROR.INVALID_STAT_TRANSITION,
+        );
+      }
     }
 
     payment.refundStatus = refundStatus;
@@ -103,50 +146,67 @@ export class PaymentService implements IPaymentService {
     const plant = await this._wastePlantRepository.getWastePlantById(
       payment.wasteplantId.toString(),
     );
-    if (!plant) throw new Error("Plant not found.");
+    if (!plant) {
+      throw new ApiError(
+        STATUS_CODES.NOT_FOUND,
+        MESSAGES.WASTEPLANT.ERROR.NOT_FOUND,
+      );
+    }
     let plantMessage = "";
     let notificationType = "";
 
-    if (refundStatus) {
-      if (refundStatus === "Processing") {
-        payment.inProgressExpiresAt = new Date(Date.now() + 5 * 60 * 1000);
-      } else {
-        payment.inProgressExpiresAt = null;
+    // if (refundStatus) {
+    // if (refundStatus === "Processing") {
+    //   payment.inProgressExpiresAt = new Date(Date.now() + 5 * 60 * 1000);
+    // } else {
+    //   payment.inProgressExpiresAt = null;
+    // }
+    if (refundStatus === "Rejected") {
+      if (!rejectionMessage?.trim()) {
+        throw new ApiError(
+          STATUS_CODES.BAD_REQUEST,
+          "Rejection message is required.",
+        );
       }
 
-      // payment.inProgressExpiresAt = new Date(Date.now() + 5 * 60 * 1000);
-
-      switch (refundStatus) {
-        case "Pending":
-          plantMessage = `Refund process started for ${plant.plantName}.`;
-          notificationType = "subscriptn-refund-pending";
-          break;
-
-        case "Processing":
-          plantMessage = `Refund is currently being processed for ${plant.plantName}.`;
-          notificationType = "subscriptn-refund-processing";
-          break;
-
-        case "Rejected":
-          plantMessage = `Refund has been rejected for ${plant.plantName}.`;
-          notificationType = "subscriptn-refund-rejected";
-          break;
-        default:
-          plantMessage = `Refund status updated for ${plant.plantName}.`;
-          notificationType = "general";
-      }
-
-      await sendNotification({
-        receiverId: plant._id.toString(),
-        receiverType: plant.role,
-        senderId: adminId,
-        senderType: "superadmin",
-        message: plantMessage,
-        type: notificationType,
-      });
-    } else {
+      payment.refundRequested = false;
       payment.inProgressExpiresAt = null;
     }
+    if (refundStatus === "Processing") {
+      payment.inProgressExpiresAt = new Date(Date.now() + 5 * 60 * 1000);
+    }
+
+    switch (refundStatus) {
+      case "Pending":
+        plantMessage = `Refund process started for ${plant.plantName}.`;
+        notificationType = "subscriptn-refund-pending";
+        break;
+
+      case "Processing":
+        plantMessage = `Refund is currently being processed for ${plant.plantName}.`;
+        notificationType = "subscriptn-refund-processing";
+        break;
+
+      case "Rejected":
+        plantMessage = `Refund has been rejected for ${plant.plantName}. Reason: ${rejectionMessage}. PaymentId: ${payment._id}.`;
+        notificationType = "subscriptn-refund-rejected";
+        break;
+      default:
+        plantMessage = `Refund status updated for ${plant.plantName}.`;
+        notificationType = "general";
+    }
+
+    await sendNotification({
+      receiverId: plant._id.toString(),
+      receiverType: plant.role,
+      senderId: adminId,
+      senderType: "superadmin",
+      message: plantMessage,
+      type: notificationType,
+    });
+    // } else {
+    //   payment.inProgressExpiresAt = null;
+    // }
     await payment.save();
 
     return SubscriptionPaymentMapper.mapSubscptnPaymentDTO(payment);
@@ -155,170 +215,281 @@ export class PaymentService implements IPaymentService {
   // async refundPayment(
   //   data: UpdateRefundStatusReq,
   // ): Promise<SubscriptionPaymentDTO> {
-  //   const { subPayId, refundStatus, adminId } = data;
+  //   const { subPayId, adminId } = data;
+
   //   const payment =
   //     await this._subscriptionPaymentRepository.findSubscriptionPaymentById(
   //       subPayId,
   //     );
   //   if (!payment) {
-  //     throw new Error("Payment not found");
+  //     throw new ApiError(
+  //       STATUS_CODES.NOT_FOUND,
+  //       MESSAGES.SUPERADMIN.ERROR.PAYMENT_NOT_FOUND,
+  //     );
   //   }
-  //   const plant = await this._wastePlantRepository.getWastePlantById(
-  //     payment.wasteplantId.toString(),
-  //   );
-  //   if (!plant) throw new Error("Plant not found.");
 
-  //   if (refundStatus === "Refunded") {
-  //     payment.inProgressExpiresAt = new Date(Date.now() + 5 * 60 * 1000);
-  //     if (!payment.razorpayPaymentId) {
-  //       throw new Error(
-  //         "Razorpay Payment ID is missing, refund cannot be processed.",
+  //   if (payment.refundStatus === "Refunded") {
+  //     throw new ApiError(
+  //       STATUS_CODES.CONFLICT,
+  //       MESSAGES.SUPERADMIN.ERROR.PAYMENT_ALREADY_REF,
+  //     );
+  //   }
+
+  //   if (!payment.razorpayPaymentId) {
+  //     throw new ApiError(
+  //       STATUS_CODES.BAD_REQUEST,
+  //       MESSAGES.SUPERADMIN.ERROR.PAYMENT_ID_MISS,
+  //     );
+  //   }
+
+  //   payment.inProgressExpiresAt = new Date(Date.now() + 5 * 60 * 1000);
+  //   await payment.save();
+
+  //   try {
+  //     const paymentDetails = await this.razorpay.payments.fetch(
+  //       payment.razorpayPaymentId,
+  //     );
+
+  //     if (paymentDetails.status !== "captured") {
+  //       throw new ApiError(
+  //         STATUS_CODES.BAD_REQUEST,
+  //         MESSAGES.SUPERADMIN.ERROR.PAYMENT_NOT_CAPTURE,
   //       );
   //     }
-     
 
-  //     try {
-  //       const paymentDetails = await this.razorpay.payments.fetch(
+  //     let refundId: string;
+
+  //     if (process.env.NODE_ENV === "production") {
+  //       const refund = await this.razorpay.payments.refund(
   //         payment.razorpayPaymentId,
+  //         {
+  //           amount: paymentDetails.amount,
+  //           speed: "normal",
+  //         },
   //       );
-  //       console.log("paymentDetails", paymentDetails);
-  //       if (paymentDetails.status !== "captured") {
-  //         throw new Error("Payment is not captured and cannot be refunded.");
-  //       }
-  //       if (process.env.NODE_ENV === "production") {
-  //         const refund = await this.razorpay.payments.refund(
-  //           payment.razorpayPaymentId,
-  //           {
-  //             amount: paymentDetails.amount,
-  //             speed: "normal",
-  //           },
-  //         );
+  //       refundId = refund.id;
+  //     } else {
+  //       refundId = `test_refund_${Date.now()}`;
+  //       console.log("Simulated refund in test mode");
+  //     }
 
-  //         payment.razorpayRefundId = refund.id;
-  //       } else {
-  //         console.log("Simulating refund success in TEST MODE");
-  //         payment.razorpayRefundId = `test_refund_${Date.now()}`;
-  //       }
-      
-  //       payment.refundStatus = "Refunded";
-  //       payment.refundAt = new Date();
+  //     const plant = await this._wastePlantRepository.getWastePlantById(
+  //       payment.wasteplantId.toString(),
+  //     );
+  //     if (!plant) {
+  //       throw new ApiError(
+  //         STATUS_CODES.NOT_FOUND,
+  //         MESSAGES.WASTEPLANT.ERROR.NOT_FOUND,
+  //       );
+  //     }
 
-  //       const plantMessage = `Refund process completed for ${plant.plantName}.`;
+  //     const accountId = payment.wasteplantId.toString();
+  //     let wastePlantWallet = await this._walletRepository.findWallet(
+  //       accountId,
+  //       "WastePlant",
+  //     );
+
+  //     if (!wastePlantWallet) {
+  //       wastePlantWallet = await this._walletRepository.createWallet({
+  //         accountId,
+  //         accountType: "WastePlant",
+  //       });
+  //     }
+
+  //     wastePlantWallet.balance += payment.amount;
+  //     wastePlantWallet.transactions.push({
+  //       type: "Credit",
+  //       subType: "Refund",
+  //       amount: payment.amount,
+  //       description: `Refunded subscription payment of wasteplant ${plant?.plantName}`,
+  //       refundAt: new Date(),
+  //       refundStatus: "Refunded",
+  //     });
+
+  //     await wastePlantWallet.save();
+  //     let adminWallet = await this._walletRepository.findWallet(
+  //       adminId,
+  //       "SuperAdmin",
+  //     );
+  //     if (!adminWallet) {
+  //       throw new ApiError(
+  //         STATUS_CODES.NOT_FOUND,
+  //         MESSAGES.COMMON.ERROR.WALLET_NOT_FOUND,
+  //       );
+  //     }
+  //     payment.razorpayRefundId = refundId;
+  //     payment.refundStatus = "Refunded";
+  //     payment.refundAt = new Date();
+  //     payment.inProgressExpiresAt = null;
+
+  //     await payment.save();
+
+  //     if (plant) {
+  //       plant.status = "Inactive";
+  //       await plant.save();
 
   //       await sendNotification({
   //         receiverId: plant._id.toString(),
   //         receiverType: plant.role,
   //         senderId: adminId,
   //         senderType: "superadmin",
-  //         message: plantMessage,
+  //         message: `Refund completed for ${plant.plantName}.`,
   //         type: "subscriptn-refund-completed",
   //       });
-  //     } catch (error: any) {
-  //       console.error("Refund failed:", JSON.stringify(error, null, 2));
-  //       throw new Error(error?.error?.description || "Refund failed");
   //     }
-  //   } else {
+
+  //     return SubscriptionPaymentMapper.mapSubscptnPaymentDTO(payment);
+  //   } catch (error: unknown) {
   //     payment.inProgressExpiresAt = null;
+  //     await payment.save();
+  //     throw error;
   //   }
-  //   await payment.save();
-  //   plant.status = "Inactive";
-  //   await plant.save();
-  //   return SubscriptionPaymentMapper.mapSubscptnPaymentDTO(payment);
   // }
   async refundPayment(
-  data: UpdateRefundStatusReq,
-): Promise<SubscriptionPaymentDTO> {
-  const { subPayId, adminId } = data;
+    data: UpdateRefundStatusReq,
+  ): Promise<SubscriptionPaymentDTO> {
+    const { subPayId, adminId } = data;
 
-  const payment =
-    await this._subscriptionPaymentRepository.findSubscriptionPaymentById(
-      subPayId,
-    );
-  if (!payment) throw new Error("Payment not found");
+    const session = await mongoose.startSession();
 
-  if (payment.refundStatus === "Refunded") {
-    throw new Error("This payment has already been refunded.");
-  }
+    try {
+      session.startTransaction();
 
-  if (!payment.razorpayPaymentId) {
-    throw new Error("Razorpay Payment ID missing.");
-  }
+      const payment =
+        await this._subscriptionPaymentRepository.findSubscriptionPaymentById(
+          subPayId,
+          session,
+        );
+      console.log({ payment });
 
-  payment.inProgressExpiresAt = new Date(Date.now() + 5 * 60 * 1000);
-  await payment.save();
+      if (!payment) {
+        throw new ApiError(
+          STATUS_CODES.NOT_FOUND,
+          MESSAGES.SUPERADMIN.ERROR.PAYMENT_NOT_FOUND,
+        );
+      }
 
-  try {
-    const paymentDetails = await this.razorpay.payments.fetch(
-      payment.razorpayPaymentId,
-    );
+      if (payment.refundStatus === "Refunded") {
+        throw new ApiError(
+          STATUS_CODES.CONFLICT,
+          MESSAGES.SUPERADMIN.ERROR.PAYMENT_ALREADY_REF,
+        );
+      }
 
-    if (paymentDetails.status !== "captured") {
-      throw new Error("Payment not captured. Cannot refund.");
-    }
+      if (!payment.razorpayPaymentId) {
+        throw new ApiError(
+          STATUS_CODES.BAD_REQUEST,
+          MESSAGES.SUPERADMIN.ERROR.PAYMENT_ID_MISS,
+        );
+      }
 
-    let refundId: string;
-
-    if (process.env.NODE_ENV === "production") {
-      const refund = await this.razorpay.payments.refund(
+      // 1. Call Razorpay
+      const paymentDetails = await this.razorpay.payments.fetch(
         payment.razorpayPaymentId,
-        {
-          amount: paymentDetails.amount,
-          speed: "normal",
-        },
       );
-      refundId = refund.id;
-    } else {
+      console.log({ paymentDetails });
+
+      if (paymentDetails.status !== "captured") {
+        throw new ApiError(
+          STATUS_CODES.BAD_REQUEST,
+          MESSAGES.SUPERADMIN.ERROR.PAYMENT_NOT_CAPTURE,
+        );
+      }
+
+      let refundId: string;
+
+      // if (process.env.NODE_ENV === "production") {
+      //   const refund = await this.razorpay.payments.refund(
+      //     payment.razorpayPaymentId,
+      //     {
+      //       amount: paymentDetails.amount,
+      //       speed: "normal",
+      //     },
+      //   );
+
+      //   refundId = refund.id;
+      // } else {
+      //   refundId = `test_refund_${Date.now()}`;
+      // }
       refundId = `test_refund_${Date.now()}`;
-      console.log("Simulated refund in test mode");
-    }
+      console.log({ refundId });
 
+      // 2. Get plant
       const plant = await this._wastePlantRepository.getWastePlantById(
-      payment.wasteplantId.toString(),
-    );
-    if (!plant) throw new Error("Plant not found.");
+        payment.wasteplantId.toString(),
+        session,
+      );
+      console.log({ plant });
 
-    const accountId = payment.wasteplantId.toString();
-    let wastePlantWallet = await this._walletRepository.findWallet(
-      accountId,
-      "WastePlant",
-    );
+      if (!plant) {
+        throw new ApiError(
+          STATUS_CODES.NOT_FOUND,
+          MESSAGES.WASTEPLANT.ERROR.NOT_FOUND,
+        );
+      }
 
-    if (!wastePlantWallet) {
-      wastePlantWallet = await this._walletRepository.createWallet({
-        accountId,
-        accountType: "WastePlant",
+      // 3. Get/create wallet
+      let wastePlantWallet = await this._walletRepository.findWallet(
+        payment.wasteplantId.toString(),
+        "WastePlant",
+        session,
+      );
+
+      if (!wastePlantWallet) {
+        wastePlantWallet = await this._walletRepository.createWallet(
+          {
+            accountId: payment.wasteplantId.toString(),
+            accountType: "WastePlant",
+          },
+          session,
+        );
+      }
+
+      // 4. Update wallet
+      wastePlantWallet.balance += payment.amount;
+
+      wastePlantWallet.transactions.push({
+        type: "Credit",
+        subType: "Refund",
+        amount: payment.amount,
+        description: `Refunded subscription payment of wasteplant ${plant.plantName}`,
+        refundAt: new Date(),
+        refundStatus: "Refunded",
       });
-    }
 
-    wastePlantWallet.balance += payment.amount;
-    wastePlantWallet.transactions.push({
-      type: "Credit",
-      subType: "Refund",
-      amount: payment.amount,
-      description: `Refunded subscription payment of wasteplant ${plant?.plantName}`,
-      refundAt: new Date(),
-      refundStatus: "Refunded"
-    });
+      await wastePlantWallet.save({ session });
 
-    await wastePlantWallet.save();
-    let adminWallet = await this._walletRepository.findWallet(
-      adminId,
-      "SuperAdmin"
-  )
-if(!adminWallet){
-  
-}
-    payment.razorpayRefundId = refundId;
-    payment.refundStatus = "Refunded";
-    payment.refundAt = new Date();
-    payment.inProgressExpiresAt = null;
+      // 5. Verify admin wallet
+      const adminWallet = await this._walletRepository.findWallet(
+        adminId,
+        "SuperAdmin",
+        session,
+      );
 
-    await payment.save();
+      if (!adminWallet) {
+        throw new ApiError(
+          STATUS_CODES.NOT_FOUND,
+          MESSAGES.COMMON.ERROR.WALLET_NOT_FOUND,
+        );
+      }
 
-    if (plant) {
+      // 6. Update payment
+      payment.razorpayRefundId = refundId;
+      payment.refundStatus = "Refunded";
+      payment.refundAt = new Date();
+      payment.inProgressExpiresAt = null;
+      payment.refundRequested = false;
+      await payment.save({ session });
+
+      // 7. Update plant
       plant.status = "Inactive";
-      await plant.save();
 
+      await plant.save({ session });
+
+      // 8. Commit ALL DB changes
+      await session.commitTransaction();
+
+      // 9. Notification AFTER commit
       await sendNotification({
         receiverId: plant._id.toString(),
         receiverType: plant.role,
@@ -327,15 +498,17 @@ if(!adminWallet){
         message: `Refund completed for ${plant.plantName}.`,
         type: "subscriptn-refund-completed",
       });
+
+      return SubscriptionPaymentMapper.mapSubscptnPaymentDTO(payment);
+    } catch (error: unknown) {
+      // Rollback MongoDB changes
+      await session.abortTransaction();
+
+      // IMPORTANT:
+      // Don't destroy the original error
+      throw error;
+    } finally {
+      await session.endSession();
     }
-
-    return SubscriptionPaymentMapper.mapSubscptnPaymentDTO(payment);
-
-  } catch (error: any) {
-    payment.inProgressExpiresAt = null;
-    await payment.save();
-
-    throw new Error(error?.error?.description || "Refund failed");
   }
-}
 }

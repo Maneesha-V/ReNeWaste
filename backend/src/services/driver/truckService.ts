@@ -3,14 +3,14 @@ import { inject, injectable } from "inversify";
 import TYPES from "../../config/inversify/types";
 import { ITruckRepository } from "../../repositories/truck/interface/ITruckRepository";
 import { IDriverRepository } from "../../repositories/driver/interface/IDriverRepository";
-import mongoose from "mongoose";
 import { TruckMapper } from "../../mappers/TruckMapper";
 import { DriverMapper } from "../../mappers/DriverMapper";
 import { TruckAvailbleDTO } from "../../dtos/truck/truckDTO";
 import { MarkReturnProps } from "../../dtos/driver/driverDTO";
 import { IAttendanceRepository } from "../../repositories/atendance/interface/IAttendanceRepository";
 import { IPickupRepository } from "../../repositories/pickupReq/interface/IPickupRepository";
-import { stringify } from "querystring";
+import { ApiError } from "../../utils/ApiError";
+import { MESSAGES, STATUS_CODES } from "../../utils/constantUtils";
 
 @injectable()
 export class TruckService implements ITruckService {
@@ -22,15 +22,15 @@ export class TruckService implements ITruckService {
     @inject(TYPES.AttendanceRepository)
     private _attendanceRepository: IAttendanceRepository,
     @inject(TYPES.PickupRepository)
-    private _pickupRepository: IPickupRepository
+    private _pickupRepository: IPickupRepository,
   ) {}
   async getTruckForDriver(
     driverId: string,
-    wasteplantId: string
+    wasteplantId: string,
   ): Promise<TruckAvailbleDTO[]> {
     const trucks = await this.truckRepository.getAssignedAvailableTrucks(
       driverId,
-      wasteplantId
+      wasteplantId,
     );
     if (!trucks || trucks.length === 0) {
       return [];
@@ -40,7 +40,10 @@ export class TruckService implements ITruckService {
   async requestTruck(driverId: string) {
     const driver = await this.truckRepository.reqTruckToWastePlant(driverId);
     if (!driver) {
-      throw new Error("Driver not found.");
+      throw new ApiError(
+        STATUS_CODES.NOT_FOUND,
+        MESSAGES.DRIVER.ERROR.NOT_FOUND,
+      );
     }
     return DriverMapper.mapDriverDTO(driver);
   }
@@ -52,10 +55,19 @@ export class TruckService implements ITruckService {
     const { driver, truck } = await this.driverRepository.markTruckAsReturned(
       truckId,
       plantId,
-      driverId
+      driverId,
     );
-    if (!driver || !truck) {
-      throw new Error("Driver or truck not found");
+    if (!driver) {
+      throw new ApiError(
+        STATUS_CODES.NOT_FOUND,
+        MESSAGES.DRIVER.ERROR.NOT_FOUND,
+      );
+    }
+    if (!truck) {
+      throw new ApiError(
+        STATUS_CODES.NOT_FOUND,
+        MESSAGES.WASTEPLANT.ERROR.TRUCK_NOT_FOUND,
+      );
     }
     const totalPickups = await this._pickupRepository.findDriverPlantTruckById({
       truckId,
@@ -68,17 +80,6 @@ export class TruckService implements ITruckService {
     if (totalPickupsCount >= 6) workType = "fullDay";
     else if (totalPickupsCount >= 4) workType = "halfDay";
 
-    // const totalReward = totalPickups.reduce((sum, pickup) => {
-    //   const baseAmount =
-    //     pickup.wasteType === "Residential"
-    //       ? 100
-    //       : pickup.wasteType === "Commercial"
-    //         ? 200
-    //         : 0;
-    //   const reward = baseAmount * 0.3;
-    //   return sum + reward;
-    // }, 0);
-
     const earnings =
       workType === "fullDay" ? 500 : workType === "halfDay" ? 300 : 0;
 
@@ -89,16 +90,18 @@ export class TruckService implements ITruckService {
         driverId,
       });
     if (!driverAttendance) {
-      throw new Error("Attendance record not found for today");
+      throw new ApiError(
+        STATUS_CODES.NOT_FOUND,
+        MESSAGES.DRIVER.ERROR.ATTENDANCE_NOT,
+      );
     }
-    // driverAttendance.totalPickups = totalPickupsCount;
+
     driverAttendance.workType = workType;
-    // driverAttendance.reward = totalReward;
     driverAttendance.earning = earnings;
     await driverAttendance.save();
 
-    console.log({ earnings});
-    
+    console.log({ earnings });
+
     return true;
   }
 }

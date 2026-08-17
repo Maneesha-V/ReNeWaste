@@ -22,8 +22,20 @@ import { ProtectedRouteProps } from "../../types/common/commonTypes";
     return <Outlet />;
   };
   
-  export const ProtectedAuthRoute = () => {
+  // export const ProtectedAuthRoute = () => {
+  //   const token = localStorage.getItem("token");
+  //   const isLoggedIn = !!token;
+  //   return isLoggedIn ? <Navigate to="/waste-plant/dashboard" replace /> : <Outlet />;
+  // };
+    export const ProtectedAuthRoute = () => {
     const token = localStorage.getItem("token");
-    const isLoggedIn = !!token;
-    return isLoggedIn ? <Navigate to="/waste-plant/dashboard" replace /> : <Outlet />;
+     const role = localStorage.getItem("role");
+  
+    if(!token){
+      return  <Outlet />
+    }
+    if(role === "wasteplant"){
+      return <Navigate to="/waste-plant/dashboard" replace />
+    }
+    return <Outlet />
   };

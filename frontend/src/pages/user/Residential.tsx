@@ -19,7 +19,6 @@ const Residential = () => {
   );
   
   const startOfMonth = currentMonth.startOf("month");
-  // const endOfMonth = currentMonth.endOf("month");
   const startDay = startOfMonth.day();
   const daysInMonth = currentMonth.daysInMonth();
 

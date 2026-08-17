@@ -52,9 +52,11 @@ export const updateRefundStatus = createAsyncThunk<
   { rejectValue: { message: string } }
 >(
   "superAdminPayments/updateRefundStatus",
-  async ({ subPayId, refundStatus }, { rejectWithValue }) => {
+  async ({ subPayId, refundStatus, rejectionMessage }, { rejectWithValue }) => {
     try {
-      const response = await updateRefundPayment({ subPayId, refundStatus });
+      console.log({refundStatus, rejectionMessage});
+      
+      const response = await updateRefundPayment({ subPayId, refundStatus, rejectionMessage });
       return response;
     } catch (err) {
       const msg = getAxiosErrorMessage(err);
@@ -88,7 +90,9 @@ const superAdminPaymentsSlice = createSlice({
         if (p._id === _id) {
           return {
             ...p,
-            refundStatus: refundStatus,
+            refundStatus,
+            refundRequested :
+            refundStatus === "Rejected" ? false : p.refundRequested
           };
         }
         return p;

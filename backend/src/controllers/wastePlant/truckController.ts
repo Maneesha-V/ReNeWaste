@@ -22,8 +22,6 @@ export class TruckController implements ITruckController {
   ): Promise<void> {
     try {
       const plantId = req.user?.id;
-      console.log("plantId", plantId);
-      console.log("body", req.body);
 
       const truckData: ITruck = {
         ...req.body,
@@ -33,7 +31,7 @@ export class TruckController implements ITruckController {
       };
 
       const newTruck = await this.truckService.addTruck(truckData);
-      console.log("✅ Inserted Truck:", newTruck);
+
       if (newTruck) {
         res.status(STATUS_CODES.CREATED).json({
           success: true,
@@ -70,7 +68,6 @@ export class TruckController implements ITruckController {
         limit,
         search,
       );
-      console.log("trucks", trucks);
 
       res.status(STATUS_CODES.SUCCESS).json({
         success: true,
@@ -107,7 +104,7 @@ export class TruckController implements ITruckController {
         driverId,
         plantId,
       );
-      console.log("trucks", trucks);
+
       res.status(STATUS_CODES.SUCCESS).json({
         success: true,
         message: MESSAGES.WASTEPLANT.SUCCESS.FETCH_TRUCK,
@@ -194,8 +191,6 @@ export class TruckController implements ITruckController {
       const updatedTruck =
         await this.truckService.deleteTruckByIdService(truckId);
 
-      console.log("updatedTruck", updatedTruck);
-
       res.status(STATUS_CODES.SUCCESS).json({
         success: true,
         updatedTruck,
@@ -221,7 +216,6 @@ export class TruckController implements ITruckController {
       }
       const pendingTruckReqsts =
         await this.truckService.pendingTruckReqsts(plantId);
-      console.log("pendingTruckReqsts", pendingTruckReqsts);
 
       res.status(STATUS_CODES.SUCCESS).json({
         success: true,
@@ -249,7 +243,6 @@ export class TruckController implements ITruckController {
       }
       const availableTrucks =
         await this.truckService.availableTrucksForDriver(plantId);
-      console.log("availableTrucks", availableTrucks);
 
       res.status(STATUS_CODES.SUCCESS).json({
         success: true,
@@ -269,8 +262,6 @@ export class TruckController implements ITruckController {
     try {
       const plantId = req.user?.id;
       const { driverId, truckId, prevTruckId } = req.body;
-      console.log("plantId", plantId);
-      console.log(req.body);
 
       if (!plantId || !driverId || !truckId || !prevTruckId) {
         throw new ApiError(
@@ -286,7 +277,6 @@ export class TruckController implements ITruckController {
           truckId,
           prevTruckId,
         );
-      console.log("updatedRequest", updatedRequests);
 
       res.status(200).json({
         updatedRequests,

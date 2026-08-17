@@ -1,4 +1,4 @@
-import { NextFunction, Request, Response } from "express";
+import { NextFunction, Response } from "express";
 import { IResidentialController } from "./interface/IResidentialController";
 import moment from "moment";
 import { inject, injectable } from "inversify";
@@ -29,7 +29,6 @@ export class ResidentialController implements IResidentialController {
         );
       }
       const user = await this.residentialService.getResidentialService(userId);
-      console.log("user", user);
 
       res
         .status(STATUS_CODES.SUCCESS)
@@ -53,7 +52,6 @@ export class ResidentialController implements IResidentialController {
         );
       }
       const updatedData = req.body;
-      console.log("updatedData", updatedData);
 
       const pickupDateString = updatedData.pickupDate;
       const formattedDate = moment(
@@ -84,7 +82,6 @@ export class ResidentialController implements IResidentialController {
           .json({ message: MESSAGES.USER.ERROR.PICKUP_CREATED });
       }
     } catch (error) {
-      console.error("Error in updation:", error);
       next(error);
     }
   }

@@ -45,27 +45,27 @@ export const axiosSuperadmin = createAxiosInstance({
 });
 
 // 🔥 Override only superadmin’s response flow to use Redux
-axiosSuperadmin.interceptors.response.use(
-  (res) => res,
-  async (error) => {
-    const originalRequest = error.config;
+// axiosSuperadmin.interceptors.response.use(
+//   (res) => res,
+//   async (error) => {
+//     const originalRequest = error.config;
 
-    if (error.response?.status === 401 && !originalRequest._retry) {
-      originalRequest._retry = true;
-      try {
-        const refreshResult = await store.dispatch(refreshAccessToken());
-        if (refreshResult.meta.requestStatus === "fulfilled") {
-          const newToken = refreshResult.payload;
-          localStorage.setItem("token", newToken);
-          originalRequest.headers["Authorization"] = `Bearer ${newToken}`;
-          return axiosSuperadmin(originalRequest);
-        }
-      } catch (refreshError) {
-        window.location.href = "/super-admin";
-        return Promise.reject(refreshError);
-      }
-    }
+//     if (error.response?.status === 401 && !originalRequest._retry) {
+//       originalRequest._retry = true;
+//       try {
+//         const refreshResult = await store.dispatch(refreshAccessToken());
+//         if (refreshResult.meta.requestStatus === "fulfilled") {
+//           const newToken = refreshResult.payload;
+//           localStorage.setItem("token", newToken);
+//           originalRequest.headers["Authorization"] = `Bearer ${newToken}`;
+//           return axiosSuperadmin(originalRequest);
+//         }
+//       } catch (refreshError) {
+//         window.location.href = "/super-admin";
+//         return Promise.reject(refreshError);
+//       }
+//     }
 
-    return Promise.reject(error);
-  }
-);
+//     return Promise.reject(error);
+//   }
+// );

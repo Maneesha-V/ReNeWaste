@@ -9,10 +9,12 @@ export const getPaymentHistory = async ({ page, limit, search }: PaginationPaylo
     console.log("response",response);
     return response.data;
 };
-export const updateRefundPayment = async({ subPayId, refundStatus }: UpdateRefundStatusReq) => {
+export const updateRefundPayment = async({ subPayId, refundStatus, rejectionMessage }: UpdateRefundStatusReq) => {
+     console.log({refundStatus, rejectionMessage});
     const response = await axiosSuperadmin.patch(`/payment/update-status`,{
         subPayId, 
-        refundStatus
+        refundStatus,
+        rejectionMessage
    });
    console.log("response",response);
    return response.data;

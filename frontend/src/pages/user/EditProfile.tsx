@@ -96,25 +96,6 @@ const EditProfilePage = () => {
       }
     });
 
-    // user.addresses.forEach((address, index) => {
-    //   Object.entries(address).forEach(([key, value]) => {
-    //     const fieldName = `addresses[${index}].${key}`;
-    //     if (key !== "latitude" && key !== "longitude") {
-    //       if (typeof value === "string" && value.trim() !== "") {
-    //         validate(fieldName, value);
-    //       } else {
-    //         newErrors[fieldName] = ["This field is required."];
-    //         hasErrors = true;
-    //       }
-
-    //       if (getErrorMessages(fieldName).length > 0) {
-    //         newErrors[fieldName] = getErrorMessages(fieldName);
-    //         hasErrors = true;
-    //       }
-    //     }
-    //   });
-    // });
-
     const address = user.addresses[0];
 
 Object.entries(address).forEach(([key, value]) => {

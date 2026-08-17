@@ -13,6 +13,5 @@ export const updateResidentialPickupService = async (
       "Content-Type": "application/json",
     },
   });
-  console.log("Response:", response);
   return response;
 };

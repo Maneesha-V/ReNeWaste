@@ -19,7 +19,6 @@ export class DropSpotController implements IDropSpotController {
     next: NextFunction,
   ): Promise<void> {
     try {
-      console.log(req.body);
       const wasteplantId = req.user?.id;
       if (!wasteplantId) {
         throw new ApiError(
@@ -136,7 +135,6 @@ export class DropSpotController implements IDropSpotController {
         dropSpotId,
         wasteplantId,
       );
-      console.log("result-delete", dropspot);
 
       res.status(STATUS_CODES.SUCCESS).json({
         message: MESSAGES.WASTEPLANT.SUCCESS.DROP_SPOT_DELETE,

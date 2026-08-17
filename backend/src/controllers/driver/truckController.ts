@@ -33,7 +33,6 @@ export class TruckController implements ITruckController {
         driverId,
         wasteplantId,
       );
-      console.log("assignedTruck", assignedTruck);
 
       res.status(STATUS_CODES.SUCCESS).json({
         success: true,

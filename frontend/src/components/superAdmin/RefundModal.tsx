@@ -1,4 +1,4 @@
-import { Modal, Select, Steps } from "antd";
+import { message, Modal, Select, Steps } from "antd";
 import { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
 import { RootState } from "../../redux/store";
@@ -15,7 +15,11 @@ interface RefundModalProps {
   visible: boolean;
   onClose: () => void;
   record: SubscriptionPaymentHisDTO;
-  onUpdateStatus: (_id: string, status: string, record: SubscriptionPaymentHisDTO) => void;
+  onUpdateStatus: (
+    _id: string,
+    status: string,
+    rejectionMessage?: string,
+  ) => void;
   onRefund: (record: SubscriptionPaymentHisDTO) => void;
 }
 
@@ -27,16 +31,19 @@ const RefundModal: React.FC<RefundModalProps> = ({
   onRefund,
 }) => {
   const [selectedStatus, setSelectedStatus] = useState("");
+  const [rejectionMessage, setRejectionMessage] = useState("");
   const notifications = useSelector(
-    (state: RootState) => state.superAdminNotifications.notifications
+    (state: RootState) => state.superAdminNotifications.notifications,
   );
   useEffect(() => {
     setSelectedStatus(record?.refundStatus || "");
+    setRejectionMessage("");
   }, [record]);
-//   console.log("notifications", notifications);
+
   console.log("record", record);
   const reason = extractSubRefundReason(notifications, record._id);
   const status = record.refundStatus;
+
   const currentStepIndex =
     status === "Rejected"
       ? 2 // Show rejection on 3rd step
@@ -73,8 +80,8 @@ const RefundModal: React.FC<RefundModalProps> = ({
             currentStepIndex > 0
               ? "finish"
               : currentStepIndex === 0
-              ? "process"
-              : "wait"
+                ? "process"
+                : "wait"
           }
         />
 
@@ -93,8 +100,8 @@ const RefundModal: React.FC<RefundModalProps> = ({
             currentStepIndex > 1
               ? "finish"
               : currentStepIndex === 1
-              ? "process"
-              : "wait"
+                ? "process"
+                : "wait"
           }
         />
 
@@ -138,8 +145,9 @@ const RefundModal: React.FC<RefundModalProps> = ({
           <p className="font-medium text-green-600 mb-1">Refund Reason:</p>
           <p className="text-base">{reason}</p>
         </div>
-        {(record?.refundStatus !== "Refunded" &&
-          record?.refundStatus !== "Rejected") && (
+
+        {record?.refundStatus !== "Refunded" &&
+          record?.refundStatus !== "Rejected" && (
             <div>
               <p className="font-medium text-green-600 mb-1">
                 Change Refund Status:
@@ -156,6 +164,28 @@ const RefundModal: React.FC<RefundModalProps> = ({
               </Select>
             </div>
           )}
+
+        {selectedStatus === "Rejected" && record.refundRequested && (
+          <div className="mt-4">
+            <p className="font-medium text-red-600 mb-1">
+              Rejection Reason <span className="text-red-500">*</span>
+            </p>
+
+            <textarea
+              value={rejectionMessage}
+              onChange={(e) => setRejectionMessage(e.target.value)}
+              placeholder="Enter the reason for rejecting this refund..."
+              rows={4}
+              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm
+                 focus:outline-none focus:ring-2 focus:ring-red-200
+                 focus:border-red-400 resize-none"
+            />
+
+            <p className="text-xs text-gray-500 mt-1">
+              Please provide a clear reason for rejecting the refund request.
+            </p>
+          </div>
+        )}
         <div className="flex justify-end space-x-3 pt-4">
           <button
             onClick={onClose}
@@ -163,10 +193,27 @@ const RefundModal: React.FC<RefundModalProps> = ({
           >
             Cancel
           </button>
-          {(record?.refundStatus !== "Refunded" &&
-            record?.refundStatus !== "Rejected") && (
+          {record?.refundStatus !== "Refunded" &&
+            record?.refundStatus !== "Rejected" && (
               <button
-                onClick={() => onUpdateStatus(record._id, selectedStatus, record)}
+                onClick={() => {
+                  if (
+                    selectedStatus === "Rejected" &&
+                    !rejectionMessage.trim()
+                  ) {
+                    message.error(
+                      "Please enter a reason for rejecting the refund.",
+                    );
+                    return;
+                  }
+                  onUpdateStatus(
+                    record._id,
+                    selectedStatus,
+                    selectedStatus === "Rejected"
+                      ? rejectionMessage.trim()
+                      : undefined,
+                  );
+                }}
                 className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
               >
                 Update Status

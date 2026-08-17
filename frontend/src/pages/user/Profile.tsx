@@ -12,9 +12,7 @@ import { RootState } from "../../redux/store";
 const ProfilePage = () => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
-  // const [user, setUser] = useState<any>(null);
   const { user } = useSelector((state: RootState) => state.userProfile)
-  // const token = localStorage.getItem("token");
   useEffect(() => {
       dispatch(fetchUserProfile());
     }, [dispatch]);

@@ -11,6 +11,8 @@ import {
   TruckDTO,
 } from "../../dtos/truck/truckDTO";
 import { TruckMapper } from "../../mappers/TruckMapper";
+import { ApiError } from "../../utils/ApiError";
+import { MESSAGES, STATUS_CODES } from "../../utils/constantUtils";
 
 @injectable()
 export class TruckService implements ITruckService {
@@ -32,7 +34,10 @@ export class TruckService implements ITruckService {
       data.wasteplantId!.toString(),
     );
     if (!plant) {
-      throw new Error("Plant not found.");
+      throw new ApiError(
+        STATUS_CODES.NOT_FOUND,
+        MESSAGES.WASTEPLANT.ERROR.NOT_FOUND,
+      );
     }
     if (plant.status === "Active") {
       const purchasedPlan =
@@ -40,10 +45,14 @@ export class TruckService implements ITruckService {
           plant.subscriptionPlan!,
         );
       if (!purchasedPlan) {
-        throw new Error("Subscription plan not found.");
+        throw new ApiError(
+          STATUS_CODES.NOT_FOUND,
+          MESSAGES.SUPERADMIN.ERROR.PLAN_NOT_EXIST,
+        );
       }
       if (totalTruckCount >= purchasedPlan?.truckLimit) {
-        throw new Error(
+        throw new ApiError(
+          STATUS_CODES.CONFLICT,
           `You can't add new truck bcoz your plan truck limit is ${purchasedPlan?.truckLimit}.`,
         );
       }
@@ -52,7 +61,10 @@ export class TruckService implements ITruckService {
       data.vehicleNumber,
     );
     if (existingVehicleNo) {
-      throw new Error("Vehicle number already exists");
+      throw new ApiError(
+        STATUS_CODES.CONFLICT,
+        MESSAGES.WASTEPLANT.ERROR.VEHICLE_NUM_EXISTS,
+      );
     }
 
     const newData: ITruck = {
@@ -60,7 +72,10 @@ export class TruckService implements ITruckService {
     };
     const created = await this.truckRepository.createTruck(newData);
     if (!created) {
-      throw new Error("Can't create truck.");
+      throw new ApiError(
+        STATUS_CODES.SERVER_ERROR,
+        MESSAGES.WASTEPLANT.ERROR.TRUCK_FAIL_CREATE,
+      );
     }
     return true;
   }
@@ -89,14 +104,16 @@ export class TruckService implements ITruckService {
       driverId,
       plantId,
     );
-    console.log("trucks", trucks);
 
     return TruckMapper.mapAvailableTrucksDTO(trucks);
   }
   async getTruckByIdService(truckId: string): Promise<TruckDTO> {
     const truck = await this.truckRepository.getTruckById(truckId);
     if (!truck) {
-      throw new Error("Truck not found.");
+      throw new ApiError(
+        STATUS_CODES.NOT_FOUND,
+        MESSAGES.WASTEPLANT.ERROR.TRUCK_NOT_FOUND,
+      );
     }
     return TruckMapper.mapTruckDTO(truck);
   }
@@ -107,7 +124,10 @@ export class TruckService implements ITruckService {
   ): Promise<TruckDTO> {
     const truck = await this.truckRepository.updateTruckById(truckId, data);
     if (!truck) {
-      throw new Error("Truck not found.");
+      throw new ApiError(
+        STATUS_CODES.NOT_FOUND,
+        MESSAGES.WASTEPLANT.ERROR.TRUCK_NOT_FOUND,
+      );
     }
     return TruckMapper.mapTruckDTO(truck);
   }
@@ -115,7 +135,10 @@ export class TruckService implements ITruckService {
   async deleteTruckByIdService(truckId: string) {
     const truck = await this.truckRepository.deleteTruckById(truckId);
     if (!truck) {
-      throw new Error("Truck not found.");
+      throw new ApiError(
+        STATUS_CODES.NOT_FOUND,
+        MESSAGES.WASTEPLANT.ERROR.TRUCK_NOT_FOUND,
+      );
     }
     return TruckMapper.mapTruckDTO(truck);
   }
@@ -136,8 +159,17 @@ export class TruckService implements ITruckService {
     prevTruckId: string,
   ): Promise<TruckDTO[]> {
     const truck = await this.truckRepository.getTruckById(truckId);
-    if (!truck || truck.status !== "Active") {
-      throw new Error("Selected truck is not available");
+    if (!truck) {
+      throw new ApiError(
+        STATUS_CODES.NOT_FOUND,
+        MESSAGES.WASTEPLANT.ERROR.TRUCK_NOT_FOUND,
+      );
+    }
+    if (truck.status !== "Active") {
+      throw new ApiError(
+        STATUS_CODES.NOT_FOUND,
+        MESSAGES.WASTEPLANT.ERROR.TRUCK_NOT_AVAILABLE,
+      );
     }
     const updatedRequest = await this.truckRepository.assignTruckToDriver(
       plantId,

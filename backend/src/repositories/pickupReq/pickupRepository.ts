@@ -330,12 +330,11 @@ export class PickupRepository
     const skip = (page - 1) * limit;
     const [pickups, total] = await Promise.all([
       this.model
-        // .find(query)
         .find({
           ...query,
           addressId: { $exists: true, $ne: null },
         })
-        .sort({ originalPickupDate: 1 })
+        .sort({ rescheduledPickupDate: -1, originalPickupDate: -1 })
         .skip(skip)
         .limit(limit)
         .populate({
@@ -347,7 +346,6 @@ export class PickupRepository
           select: "name vehicleNumber",
         })
         .lean(),
-      // this.model.countDocuments(query),
       this.model.countDocuments({
         ...query,
         addressId: { $exists: true, $ne: null },
@@ -363,7 +361,7 @@ export class PickupRepository
     const sortedPickups = pickups.sort((a, b) => {
       const statusOrder: Record<TrackingStatus, number> = {
         Pending: 1,
-        Scheduled: 1,
+        Scheduled: 2,
         Completed: 3,
         Cancelled: 4,
       };

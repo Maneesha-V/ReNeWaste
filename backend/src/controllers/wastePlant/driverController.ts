@@ -48,15 +48,18 @@ export class DriverController implements IDriverController {
   ): Promise<void> {
     try {
       const plantId = req.user?.id;
-      console.log("plantId", plantId);
-      console.log("body", req.body);
+
       const { files } = req as any;
-      console.log("files", files);
+
       if (!files?.licenseFront || !files?.licenseBack) {
-        res
-          .status(400)
-          .json({ error: "Both license front and back images are required" });
-        return;
+        throw new ApiError(
+          STATUS_CODES.BAD_REQUEST,
+          MESSAGES.DRIVER.ERROR.IMG_ERRROR,
+        );
+        // res
+        //   .status(400)
+        //   .json({ error: "Both license front and back images are required." });
+        // return;
       }
 
       const licenseFrontPath = files.licenseFront[0].path;
@@ -69,10 +72,9 @@ export class DriverController implements IDriverController {
         licenseBack: licenseBackPath,
         wasteplantId: new mongoose.Types.ObjectId(plantId),
       };
-      console.log("driver", driverData);
 
       const newDriver = await this._driverService.addDriver(driverData);
-      console.log("✅ Inserted Driver:", newDriver);
+
       if (newDriver) {
         res.status(STATUS_CODES.CREATED).json({
           success: true,
@@ -93,8 +95,10 @@ export class DriverController implements IDriverController {
     try {
       const plantId = req.user?.id;
       if (!plantId) {
-        res.status(404).json({ message: "plantId not found" });
-        return;
+        throw new ApiError(
+          STATUS_CODES.UNAUTHORIZED,
+          MESSAGES.COMMON.ERROR.UNAUTHORIZED,
+        );
       }
       console.log(req.query);
       const DEFAULT_LIMIT = 5;
@@ -112,9 +116,8 @@ export class DriverController implements IDriverController {
         limit,
         search,
       );
-      console.log("drivers", drivers, total);
 
-      res.status(200).json({
+      res.status(STATUS_CODES.SUCCESS).json({
         success: true,
         message: MESSAGES.DRIVER.SUCCESS.FETCH_DRIVER,
         drivers,
@@ -144,9 +147,8 @@ export class DriverController implements IDriverController {
         driverId,
         plantId,
       );
-      console.log("driver", driver);
 
-      res.status(200).json({ data: driver });
+      res.status(STATUS_CODES.SUCCESS).json({ data: driver });
     } catch (error) {
       console.error("Error fetching Driver:", error);
       next(error);
@@ -158,14 +160,9 @@ export class DriverController implements IDriverController {
     next: NextFunction,
   ): Promise<void> {
     try {
-      console.log("body", req.body);
-
       const { driverId } = req.params;
       const { files } = req as any;
-      if (!driverId) {
-        res.status(400).json({ message: "Driver ID is required" });
-        return;
-      }
+
       const updatedData = req.body;
       if (files?.licenseFront) {
         updatedData.licenseFront = files.licenseFront[0].path;
@@ -183,7 +180,7 @@ export class DriverController implements IDriverController {
         updatedData,
       );
 
-      res.status(200).json({
+      res.status(STATUS_CODES.SUCCESS).json({
         success: true,
         message: MESSAGES.DRIVER.SUCCESS.UPDATE_DRIVER,
         data: updatedDriver,
@@ -199,17 +196,20 @@ export class DriverController implements IDriverController {
     next: NextFunction,
   ): Promise<void> {
     try {
-      console.log("body", req.body);
       const { driverId } = req.params;
       const updatedDriver =
         await this._driverService.deleteDriverByIdService(driverId);
 
       if (!updatedDriver) {
-        res.status(404).json({ message: "Driver not found" });
-        return;
+        throw new ApiError(
+          STATUS_CODES.NOT_FOUND,
+          MESSAGES.DRIVER.ERROR.NOT_FOUND,
+        );
+        // res.status(404).json({ message: "Driver not found" });
+        // return;
       }
 
-      res.status(200).json({
+      res.status(STATUS_CODES.SUCCESS).json({
         updatedDriver,
         message: MESSAGES.DRIVER.SUCCESS.DELETE_DRIVER,
       });

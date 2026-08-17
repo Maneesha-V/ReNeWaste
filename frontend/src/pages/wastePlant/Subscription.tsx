@@ -5,7 +5,7 @@ import { useSelector } from "react-redux";
 import { RootState } from "../../redux/store";
 import {
   cancelSubPayReq,
-  fetchSubscriptionPlan
+  fetchSubscriptionPlan,
 } from "../../redux/slices/wastePlant/wastePlantSubscriptionSlice";
 import {
   repay,
@@ -15,9 +15,7 @@ import Swal from "sweetalert2";
 import { toast } from "react-toastify";
 import { loadRazorpayScript } from "../../utils/razorpayUtils";
 import { RazorpayResponse } from "../../types/pickupReq/paymentTypes";
-import {
-  formatDateToDDMMYYYY,
-} from "../../utils/formatDate";
+import { formatDateToDDMMYYYY } from "../../utils/formatDate";
 import { SubscriptionPaymentHisDTO } from "../../types/subscriptionPayment/paymentTypes";
 import { getAxiosErrorMessage } from "../../utils/handleAxiosError";
 import { SubcptnPaymtPayload } from "../../types/subscription/subscriptionTypes";
@@ -181,10 +179,7 @@ const Subscription = () => {
         (p: SubscriptionPaymentHisDTO) =>
           p.status?.trim().toLowerCase() === "pending",
       );
-      // const hasSuccessfulPayment = payments.some(
-      //   (p: SubscriptionPaymentHisDTO) =>
-      //     p.status?.trim().toLowerCase() === "paid",
-      // );
+  
       if (!isAfter24Hours) {
         return (
           <span style={{ color: "#8c8c8c" }}>Pay available after 24h</span>
@@ -194,14 +189,7 @@ const Subscription = () => {
       if (hasPendingPayment) {
         return <span style={{ color: "#fa8c16" }}>Payment Pending</span>;
       }
-      // if (hasSuccessfulPayment && plantData?.status === "Active") {
-      //   return (
-      //     <span style={{ color: "#52c41a", fontWeight: "bold" }}>
-      //       Subscribed
-      //     </span>
-      //   );
-      // }
-      // return null;
+
       return (
         <Space>
           <Button
@@ -225,8 +213,6 @@ const Subscription = () => {
     },
   };
 
-  // const firstPayment = payments?.paymentData?.[0];
-  // const expiredAt = firstPayment?.expiredAt || null;
 
   const expiryColumn = {
     title: "Expired At",
@@ -294,219 +280,99 @@ const Subscription = () => {
       },
     },
   ];
-  // const paidAtColumn = [
-  //   {
-  //     title: "Paid At",
-  //     dataIndex: "paidAt",
-  //     key: "paidAt",
-  //     render: (_: any, record: SubscriptionPaymentHisDTO) => {
-  //       if (record.status?.trim()?.toLowerCase() === "paid") {
-  //         return <span>{formatDateToDDMMYYYY(record.paidAt)}</span>;
-  //       } else {
-  //         return <span>{"Not paid"}</span>;
-  //       }
-  //     },
-  //   },
-  //   {
-  //     title: "Action",
-  //     key: "action",
-  //     render: (record: SubscriptionPaymentHisDTO) => {
-  //       if (!record) return null;
-  //       const status = record?.status?.trim()?.toLowerCase();
-  //       console.log("record",record);
-        
-  //        if (record.refundRequested) {
-  //     return <span className="text-red-500">Refund Requested</span>;
-  //   }
-  //   if (status === "paid" && record.paidAt != null) {
-
-  //     const paidDate = new Date(record.paidAt);  
-  //     const now = new Date();
-
-  //     const timeDifference = now.getTime() - paidDate.getTime();
-
-  //     const TWENTY_FOUR_HOURS = 24 * 60 * 60 * 1000;
-
-  //     const isWithin24Hours = timeDifference <= TWENTY_FOUR_HOURS;
-
-  //     if (isWithin24Hours) {
-  //       return (
-  //         <Popconfirm
-  //           title="Are you sure to cancel this pickup?"
-  //           okText="Yes"
-  //           cancelText="No"
-  //           onConfirm={() => handleCancel(record._id)}
-  //           okType="danger"
-  //         >
-  //           <Button type="default" danger>
-  //             Cancel
-  //           </Button>
-  //         </Popconfirm>
-  //       );
-  //     }
-
-  //   }
-  //    if (status === "pending" && record.paidAt === null) {
-  //     return (
-  //       <Button
-  //         type="primary"
-  //         onClick={() =>
-  //           handleRetryPayment(
-  //             record.planId?._id,
-  //             record.amount,
-  //             record._id,
-  //             record.planId?.billingCycle
-  //           )
-  //         }
-  //       >
-  //         Retry Payment
-  //       </Button>
-  //     );
-  //   }
-  //       // if (record.refundRequested) {
-  //       //   return <span className="text-red-500">Refund Requested</span>;
-  //       // } else if (
-  //       //   record.status?.trim()?.toLowerCase() === "paid" &&
-  //       //   !record.refundRequested
-  //       // ) {
-  //       //   return (
-  //       //     <Popconfirm
-  //       //       title="Are you sure to cancel this pickup?"
-  //       //       okText="Yes"
-  //       //       cancelText="No"
-  //       //       onConfirm={() => handleCancel(record._id)}
-  //       //       okType="danger"
-  //       //     >
-  //       //       <Button type="default" danger>
-  //       //         Cancel
-  //       //       </Button>
-  //       //     </Popconfirm>
-  //       //   );
-  //       // } else if (
-  //       //   record.status?.trim()?.toLowerCase() === "pending" &&
-  //       //   !record.refundRequested
-  //       // ) {
-  //       //   return (
-  //       //     <Button
-  //       //       type="primary"
-  //       //       onClick={() =>
-  //       //         handleRetryPayment(
-  //       //           record.planId._id,
-  //       //           record.amount,
-  //       //           record._id,
-  //       //           record.planId.billingCycle,
-  //       //         )
-  //       //       }
-  //       //     >
-  //       //       Retry Payment
-  //       //     </Button>
-  //       //   );
-  //       // }
-  //       return null;
-  //     },
-  //   },
-  // ];
-  // const paymtHistActionColumn = {
-  //   title: "Action",
-  //   key: "action",
-  //   render: (record: SubscriptionPaymentHisDTO) => {
-  //     if (record.status?.trim().toLowerCase() === "pending" && !record.refundRequested) {
-  //       return (
-  //         <Button
-  //           type="primary"
-  //           onClick={() =>
-  //             handleRetryPayment(
-  //               record.planId._id,
-  //               record.amount,
-  //               record._id,
-  //               record.planId.billingCycle
-  //             )
-  //           }
-  //         >
-  //           Retry Payment
-  //         </Button>
-  //       );
-  //     }
-  //     return null;
-  //   },
-  // };
+ 
   const paidAtOnlyColumn = [
-  {
-    title: "Paid At",
-    dataIndex: "paidAt",
-    key: "paidAt",
-    render: (_: any, record: SubscriptionPaymentHisDTO) => {
-      if (record.status?.toLowerCase() === "paid") {
-        return <span>{formatDateToDDMMYYYY(record.paidAt)}</span>;
-      }
-      return <span>Not Paid</span>;
+    {
+      title: "Paid At",
+      dataIndex: "paidAt",
+      key: "paidAt",
+      render: (_: any, record: SubscriptionPaymentHisDTO) => {
+        if (record.status?.toLowerCase() === "paid") {
+          return <span>{formatDateToDDMMYYYY(record.paidAt)}</span>;
+        }
+        return <span>Not Paid</span>;
+      },
     },
-  },
-];
-const paymentActionColumn = [
-  {
-    title: "Action",
-    key: "action",
-    render: (_: any, record: SubscriptionPaymentHisDTO) => {
-      if (!record) return null;
+  ];
+    const refundAtOnlyColumn = [
+    {
+      title: "Refund At",
+      dataIndex: "refundAt",
+      key: "refundAt",
+      render: (_: any, record: SubscriptionPaymentHisDTO) => {
+        if (record.refundStatus?.toLowerCase() === "refunded") {
+          return <span>{formatDateToDDMMYYYY(record.refundAt)}</span>;
+        }
+        return <span>Not Refund</span>;
+      },
+    },
+  ];
+  const paymentActionColumn = [
+    {
+      title: "Action",
+      key: "action",
+      render: (_: any, record: SubscriptionPaymentHisDTO) => {
+        if (!record) return null;
 
-      const status = record.status?.toLowerCase();
-      if (record.refundRequested && record.refundStatus === "Refunded") {
-        return <span className="text-red-500">Refund Completed</span>;
-      }
+        const status = record.status?.toLowerCase();
+        if (record.refundRequested && record.refundStatus === "Refunded") {
+          return <span className="text-red-500">Refund Completed</span>;
+        }
 
-      if (record.refundRequested) {
-        return <span className="text-red-500">Refund Requested</span>;
-      }
+        if (record.refundRequested) {
+          return <span className="text-red-500">Refund Requested</span>;
+        }
+        if (status === "paid" && record.refundStatus === "Rejected") {
+          return null;
+        }
+        // PAID → Show cancel within 24 hrs
+        if (status === "paid" && record.paidAt) {
+          const paidDate = new Date(record.paidAt);
+          const now = new Date();
 
-      // PAID → Show cancel within 24 hrs
-      if (status === "paid" && record.paidAt) {
-        const paidDate = new Date(record.paidAt);
-        const now = new Date();
+          const diff = now.getTime() - paidDate.getTime();
+          const isWithin24Hours = diff <= 24 * 60 * 60 * 1000;
 
-        const diff = now.getTime() - paidDate.getTime();
-        const isWithin24Hours = diff <= 24 * 60 * 60 * 1000;
+          if (isWithin24Hours) {
+            return (
+              <Popconfirm
+                title="Are you sure to cancel this pickup?"
+                okText="Yes"
+                cancelText="No"
+                onConfirm={() => handleCancel(record._id)}
+                okType="danger"
+              >
+                <Button danger>Cancel</Button>
+              </Popconfirm>
+            );
+          }
 
-        if (isWithin24Hours) {
+          return <span className="text-gray-400">Expired</span>;
+        }
+
+        // PENDING → Retry
+        if (status === "pending") {
           return (
-            <Popconfirm
-              title="Are you sure to cancel this pickup?"
-              okText="Yes"
-              cancelText="No"
-              onConfirm={() => handleCancel(record._id)}
-              okType="danger"
+            <Button
+              type="primary"
+              onClick={() =>
+                handleRetryPayment(
+                  record.planId?._id,
+                  record.amount,
+                  record._id,
+                  record.planId?.billingCycle,
+                )
+              }
             >
-              <Button danger>Cancel</Button>
-            </Popconfirm>
+              Retry Payment
+            </Button>
           );
         }
 
-        return <span className="text-gray-400">Expired</span>;
-      }
-
-      // PENDING → Retry
-      if (status === "pending") {
-        return (
-          <Button
-            type="primary"
-            onClick={() =>
-              handleRetryPayment(
-                record.planId?._id,
-                record.amount,
-                record._id,
-                record.planId?.billingCycle
-              )
-            }
-          >
-            Retry Payment
-          </Button>
-        );
-      }
-
-      return null;
+        return null;
+      },
     },
-  },
-];
+  ];
   const paymentColumns = [
     {
       title: "Plant Details",
@@ -543,9 +409,13 @@ const paymentActionColumn = [
       // dataIndex: "status",
       key: "status",
       render: (record: SubscriptionPaymentHisDTO) => {
-        const statusValue = record.refundStatus || record.status
+        // const statusValue = record.refundStatus || record.status
+        const statusValue =
+          record.refundStatus === "Rejected"
+            ? record.status
+            : record.refundStatus || record.status;
         return statusValue ? <span>{statusValue}</span> : null;
-    }
+      },
       // render: (status: string) => (
       //   <span style={{ color: status === "Pending" ? "orange" : "green" }}>
       //     {status}
@@ -556,9 +426,37 @@ const paymentActionColumn = [
   const showPaidAtColumn = payments.some(
     (payment: SubscriptionPaymentHisDTO) => payment.status === "Paid",
   );
-  // const showPaymtHistActionColumn = payments.some(
-  //   (payment: SubscriptionPaymentHisDTO) => payment.status !== "Paid",
-  // );
+   const showRefundAtColumn = payments.some(
+    (payment: SubscriptionPaymentHisDTO) => payment.refundStatus === "Refunded",
+  );
+  const showPaymentActionColumn = payments.some(
+  (payment: SubscriptionPaymentHisDTO) => {
+    const status = payment.status?.toLowerCase();
+
+    // Refund is currently active
+    if (payment.refundRequested) {
+      return true;
+    }
+
+    // Pending payment → Retry action
+    if (status === "pending") {
+      return true;
+    }
+
+    if (status === "paid" && payment.paidAt) {
+      const paidDate = new Date(payment.paidAt);
+      const now = new Date();
+
+      const diff = now.getTime() - paidDate.getTime();
+      const isWithin24Hours =
+        diff <= 24 * 60 * 60 * 1000;
+
+      return isWithin24Hours;
+    }
+
+    return false;
+  }
+);
 
   const columns =
     plantData?.status === "Active"
@@ -567,8 +465,9 @@ const paymentActionColumn = [
   const payHistoryColumns = [
     ...paymentColumns,
     ...(showPaidAtColumn ? paidAtOnlyColumn : []),
-    ...paymentActionColumn
-    // ...(showPaymtHistActionColumn ? [paymtHistActionColumn] : []),
+    ...(showRefundAtColumn ? refundAtOnlyColumn : []),
+     ...(showPaymentActionColumn ? paymentActionColumn : []),
+    // ...paymentActionColumn,
   ];
 
   return (

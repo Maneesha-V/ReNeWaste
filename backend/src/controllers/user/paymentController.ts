@@ -22,8 +22,7 @@ export class PaymentController implements IPaymentController {
     try {
       const userId = req.user?.id;
       const { amount, pickupReqId, method } = req.body.paymentData;
-      console.log("user", userId);
-      console.log("amount", amount, pickupReqId, method);
+
       if (!userId) {
         throw new ApiError(
           STATUS_CODES.UNAUTHORIZED,
@@ -38,7 +37,7 @@ export class PaymentController implements IPaymentController {
           method,
         },
       );
-      console.log("paymentOrder", paymentOrder);
+
       if (!paymentOrder) {
         throw new ApiError(
           STATUS_CODES.BAD_REQUEST,
@@ -57,8 +56,6 @@ export class PaymentController implements IPaymentController {
     next: NextFunction,
   ): Promise<void> {
     try {
-      console.log("body", req.body);
-
       const {
         razorpay_order_id,
         razorpay_payment_id,
@@ -87,7 +84,6 @@ export class PaymentController implements IPaymentController {
           MESSAGES.COMMON.ERROR.VERIFY_PAYMENT_FAIL,
         );
       }
-      console.log("updatedPayment", updatedPayment);
 
       res.status(STATUS_CODES.SUCCESS).json({
         message: MESSAGES.COMMON.SUCCESS.PAYMENT_SUCCESSFUL,
@@ -140,7 +136,6 @@ export class PaymentController implements IPaymentController {
           MESSAGES.COMMON.ERROR.FETCH_PAYMENT_FAIL,
         );
       }
-      console.log("payments", payments);
 
       res.status(STATUS_CODES.SUCCESS).json({ payments, total });
     } catch (error) {
@@ -154,8 +149,6 @@ export class PaymentController implements IPaymentController {
     next: NextFunction,
   ): Promise<void> {
     try {
-      console.log("bbbb", req.body);
-
       const userId = req.user?.id;
 
       if (!userId) {
@@ -171,7 +164,6 @@ export class PaymentController implements IPaymentController {
         pickupReqId,
         amount,
       );
-      console.log("repaymentOrder", repaymentOrder);
 
       res.status(STATUS_CODES.SUCCESS).json({
         success: true,
@@ -188,7 +180,6 @@ export class PaymentController implements IPaymentController {
     next: NextFunction,
   ): Promise<void> {
     try {
-      console.log("body", req.body);
       const userId = req.user?.id;
       if (!userId) {
         throw new ApiError(
@@ -201,8 +192,6 @@ export class PaymentController implements IPaymentController {
           userId,
           req.body.paymentData,
         );
-
-      console.log("walletPickupPayResp", walletPickupPayResp);
 
       res.status(STATUS_CODES.SUCCESS).json({
         message: MESSAGES.COMMON.SUCCESS.WALLET_PAYMENT_SUCCESS,
@@ -218,7 +207,6 @@ export class PaymentController implements IPaymentController {
     next: NextFunction,
   ): Promise<void> {
     try {
-      console.log(req.params);
       const { pickupReqId } = req.params;
       const { doc, pickupId } =
         await this._paymentService.generateReceipt(pickupReqId);
@@ -232,7 +220,7 @@ export class PaymentController implements IPaymentController {
       doc.pipe(res);
       doc.end();
     } catch (error) {
-       console.error("Error Download Receipt:", error);
+      console.error("Error Download Receipt:", error);
       next(error);
     }
   }

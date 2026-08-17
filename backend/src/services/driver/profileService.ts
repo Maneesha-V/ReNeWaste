@@ -3,6 +3,8 @@ import { inject, injectable } from "inversify";
 import TYPES from "../../config/inversify/types";
 import { IDriverRepository } from "../../repositories/driver/interface/IDriverRepository";
 import { DriverMapper } from "../../mappers/DriverMapper";
+import { ApiError } from "../../utils/ApiError";
+import { MESSAGES, STATUS_CODES } from "../../utils/constantUtils";
 
 @injectable()
 export class ProfileService implements IProfileService {
@@ -12,26 +14,44 @@ export class ProfileService implements IProfileService {
   ) {}
   async getDriverProfile(driverId: string) {
     const driver = await this.driverRepository.getDriverById(driverId);
-    if (!driver) throw new Error("Driver not found");
+    if (!driver) {
+      throw new ApiError(
+        STATUS_CODES.NOT_FOUND,
+        MESSAGES.DRIVER.ERROR.NOT_FOUND,
+      );
+    }
     return DriverMapper.mapDriverDTO(driver);
   }
   async updateDriverProfile(driverId: string, updatedData: any) {
     const driver = await this.driverRepository.getDriverById(driverId);
-    if (!driver) throw new Error("Driver not found");
+    if (!driver) {
+      throw new ApiError(
+        STATUS_CODES.NOT_FOUND,
+        MESSAGES.DRIVER.ERROR.NOT_FOUND,
+      );
+    }
 
     const updated = await this.driverRepository.updateDriverById(
       driverId,
       updatedData,
     );
     if (!updated) {
-      throw new Error("Can't update");
+      throw new ApiError(
+        STATUS_CODES.NOT_FOUND,
+        MESSAGES.DRIVER.ERROR.UPDATE_FAILED,
+      );
     }
     return DriverMapper.mapDriverDTO(updated);
   }
   async fetchDriversService(wastePlantId: string) {
     const drivers =
       await this.driverRepository.fetchDriversByPlantId(wastePlantId);
-    if (!drivers) throw new Error("Driver not found");
+    if (!drivers) {
+      throw new ApiError(
+        STATUS_CODES.NOT_FOUND,
+        MESSAGES.DRIVER.ERROR.DRIVERS_NOT_FOUND,
+      );
+    }
     return DriverMapper.mapDriversDTO(drivers);
   }
 }

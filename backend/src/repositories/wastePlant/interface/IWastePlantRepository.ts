@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import { OtpRecord } from "../../../dtos/user/otpDTO";
 import { PaginatedWPlantResult } from "../../../dtos/wasteplant/WasteplantDTO";
 import {
@@ -16,7 +17,7 @@ export interface IWastePlantRepository {
   getAllWastePlants(
     data: PaginationInputReq,
   ): Promise<PaginatedWPlantResult | null>;
-  getWastePlantById(id: string): Promise<IWastePlantDocument | null>;
+  getWastePlantById(id: string, session?: mongoose.ClientSession): Promise<IWastePlantDocument | null>;
   updateWastePlantById(
     id: string,
     data: Partial<IWastePlant>,

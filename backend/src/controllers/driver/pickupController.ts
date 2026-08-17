@@ -19,14 +19,10 @@ export class PickupController implements IPickupController {
     next: NextFunction,
   ): Promise<void> {
     try {
-      console.log("query", req.query);
-      // const { wasteType } = req.query;
       const driverId = req.user?.id;
       const pickups = await this.pickupService.getPickupRequestService({
-        // wasteType: wasteType as string,
         driverId: driverId as string,
       });
-      console.log("pickups", pickups);
 
       res.status(STATUS_CODES.SUCCESS).json({
         success: true,
@@ -56,7 +52,6 @@ export class PickupController implements IPickupController {
         pickupReqId,
         driverId,
       );
-      console.log("tr-pickup", pickup);
 
       res.status(STATUS_CODES.SUCCESS).json({
         success: true,
@@ -75,7 +70,6 @@ export class PickupController implements IPickupController {
     try {
       const { addressId } = req.params;
       const { latitude, longitude } = req.body;
-      console.log("body", req.body);
 
       if (!latitude || !longitude) {
         throw new ApiError(
@@ -101,8 +95,6 @@ export class PickupController implements IPickupController {
     next: NextFunction,
   ): Promise<void> {
     try {
-      console.log(req.params);
-      console.log(req.body);
       const { pickupReqId } = req.params;
       const { trackingStatus } = req.body;
 
@@ -130,7 +122,6 @@ export class PickupController implements IPickupController {
     next: NextFunction,
   ): Promise<void> {
     try {
-      console.log(req.params);
       const { pickupReqId } = req.params;
 
       if (!pickupReqId) {

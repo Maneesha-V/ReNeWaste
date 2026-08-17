@@ -39,7 +39,6 @@ export class DashboardController implements IDashboardController {
           from,
           to
         });
-      // console.log("dashboardData", dashboardData);
 
       res.status(STATUS_CODES.SUCCESS).json({
         dashboardData,

@@ -1,3 +1,5 @@
+import { MsgSuccessResp } from "../common/commonTypes";
+
   export type AttendanceDTO = {
     _id: string;
        driverId?: string;
@@ -39,4 +41,7 @@ earning: number
 export interface AttendancePieItemDTO {
   workType: string;
   count: number;
+}
+export type MarkAttendanceResp = MsgSuccessResp & {
+  attendanceData: AttendancePieItemDTO[];
 }

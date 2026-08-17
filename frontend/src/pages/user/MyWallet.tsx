@@ -29,7 +29,6 @@ const MyWallet = () => {
   const { transactions, total, balance } = useSelector(
     (state: RootState) => state.userWallet
   );
-  console.log("transactions", transactions);
   const { currentPage, setCurrentPage, pageSize, search, setSearch } =
     usePagination();
   const debouncedFetchWallet = useMemo(
@@ -75,8 +74,6 @@ const MyWallet = () => {
           description: "Wallet payment.",
           order_id: orderId,
           handler: function (response: RazorpayResponse) {
-            console.log("response", response);
-
             const {
               razorpay_order_id,
               razorpay_payment_id,
@@ -94,14 +91,12 @@ const MyWallet = () => {
             )
               .unwrap()
               .then((res) => {
-                console.log("verify---res", res);
                 Swal.fire({
                   icon: "success",
                   title: "Payment Successful!",
                   text: `₹${res.walletVerPayOrder.amount} ${res.message}`,
                   confirmButtonColor: "#28a745",
                 });
-                // dispatch(getWallet());
                 refreshWallet();
               })
               .then(() => {
@@ -129,7 +124,6 @@ const MyWallet = () => {
         razorpay.on("modal.closed", function () {
           console.warn("Razorpay modal closed by user.");
           toast.info("Payment window closed.");
-          // dispatch(getWallet());
           refreshWallet();
         });
 
@@ -167,7 +161,6 @@ const MyWallet = () => {
           description: "Wallet payment.",
           order_id: orderId,
           handler: function (response: RazorpayResponse) {
-            console.log("response", response);
             const {
               razorpay_order_id,
               razorpay_payment_id,
@@ -185,14 +178,12 @@ const MyWallet = () => {
             )
               .unwrap()
               .then((res) => {
-                console.log("verify---res", res);
                 Swal.fire({
                   icon: "success",
                   title: "Payment Successful!",
                   text: `₹${res.walletVerPayOrder.amount} ${res.message}`,
                   confirmButtonColor: "#28a745",
                 });
-                // dispatch(getWallet());
                 refreshWallet();
               })
               .catch((err) => {
@@ -217,7 +208,6 @@ const MyWallet = () => {
         razorpay.on("modal.closed", function () {
           console.warn("Razorpay modal closed by user.");
           toast.info("Payment window closed.");
-          // dispatch(getWallet());
           refreshWallet();
         });
 

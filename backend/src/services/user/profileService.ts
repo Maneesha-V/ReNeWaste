@@ -6,6 +6,8 @@ import { IWastePlantRepository } from "../../repositories/wastePlant/interface/I
 import { UserMapper } from "../../mappers/UserMapper";
 import { UserDTO } from "../../dtos/user/userDTO";
 import { UpdateUserServiceAdd } from "../../dtos/common/commonDTO";
+import { ApiError } from "../../utils/ApiError";
+import { MESSAGES, STATUS_CODES } from "../../utils/constantUtils";
 
 @injectable()
 export class ProfileService implements IProfileService {
@@ -17,7 +19,9 @@ export class ProfileService implements IProfileService {
   ) {}
   async getUserProfile(userId: string): Promise<UserDTO> {
     const user = await this.userRepository.findUserById(userId);
-    if (!user) throw new Error("User not found");
+    if (!user) {
+      throw new ApiError(STATUS_CODES.NOT_FOUND, MESSAGES.USER.ERROR.NOT_FOUND);
+    }
     return UserMapper.mapUserDTO(user);
   }
 
@@ -26,7 +30,9 @@ export class ProfileService implements IProfileService {
     updatedData: UserDTO,
   ): Promise<boolean> {
     const user = await this.userRepository.findUserById(userId);
-    if (!user) throw new Error("User not found");
+    if (!user) {
+      throw new ApiError(STATUS_CODES.NOT_FOUND, MESSAGES.USER.ERROR.NOT_FOUND);
+    }
     const userTaluk = updatedData?.addresses?.[0]?.taluk;
     if (userTaluk) {
       updatedData.wasteplantId =
@@ -35,22 +41,16 @@ export class ProfileService implements IProfileService {
       console.error(`No waste plant found for taluk: ${userTaluk}`);
       updatedData.wasteplantId = null;
     }
-    // const dataToUpdate: Partial<UserDTO> = { ...updatedData };
 
-    // if (dataToUpdate.googleId === null || dataToUpdate.googleId === "") {
-    //   delete dataToUpdate.googleId;
-    // }
     const updated = await this.userRepository.updateUserProfileById(
       userId,
       updatedData,
     );
     return !!updated;
   }
-  async  updateUserServiceAddress(locationData: UpdateUserServiceAdd) {
-    
-    const updated = await this.userRepository.updateUserAddressById(
-      locationData
-    );
+  async updateUserServiceAddress(locationData: UpdateUserServiceAdd) {
+    const updated =
+      await this.userRepository.updateUserAddressById(locationData);
     return updated;
   }
 }

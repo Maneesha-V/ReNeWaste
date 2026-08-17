@@ -46,8 +46,6 @@ export const checkServiceAvailability = createAsyncThunk<
 >("userLanding/checkServiceAvailability", async (description, { rejectWithValue }) => {
   try {
     const response = await checkServiceAvailbleService(description);
-    console.log({response});
-    
     return response;
   } catch (err) {
     const msg = getAxiosErrorMessage(err);

@@ -17,6 +17,8 @@ import {
 import { WastePlantMapper } from "../../mappers/WastePlantMapper";
 import { IPickupRepository } from "../../repositories/pickupReq/interface/IPickupRepository";
 import cloudinary from "../../config/cloudinary";
+import { ApiError } from "../../utils/ApiError";
+import { MESSAGES, STATUS_CODES } from "../../utils/constantUtils";
 
 @injectable()
 export class WastePlantService implements IWastePlantService {
@@ -51,24 +53,37 @@ export class WastePlantService implements IWastePlantService {
     };
     const plant = await this._wastePlantRepository.createWastePlant(newData);
     if (!plant) {
-      throw new Error("Failed to create waste plant");
+      throw new ApiError(
+        STATUS_CODES.CONFLICT,
+        MESSAGES.SUPERADMIN.ERROR.FAILED_PLANT_CREATION,
+      );
     }
 
     return true;
   }
   async getLicenseUrl(publicId: string, role: string) {
-    const plant = await this._wastePlantRepository.getWastePlantByPublicId(publicId)
+    const plant =
+      await this._wastePlantRepository.getWastePlantByPublicId(publicId);
 
     if (!plant) {
-      throw new Error("Waste plant not found");
+      throw new ApiError(
+        STATUS_CODES.NOT_FOUND,
+        MESSAGES.WASTEPLANT.ERROR.NOT_FOUND,
+      );
     }
     if (!plant.cloudinaryPublicId) {
-      throw new Error("License document not found");
+      throw new ApiError(
+        STATUS_CODES.NOT_FOUND,
+        MESSAGES.SUPERADMIN.ERROR.DOCUMENT_NOT_FOUND,
+      );
     }
-    console.log("publicid",plant.cloudinaryPublicId);
-    
+    console.log("publicid", plant.cloudinaryPublicId);
+
     if (role !== "superadmin") {
-      throw new Error("Unauthorized");
+      throw new ApiError(
+        STATUS_CODES.UNAUTHORIZED,
+        MESSAGES.COMMON.ERROR.UNAUTHORIZED,
+      );
     }
     const url = cloudinary.utils.private_download_url(
       plant.cloudinaryPublicId,
@@ -86,12 +101,18 @@ export class WastePlantService implements IWastePlantService {
   ): Promise<PaginatedReturnAdminWastePlants> {
     const plantData = await this._wastePlantRepository.getAllWastePlants(data);
     if (!plantData) {
-      throw new Error("Wasteplants not found.");
+      throw new ApiError(
+        STATUS_CODES.NOT_FOUND,
+        MESSAGES.SUPERADMIN.ERROR.PLANTS_NOT_FOUND,
+      );
     }
     const paidPayments =
       await this._subscriptionPaymentRepository.findPaidSubscriptionPayments();
     if (!paidPayments) {
-      throw new Error("Paid subscription plans not found.");
+      throw new ApiError(
+        STATUS_CODES.NOT_FOUND,
+        MESSAGES.SUPERADMIN.ERROR.PAYMENT_NOT_FOUND,
+      );
     }
     const now = new Date();
 
@@ -171,7 +192,10 @@ export class WastePlantService implements IWastePlantService {
   async getWastePlantByIdService(id: string): Promise<WasteplantDTO> {
     const plant = await this._wastePlantRepository.getWastePlantById(id);
     if (!plant) {
-      throw new Error("Plant not found.");
+      throw new ApiError(
+        STATUS_CODES.NOT_FOUND,
+        MESSAGES.WASTEPLANT.ERROR.NOT_FOUND,
+      );
     }
     return WastePlantMapper.mapWastePlantDTO(plant);
   }
@@ -188,7 +212,10 @@ export class WastePlantService implements IWastePlantService {
   async deleteWastePlantByIdService(id: string): Promise<ReturnDeleteWP> {
     const plant = await this._wastePlantRepository.deleteWastePlantById(id);
     if (!plant) {
-      throw new Error("Plant not found.");
+      throw new ApiError(
+        STATUS_CODES.NOT_FOUND,
+        MESSAGES.WASTEPLANT.ERROR.NOT_FOUND,
+      );
     }
     return { plantId: plant._id.toString() };
   }
@@ -200,12 +227,14 @@ export class WastePlantService implements IWastePlantService {
     const wasteplant =
       await this._wastePlantRepository.getWastePlantById(plantId);
     if (!wasteplant) {
-      throw new Error("Plant not found.");
+      throw new ApiError(
+        STATUS_CODES.NOT_FOUND,
+        MESSAGES.WASTEPLANT.ERROR.NOT_FOUND,
+      );
     }
     wasteplant.isBlocked = isBlocked;
     const pickupReqsts =
       await this._pickupReqRepository.getAllPickupsByStatus(plantId);
-    console.log("pickupReqsts", pickupReqsts);
 
     const distinctUserIds = [
       ...new Set(pickupReqsts.map((p) => p.userId?.toString()).filter(Boolean)),
@@ -214,7 +243,7 @@ export class WastePlantService implements IWastePlantService {
     const io = globalThis.io;
     if (isBlocked) {
       wasteplant.blockedAt = new Date();
-      // wasteplant.autoUnblockAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
+
       wasteplant.autoUnblockAt = new Date(Date.now() + 5 * 60 * 1000);
       wasteplant.unblockNotificationSent = false;
       for (const userId of distinctUserIds) {
@@ -259,8 +288,6 @@ Thank you for your patience.`;
         if (io) {
           io.to(`${userId}`).emit("newNotification", userNotification);
         }
-
-        console.log("Sent notification to user:", userId);
       }
     }
     await wasteplant.save({ validateModifiedOnly: true });

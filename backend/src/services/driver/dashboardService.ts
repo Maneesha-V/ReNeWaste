@@ -10,12 +10,13 @@ import {
 } from "../../dtos/driver/driverDTO";
 import { IWastePlantRepository } from "../../repositories/wastePlant/interface/IWastePlantRepository";
 import { IAttendanceRepository } from "../../repositories/atendance/interface/IAttendanceRepository";
-import { AttendanceMapper } from "../../mappers/AttendanceMapper";
 import {
-  AttendanceDTO,
+  AttendancePieItemDTO,
   DriverEarnRewardStatResp,
   FetchDriverEarnStats,
 } from "../../dtos/attendance/attendanceDTO";
+import { ApiError } from "../../utils/ApiError";
+import { MESSAGES, STATUS_CODES } from "../../utils/constantUtils";
 
 @injectable()
 export class DashboardService implements IDashboardService {
@@ -36,9 +37,11 @@ export class DashboardService implements IDashboardService {
   ): Promise<DriverDashboardResponse> {
     const driver = await this._driverRepository.getDriverById(driverId);
     if (!driver) {
-      throw new Error("Driver not found.");
+      throw new ApiError(
+        STATUS_CODES.NOT_FOUND,
+        MESSAGES.DRIVER.ERROR.NOT_FOUND,
+      );
     }
-    console.log("-driver", driver);
 
     const driverData = {
       name: driver.name,
@@ -65,13 +68,15 @@ export class DashboardService implements IDashboardService {
     const driverPickups =
       await this._pickupRepository.getDriverCompletedPickups(driverId);
 
-    console.log("driveerPIckups", driverPickups);
     const recentActivities = driverPickups.map((p) => {
       const selectedAddress = p.userId.addresses.find(
         (ad) => ad._id.toString() === p.addressId.toString(),
       );
       if (!selectedAddress) {
-        throw new Error(`Address not found for pickup ${p.pickupId}`);
+        throw new ApiError(
+          STATUS_CODES.NOT_FOUND,
+          `Address not found for pickup ${p.pickupId}`,
+        );
       }
 
       return {
@@ -85,11 +90,6 @@ export class DashboardService implements IDashboardService {
     const driverAttendanceData =
       await this._attendanceRepository.findAttendancesByDriverId(driverId);
 
-    //    if (!driverAttendanceData) {
-    //   throw new Error("Driver attendances not found.");
-    // }
-    console.log("driverAttendanceData",driverAttendanceData);
-    
     const dashboardSummary = {
       driver: driverData,
       truck: truckData,
@@ -98,7 +98,7 @@ export class DashboardService implements IDashboardService {
         completedTasks: completedCount,
       },
       recentActivities,
-      attendanceData: driverAttendanceData
+      attendanceData: driverAttendanceData,
     };
 
     return { summary: dashboardSummary };
@@ -131,21 +131,29 @@ export class DashboardService implements IDashboardService {
   async markAttendance(
     driverId: string,
     status: string,
-  ): Promise<AttendanceDTO> {
+  ): Promise<AttendancePieItemDTO[]> {
     const driver = await this._driverRepository.getDriverById(driverId);
-    if (!driver) throw new Error("Driver not found");
+    if (!driver) {
+      throw new ApiError(
+        STATUS_CODES.NOT_FOUND,
+        MESSAGES.DRIVER.ERROR.NOT_FOUND,
+      );
+    }
     const attendance = await this._attendanceRepository.createAttendance({
       driverId,
       status,
       wasteplantId: driver.wasteplantId?.toString()!,
       assignedTruckId: driver.assignedTruckId?.toString()!,
     });
-    return AttendanceMapper.mapAttendanceDTO(attendance);
+    // return AttendanceMapper.mapAttendanceDTO(attendance);
+  
+     const driverAttendanceData =
+      await this._attendanceRepository.findAttendancesByDriverId(driverId);
+    return driverAttendanceData;
   }
   async fetchDriverEarnStats(
     data: FetchDriverEarnStats,
   ): Promise<DriverEarnRewardStatResp[]> {
-    const { driverId, filter, from, to } = data;
     const stats =
       await this._attendanceRepository.getDriverEarnRewardStats(data);
 

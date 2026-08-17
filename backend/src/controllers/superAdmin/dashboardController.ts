@@ -5,6 +5,7 @@ import { IDashboardService } from "../../services/superAdmin/interface/IDashboar
 import { IDashboardController } from "./interface/IDashboardController";
 import { MESSAGES, STATUS_CODES } from "../../utils/constantUtils";
 import { AuthRequest } from "../../dtos/base/BaseDTO";
+import { ApiError } from "../../utils/ApiError";
 
 @injectable()
 export class DashboardController implements IDashboardController {
@@ -20,15 +21,18 @@ export class DashboardController implements IDashboardController {
     try {
       const adminId = req.user?.id;
       if (!adminId) {
-        res
-          .status(STATUS_CODES.UNAUTHORIZED)
-          .json({ message: MESSAGES.COMMON.ERROR.UNAUTHORIZED });
-        return;
+        throw new ApiError(
+          STATUS_CODES.UNAUTHORIZED,
+          MESSAGES.COMMON.ERROR.UNAUTHORIZED,
+        );
+        // res
+        //   .status(STATUS_CODES.UNAUTHORIZED)
+        //   .json({ message: MESSAGES.COMMON.ERROR.UNAUTHORIZED });
+        // return;
       }
 
       const dashboardData =
         await this._dashboardService.fetchSuperAdminDashboard(adminId);
-      console.log("dashboardData", dashboardData);
 
       res.status(STATUS_CODES.SUCCESS).json({
         dashboardData,

@@ -11,6 +11,8 @@ import { ISuperAdminRepository } from "../../repositories/superAdmin/interface/I
 import { sendNotification } from "../../utils/notificationUtils";
 import { SubscriptionPaymentMapper } from "../../mappers/SubscriptionPaymentMapper";
 import { SubscriptionPaymentDTO } from "../../dtos/subscription/subscptnPaymentDTO";
+import { ApiError } from "../../utils/ApiError";
+import { MESSAGES, STATUS_CODES } from "../../utils/constantUtils";
 
 @injectable()
 export class SubscriptionService implements ISubscriptionService {
@@ -27,23 +29,31 @@ export class SubscriptionService implements ISubscriptionService {
   async fetchSubscriptionPlan(plantId: string): Promise<ReturnFetchSubptnPlan> {
     const plant = await this._wastePlantRepository.getWastePlantById(plantId);
     if (!plant) {
-      throw new Error("Plant is not found.");
+      throw new ApiError(
+        STATUS_CODES.NOT_FOUND,
+        MESSAGES.WASTEPLANT.ERROR.NOT_FOUND,
+      );
     }
 
-    console.log("plant", plant);
     const subPlanPaymentData =
       await this._subscriptionPaymentRepository.findPlantSubscriptionPayment(
         plant._id.toString(),
       );
     if (!subPlanPaymentData) {
-      throw new Error("No such subscription payment found.");
+      throw new ApiError(
+        STATUS_CODES.NOT_FOUND,
+        MESSAGES.SUPERADMIN.ERROR.SUBS_PAYMENT_NOT_FOUND,
+      );
     }
     const registeredPlan =
       await this._subscriptionRepository.getSubscriptionPlanById(
         subPlanPaymentData.planId.toString(),
       );
     if (!registeredPlan) {
-      throw new Error("No such subscription plan found.");
+      throw new ApiError(
+        STATUS_CODES.NOT_FOUND,
+        MESSAGES.SUPERADMIN.ERROR.PLAN_NOT_EXIST,
+      );
     }
     const plantData = {
       createdAt: plant.createdAt,
@@ -62,12 +72,18 @@ export class SubscriptionService implements ISubscriptionService {
   async fetchSubscriptionPlans(plantId: string): Promise<SubsptnPlansDTO[]> {
     const plant = await this._wastePlantRepository.getWastePlantById(plantId);
     if (!plant) {
-      throw new Error("Plant is not found.");
+      throw new ApiError(
+        STATUS_CODES.NOT_FOUND,
+        MESSAGES.WASTEPLANT.ERROR.NOT_FOUND,
+      );
     }
     const subscriptionPlans =
       await this._subscriptionRepository.getActiveSubscriptionPlans();
     if (!subscriptionPlans) {
-      throw new Error("No active subscription plans found.");
+      throw new ApiError(
+        STATUS_CODES.NOT_FOUND,
+        "No active subscription plans found.",
+      );
     }
     return SubscriptionPlanMapper.mapSubscptnPlansDTO(subscriptionPlans);
   }
@@ -78,11 +94,17 @@ export class SubscriptionService implements ISubscriptionService {
   ): Promise<SubscriptionPaymentDTO> {
     const plant = await this._wastePlantRepository.getWastePlantById(plantId);
     if (!plant) {
-      throw new Error("Plant not found.");
+      throw new ApiError(
+        STATUS_CODES.NOT_FOUND,
+        MESSAGES.WASTEPLANT.ERROR.PICKUP_NOT_FOUND,
+      );
     }
     const admin = await this.superAdminRepository.findAdminByRole("superadmin");
     if (!admin) {
-      throw new Error("Superadmin not found.");
+      throw new ApiError(
+        STATUS_CODES.NOT_FOUND,
+        MESSAGES.SUPERADMIN.ERROR.NOT_FOUND,
+      );
     }
     const updatedSubcptnRequest =
       await this._subscriptionPaymentRepository.updateSubptnPaymentStatus(

@@ -15,6 +15,8 @@ import {
   SuperAdminLoginResponse,
   SuperAdminSignupRequest,
 } from "../../dtos/superadmin/superadminDTO";
+import { ApiError } from "../../utils/ApiError";
+import { MESSAGES, STATUS_CODES } from "../../utils/constantUtils";
 
 @injectable()
 export class SuperAdminAuthService implements ISuperAdminAuthService {
@@ -26,28 +28,26 @@ export class SuperAdminAuthService implements ISuperAdminAuthService {
     private userRepository: IUserRepository,
   ) {}
   async verifyToken(token: string) {
-    try {
-      const decoded = jwt.verify(token, process.env.JWT_REFRESH_SECRET!) as {
-        userId: string;
-        role: string;
-      };
-      const admin = await this.superAdminRepository.getSuperAdminById(
-        decoded.userId,
+    const decoded = jwt.verify(token, process.env.JWT_REFRESH_SECRET!) as {
+      userId: string;
+      role: string;
+    };
+    const admin = await this.superAdminRepository.getSuperAdminById(
+      decoded.userId,
+    );
+    if (!admin) {
+      throw new ApiError(
+        STATUS_CODES.NOT_FOUND,
+        MESSAGES.SUPERADMIN.ERROR.NOT_FOUND,
       );
-      if (!admin) {
-        throw new Error("Admin not found");
-      }
-
-      const accessToken = jwt.sign(
-        // { userId: admin._id, role: admin.role },
-        { userId: decoded.userId, role: decoded.role },
-        process.env.JWT_SECRET!,
-        { expiresIn: "15min" },
-      );
-      return { token: accessToken };
-    } catch (error) {
-      throw new Error("Invalid or expired refresh token");
     }
+
+    const accessToken = jwt.sign(
+      { userId: decoded.userId, role: decoded.role },
+      process.env.JWT_SECRET!,
+      { expiresIn: "15min" },
+    );
+    return { token: accessToken };
   }
   async adminLoginService({
     email,
@@ -57,14 +57,20 @@ export class SuperAdminAuthService implements ISuperAdminAuthService {
     console.log("admin", admin);
 
     if (!admin) {
-      throw new Error("Invalid email or password.");
+      throw new ApiError(
+        STATUS_CODES.UNAUTHORIZED,
+        MESSAGES.USER.ERROR.INVALID_PASS,
+      );
     }
 
     const isPasswordValid = admin.password
       ? await bcrypt.compare(password, admin.password)
       : false;
     if (!isPasswordValid) {
-      throw new Error("Invalid email or password.");
+      throw new ApiError(
+        STATUS_CODES.UNAUTHORIZED,
+        MESSAGES.USER.ERROR.INVALID_PASS,
+      );
     }
 
     const token = generateToken({
@@ -81,12 +87,18 @@ export class SuperAdminAuthService implements ISuperAdminAuthService {
     const existingAdmin =
       await this.superAdminRepository.findAdminByEmail(email);
     if (existingAdmin) {
-      throw new Error("Email already exists. Please use a different email.");
+      throw new ApiError(
+        STATUS_CODES.CONFLICT,
+        MESSAGES.USER.ERROR.EMAIL_EXIST,
+      );
     }
     const existingUsername =
       await this.superAdminRepository.findAdminByUsername(username);
     if (existingUsername) {
-      throw new Error("Username already exists.");
+      throw new ApiError(
+        STATUS_CODES.CONFLICT,
+        MESSAGES.SUPERADMIN.ERROR.USERNAME_EXISTS,
+      );
     }
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
@@ -98,17 +110,22 @@ export class SuperAdminAuthService implements ISuperAdminAuthService {
         password: hashedPassword,
         role: "superadmin",
       });
-    // const token = generateToken({userId:newAdmin._id.toString(),role:newAdmin.role});
-    // return { admin: SuperAdminMapper.mapSuperAdminDTO(newAdmin), token };
+
     if (!newAdmin) {
-      throw new Error("Admin not created.");
+      throw new ApiError(
+        STATUS_CODES.CONFLICT,
+        MESSAGES.SUPERADMIN.ERROR.FAILED_ADMIN_CREATION,
+      );
     }
     return true;
   }
   async sendOtpService(email: string): Promise<boolean> {
     const superAdmin = await this.superAdminRepository.findAdminByEmail(email);
     if (!superAdmin) {
-      throw new Error("Superadmin  not found.");
+      throw new ApiError(
+        STATUS_CODES.NOT_FOUND,
+        MESSAGES.SUPERADMIN.ERROR.NOT_FOUND,
+      );
     }
     const otp = generateOtp();
     console.log(`Generated OTP for ${email}:`, otp);
@@ -123,7 +140,10 @@ export class SuperAdminAuthService implements ISuperAdminAuthService {
   async resendOtpService(email: string): Promise<boolean> {
     const superAdmin = await this.superAdminRepository.findAdminByEmail(email);
     if (!superAdmin) {
-      throw new Error("Superadmin not found.");
+      throw new ApiError(
+        STATUS_CODES.NOT_FOUND,
+        MESSAGES.SUPERADMIN.ERROR.NOT_FOUND,
+      );
     }
     const otp = generateOtp();
     console.log(`Resend OTP for ${email}:`, otp);
@@ -140,7 +160,7 @@ export class SuperAdminAuthService implements ISuperAdminAuthService {
     if (!storedOtp || storedOtp.otp !== otp) return false;
     const createdAt = storedOtp.createdAt;
     if (!createdAt) {
-      throw new Error("OTP creation date is missing.");
+      throw new ApiError(STATUS_CODES.NOT_FOUND, MESSAGES.USER.ERROR.OTP_DATE);
     }
     const otpAge =
       (new Date().getTime() - new Date(createdAt).getTime()) / 1000;
@@ -155,7 +175,12 @@ export class SuperAdminAuthService implements ISuperAdminAuthService {
     newPassword: string,
   ): Promise<boolean> {
     const superAdmin = await this.superAdminRepository.findAdminByEmail(email);
-    if (!superAdmin) throw new Error("Superadmin not found");
+    if (!superAdmin) {
+      throw new ApiError(
+        STATUS_CODES.NOT_FOUND,
+        MESSAGES.SUPERADMIN.ERROR.NOT_FOUND,
+      );
+    }
     const hashedPassword = await bcrypt.hash(newPassword, 10);
     const updated = await this.superAdminRepository.updateAdminPassword(
       email,

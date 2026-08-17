@@ -49,9 +49,6 @@ UserProfileReq,
     } catch (err) {
       const msg = getAxiosErrorMessage(err);
     return rejectWithValue({ message: msg });
-      // return thunkAPI.rejectWithValue(
-      //   error.response?.data?.message || "Failed to update user profile"
-      // );
     }
   }
 );
@@ -68,9 +65,6 @@ void,
     } catch (err) {
        const msg = getAxiosErrorMessage(err);
     return rejectWithValue({ message: msg });
-      // return thunkAPI.rejectWithValue(
-      //   error.response?.data?.message || "Failed to fetch user edit profile"
-      // );
     }
   }
 );

@@ -56,11 +56,8 @@ export const createPaymentOrder = createAsyncThunk<
   async (paymentData, { rejectWithValue }) => {
     try {
       const response = await createPaymentOrderService(paymentData);
-      console.log("response", response);
-
       return response;
     } catch (err) {
-      console.error("err", err);
       const msg = getAxiosErrorMessage(err);
       return rejectWithValue({ error: msg });
     }
@@ -74,11 +71,8 @@ export const verifyPayment = createAsyncThunk<
 >("userPayment/verifyPayment", async (paymentData, { rejectWithValue }) => {
   try {
     const response = await verifyPaymentService(paymentData);
-    console.log("response", response);
-
     return response;
   } catch (err) {
-    // return rejectWithValue(err.response?.data || "Verification failed");
     const msg = getAxiosErrorMessage(err);
     return rejectWithValue({ error: msg });
   }
@@ -91,8 +85,6 @@ export const verifyWalletPayment = createAsyncThunk<
 >("userPayment/verifyWalletPayment", async (paymentData, { rejectWithValue }) => {
   try {
     const response = await verifyWalletPaymentService(paymentData);
-    console.log("response", response);
-
     return response;
   } catch (err) {
     const msg = getAxiosErrorMessage(err);
@@ -106,7 +98,6 @@ export const getAllPayments = createAsyncThunk<
 >("userPayment/getAllPayments", async ({ page, limit, search, filter }, { rejectWithValue }) => {
   try {
     const response = await getAllPaymentsService({page, limit, search, filter});
-    console.log("response", response);
     return response;
   } catch (err) {
     const msg = getAxiosErrorMessage(err);
@@ -119,12 +110,9 @@ export const repay = createAsyncThunk<
   { rejectValue: { error: string } }
 >("userPayment/repay", async ({ pickupReqId, amount }, { rejectWithValue }) => {
   try {
-    console.log(pickupReqId, amount);
-
     const response = await repayService(pickupReqId, amount);
     return response;
   } catch (err) {
-    console.log("err", err);
     const msg = getAxiosErrorMessage(err);
     return rejectWithValue({ error: msg });
   }
@@ -136,11 +124,8 @@ export const downloadReceipt = createAsyncThunk<
 >("userPayment/downloadReceipt", async ( pickupReqId, { rejectWithValue }) => {
   try {
     const response = await downloadReceiptService(pickupReqId);
-    console.log("response",response);
-    
     return response;
   } catch (err) {
-    console.log("err", err);
     const msg = getAxiosErrorMessage(err);
     return rejectWithValue({ error: msg });
   }
@@ -166,7 +151,6 @@ const userPaymentSlice = createSlice({
         state.paymentOrder = null;
       })
       .addCase(createPaymentOrder.fulfilled, (state, action) => {
-        console.log("acc", action.payload);
         state.loading = false;
         state.paymentOrder = action.payload;
       })
@@ -193,9 +177,7 @@ const userPaymentSlice = createSlice({
         state.loading = true;
         state.error = null;
       })
-      .addCase(getAllPayments.fulfilled, (state, action) => {
-        console.log("actrttr",action.payload);
-        
+      .addCase(getAllPayments.fulfilled, (state, action) => {   
         state.loading = false;
         state.payments = action.payload.payments;
         state.total = action.payload.total;

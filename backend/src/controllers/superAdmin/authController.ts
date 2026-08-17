@@ -20,7 +20,6 @@ export class AuthController implements IAuthController {
   ): Promise<void> {
     try {
       const refreshToken = req.cookies?.refreshToken;
-      console.log("refreshToken", refreshToken);
 
       if (!refreshToken) {
         throw new ApiError(
@@ -48,8 +47,6 @@ export class AuthController implements IAuthController {
         password,
       });
       if (!admin) {
-        // res.status(401).json({ success: false, message: "Invalid credentials" });
-        // return;
         throw new ApiError(
           STATUS_CODES.UNAUTHORIZED,
           MESSAGES.COMMON.ERROR.INVALID_CREDENTIALS,
@@ -69,7 +66,7 @@ export class AuthController implements IAuthController {
         sameSite: isProduction ? ("none" as const) : ("lax" as const),
         path: "/api/super-admin",
         // sameSite: "strict" as "strict",
-        maxAge: 7 * 24 * 60 * 60 * 1000,
+        maxAge: Number(process.env.MAX_AGE),
       };
       res
         .cookie("refreshToken", refreshToken, cookieOptions)

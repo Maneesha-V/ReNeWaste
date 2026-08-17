@@ -58,7 +58,6 @@ export class UserController implements IUserController {
       const userId = req.params.userId;
       const { isBlocked } = req.body;
       const wasteplantId = req.user?.id;
-      console.log({ userId, isBlocked, wasteplantId });
 
       if (!wasteplantId) {
         throw new ApiError(
@@ -77,7 +76,6 @@ export class UserController implements IUserController {
         userId,
         isBlocked,
       );
-      console.log("updatedUser ", updatedUser);
 
       res.json({
         success: true,

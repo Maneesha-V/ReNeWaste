@@ -31,6 +31,8 @@ import { sendNotification } from "../../utils/notificationUtils";
 import { SubscriptionPaymentMapper } from "../../mappers/SubscriptionPaymentMapper";
 import { PickupRequestMapper } from "../../mappers/PIckupReqMapper";
 import { IWalletRepository } from "../../repositories/wallet/interface/IWalletRepository";
+import { ApiError } from "../../utils/ApiError";
+import { MESSAGES, STATUS_CODES } from "../../utils/constantUtils";
 
 @injectable()
 export class PaymentService implements IPaymentService {
@@ -78,16 +80,26 @@ export class PaymentService implements IPaymentService {
     const plant = await this.wastePlantRepository.getWastePlantById(plantId);
 
     if (!plant) {
-      throw new Error("Plant not found.");
+      throw new ApiError(
+        STATUS_CODES.NOT_FOUND,
+        MESSAGES.WASTEPLANT.ERROR.NOT_FOUND,
+      );
     }
-    // if (!plant.subscriptionPlan) {
-    //   throw new Error("Subscription plan not found.");
-    // }
+
     const existingPlan = await this.subscriptionRepository.checkPlanNameExist(
       plant.subscriptionPlan!,
     );
-    if (!existingPlan || existingPlan.status !== "Active") {
-      throw new Error("This subscription plan is not active.");
+    if (!existingPlan) {
+      throw new ApiError(
+        STATUS_CODES.NOT_FOUND,
+        MESSAGES.SUPERADMIN.ERROR.SUBSCRIPTION_NOT_FOUND,
+      );
+    }
+    if (existingPlan.status !== "Active") {
+      throw new ApiError(
+        STATUS_CODES.BAD_REQUEST,
+        MESSAGES.SUPERADMIN.ERROR.SUBSCRIPTION_NOT_ACTIVE,
+      );
     }
     const existingInProgressPayment =
       await this.subscriptionPaymentRepository.findLatestInProgressPayment(
@@ -116,7 +128,8 @@ export class PaymentService implements IPaymentService {
           1000 /
           60,
       );
-      throw new Error(
+      throw new ApiError(
+        STATUS_CODES.CONFLICT,
         `A payment is already in progress. Please try again after ${remainingMinutes} minutes.`,
       );
     }
@@ -161,7 +174,6 @@ export class PaymentService implements IPaymentService {
 
   async verifyPaymentService(data: VerifyPaymtReq): Promise<VerifyPaymtResp> {
     const { paymentData, plantId } = data;
-    console.log("paymentData", paymentData);
 
     const body = `${paymentData.razorpay_order_id}|${paymentData.razorpay_payment_id}`;
     const expectedSignature = crypto
@@ -170,7 +182,10 @@ export class PaymentService implements IPaymentService {
       .digest("hex");
 
     if (expectedSignature !== paymentData.razorpay_signature) {
-      throw new Error("Invalid signature. Payment could not be verified.");
+      throw new ApiError(
+        STATUS_CODES.BAD_REQUEST,
+        MESSAGES.COMMON.ERROR.INVALID_SIGNATURE,
+      );
     }
     const paidAt = new Date();
     let expiredAt: Date;
@@ -202,13 +217,19 @@ export class PaymentService implements IPaymentService {
       });
     const plant = await this.wastePlantRepository.getWastePlantById(plantId);
     if (!plant) {
-      throw new Error("Plant not found to update status to Active.");
+      throw new ApiError(
+        STATUS_CODES.NOT_FOUND,
+        MESSAGES.WASTEPLANT.ERROR.NOT_FOUND,
+      );
     }
     const plan = await this.subscriptionRepository.getSubscriptionPlanById(
       paymentData.planId,
     );
     if (!plan) {
-      throw new Error("Plan not exist.");
+      throw new ApiError(
+        STATUS_CODES.NOT_FOUND,
+        MESSAGES.SUPERADMIN.ERROR.PLAN_NOT_EXIST,
+      );
     }
     plant.status = "Active";
     plant.subscriptionPlan = plan.planName;
@@ -218,7 +239,10 @@ export class PaymentService implements IPaymentService {
     await plant.save();
     const admin = await this.superAdminRepository.findAdminByRole("superadmin");
     if (!admin) {
-      throw new Error("Superadmin not found.");
+      throw new ApiError(
+        STATUS_CODES.NOT_FOUND,
+        MESSAGES.SUPERADMIN.ERROR.NOT_FOUND,
+      );
     }
     const plantMessage = `${plant.plantName} have successfully recharged with subscription plan (${plant.subscriptionPlan}, ${paymentData.billingCycle}).`;
     const adminId = admin._id.toString();
@@ -249,7 +273,12 @@ export class PaymentService implements IPaymentService {
           accountType,
         );
       }
-      if (!adminWallet) throw new Error("Admin wallet not found.");
+      if (!adminWallet) {
+        throw new ApiError(
+          STATUS_CODES.NOT_FOUND,
+          MESSAGES.COMMON.ERROR.WALLET_NOT_FOUND,
+        );
+      }
       adminWallet.balance += paymentData.amount;
 
       adminWallet.transactions.push({
@@ -277,23 +306,35 @@ export class PaymentService implements IPaymentService {
   ): Promise<ReturnSubcptnPaymentResult> {
     const plant = await this.wastePlantRepository.getWastePlantById(plantId);
     if (!plant) {
-      throw new Error("Plant not found.");
+      throw new ApiError(
+        STATUS_CODES.NOT_FOUND,
+        MESSAGES.WASTEPLANT.ERROR.NOT_FOUND,
+      );
     }
     if (!plant.subscriptionPlan) {
-      throw new Error("Subscription plan not found for this plant.");
+      throw new ApiError(
+        STATUS_CODES.NOT_FOUND,
+        MESSAGES.SUPERADMIN.ERROR.SUBSCRIPTION_NOT_FOUND,
+      );
     }
     const subptnPlanData = await this.subscriptionRepository.checkPlanNameExist(
       plant?.subscriptionPlan,
     );
     if (!subptnPlanData || !subptnPlanData._id) {
-      throw new Error("Subscription plan not exist.");
+      throw new ApiError(
+        STATUS_CODES.NOT_FOUND,
+        MESSAGES.SUPERADMIN.ERROR.PLAN_NOT_EXIST,
+      );
     }
     const paymentData =
       await this.subscriptionPaymentRepository.findSubscriptionPayments(
         plantId,
       );
     if (!paymentData) {
-      throw new Error("Subscription paymnets not found.");
+      throw new ApiError(
+        STATUS_CODES.NOT_FOUND,
+        MESSAGES.SUPERADMIN.ERROR.SUBS_PAYMENT_NOT_FOUND,
+      );
     }
     const now = new Date();
 
@@ -333,7 +374,10 @@ export class PaymentService implements IPaymentService {
         subPaymtId,
       );
     if (!subptnPaymentData) {
-      throw new Error("Payment not found.");
+      throw new ApiError(
+        STATUS_CODES.NOT_FOUND,
+        MESSAGES.SUPERADMIN.ERROR.PAYMENT_NOT_FOUND,
+      );
     }
     const now = new Date();
     if (
@@ -353,7 +397,8 @@ export class PaymentService implements IPaymentService {
         (subptnPaymentData.inProgressExpiresAt.getTime() - now.getTime()) /
           60000,
       );
-      throw new Error(
+      throw new ApiError(
+        STATUS_CODES.CONFLICT,
         `Another payment is in progress. Try again in ${waitTime} minutes.`,
       );
     }
@@ -380,7 +425,10 @@ export class PaymentService implements IPaymentService {
         paymentUpdate,
       );
     if (!updatedData.razorpayOrderId || !updatedData.planId) {
-      throw new Error("Can't update payment");
+      throw new ApiError(
+        STATUS_CODES.NOT_FOUND,
+        MESSAGES.SUPERADMIN.ERROR.PAYMENT_UPDATE_FAILED,
+      );
     }
     return {
       orderId: updatedData.razorpayOrderId,
@@ -397,19 +445,26 @@ export class PaymentService implements IPaymentService {
   ): Promise<RefundStatusUpdateResp> {
     const { plantId, statusUpdateData } = data;
     const { pickupReqId, status } = statusUpdateData;
-    console.log({ data, statusUpdateData });
 
     const pickupReq = await this.pickupRepository.getPickupById(pickupReqId);
-    console.log("pickupReq", pickupReq);
 
     if (pickupReq.wasteplantId?.toString() !== plantId) {
-      throw new Error("Not belongs in wasteplant.");
+      throw new ApiError(
+        STATUS_CODES.FORBIDDEN,
+        MESSAGES.SUPERADMIN.ERROR.NOT_IN_PLANT,
+      );
     }
     if (pickupReq.payment.status !== "Paid") {
-      throw new Error("Payment not completed.");
+      throw new ApiError(
+        STATUS_CODES.BAD_REQUEST,
+        MESSAGES.SUPERADMIN.ERROR.PAYMENT_NOT_COMPLETE,
+      );
     }
     if (pickupReq.payment.payoutStatus === "Completed") {
-      throw new Error("Refund not allowed after payout settlement.");
+      throw new ApiError(
+        STATUS_CODES.CONFLICT,
+        MESSAGES.SUPERADMIN.ERROR.REF_NOT_AFTER_PAYOUT,
+      );
     }
     const currentStatus = pickupReq.payment.refundStatus;
     const inProgressExpiresAt = pickupReq.payment.inProgressExpiresAt;
@@ -426,7 +481,8 @@ export class PaymentService implements IPaymentService {
           hour12: true,
         },
       );
-      throw new Error(
+      throw new ApiError(
+        STATUS_CODES.CONFLICT,
         `Refund is already being processed. Try again after ${expireTime}.`,
       );
     }
@@ -441,18 +497,34 @@ export class PaymentService implements IPaymentService {
     await pickupReq.save();
     const userId = pickupReq.userId.toString();
     const userWallet = await this._walletRepository.findWallet(userId, "User");
-    if (!userWallet) throw new Error("User wallet not found.");
+    if (!userWallet) {
+      throw new ApiError(
+        STATUS_CODES.NOT_FOUND,
+        MESSAGES.COMMON.ERROR.WALLET_NOT_FOUND,
+      );
+    }
     const pickupTransaction = userWallet.transactions.find(
       (tx) =>
         tx.pickupReqId?.toString() === pickupReqId.toString() &&
         tx.subType === "PickupPayment",
     );
-    if (!pickupTransaction) throw new Error("Pickup transaction not found.");
+    if (!pickupTransaction) {
+      throw new ApiError(
+        STATUS_CODES.NOT_FOUND,
+        MESSAGES.COMMON.ERROR.TRANSACTION_NOT_FOUND,
+      );
+    }
     if (!pickupTransaction.refundRequested) {
-      throw new Error("Refund was not requested.");
+      throw new ApiError(
+        STATUS_CODES.BAD_REQUEST,
+        MESSAGES.SUPERADMIN.ERROR.REF_NOT_REQ,
+      );
     }
     if (!status || !currentStatus) {
-      throw new Error("Refund status cannot be null.");
+      throw new ApiError(
+        STATUS_CODES.BAD_REQUEST,
+        MESSAGES.SUPERADMIN.ERROR.REF_STAT_NOT_NULL,
+      );
     }
     if (
       (currentStatus === "Pending" &&
@@ -460,7 +532,10 @@ export class PaymentService implements IPaymentService {
       (currentStatus === "Processing" && status !== "Refunded") ||
       ["Refunded", "Rejected"].includes(currentStatus)
     ) {
-      throw new Error("Invalid refund status transition.");
+      throw new ApiError(
+        STATUS_CODES.CONFLICT,
+        MESSAGES.SUPERADMIN.ERROR.INVALID_STAT_TRANSITION,
+      );
     }
     pickupTransaction.refundStatus = status;
 
@@ -489,33 +564,46 @@ export class PaymentService implements IPaymentService {
     };
   }
   async refundPayment(plantId: string, data: RefundDataReq) {
-    console.log("data", data);
 
     const pickupReq = await this.pickupRepository.getPickupById(
       data.pickupReqId,
     );
-    console.log("pickupReq", pickupReq);
+
 
     if (pickupReq.wasteplantId?.toString() !== plantId) {
-      throw new Error("PickupReq not belongs in this wasteplant.");
+      throw new ApiError(
+        STATUS_CODES.FORBIDDEN,
+        MESSAGES.SUPERADMIN.ERROR.NOT_IN_PLANT,
+      );
     }
     const payment = pickupReq.payment;
     if (!payment) {
-      throw new Error("No payment record found.");
+      throw new ApiError(
+        STATUS_CODES.NOT_FOUND,
+        MESSAGES.SUPERADMIN.ERROR.PAYMENT_NOT_FOUND,
+      );
     }
     if (payment.refundStatus === "Refunded") {
-      throw new Error("Already refunded");
+      throw new ApiError(
+        STATUS_CODES.BAD_REQUEST,
+        MESSAGES.SUPERADMIN.ERROR.PAYMENT_ALREADY_REF,
+      );
     }
 
     const accountId = pickupReq.userId.toString();
     const accountType = "User";
-    try {
+    // try {
       if (payment.method === "Wallet") {
         const wallet = await this._walletRepository.findWallet(
           accountId,
           accountType,
         );
-        if (!wallet) throw new Error("Wallet not found for this user.");
+        if (!wallet) {
+          throw new ApiError(
+            STATUS_CODES.NOT_FOUND,
+            MESSAGES.COMMON.ERROR.WALLET_NOT_FOUND,
+          );
+        }
         const pickupTansaction = wallet.transactions.find(
           (tx) =>
             tx.subType === "PickupPayment" &&
@@ -523,14 +611,15 @@ export class PaymentService implements IPaymentService {
             tx.pickupReqId?.equals(pickupReq._id) &&
             tx.method === "Wallet",
         );
-        if (!pickupTansaction) throw new Error("Pickup transaction not found.");
+        if (!pickupTansaction) {
+          throw new ApiError(
+            STATUS_CODES.NOT_FOUND,
+            MESSAGES.COMMON.ERROR.TRANSACTION_NOT_FOUND,
+          );
+        }
         wallet.holdingBalance -= payment.amount;
         wallet.balance += payment.amount;
-        // pickupTansaction.type = "Credit";
-        // pickupTansaction.subType = "Refund";
-        // pickupTansaction.description = `Refund for Pickup ID ${pickupReq.pickupId}`;
-        // pickupTansaction.refundStatus = "Refunded";
-        // pickupTansaction.refundAt = new Date();
+
         wallet.transactions.push({
           type: "Credit",
           subType: "Refund",
@@ -555,7 +644,10 @@ export class PaymentService implements IPaymentService {
           payment.razorpayPaymentId !== data.razorpayPaymentId ||
           payment.amount !== data.amount
         ) {
-          throw new Error("Payment details do not match.");
+          throw new ApiError(
+            STATUS_CODES.BAD_REQUEST,
+            MESSAGES.SUPERADMIN.ERROR.PAYMENT_DET_NOT_MATCH,
+          );
         }
 
         const paymentDetails = await this.razorpay.payments.fetch(
@@ -563,7 +655,10 @@ export class PaymentService implements IPaymentService {
         );
 
         if (paymentDetails.status !== "captured") {
-          throw new Error("Payment is not captured and cannot be refunded.");
+          throw new ApiError(
+            STATUS_CODES.BAD_REQUEST,
+            MESSAGES.SUPERADMIN.ERROR.PAYMENT_NOT_CAPTURE,
+          );
         }
 
         if (process.env.NODE_ENV === "production") {
@@ -581,8 +676,12 @@ export class PaymentService implements IPaymentService {
           accountId,
           accountType,
         );
-        if (!wallet) throw new Error("Wallet not found for this user.");
-        console.log("wallet-raz", wallet);
+        if (!wallet) {
+          throw new ApiError(
+            STATUS_CODES.NOT_FOUND,
+            MESSAGES.COMMON.ERROR.WALLET_NOT_FOUND,
+          );
+        }
 
         const pickupTansaction = wallet.transactions.find(
           (tx) =>
@@ -591,16 +690,15 @@ export class PaymentService implements IPaymentService {
             tx.pickupReqId?.equals(pickupReq._id) &&
             tx.method === "Razorpay",
         );
-        console.log("pickupTansaction", pickupTansaction);
 
-        if (!pickupTansaction) throw new Error("Pickup transaction not found.");
+        if (!pickupTansaction) {
+          throw new ApiError(
+            STATUS_CODES.NOT_FOUND,
+            MESSAGES.COMMON.ERROR.TRANSACTION_NOT_FOUND,
+          );
+        }
         wallet.holdingBalance -= payment.amount;
 
-        // pickupTansaction.type = "Credit";
-        // pickupTansaction.subType = "ExternalRefund";
-        // pickupTansaction.description = `Refund via Razorpay for Pickup ${pickupReq.pickupId}`;
-        // pickupTansaction.refundStatus = "Refunded";
-        // pickupTansaction.refundAt = new Date();
         wallet.transactions.push({
           type: "Credit",
           subType: "ExternalRefund",
@@ -617,7 +715,10 @@ export class PaymentService implements IPaymentService {
         payment.refundAt = new Date();
         await pickupReq.save();
       } else {
-        throw new Error("Unsupported payment method.");
+        throw new ApiError(
+    STATUS_CODES.BAD_REQUEST,
+    MESSAGES.SUPERADMIN.ERROR.UNSUPPORTED_PAYMENT_METHOD,
+  );
       }
 
       const io = globalThis.io;
@@ -638,75 +739,16 @@ export class PaymentService implements IPaymentService {
       }
 
       return PickupRequestMapper.mapPickupReqDTO(pickupReq);
-    } catch (error: any) {
-      // console.error("Refund failed:", JSON.stringify(error, null, 2));
-      // throw new Error(error?.error?.description || "Refund failed");
-      console.error("========== REFUND ERROR ==========");
-      console.error("RAW ERROR:", error);
-      console.error("MESSAGE:", error?.message);
-      console.error("STACK:", error?.stack);
-      console.error("==================================");
-
-      throw error; // DO NOT wrap again
-    }
-    // if (
-    //   pickupReq.payment.razorpayPaymentId !== data.razorpayPaymentId ||
-    //   pickupReq.payment.amount !== data.amount
-    // ) {
-    //   throw new Error("Payment details do not match.");
-    // }
-
-    // try {
-    //   const paymentDetails = await this.razorpay.payments.fetch(
-    //     data.razorpayPaymentId,
-    //   );
-    //   console.log("paymentDetails", paymentDetails);
-    //   if (paymentDetails.status !== "captured") {
-    //     throw new Error("Payment is not captured and cannot be refunded.");
-    //   }
-    //   if (process.env.NODE_ENV === "production") {
-    //     const refund = await this.razorpay.payments.refund(
-    //       data.razorpayPaymentId,
-    //       {
-    //         amount: paymentDetails.amount,
-    //         speed: "normal",
-    //       },
-    //     );
-
-    //     pickupReq.payment.razorpayRefundId = refund.id;
-    //   } else {
-    //     console.log("Simulating refund success in TEST MODE");
-    //     pickupReq.payment.razorpayRefundId = `test_refund_${Date.now()}`;
-    //   }
-
-    //   pickupReq.status = "Cancelled";
-    //   pickupReq.payment.refundStatus = "Refunded";
-    //   pickupReq.payment.refundAt = new Date();
-
-    //   await pickupReq.save();
-    //   const io = globalThis.io;
-
-    //   const userId = pickupReq.userId.toString();
-    //   const userMessage = `Refund processed successfully for Pickup ID ${pickupReq.pickupId}. Amount ₹${pickupReq.payment.amount} will be credited soon.`;
-    //   const userNotification =
-    //     await this.notificationRepository.createNotification({
-    //       receiverId: userId,
-    //       receiverType: "user",
-    //       senderId: plantId,
-    //       senderType: "wasteplant",
-    //       message: userMessage,
-    //       type: "pickup_refund-completed",
-    //     });
-    //   console.log("userNotification", userNotification);
-
-    //   if (io) {
-    //     io.to(`${userId}`).emit("newNotification", userNotification);
-    //   }
-
-    //   return PickupRequestMapper.mapPickupReqDTO(pickupReq);
     // } catch (error: any) {
-    //   console.error("Refund failed:", JSON.stringify(error, null, 2));
-    //   throw new Error(error?.error?.description || "Refund failed");
+    //   // console.error("Refund failed:", JSON.stringify(error, null, 2));
+    //   // throw new Error(error?.error?.description || "Refund failed");
+    //   console.error("========== REFUND ERROR ==========");
+    //   console.error("RAW ERROR:", error);
+    //   console.error("MESSAGE:", error?.message);
+    //   console.error("STACK:", error?.stack);
+    //   console.error("==================================");
+
+    //   throw error; // DO NOT wrap again
     // }
   }
 }

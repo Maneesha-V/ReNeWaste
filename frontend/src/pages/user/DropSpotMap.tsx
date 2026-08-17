@@ -30,8 +30,7 @@ const DropSpotMap: React.FC = () => {
       try {
         console.log("Fetching...");
         const res = await dispatch(fetchNearDropSpots());
-        console.log("res",res);
-        
+        console.log("res", res);
       } catch (error) {
         console.error("Error fetching drop spots", error);
       }
@@ -40,17 +39,16 @@ const DropSpotMap: React.FC = () => {
     fetchDropSpots();
   }, [dispatch]);
   console.log("dropSpots", dropSpots);
-const { isLoaded, loadError } = useJsApiLoader({
-  googleMapsApiKey: import.meta.env.VITE_GOOGLE_API_KEY!,
-});
+  const { isLoaded, loadError } = useJsApiLoader({
+    googleMapsApiKey: import.meta.env.VITE_GOOGLE_API_KEY!,
+  });
 
-if (loadError) return <div>Error loading Google Maps</div>;
-if (!isLoaded) return <div>Loading map...</div>;
+  if (loadError) return <div>Error loading Google Maps</div>;
+  if (!isLoaded) return <div>Loading map...</div>;
   return (
     // <LoadScript googleMapsApiKey={import.meta.env.VITE_GOOGLE_API_KEY!}>
-      <GoogleMap mapContainerStyle={containerStyle} center={center} zoom={8}>
-        {dropSpots.map((spot: UserDropSpot) => 
-        {
+    <GoogleMap mapContainerStyle={containerStyle} center={center} zoom={8}>
+      {dropSpots.map((spot: UserDropSpot) => {
         return (
           <Marker
             key={spot._id}
@@ -62,26 +60,25 @@ if (!isLoaded) return <div>Loading map...</div>;
               scaledSize: new window.google.maps.Size(40, 40),
             }}
           />
-        )
-      }
-        )}
-        {selectedSpot && (
-          <InfoWindow
-            position={{
-              lat: selectedSpot.coordinates.lat,
-              lng: selectedSpot.coordinates.lng,
-            }}
-            onCloseClick={() => setSelectedSpot(null)}
-          >
-            <div style={{ maxWidth: "200px" }}>
-              <h4 style={{ margin: 0 }}>{selectedSpot.dropSpotName}</h4>
-              <p style={{ margin: "4px 0", fontSize: "14px" }}>
-                {selectedSpot.addressLine}, {selectedSpot.location}
-              </p>
-            </div>
-          </InfoWindow>
-        )}
-      </GoogleMap>
+        );
+      })}
+      {selectedSpot && (
+        <InfoWindow
+          position={{
+            lat: selectedSpot.coordinates.lat,
+            lng: selectedSpot.coordinates.lng,
+          }}
+          onCloseClick={() => setSelectedSpot(null)}
+        >
+          <div style={{ maxWidth: "200px" }}>
+            <h4 style={{ margin: 0 }}>{selectedSpot.dropSpotName}</h4>
+            <p style={{ margin: "4px 0", fontSize: "14px" }}>
+              {selectedSpot.addressLine}, {selectedSpot.location}
+            </p>
+          </div>
+        </InfoWindow>
+      )}
+    </GoogleMap>
     // </LoadScript>
   );
 };

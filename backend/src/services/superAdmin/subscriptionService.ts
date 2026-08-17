@@ -9,6 +9,8 @@ import {
   updateSubscptnReq,
 } from "../../dtos/subscription/subscptnPlanDTO";
 import { PaginationInput } from "../../dtos/common/commonDTO";
+import { ApiError } from "../../utils/ApiError";
+import { MESSAGES, STATUS_CODES } from "../../utils/constantUtils";
 
 @injectable()
 export class SubscriptionService implements ISubscriptionService {
@@ -20,7 +22,10 @@ export class SubscriptionService implements ISubscriptionService {
     const existingPlanName =
       await this.subscriptionRepository.checkPlanNameExist(data.planName!);
     if (existingPlanName) {
-      throw new Error("Plan name already exists.");
+      throw new ApiError(
+        STATUS_CODES.CONFLICT,
+        MESSAGES.SUPERADMIN.ERROR.PLAN_NAME_EXISTS,
+      );
     }
     const updated =
       await this.subscriptionRepository.createSubscriptionPlan(data);
@@ -59,14 +64,20 @@ export class SubscriptionService implements ISubscriptionService {
     const existingPlan =
       await this.subscriptionRepository.getSubscriptionPlanById(id);
     if (!existingPlan) {
-      throw new Error("Subscription plan not found.");
+      throw new ApiError(
+        STATUS_CODES.CONFLICT,
+        MESSAGES.SUPERADMIN.ERROR.PLAN_NOT_EXIST,
+      );
     }
     if (data.planName && data.planName !== existingPlan.planName) {
       const duplicate = await this.subscriptionRepository.checkPlanNameExist(
         data.planName,
       );
       if (duplicate) {
-        throw new Error("Plan name already exists.");
+        throw new ApiError(
+          STATUS_CODES.CONFLICT,
+          MESSAGES.SUPERADMIN.ERROR.PLAN_NAME_EXISTS,
+        );
       }
     }
 

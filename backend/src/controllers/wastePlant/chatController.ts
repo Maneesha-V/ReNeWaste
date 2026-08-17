@@ -19,8 +19,6 @@ export class ChatController implements IChatController {
     next: NextFunction,
   ): Promise<void> {
     try {
-      console.log(req.body);
-
       const { senderId, receiverId, senderRole, receiverRole } = req.body;
       if (!senderId || !receiverId || !senderRole || !receiverRole) {
         throw new ApiError(
@@ -35,7 +33,6 @@ export class ChatController implements IChatController {
         receiverId,
         receiverRole,
       );
-      console.log("conversationId--", conversationId);
 
       res.status(STATUS_CODES.SUCCESS).json({
         success: true,
@@ -52,7 +49,6 @@ export class ChatController implements IChatController {
     next: NextFunction,
   ): Promise<void> {
     try {
-      console.log(req.body);
 
       const { conversationId } = req.body;
 
@@ -64,8 +60,7 @@ export class ChatController implements IChatController {
       }
       const messages =
         await this._chatService.getChatMessageService(conversationId);
-      console.log("messages", messages);
-
+        
       res.status(STATUS_CODES.SUCCESS).json({ messages });
     } catch (error) {
       console.error("Error fetching messages:", error);

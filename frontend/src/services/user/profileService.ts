@@ -7,8 +7,6 @@ export const getProfile = async () => {
 };
 export const getEditProfile = async () => {
   const response = await axiosUser.get(`/edit-profile`);
-  console.log("res",response);
-  
   return response.data;
 };
 
