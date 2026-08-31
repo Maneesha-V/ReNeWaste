@@ -440,7 +440,7 @@ const EditWastePlant = () => {
             onChange={handleFileChange}
             onBlur={handleBlur}
           />
-          {wastePlant.cloudinaryPublicId && (
+          {wastePlant?.cloudinaryPublicId && (
             <LicenseDocumentViewer
               cloudinaryPublicId={wastePlant.cloudinaryPublicId}
             />

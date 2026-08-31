@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { useAppDispatch } from "../../redux/hooks";
 import { superAdminLogin } from "../../redux/slices/superAdmin/superAdminSlice";
 import { LoginRequest } from "../../types/common/commonTypes";
+import { getAxiosErrorMessage } from "../../utils/handleAxiosError";
 
 const LoginSuperAdmin = () => {
   const [formData, setFormData] = useState<LoginRequest>({
@@ -31,8 +32,9 @@ const LoginSuperAdmin = () => {
     try {
       await dispatch(superAdminLogin(formData)).unwrap();
       navigate("/super-admin/dashboard")
-    } catch(error: any){
-      toast.error(error || "Login failed. Please try again.");
+    } catch(error){
+      const err = getAxiosErrorMessage(error)
+      toast.error(err || "Login failed. Please try again.");
     }
   };
 

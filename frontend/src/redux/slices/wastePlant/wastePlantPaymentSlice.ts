@@ -16,19 +16,32 @@ import {
   RefundStatusUpdateResp,
   UpdateStatusPayload,
 } from "../../../types/pickupReq/paymentTypes";
-import { FetchSubscrptnPayments, PaymentOrder, RetryPaymentData, RetrySubptnPaymntResp, SubCreatePaymtResp, SubptnVerifyPaymenReq, SubptnVerifyPaymenResp } from "../../../types/subscriptionPayment/paymentTypes";
-import { FetchPaymentsResp } from "../../../types/wasteplant/wastePlantTypes";
+import {
+  FetchSubscrptnPayments,
+  PaymentOrder,
+  RetryPaymentData,
+  RetrySubptnPaymntResp,
+  SubCreatePaymtResp,
+  SubptnVerifyPaymenReq,
+  SubptnVerifyPaymenResp,
+  SubscriptionPaymentHisDTO,
+} from "../../../types/subscriptionPayment/paymentTypes";
+import {
+  FetchPaymentsResp,
+  PaymentRecord,
+} from "../../../types/wasteplant/wastePlantTypes";
 
 interface PaymentState {
   message: string | null;
   loading: boolean;
   error: string | null;
   success: boolean;
-  payments: any;
+  payments: PaymentRecord[];
   paymentOrder: PaymentOrder | null;
   repaymentOrder: {} | null;
   total: number;
   updatedStatus: {};
+  subcrptnPayments: SubscriptionPaymentHisDTO[];
 }
 
 const initialState: PaymentState = {
@@ -41,12 +54,13 @@ const initialState: PaymentState = {
   repaymentOrder: null,
   total: 0,
   updatedStatus: {},
+  subcrptnPayments: [],
 };
 
 export const fetchPayments = createAsyncThunk<
-FetchPaymentsResp,
-PaginationPayload,
-{ rejectValue: {message: string}}
+  FetchPaymentsResp,
+  PaginationPayload,
+  { rejectValue: { message: string } }
 >(
   "wastePlantPayments/fetchPayments",
   async ({ page, limit, search }: PaginationPayload, { rejectWithValue }) => {
@@ -55,22 +69,18 @@ PaginationPayload,
       return response;
     } catch (error) {
       const msg = getAxiosErrorMessage(error);
-           return rejectWithValue({ message: msg });
+      return rejectWithValue({ message: msg });
     }
-  }
+  },
 );
 
-
 export const createSubscriptionOrder = createAsyncThunk<
-SubCreatePaymtResp,
-string,
-{ rejectValue: {error: string} }
+  SubCreatePaymtResp,
+  string,
+  { rejectValue: { error: string } }
 >(
   "wastePlantPayments/createSubscriptionOrder",
-  async (
-     planId: string ,
-    { rejectWithValue }
-  ) => {
+  async (planId: string, { rejectWithValue }) => {
     try {
       const response = await createPaymentOrderService(planId);
       return response;
@@ -79,12 +89,12 @@ string,
       const msg = getAxiosErrorMessage(err);
       return rejectWithValue({ error: msg });
     }
-  }
+  },
 );
 export const verifySubscriptionPayment = createAsyncThunk<
-SubptnVerifyPaymenResp,
-SubptnVerifyPaymenReq,
-{ rejectValue: {error: string} }
+  SubptnVerifyPaymenResp,
+  SubptnVerifyPaymenReq,
+  { rejectValue: { error: string } }
 >(
   "wastePlantPayments/verifySubscriptionPayment",
   async (paymentData, { rejectWithValue }) => {
@@ -92,33 +102,32 @@ SubptnVerifyPaymenReq,
       const response = await verifyPaymentService(paymentData);
       return response;
     } catch (err) {
-       const msg = getAxiosErrorMessage(err);
+      const msg = getAxiosErrorMessage(err);
       return rejectWithValue({ error: msg });
     }
-  }
+  },
 );
 export const fetchSubscrptnPayments = createAsyncThunk<
-FetchSubscrptnPayments,
-void,
-{ rejectValue: {error: string} }
+  FetchSubscrptnPayments,
+  void,
+  { rejectValue: { error: string } }
 >(
   "wastePlantPayments/fetchSubscrptnPayments",
   async (_, { rejectWithValue }) => {
     try {
       const response = await getAllPayments();
       console.log("respons", response);
-
       return response;
     } catch (err) {
-            const msg = getAxiosErrorMessage(err);
+      const msg = getAxiosErrorMessage(err);
       return rejectWithValue({ error: msg });
     }
-  }
+  },
 );
 export const repay = createAsyncThunk<
-RetrySubptnPaymntResp,
-RetryPaymentData,
-{ rejectValue: {error : string}}
+  RetrySubptnPaymntResp,
+  RetryPaymentData,
+  { rejectValue: { error: string } }
 >(
   "wastePlantPayments/repay",
   async ({ planId, amount, subPaymtId }, { rejectWithValue }) => {
@@ -129,7 +138,7 @@ RetryPaymentData,
       const msg = getAxiosErrorMessage(err);
       return rejectWithValue({ error: msg });
     }
-  }
+  },
 );
 export const updateRefundStatus = createAsyncThunk<
   RefundStatusUpdateResp,
@@ -147,27 +156,31 @@ export const updateRefundStatus = createAsyncThunk<
       console.error("err", err);
       const msg = getAxiosErrorMessage(err);
       return rejectWithValue({ error: msg });
-      // return rejectWithValue(err.response?.data || "Fetch payments failed");
     }
-  }
+  },
 );
 
 export const triggerPickupRefund = createAsyncThunk<
-RefundPaymntResp,
-RefundPaymntPayload,
-{ rejectValue: { error: string } }
+  RefundPaymntResp,
+  RefundPaymntPayload,
+  { rejectValue: { error: string } }
 >(
   "wastePlantPayments/triggerPickupRefund",
   async (
-    { pickupReqId, amount, razorpayPaymentId, walletOrderId }: RefundPaymntPayload,
-    { rejectWithValue }
+    {
+      pickupReqId,
+      amount,
+      razorpayPaymentId,
+      walletOrderId,
+    }: RefundPaymntPayload,
+    { rejectWithValue },
   ) => {
     try {
       const response = await triggerPickupRefundService({
         pickupReqId,
         amount,
         razorpayPaymentId,
-        walletOrderId
+        walletOrderId,
       });
       return response;
     } catch (err) {
@@ -175,7 +188,7 @@ RefundPaymntPayload,
       const msg = getAxiosErrorMessage(err);
       return rejectWithValue({ error: msg });
     }
-  }
+  },
 );
 const wastePlantPaymentSlice = createSlice({
   name: "wastePlantPayments",
@@ -183,7 +196,7 @@ const wastePlantPaymentSlice = createSlice({
   reducers: {
     clearPaymentError: (state) => {
       state.error = null;
-    }
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -219,10 +232,10 @@ const wastePlantPaymentSlice = createSlice({
         state.error = null;
       })
       .addCase(verifySubscriptionPayment.fulfilled, (state, action) => {
-        console.log("action",action.payload);
+        console.log("action", action.payload);
         state.loading = false;
         state.message = action.payload.message;
-        localStorage.setItem("wasteplant_status","Active");
+        localStorage.setItem("wasteplant_status", "Active");
       })
       .addCase(verifySubscriptionPayment.rejected, (state, action) => {
         state.loading = false;
@@ -231,11 +244,13 @@ const wastePlantPaymentSlice = createSlice({
       .addCase(fetchSubscrptnPayments.pending, (state) => {
         state.loading = true;
         state.error = null;
-        state.payments = null;
+        // state.payments = [];
+        state.subcrptnPayments = [];
       })
       .addCase(fetchSubscrptnPayments.fulfilled, (state, action) => {
         state.loading = false;
-        state.payments = action.payload.payments.paymentData;
+        // state.payments = action.payload.payments.paymentData;
+        state.subcrptnPayments = action.payload.payments.paymentData;
       })
       .addCase(fetchSubscrptnPayments.rejected, (state, action) => {
         state.loading = false;
@@ -254,24 +269,33 @@ const wastePlantPaymentSlice = createSlice({
       })
       .addCase(repay.rejected, (state, action) => {
         state.loading = false;
-       state.error = (action.payload as { error: string })?.error;
+        state.error = (action.payload as { error: string })?.error;
       })
       .addCase(updateRefundStatus.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
       .addCase(updateRefundStatus.fulfilled, (state, action) => {
-        console.log("action",action.payload);
-        
+        console.log("action", action.payload);
+
         state.loading = false;
-        state.payments = state.payments.filter((p: any) => {
-          const {_id, refundStatus, inProgressExpiresAt } = action.payload;
-          if (p._id === _id) {
-            p.refundStatus = refundStatus;
-            p.inProgressExpiresAt = inProgressExpiresAt;
-          }
-        });
-        // state.updatedStatus = action.payload.payment;
+        // state.payments = state.payments.filter((p: PaymentRecord) => {
+        //   const {_id, refundStatus, inProgressExpiresAt } = action.payload;
+        //   if (p._id === _id && p.payment) {
+        //     p.payment.refundStatus = refundStatus;
+        //     p.payment.inProgressExpiresAt = inProgressExpiresAt;
+        //   }
+        // });
+        const { _id, refundStatus, inProgressExpiresAt } = action.payload;
+
+        const paymentRecord = state.payments.find(
+          (p: PaymentRecord) => p._id === _id,
+        );
+
+        if (paymentRecord?.payment) {
+          paymentRecord.payment.refundStatus = refundStatus;
+          paymentRecord.payment.inProgressExpiresAt = inProgressExpiresAt;
+        }
       })
       .addCase(updateRefundStatus.rejected, (state, action) => {
         state.loading = false;

@@ -1,4 +1,4 @@
-import mongoose, { ClientSession, PipelineStage, Types } from "mongoose";
+import mongoose, { ClientSession, FilterQuery, PipelineStage, Types } from "mongoose";
 import {
   Address,
   CheckExistingBusinessReq,
@@ -14,9 +14,13 @@ import {
   PickupStatusByWasteTypeRepo,
   PickupStatusRepo,
   PickupTrendResultRepo,
+  PopulatedDriver,
   PopulatedPickup,
   PopulatedPIckupPlansRepo,
+  PopulatedPickups,
+  PopulatedUser,
   PopulatedUserPickupReqRepo,
+  UpdatePickupDateReq,
   WasteTypeRepo,
 } from "../../models/pickupRequests/interfaces/pickupInterface";
 import { PickupModel } from "../../models/pickupRequests/pickupModel";
@@ -61,62 +65,120 @@ export class PickupRepository
     });
     return await newPickup.save();
   }
-  async getPickupsByPlantId(
-    filters: PickupFilterParamsRepo,
-  ): Promise<IPickupRequestDocument[]> {
-    const { plantId, status, wasteType } = filters;
+  // async getPickupsByPlantId(
+  //   filters: PickupFilterParamsRepo,
+  // ): Promise<IPickupRequestDocument[]> {
+  //   const { plantId, status, wasteType } = filters;
 
-    const query: any = {
-      wasteplantId: new mongoose.Types.ObjectId(plantId),
-      status,
-      isPaused: false
-    };
+  //   const query: FilterQuery<IPickupRequestDocument> = {
+  //     wasteplantId: new mongoose.Types.ObjectId(plantId),
+  //     status,
+  //     isPaused: false
+  //   };
 
-    if (wasteType) {
-      query.wasteType = wasteType;
-    }
+  //   if (wasteType) {
+  //     query.wasteType = wasteType;
+  //   }
 
-    const pickups = await this.model
-      .find(query)
-      .populate({
-        path: "userId",
-        select: "firstName lastName addresses",
-      })
-      .populate({
-        path: "driverId",
-        select: "name assignedZone",
-      })
-      .sort({ createdAt: -1 });
-    console.log("pickups", pickups);
-    return pickups.map((pickup: any) => {
-      const pickupObj = pickup.toObject();
+  //   const pickups = await this.model
+  //     .find(query)
+  //     .populate({
+  //       path: "userId",
+  //       select: "firstName lastName addresses",
+  //     })
+  //     .populate({
+  //       path: "driverId",
+  //       select: "name assignedZone",
+  //     })
+  //   .sort({ createdAt: -1 });
+   
+  //   return pickups.map((pickup: any) => {
+  //     const pickupObj = pickup.toObject();
 
-      const userName = pickup.userId
-        ? `${pickup.userId.firstName} ${pickup.userId.lastName}`
-        : "Unknown";
+  //     const userName = pickup.userId
+  //       ? `${pickup.userId.firstName} ${pickup.userId.lastName}`
+  //       : "Unknown";
 
-      const userAddress = pickup.userId?.addresses?.find(
-        (address: any) =>
-          address._id.toString() === pickup.addressId?.toString(),
-      );
-      console.log("userAddress", userAddress);
+  //     const userAddress = pickup.userId?.addresses?.find(
+  //       (address: any) =>
+  //         address._id.toString() === pickup.addressId?.toString(),
+  //     );
+  //     console.log("userAddress", userAddress);
 
-      const location = userAddress?.location || "Unknown";
+  //     const location = userAddress?.location || "Unknown";
 
-      const driverName = pickup.driverId?.name || null;
-      const assignedZone = pickup.driverId?.assignedZone || null;
+  //     const driverName = pickup.driverId?.name || null;
+  //     const assignedZone = pickup.driverId?.assignedZone || null;
 
-      return {
-        ...pickupObj,
-        userName,
-        userAddress,
-        location,
-        driverName,
-        assignedZone,
-      };
-    });
+  //     return {
+  //       ...pickupObj,
+  //       userName,
+  //       userAddress,
+  //       location,
+  //       driverName,
+  //       assignedZone,
+  //     };
+  //   });
+  // }
+async getPickupsByPlantId(
+  filters: PickupFilterParamsRepo,
+): Promise<PopulatedPickups[]> {
+  const { plantId, status, wasteType } = filters;
+
+  const query: FilterQuery<IPickupRequestDocument> = {
+    wasteplantId: new mongoose.Types.ObjectId(plantId),
+    status,
+    isPaused: false,
+  };
+
+  if (wasteType) {
+    query.wasteType = wasteType;
   }
 
+  const pickups = await this.model
+    .find(query)
+    .populate<{
+      userId: PopulatedUser;
+      driverId: PopulatedDriver;
+    }>([
+      {
+        path: "userId",
+        select: "firstName lastName addresses",
+      },
+      {
+        path: "driverId",
+        select: "name assignedZone",
+      },
+    ])
+    .sort({ createdAt: -1 });
+
+  return pickups.map((pickup) => {
+    const pickupObj = pickup.toObject();
+
+    const userName = pickup.userId
+      ? `${pickup.userId.firstName} ${pickup.userId.lastName}`
+      : "Unknown";
+
+    const userAddress = pickup.userId?.addresses?.find(
+      (address) =>
+        address._id.toString() === pickup.addressId?.toString(),
+    );
+
+    const location = userAddress?.location || "Unknown";
+
+    const driverName = pickup.driverId?.name || null;
+    const assignedZone = pickup.driverId?.assignedZone || null;
+
+    return {
+      ...pickupObj,
+      userName,
+      userAddress,
+      location,
+      driverName,
+      assignedZone,
+    };
+  });
+}
   async updatePickupStatusAndDriver(
     pickupReqId: string,
     updateData: {
@@ -162,7 +224,7 @@ export class PickupRepository
       throw new Error("Error in updating the pickup request.");
     }
   }
-  async updatePickupDate(pickupReqId: string, updateData: any) {
+  async updatePickupDate(pickupReqId: string, updateData: UpdatePickupDateReq) {
     const updated = await this.model.findByIdAndUpdate(
       pickupReqId,
       updateData,
@@ -246,34 +308,6 @@ export class PickupRepository
       userName,
     };
   }
-  // async findPickupByIdAndDriver(pickupReqId: string, driverId: string) {
-  //   const objectIdPickup = new Types.ObjectId(pickupReqId);
-  //   const objectIdDriver = new Types.ObjectId(driverId);
-  //   const pickup = (await this.model
-  //     .findOne({
-  //       _id: objectIdPickup,
-  //       driverId: objectIdDriver,
-  //     })
-  //     .lean()) as EnhancedPickup;
-
-  //   if (!pickup) return null;
-
-  //   const user = await this._userRepository.findOne(
-  //     { _id: pickup.userId, "addresses._id": pickup.addressId },
-  //     { "addresses.$": 1, firstName: 1, lastName: 1 },
-  //     true
-  //   );
-
-  //   if (user && user.addresses?.[0]) {
-  //     pickup.userAddress = user.addresses[0];
-  //     pickup.userName = `${user.firstName} ${user.lastName}`;
-  //   } else {
-  //     pickup.userAddress = undefined;
-  //     pickup.userName = "Unknown User";
-  //   }
-
-  //   return pickup;
-  // }
   async updateETAAndTracking(
     pickupReqId: string,
     updateFields: {
@@ -294,7 +328,7 @@ export class PickupRepository
     const { page, limit, search, filter } = paginationData;
     const searchRegex = new RegExp(search, "i");
 
-    const query: any = {
+    const query: FilterQuery<IPickupRequestDocument> = {
       userId: new mongoose.Types.ObjectId(userId),
     };
     if (filter && filter !== "All") {
@@ -506,7 +540,7 @@ export class PickupRepository
     const { page, limit, search, filter } = paginationData;
     const searchRegex = new RegExp(search, "i");
 
-    const query: any = {
+    const query: FilterQuery<IPickupRequestDocument> = {
       userId: new mongoose.Types.ObjectId(userId),
       "payment.amount": { $exists: true },
     };
@@ -652,10 +686,10 @@ export class PickupRepository
   ): Promise<PaginatedPaymentsResultRepo> {
     const { plantId, page, limit, search } = data;
 
-    const matchStage: PipelineStage.Match = {
+    const matchStage: FilterQuery<IPickupRequestDocument> = {
       wasteplantId: new Types.ObjectId(plantId),
       "payment.status": "Paid",
-    } as any;
+    };
 
     const pipeline: PipelineStage[] = [
       { $match: matchStage },
@@ -679,7 +713,6 @@ export class PickupRepository
       { $unwind: { path: "$user", preserveNullAndEmptyArrays: true } },
     ];
 
-    // 🔍 Add a second $match after lookups for search
     if (search) {
       pipeline.push({
         $match: {

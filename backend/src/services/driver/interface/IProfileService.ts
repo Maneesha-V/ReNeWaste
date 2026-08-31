@@ -3,6 +3,6 @@ import { IDriverDocument } from "../../../models/driver/interfaces/driverInterfa
 
 export interface IProfileService {
   getDriverProfile(userId: string): Promise<DriverDTO>;
-  updateDriverProfile(driverId: string, updatedData: any): Promise<DriverDTO>;
+  updateDriverProfile(driverId: string, updatedData: Partial<IDriverDocument>): Promise<DriverDTO>;
   fetchDriversService(wastePlantId: string): Promise<DriverDTO[]>;
 }

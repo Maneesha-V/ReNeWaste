@@ -8,6 +8,7 @@ import { getAxiosErrorMessage } from "../../../utils/handleAxiosError";
 import {
   FetchSubsptnPlanResp,
   FetchSubsptnPlansResp,
+  PlantData,
   SubsptnPlans,
 } from "../../../types/subscription/subscriptionTypes";
 import {
@@ -20,7 +21,9 @@ interface SubscriptionState {
   loading: boolean;
   error: string | null;
   success: boolean;
-  selectedPlan: any;
+  // selectedPlan: SelectedPlan | null;
+  subscriptionData: SubsptnPlans | null;
+  plantData: PlantData | null;
   subscriptionPlans: SubsptnPlans[];
   subPaymentsHis: SubscriptionPaymentHisDTO[];
 }
@@ -29,7 +32,9 @@ const initialState: SubscriptionState = {
   loading: false,
   error: null,
   success: false,
-  selectedPlan: {},
+  // selectedPlan: null,
+  subscriptionData: null,
+  plantData: null,
   subscriptionPlans: [],
   subPaymentsHis: [],
 };
@@ -97,9 +102,13 @@ const wastePlantSubscriptionSlice = createSlice({
         }
         return p;
       });
-      if (state.selectedPlan?.plantData) {
-        state.selectedPlan.plantData.status = "Active";
-        state.selectedPlan.plantData.expiredAt = expiredAt;
+      // if (state.selectedPlan?.plantData) {
+      //   state.selectedPlan.plantData.status = "Active";
+      //   state.selectedPlan.plantData.expiredAt = expiredAt;
+      // }
+      if (state.plantData) {
+        state.plantData.status = "Active";
+        state.plantData.expiredAt = expiredAt;
       }
     },
     updateCancelSubdptnButtton: (state,action) => {
@@ -121,7 +130,9 @@ const wastePlantSubscriptionSlice = createSlice({
       .addCase(fetchSubscriptionPlan.fulfilled, (state, action) => {
         console.log("act", action.payload);
         state.loading = false;
-        state.selectedPlan = action.payload.selectedPlan;
+        // state.selectedPlan = action.payload.selectedPlan;
+        state.subscriptionData = action.payload.selectedPlan.subscriptionData;
+        state.plantData = action.payload.selectedPlan.plantData;
         state.subPaymentsHis = action.payload.subPaymentHistory.paymentData;
       })
       .addCase(fetchSubscriptionPlan.rejected, (state, action) => {

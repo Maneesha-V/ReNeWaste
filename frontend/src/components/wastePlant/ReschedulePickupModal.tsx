@@ -4,7 +4,11 @@ import dayjs from "dayjs";
 import { RootState } from "../../redux/store";
 import { useAppDispatch } from "../../redux/hooks";
 import { useSelector } from "react-redux";
-import { disablePastDates, formatDateToDDMMYYYY, formatTimeTo12Hour } from "../../utils/formatDate";
+import {
+  disablePastDates,
+  formatDateToDDMMYYYY,
+  formatTimeTo12Hour,
+} from "../../utils/formatDate";
 import { toast } from "react-toastify";
 import {
   fetchDriversByPlace,
@@ -27,7 +31,6 @@ const ReschedulePickupModal = ({
 
   useEffect(() => {
     if (pickup && visible) {
-
       const currentValue = form.getFieldValue("pickupDate");
       if (!currentValue) {
         form.setFieldsValue({
@@ -37,29 +40,31 @@ const ReschedulePickupModal = ({
     }
   }, [pickup, visible, form]);
   useEffect(() => {
-    if (visible && pickup) {
-      dispatch(fetchDriversByPlace(pickup?.location));
+    if (visible && pickup && pickup?.location) {
+      dispatch(fetchDriversByPlace(pickup.location));
     }
   }, [visible, pickup, pickup?.location, dispatch]);
 
-  useEffect(() => { 
+  useEffect(() => {
     setFilteredDrivers(drivers ?? []);
   }, [drivers]);
 
   console.log("filteredDrivers", filteredDrivers);
   console.log("pickup:", pickup);
-  const pickupDateToShow = pickup?.rescheduledPickupDate || pickup?.originalPickupDate;
+  const pickupDateToShow =
+    pickup?.rescheduledPickupDate || pickup?.originalPickupDate;
 
   const handleZoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     form.setFieldsValue({ assignedZone: value });
     if (!pickup?.wasteType) return;
-    const filtered = Array.isArray(drivers) ? drivers.filter(
-      (d: DriverDTO) => 
-        d.assignedZone?.toLowerCase() === value.toLowerCase() &&
-        d.category?.toLowerCase() === pickup.wasteType?.toLowerCase()
-    )
-    : [];
+    const filtered = Array.isArray(drivers)
+      ? drivers.filter(
+          (d: DriverDTO) =>
+            d.assignedZone?.toLowerCase() === value.toLowerCase() &&
+            d.category?.toLowerCase() === pickup.wasteType?.toLowerCase(),
+        )
+      : [];
     setFilteredDrivers(filtered);
   };
 
@@ -77,7 +82,7 @@ const ReschedulePickupModal = ({
       if (selectedDateTime.isSame(now, "day")) {
         if (now.hour() >= 17) {
           toast.error(
-            "No available time left today, please select a future date"
+            "No available time left today, please select a future date",
           );
           return;
         }
@@ -135,11 +140,15 @@ const ReschedulePickupModal = ({
         </p>
         <p>
           <strong>Current Pickup Date:</strong>{" "}
-           {pickupDateToShow ? formatDateToDDMMYYYY(pickupDateToShow) : "Not available"}
+          {pickupDateToShow
+            ? formatDateToDDMMYYYY(pickupDateToShow)
+            : "Not available"}
         </p>
         <p>
           <strong>Pickup Time:</strong>{" "}
-          {pickup?.pickupTime ? formatTimeTo12Hour(pickup.pickupTime): "Not available"}
+          {pickup?.pickupTime
+            ? formatTimeTo12Hour(pickup.pickupTime)
+            : "Not available"}
         </p>
       </div>
       <Form layout="vertical" form={form}>

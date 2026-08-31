@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { CreateSubsptnPaymentPayload, ISubscriptionPaymentDocument, PaymentUpdate, SubscriptionPaymentHisRepoResp, UpdateRefundStatusRepoReq, UpdateSubscptnPayload } from "../../../models/subsptnPayment/interface/subsptnPaymentInterface";
+import { CreateSubsptnPaymentPayload, ISubscriptionPaymentDocument, PaymentUpdate, PopulatedPaymentDocument, SubscriptionPaymentHisRepoResp, UpdateRefundStatusRepoReq, UpdateSubscptnPayload } from "../../../models/subsptnPayment/interface/subsptnPaymentInterface";
 import { PaginationInputReq } from "../../../models/wastePlant/interfaces/wastePlantInterface";
 
 export interface ISubscriptionPaymentRepository {
@@ -11,7 +11,7 @@ export interface ISubscriptionPaymentRepository {
   ): Promise<ISubscriptionPaymentDocument>;
   findSubscriptionPayments(
     plantId: string,
-  ): Promise<ISubscriptionPaymentDocument[] | null>;
+  ): Promise<PopulatedPaymentDocument[]>;
   findSubscriptionPaymentById(
     id: string,
     session?: mongoose.ClientSession,

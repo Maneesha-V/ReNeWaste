@@ -41,8 +41,10 @@ export class PickupService implements IPickupService {
     filters: PickupFilterParams,
   ): Promise<PickupReqGetDTO[]> {
     const pickups = await this.pickupRepository.getPickupsByPlantId(filters);
-
-    return PickupRequestMapper.mapPickupReqsGetDTO(pickups);
+    console.log("WP-Pickups",pickups);
+    
+    // return PickupRequestMapper.mapPickupReqsGetDTO(pickups);
+    return PickupRequestMapper.mapPopulatedPickupReqsDTO(pickups);
   }
 
   async approvePickupService(data: ApprovePickupDTO) {
@@ -228,6 +230,7 @@ export class PickupService implements IPickupService {
         status: data.status,
       },
     );
+
     if (!updatedPickup) {
       throw new ApiError(
         STATUS_CODES.SERVER_ERROR,

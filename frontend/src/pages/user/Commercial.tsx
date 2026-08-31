@@ -197,7 +197,7 @@ const Commercial = () => {
           </div>
         </div>
       )}
-
+      {user && (
       <PickupCommercialFormModal
         isOpen={isFormOpen}
         onClose={() => setIsFormOpen(false)}
@@ -205,6 +205,8 @@ const Commercial = () => {
         serviceQuery={serviceQuery}
         user={user}
       />
+      )}
+
       <Footer />
     </div>
   );

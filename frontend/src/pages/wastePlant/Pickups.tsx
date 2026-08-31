@@ -30,10 +30,10 @@ const Pickups = () => {
   const [statusTab, setStatusTab] = useState<
     "Pending" | "Scheduled" | "Completed" | "Cancelled" | "Rescheduled"
   >("Pending");
-  const [selectedPickup, setSelectedPickup] = useState<any | null>(null);
+  const [selectedPickup, setSelectedPickup] = useState<PickupReqDTO | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
   const [rescheduleModalVisible, setRescheduleModalVisible] = useState(false);
-  const [pickupToReschedule, setPickupToReschedule] = useState<any | null>(
+  const [pickupToReschedule, setPickupToReschedule] = useState<PickupReqDTO | null>(
     null,
   );
   const [cancelModalVisible, setCancelModalVisible] = useState(false);
@@ -53,7 +53,6 @@ const Pickups = () => {
       ? [rawPickups]
       : [];
 
-  // const token = localStorage.getItem("token");
   useEffect(() => {
     dispatch(fetchPickupReqsts({ wasteType: activeTab, status: statusTab }));
   }, [dispatch, activeTab, statusTab]);
@@ -202,7 +201,7 @@ const Pickups = () => {
               title="Pickup Date"
               dataIndex="originalPickupDate"
               key="originalPickupDate"
-              render={(_, record: any) => {
+              render={(_, record: PickupReqDTO) => {
                 const dateToDisplay =
                   record.rescheduledPickupDate || record.originalPickupDate;
                 return formatDateToDDMMYYYY(dateToDisplay);
@@ -280,7 +279,7 @@ const Pickups = () => {
               <Table.Column
                 title="Action"
                 key="action"
-                render={(_: any, record: PickupReqDTO) => {
+                render={(_, record: PickupReqDTO) => {
                   const actions: React.ReactNode[] = [];
 
                   if (record.status === "Pending" &&
@@ -366,6 +365,7 @@ const Pickups = () => {
           </Table>
         </div>
       )}
+      {selectedPickup && (
       <AssignDriverModal
         visible={modalVisible}
         onClose={() => setModalVisible(false)}
@@ -376,6 +376,8 @@ const Pickups = () => {
           )
         }
       />
+      )}
+      { pickupToReschedule && (
       <ReschedulePickupModal
         visible={rescheduleModalVisible}
         onClose={() => setRescheduleModalVisible(false)}
@@ -386,6 +388,8 @@ const Pickups = () => {
           );
         }}
       />
+      )}
+
       <InputMessage
         visible={cancelModalVisible}
         onClose={() => setCancelModalVisible(false)}

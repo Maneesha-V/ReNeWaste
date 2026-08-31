@@ -1,11 +1,11 @@
 import { useState } from "react";
 import { formatFieldLabel } from "../utils/formatFieldLabel";
-import { ValidationErrors } from "../types/common/commonTypes";
+import { ValidationErrors, ValidationValue } from "../types/common/commonTypes";
 
 export const useWastePlantValidation = () => {
   const [errors, setErrors] = useState<ValidationErrors>({});
 
-  const validateField = (name: string, value: any) => {
+  const validateField = (name: string, value: ValidationValue) => {
     let error = "";
     const label = formatFieldLabel(name);
 
@@ -23,8 +23,8 @@ export const useWastePlantValidation = () => {
       case "location":
       case "state":
       case "contactInfo":
-      case "name": // fallthrough
-        if (!value.trim()) {
+      case "name":
+        if (typeof value !== "string" || !value.trim()) {
           error = `${label} is required.`;
         } else if (!/^[A-Za-z]+( [A-Za-z]+)*$/.test(value)) {
           error = `${label} must contain only letters and single spaces (no extra spaces).`;
@@ -32,7 +32,8 @@ export const useWastePlantValidation = () => {
         break;
 
       case "email":
-        if (!value.trim()) error = "Email is required.";
+        if (typeof value !== "string" || !value.trim())
+          error = "Email is required.";
         else if (
           !/^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/.test(value)
         )
@@ -41,23 +42,25 @@ export const useWastePlantValidation = () => {
       case "phone":
       case "contactNo":
       case "contact":
-        if (!value.trim()) error = "Contact Number is required.";
+        if (typeof value !== "string" || !value.trim())
+          error = "Contact Number is required.";
         else if (!/^\d{10}$/.test(value))
           error = "Contact Number must be 10 digits.";
         break;
       case "pincode":
-        if (!value.trim()) error = "Pincode is required.";
+        if (typeof value !== "string" || !value.trim())
+          error = "Pincode is required.";
         else if (!/^\d{6}$/.test(value)) error = "Pincode must be 6 digits.";
         break;
       case "pickupTime":
-        if (!value.trim()) {
+        if (typeof value !== "string" || !value.trim()) {
           error = "Pickup time is required.";
         } else {
           const [hours, minutes] = value.split(":").map(Number);
           const totalMinutes = hours * 60 + minutes;
 
-          const minMinutes = 9 * 60; 
-          const maxMinutes = 17 * 60; 
+          const minMinutes = 9 * 60;
+          const maxMinutes = 17 * 60;
 
           if (totalMinutes < minMinutes || totalMinutes > maxMinutes) {
             error = "Pickup time must be between 9:00 AM and 5:00 PM.";
@@ -66,14 +69,28 @@ export const useWastePlantValidation = () => {
         break;
       case "vehicleNumber":
       case "licenseNumber":
-        if (!value.trim()) error = `${label} is required.`;
+        if (typeof value !== "string" || !value.trim()) {
+          error = `${label} is required.`;
+        }
         break;
       case "tareWeight":
       case "capacity":
       case "experience":
-        if (!value) error = `${label} is required.`;
-        else if (isNaN(value) || value <= 0)
+        // if (!value) error = `${label} is required.`;
+        // else if (isNaN(value) || value <= 0)
+        //   error = `${label} must be a positive number.`;
+        // break;
+        if (value === null || value === undefined || value === "") {
+          error = `${label} is required.`;
+          break;
+        }
+
+        const numericValue = typeof value === "number" ? value : Number(value);
+
+        if (!Number.isFinite(numericValue) || numericValue <= 0) {
           error = `${label} must be a positive number.`;
+        }
+
         break;
 
       case "frequency":
@@ -90,18 +107,20 @@ export const useWastePlantValidation = () => {
         if (!value) error = `Please select a value.`;
         break;
       case "password":
-        if (!value) error = "Password is required.";
+        if (typeof value !== "string" || !value)
+          error = "Password is required.";
         else if (value.length < 6)
           error = "Password must be at least 6 characters.";
         break;
       case "username":
-        if (!value.trim()) error = "Username is required.";
+        if (typeof value !== "string" || !value.trim())
+          error = "Username is required.";
         else if (!/^[A-Za-z0-9_]+$/.test(value))
           error =
             "Username can only contain letters, numbers, and underscores.";
         break;
       case "services":
-        if (value.length === 0)
+        if (!Array.isArray(value) || value.length === 0)
           error = "At least one service must be selected.";
         break;
       default:

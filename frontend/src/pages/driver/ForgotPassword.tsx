@@ -5,7 +5,14 @@ import { useAppDispatch } from "../../redux/hooks";
 import { Eye, EyeOff } from "lucide-react";
 import { validatePassword } from "../../utils/passwordValidator";
 import { useNavigate } from "react-router-dom";
-import { resendOtp, resetPassword, sendOtp, verifyOtp } from "../../redux/slices/driver/driverSlice";
+import {
+  resendOtp,
+  resetPassword,
+  sendOtp,
+  verifyOtp,
+} from "../../redux/slices/driver/driverSlice";
+import { RootState } from "../../redux/store";
+import { getAxiosErrorMessage } from "../../utils/handleAxiosError";
 
 const ForgotPassword = () => {
   const [step, setStep] = useState(1);
@@ -16,75 +23,77 @@ const ForgotPassword = () => {
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [resendLoading, setResendLoading] = useState(false);
-  const [timer, setTimer] = useState(30); 
+  const [timer, setTimer] = useState(30);
   const [canResend, setCanResend] = useState(false);
   const [error, setError] = useState("");
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
 
-  const { loading } = useSelector((state: any) => state.user);
+  const { loading } = useSelector((state: RootState) => state.user);
 
   useEffect(() => {
-    let countdown: NodeJS.Timeout;
     if (timer > 0) {
-      countdown = setInterval(() => {
+      const countdown = setInterval(() => {
         setTimer((prev) => prev - 1);
       }, 1000);
-    } else {
-      setCanResend(true);
+
+      return () => clearInterval(countdown);
     }
-    return () => clearInterval(countdown);
+
+    setCanResend(true);
   }, [timer]);
-  
-  const handleSendOtp = () => {
+  const handleSendOtp = async () => {
     if (!email.trim()) {
       setError("Email is required");
       return;
     }
     setError("");
-    dispatch(sendOtp(email)).then((res: any) => {
-      console.log("ressendOtp", res);
-      if (res.payload?.message) {
-        toast.success("OTP sent successfully!");
-        setStep(2);
-        setTimer(30);
-        setCanResend(false);
-      } else {
-        setError(res.payload || "Failed to send OTP");
-      }
-    });
+    try {
+      const response = await dispatch(sendOtp(email)).unwrap();
+
+      console.log("sendOtp response:", response);
+
+      toast.success(response.message || "OTP sent successfully!");
+      setStep(2);
+      setTimer(30);
+      setCanResend(false);
+    } catch (error) {
+      const err = getAxiosErrorMessage(error);
+      setError(err || "Failed to send OTP");
+    }
   };
-  const handleVerifyOtp = () => {
+  const handleVerifyOtp = async () => {
     if (!otp.trim()) {
-      setError("OTP is required")
+      setError("OTP is required");
       return;
     }
     setError("");
-    dispatch(verifyOtp({ email, otp })).then((res: any) => {
-      if (res.error) {
-        setError(res.payload || "Invalid OTP");
-        setOtp("")
-      } else {
-        toast.success("OTP verified successfully!");
-        setStep(3);
-      }
-    });
+    try {
+      const resp = await dispatch(verifyOtp({ email, otp })).unwrap();
+      toast.success(resp.message || "OTP verified successfully!");
+      setStep(3);
+    } catch (error) {
+      const err = getAxiosErrorMessage(error);
+      setError(err || "Invalid OTP");
+      setOtp("");
+    }
   };
   const handleResendOtp = async () => {
     if (!canResend) return;
     setResendLoading(true);
-    dispatch(resendOtp(email))
-    .then((res: any) => {
-      if (res.payload?.message) {
-        toast.success("OTP resent successfully!");
-        setTimer(30);
-        setCanResend(false);
-        setOtp("");
-      } else {
-        setError(res.payload || "Failed to resend OTP");
-      }
-    })
-    .finally(() => setResendLoading(false));
+    setError("");
+    try {
+      const resp = await dispatch(resendOtp(email)).unwrap();
+      toast.success(resp.message || "OTP resent successfully!");
+      setTimer(30);
+      setCanResend(false);
+      setOtp("");
+    } catch (error) {
+      const err = getAxiosErrorMessage(error);
+      setError(err || "Failed to resend OTP");
+    } finally {
+      setResendLoading(false);
+    }
   };
   const handleResetPassword = async () => {
     if (!newPassword || !confirmPassword) {
@@ -102,19 +111,19 @@ const ForgotPassword = () => {
       setError("Passwords do not match");
       return;
     }
-    dispatch(resetPassword({ email, password: newPassword })).then(
-      (res: any) => {
-        if (res.payload?.message) {
-          toast.success("Password reset successfully!");
-          setStep(4);
-          setTimeout(() => {
-            navigate("/driver");
-          }, 3000);
-        } else {
-          setError(res.payload || "Failed to reset password");
-        }
-      }
-    );
+    try {
+      const resp = await dispatch(
+        resetPassword({ email, password: newPassword }),
+      ).unwrap();
+      toast.success(resp.message || "Password reset successfully!");
+      setStep(4);
+      setTimeout(() => {
+        navigate("/driver");
+      }, 3000);
+    } catch (error) {
+      const err = getAxiosErrorMessage(error);
+      toast.error(err || "Failed to reset password");
+    }
   };
   return (
     <div className="flex items-center justify-center min-h-screen bg-green-100 p-4">
@@ -164,7 +173,11 @@ const ForgotPassword = () => {
               }`}
               disabled={!canResend || resendLoading}
             >
-              {resendLoading ? "Resending..." : canResend ? "Resend OTP" : `Resend OTP (${timer}s)`}
+              {resendLoading
+                ? "Resending..."
+                : canResend
+                  ? "Resend OTP"
+                  : `Resend OTP (${timer}s)`}
             </button>
           </div>
         )}

@@ -13,6 +13,7 @@ import {
   FindDriverAttendanceReq,
 } from "../../dtos/attendance/attendanceDTO";
 import mongoose, { ClientSession, Types } from "mongoose";
+import { IDriverDocument } from "../../models/driver/interfaces/driverInterface";
 
 @injectable()
 export class AttendanceRepository
@@ -65,7 +66,7 @@ export class AttendanceRepository
     startDate.setHours(0, 0, 0, 0);
     const endDate = new Date(to);
     endDate.setHours(23, 59, 59, 999);
-    const matchStage: any = {
+    const matchStage: mongoose.FilterQuery<IDriverDocument> = {
       driverId: new mongoose.Types.ObjectId(driverId),
       status: "present",
     };

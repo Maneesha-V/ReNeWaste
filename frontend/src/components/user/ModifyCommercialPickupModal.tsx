@@ -10,6 +10,7 @@ import {
 } from "antd";
 import { useEffect, useState } from "react";
 import { ModifyCommercialPickupModalProps } from "../../types/common/modalTypes";
+import dayjs from "dayjs";
 
 const { Title, Text } = Typography;
 const { TextArea } = Input;
@@ -20,19 +21,19 @@ const ModifyCommercialPickupModal = ({
   onSubmit,
   currentFrequency,
 }: ModifyCommercialPickupModalProps) => {
-  const [requestType, setRequestType] = useState<
-    "Pause" | "FrequencyChange"
-  >("Pause");
+  const [requestType, setRequestType] = useState<"Pause" | "FrequencyChange">(
+    "Pause",
+  );
 
-  const [pauseUntil, setPauseUntil] = useState<any>(null);
+  const [pauseUntil, setPauseUntil] = useState<Date | null>(null);
   const [newFrequency, setNewFrequency] = useState<string>(currentFrequency);
 
   const [reason, setReason] = useState("");
-useEffect(() => {
-  if (currentFrequency) {
-    setNewFrequency(currentFrequency);
-  }
-}, [currentFrequency]);
+  useEffect(() => {
+    if (currentFrequency) {
+      setNewFrequency(currentFrequency);
+    }
+  }, [currentFrequency]);
   const handleSubmit = () => {
     onSubmit({
       requestType,
@@ -41,12 +42,12 @@ useEffect(() => {
       reason,
     });
   };
-console.log({
-      requestType,
-      pauseUntil,
-      newFrequency,
-      reason,
-    });
+  console.log({
+    requestType,
+    pauseUntil,
+    newFrequency,
+    reason,
+  });
 
   return (
     <Modal
@@ -59,9 +60,8 @@ console.log({
     >
       <Space direction="vertical" size="large" style={{ width: "100%" }}>
         <Text type="secondary">
-          Your recurring pickup schedule cannot be changed directly.
-          Submit a request to the waste plant. They will review and
-          approve your request.
+          Your recurring pickup schedule cannot be changed directly. Submit a
+          request to the waste plant. They will review and approve your request.
         </Text>
 
         <div>
@@ -72,13 +72,9 @@ console.log({
             onChange={(e) => setRequestType(e.target.value)}
           >
             <Space direction="vertical">
-              <Radio value="Pause">
-                Pause Recurring Pickup
-              </Radio>
+              <Radio value="Pause">Pause Recurring Pickup</Radio>
 
-              <Radio value="FrequencyChange">
-                Change Pickup Frequency
-              </Radio>
+              <Radio value="FrequencyChange">Change Pickup Frequency</Radio>
             </Space>
           </Radio.Group>
         </div>
@@ -90,13 +86,19 @@ console.log({
 
               <DatePicker
                 className="w-full mt-2"
-                value={pauseUntil}
-                onChange={(value) => setPauseUntil(value)}
-                disabledDate = {(current) => {
-                  const today = new Date();
-                  today.setHours(23,59,59,999);
-                  return current && current.toDate() <= today
-                }}
+                // value={pauseUntil}
+                value={pauseUntil ? dayjs(pauseUntil) : null}
+                onChange={(value) =>
+                  setPauseUntil(value ? value.toDate() : null)
+                }
+                // disabledDate = {(current) => {
+                //   const today = new Date();
+                //   today.setHours(23,59,59,999);
+                //   return current && current.toDate() <= today
+                // }}
+                disabledDate={(current) =>
+                  current ? current.isBefore(dayjs(), "day") : false
+                }
               />
             </div>
           </>
@@ -107,11 +109,7 @@ console.log({
             <div>
               <Text strong>Current Frequency</Text>
 
-              <Input
-                value={currentFrequency}
-                disabled
-                className="mt-2"
-              />
+              <Input value={currentFrequency} disabled className="mt-2" />
             </div>
 
             <div>
@@ -154,14 +152,13 @@ console.log({
         </div>
 
         <div className="flex justify-end gap-3">
-          <Button onClick={onClose}>
-            Cancel
-          </Button>
+          <Button onClick={onClose}>Cancel</Button>
 
           <Button type="primary" onClick={handleSubmit}>
             Submit Request
           </Button>
         </div>
+        
       </Space>
     </Modal>
   );

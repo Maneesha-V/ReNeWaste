@@ -117,13 +117,15 @@ const Residential = () => {
           })}
         </div>
       </div>
-
+      { user && (
       <PickupResidentialFormModal
         isOpen={isFormOpen}
         onClose={() => setIsFormOpen(false)}
         selectedDate={selectedDate}
         user={user}
       />
+      )}
+
       <Footer />
     </div>
   );

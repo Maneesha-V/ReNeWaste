@@ -11,10 +11,11 @@ interface RazorpayOptions {
     razorpay_order_id: string;
     razorpay_signature: string;
   }) => void;
+      
   prefill?: {
-    name: string;
-    email: string;
-    contact: string;
+    name?: string;
+    email?: string;
+    contact?: string;
   };
   notes?: {
     [key: string]: string;

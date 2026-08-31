@@ -2,15 +2,15 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { fetchWasteReportsService, filterReportsService } from "../../../services/wastePlant/reportService";
 import { getAxiosErrorMessage } from "../../../utils/handleAxiosError";
 import { WasteReportFilter } from "../../../types/wasteplant/wastePlantTypes";
-import { FetchWasteReportsResp, FilterWasteReportsResp } from "../../../types/wasteCollections/wasteCollectionTypes";
+import { FetchWasteReportsResp, FilterWasteReportsResp, PopWasteCollectionDTO } from "../../../types/wasteCollections/wasteCollectionTypes";
 
 
 interface SubscriptionState {
   loading: boolean;
   error: string | null;
   success: boolean;
-  wasteReports: any;
-  filterReports: any;
+  wasteReports: PopWasteCollectionDTO[];
+  filterReports: PopWasteCollectionDTO[];
 }
 
 const initialState: SubscriptionState = {
@@ -52,7 +52,7 @@ void,
       return response;
     } catch (error) {
       const msg = getAxiosErrorMessage(error);
-          return rejectWithValue({ message: msg });
+      return rejectWithValue({ message: msg });
     }
   }
 );

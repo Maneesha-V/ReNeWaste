@@ -9,16 +9,9 @@ import {
   ExclamationCircleOutlined,
   SyncOutlined,
 } from "@ant-design/icons";
+import { WPRefundModalProps } from "../../types/common/modalTypes";
 
-interface RefundModalProps {
-  visible: boolean;
-  onClose: () => void;
-  record: any;
-  onUpdateStatus: (status: string) => void;
-  onRefund: () => void;
-}
-
-const RefundModal: React.FC<RefundModalProps> = ({
+const RefundModal: React.FC<WPRefundModalProps> = ({
   visible,
   onClose,
   record,
@@ -35,7 +28,7 @@ const RefundModal: React.FC<RefundModalProps> = ({
   console.log("notifications", notifications);
   console.log("record", record);
   const reason = extractRefundReason(notifications, record.pickupId);
-  const status = record?.payment?.refundStatus;
+  const status = record?.payment?.refundStatus ?? "";
   const currentStepIndex =
     status === "Rejected"
       ? 2 

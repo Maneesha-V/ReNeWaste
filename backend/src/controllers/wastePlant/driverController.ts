@@ -49,17 +49,20 @@ export class DriverController implements IDriverController {
     try {
       const plantId = req.user?.id;
 
-      const { files } = req as any;
-
-      if (!files?.licenseFront || !files?.licenseBack) {
+      // const { files } = req as any;
+      // const { files } = req
+      const files = req.files as
+        | {
+            licenseFront?: Express.Multer.File[];
+            licenseBack?: Express.Multer.File[];
+          }
+        | undefined;
+      // if (!files?.licenseFront || !files?.licenseBack) {
+      if (!files?.licenseFront?.[0] || !files?.licenseBack?.[0]) {
         throw new ApiError(
           STATUS_CODES.BAD_REQUEST,
           MESSAGES.DRIVER.ERROR.IMG_ERRROR,
         );
-        // res
-        //   .status(400)
-        //   .json({ error: "Both license front and back images are required." });
-        // return;
       }
 
       const licenseFrontPath = files.licenseFront[0].path;
@@ -155,20 +158,25 @@ export class DriverController implements IDriverController {
     }
   }
   async updateDriver(
-    req: Request,
+    req: AuthRequest,
     res: Response,
     next: NextFunction,
   ): Promise<void> {
     try {
       const { driverId } = req.params;
-      const { files } = req as any;
-
+      // const { files } = req as any;
+      const files = req.files as
+        | {
+            licenseFront?: Express.Multer.File[];
+            licenseBack?: Express.Multer.File[];
+          }
+        | undefined;
       const updatedData = req.body;
-      if (files?.licenseFront) {
+      if (files?.licenseFront?.[0]) {
         updatedData.licenseFront = files.licenseFront[0].path;
       }
 
-      if (files?.licenseBack) {
+      if (files?.licenseBack?.[0]) {
         updatedData.licenseBack = files.licenseBack[0].path;
       }
 

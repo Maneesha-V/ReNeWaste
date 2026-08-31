@@ -46,7 +46,6 @@ export class WalletController implements IWalletController {
         .json({ transactions, balance, total, rewards });
     } catch (error) {
       console.log("wallet--error", error);
-
       next(error);
     }
   }

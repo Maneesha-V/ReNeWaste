@@ -2,7 +2,8 @@ import { useState } from "react";
 import { FormErrors } from "../types/common/commonTypes";
 
 
-const useFormValidation = <T extends Record<string, any>>(
+// const useFormValidation = <T extends Record<string, any>>(
+const useFormValidation = <T extends object>(
   initialValues: T,
   validate: (values: T) => { isValid: boolean; errors: FormErrors }
 ) => {

@@ -5,6 +5,8 @@ import { IDriverRepository } from "../../repositories/driver/interface/IDriverRe
 import { DriverMapper } from "../../mappers/DriverMapper";
 import { ApiError } from "../../utils/ApiError";
 import { MESSAGES, STATUS_CODES } from "../../utils/constantUtils";
+import { DriverDTO } from "../../dtos/driver/driverDTO";
+import { IDriverDocument } from "../../models/driver/interfaces/driverInterface";
 
 @injectable()
 export class ProfileService implements IProfileService {
@@ -22,7 +24,7 @@ export class ProfileService implements IProfileService {
     }
     return DriverMapper.mapDriverDTO(driver);
   }
-  async updateDriverProfile(driverId: string, updatedData: any) {
+  async updateDriverProfile(driverId: string, updatedData: Partial<IDriverDocument>) {
     const driver = await this.driverRepository.getDriverById(driverId);
     if (!driver) {
       throw new ApiError(

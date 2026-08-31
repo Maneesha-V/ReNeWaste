@@ -9,6 +9,7 @@ import axios from "axios";
 import { MESSAGES, STATUS_CODES } from "../../utils/constantUtils";
 import { ApiError } from "../../utils/ApiError";
 import { AuthRequest } from "../../dtos/base/BaseDTO";
+import { UploadApiResponse } from "cloudinary";
 
 @injectable()
 export class ProfileController implements IProfileController {
@@ -75,7 +76,7 @@ export class ProfileController implements IProfileController {
       }
 
       if (req.file) {
-        const uploadFromBuffer = (): Promise<any> => {
+        const uploadFromBuffer = (): Promise<UploadApiResponse> => {
           return new Promise((resolve, reject) => {
             const stream = cloudinary.uploader.upload_stream(
               {
@@ -85,6 +86,9 @@ export class ProfileController implements IProfileController {
               },
               (error, result) => {
                 if (error) return reject(error);
+                if (!result) {
+                  return reject(new Error("Cloudinary upload failed"));
+                }
                 resolve(result);
               },
             );

@@ -173,7 +173,7 @@ const LandingPage = () => {
                 </div>
                 {suggestions.length > 0 && (
                   <div className="absolute left-0 right-0 mt-1 bg-white border rounded-lg shadow-lg z-20 max-h-60 overflow-y-auto">
-                    {suggestions.map((item: any) => (
+                    {suggestions.map((item: LocationSuggestion) => (
                       <div
                         key={item.placeId}
                         onClick={() => handleSelect(item)}

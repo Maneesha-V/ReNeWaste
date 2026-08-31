@@ -12,7 +12,7 @@ const AddTruck = () => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const { errors, validateField, setErrors } = useWastePlantValidation();
-  //   const { loading, error } = useSelector((state: any) => state.user);
+
   const [formData, setFormData] = useState<TruckFormData>({
     name: "",
     vehicleNumber: "",

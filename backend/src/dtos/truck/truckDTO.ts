@@ -48,6 +48,22 @@ export interface ITruckExtDocument
     renewNotificationSent?: boolean;
   };
 }
+export type TruckPendingDTO = {
+  _id: string;
+  name: string;
+  vehicleNumber: string;
+  capacity: number;
+  assignedDriver?: {
+    _id: string;
+    name: string;
+    assignedZone: string;
+  };
+  wasteplantId?: string;
+  status: string;
+  isReturned?: boolean;
+  tareWeight?: number;
+  isDeleted?: boolean;
+};
 export interface TruckAvailbleDTO extends BaseDTO {
   name: string;
   vehicleNumber: string;

@@ -26,13 +26,13 @@ import {
 } from "../../redux/slices/wastePlant/wastePlantReportsSlice";
 import { useAppDispatch } from "../../redux/hooks";
 import { formatDateToDDMMYYYY } from "../../utils/formatDate";
-import { PopWasteCollectionDTO } from "../../types/wasteCollections/wasteCollectionTypes";
+import { LineChartData, PieChartData, PopWasteCollectionDTO } from "../../types/wasteCollections/wasteCollectionTypes";
 
-declare module "jspdf" {
-  interface jsPDF {
-    autoTable: (options: any) => jsPDF;
-  }
-}
+// declare module "jspdf" {
+//   interface jsPDF {
+//     autoTable: (options: any) => jsPDF;
+//   }
+// }
 
 const WasteReports = () => {
   const dispatch = useAppDispatch();
@@ -58,11 +58,11 @@ const WasteReports = () => {
       setShowFiltered(true);
     }
   };
-  const dataToUse = (showFiltered ? filteredData : wasteData) || [];
+  const dataToUse: PopWasteCollectionDTO[] = (showFiltered ? filteredData : wasteData) || [];
   console.log("dataToUse", dataToUse);
 
   const exportToCSV = () => {
-    const formattedData = dataToUse.map((item: any) => ({
+    const formattedData = dataToUse.map((item) => ({
       Date: item.returnedAt ? formatDateToDDMMYYYY(item.returnedAt) : "N/A",
       "Waste Type": item.wasteType,
       Driver: item.driver?.name || "N/A",
@@ -121,7 +121,7 @@ const WasteReports = () => {
     doc.save("WasteReport.pdf");
   };
 
-  const pieChartData = dataToUse.reduce((acc: any[], report: any) => {
+  const pieChartData = dataToUse.reduce<PieChartData[]>((acc, report) => {
     const type = report.wasteType;
     const weight = report.collectedWeight || 0;
 
@@ -135,7 +135,7 @@ const WasteReports = () => {
     return acc;
   }, []);
 
-  const lineChartData = dataToUse.reduce((acc: any[], report: any) => {
+  const lineChartData = dataToUse.reduce<LineChartData[]>((acc, report) => {
     const date = report.returnedAt
       ? formatDateToDDMMYYYY(report.returnedAt)
       : null;
@@ -278,7 +278,7 @@ const WasteReports = () => {
                     fill="#8884d8"
                     label
                   >
-                    {pieChartData.map((_: any, index: number) => (
+                    {pieChartData.map((_, index: number) => (
                       <Cell
                         key={`cell-${index}`}
                         fill={

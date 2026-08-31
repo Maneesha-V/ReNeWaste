@@ -15,14 +15,8 @@ import {
 } from "../../utils/formatDate";
 import { getAxiosErrorMessage } from "../../utils/handleAxiosError";
 import { DriverDTO } from "../../types/driver/driverTypes";
-import { TruckDTO } from "../../types/truck/truckTypes";
-
-interface AssignDriverModalProps {
-  visible: boolean;
-  onClose: () => void;
-  pickup: any;
-  onSuccess: () => void;
-}
+import { TruckAvailbleDTO } from "../../types/truck/truckTypes";
+import { AssignDriverModalProps } from "../../types/common/modalTypes";
 
 const AssignDriverModal = ({
   visible,
@@ -33,10 +27,9 @@ const AssignDriverModal = ({
   const dispatch = useAppDispatch();
   const [selectedDriver, setSelectedDriver] = useState<string | null>(null);
   const { drivers } = useSelector((state: RootState) => state.wastePlantPickup);
-  const { trucks } = useSelector((state: RootState) => state.wastePlantTruck);
+  const { availabletrucksForDriver: trucks } = useSelector((state: RootState) => state.wastePlantTruck);
   const [form] = Form.useForm();
 
-  // const token = localStorage.getItem("token");
   console.log("selectedDriver",selectedDriver);
 
   console.log("trucks", trucks);
@@ -44,10 +37,10 @@ const AssignDriverModal = ({
   console.log("pickup", pickup);
   useEffect(() => {
 
-    if (visible && pickup?.wasteplantId) {
-      dispatch(fetchDriversByPlace(pickup?.location));
+    if (visible && pickup.wasteplantId && pickup.location) {
+      dispatch(fetchDriversByPlace(pickup.location));
     }
-  }, [visible, pickup?.wasteplantId, pickup?.location, dispatch]);
+  }, [visible, pickup.wasteplantId, pickup.location, dispatch]);
 
   useEffect(() => {
     if (trucks.length === 1) {
@@ -72,7 +65,7 @@ const AssignDriverModal = ({
     : [];
   console.log("filteredDrivers", filteredDrivers);
   const filteredTrucks = Array.isArray(trucks)
-    ? trucks.filter((t: TruckDTO) => {
+    ? trucks.filter((t: TruckAvailbleDTO) => {
         if (pickup?.wasteType?.toLowerCase() === "residential") {
           return t.capacity < 5000;
         } else if (pickup?.wasteType?.toLowerCase() === "commercial") {
@@ -118,13 +111,13 @@ const AssignDriverModal = ({
       <div className="mb-4 grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <p>
-            <strong>PickupID:</strong> {pickup?.pickupId}
+            <strong>PickupID:</strong> {pickup.pickupId}
           </p>
           <p>
-            <strong>User:</strong> {pickup?.userName}
+            <strong>User:</strong> {pickup.userName}
           </p>
           <p>
-            <strong>Location:</strong> {pickup?.location}
+            <strong>Location:</strong> {pickup.location}
           </p>
           <p>
             <strong>Pickup Date:</strong>{" "}
@@ -181,7 +174,7 @@ const AssignDriverModal = ({
           rules={[{ required: true, message: "Please select a truck" }]}
         >
           <Select placeholder="Select Truck">
-            {filteredTrucks.map((truck: TruckDTO) => (
+            {filteredTrucks.map((truck: TruckAvailbleDTO) => (
               <Select.Option key={truck._id} value={truck._id}>
                 {truck.name}
               </Select.Option>

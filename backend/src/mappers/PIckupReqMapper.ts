@@ -9,7 +9,10 @@ import {
   IPickupRequestExtDocument,
 } from "../dtos/pickupReq/pickupReqDTO";
 import { IPayment } from "../models/pickupRequests/interfaces/paymentInterface";
-import { IPickupRequestDocument } from "../models/pickupRequests/interfaces/pickupInterface";
+import {
+  IPickupRequestDocument,
+  PopulatedPickups,
+} from "../models/pickupRequests/interfaces/pickupInterface";
 
 export class PickupRequestMapper {
   static mapPickupReqDTO(doc: IPickupRequestDocument): PickupReqDTO {
@@ -68,9 +71,9 @@ export class PickupRequestMapper {
       location: primaryAddress?.location ?? "",
       // driverId: doc.driverId?._id?.toString(),
       driverId: {
-          _id: doc.driverId?._id?.toString() ?? "",
-          name: doc.driverId?.name?.toString() ?? "",
-          assignedZone: doc.driverId?.assignedZone?.toString() ?? "",
+        _id: doc.driverId?._id?.toString() ?? "",
+        name: doc.driverId?.name?.toString() ?? "",
+        assignedZone: doc.driverId?.assignedZone?.toString() ?? "",
       },
       wasteplantId: doc.wasteplantId?.toString(),
       truckId: doc.truckId?._id?.toString(),
@@ -90,7 +93,7 @@ export class PickupRequestMapper {
       isPaused: doc.isPaused,
       pauseUntil: doc.pauseUntil ?? null,
       requestType: doc.requestType ?? null,
-      requestedFrequency: doc.requestedFrequency ?? null
+      requestedFrequency: doc.requestedFrequency ?? null,
     };
   }
 
@@ -211,5 +214,78 @@ export class PickupRequestMapper {
     return docs.map((doc) =>
       this.mapGetPickupReqDTO(doc as IPickupRequestExtDocument),
     );
+  }
+  static mapPopulatedPickupReqDTO(doc: PopulatedPickups): PickupReqGetDTO {
+    return {
+      _id: doc._id.toString(),
+
+      userId: {
+        _id: doc.userId._id.toString(),
+        firstName: doc.userId.firstName,
+        lastName: doc.userId.lastName,
+      },
+
+      userName: doc.userName,
+
+      userAddress: doc.userAddress
+        ? {
+            _id: doc.userAddress._id.toString(),
+            addressLine1: doc.userAddress.addressLine1,
+            addressLine2: doc.userAddress.addressLine2,
+            taluk: doc.userAddress.taluk,
+            location: doc.userAddress.location,
+            state: doc.userAddress.state,
+            pincode: doc.userAddress.pincode,
+            district: doc.userAddress.district,
+            latitude: doc.userAddress.latitude ?? 0,
+            longitude: doc.userAddress.longitude ?? 0,
+          }
+        : undefined,
+
+      location: doc.location,
+
+      driverId: doc.driverId
+        ? {
+            _id: doc.driverId._id.toString(),
+            name: doc.driverId.name,
+            assignedZone: doc.driverId.assignedZone,
+          }
+        : {
+            _id: "",
+            name: "",
+            assignedZone: "",
+          },
+
+      wasteplantId: doc.wasteplantId?.toString(),
+      truckId: doc.truckId?.toString(),
+      addressId: doc.addressId?.toString(),
+
+      wasteType: doc.wasteType,
+      originalPickupDate: doc.originalPickupDate,
+      rescheduledPickupDate: doc.rescheduledPickupDate,
+      pickupTime: doc.pickupTime,
+      pickupId: doc.pickupId,
+
+      businessName: doc.businessName,
+      service: doc.service,
+      frequency: doc.frequency,
+
+      status: doc.status,
+      trackingStatus: doc.trackingStatus,
+
+      eta: doc.eta,
+
+      payment: doc.payment,
+
+      isPaused: doc.isPaused,
+      pauseUntil: doc.pauseUntil ?? null,
+      requestType: doc.requestType ?? null,
+      requestedFrequency: doc.requestedFrequency ?? null,
+    };
+  }
+  static mapPopulatedPickupReqsDTO(
+    docs: PopulatedPickups[],
+  ): PickupReqGetDTO[] {
+    return docs.map((doc) => this.mapPopulatedPickupReqDTO(doc));
   }
 }

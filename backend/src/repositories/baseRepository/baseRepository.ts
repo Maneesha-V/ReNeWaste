@@ -22,18 +22,18 @@ export default class BaseRepository<T extends Document>
 
   async findById(id: string, useLean = false): Promise<any> {
     const query = this.model.findById(id);
-    return useLean ? query.lean().exec() : query.exec();
+    if (useLean) {
+      return query.lean().exec();
+    }
+
+    return query.exec();
   }
 
-  // async findOne(filter: FilterQuery<T>): Promise<T | null> {
-  //   return this.model.findOne(filter);
-  // }
   async findOne(
     filter: FilterQuery<T>,
     projection?: ProjectionType<T>,
     useLean = false,
   ): Promise<any> {
-    // return await this.model.findOne(filter, projection).exec();
     const query = this.model.findOne(filter, projection);
     return useLean ? query.lean().exec() : query.exec();
   }

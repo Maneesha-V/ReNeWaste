@@ -12,7 +12,7 @@ export interface ISubscriptionService {
     data: PaginationInput,
   ): Promise<FetchSubscriptionPlansResp>;
   fetchActiveSubscriptionPlans(): Promise<SubsptnPlansDTO[]>;
-  deleteSubscriptionPlan(id: string): Promise<any>;
+  deleteSubscriptionPlan(id: string): Promise<SubsptnPlansDTO>;
   getSubscriptionPlanById(id: string): Promise<SubsptnPlansDTO>;
   updateSubscriptionPlanById({
     id,

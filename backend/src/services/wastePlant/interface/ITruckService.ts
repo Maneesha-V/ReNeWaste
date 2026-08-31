@@ -2,6 +2,7 @@ import {
   PaginatedResult,
   TruckAvailbleDTO,
   TruckDTO,
+  TruckPendingDTO,
 } from "../../../dtos/truck/truckDTO";
 import { ITruck } from "../../../models/truck/interfaces/truckInterface";
 
@@ -20,12 +21,12 @@ export interface ITruckService {
   getTruckByIdService(truckId: string): Promise<TruckDTO>;
   updateTruckByIdService(truckId: string, data: ITruck): Promise<TruckDTO>;
   deleteTruckByIdService(truckId: string): Promise<TruckDTO>;
-  pendingTruckReqsts(plantId: string): Promise<TruckDTO[]>;
+  pendingTruckReqsts(plantId: string): Promise<TruckPendingDTO[]>;
   availableTrucksForDriver(plantId: string): Promise<TruckDTO[]>;
   assignTruckToDriverService(
     plantId: string,
     driverId: string,
     truckId: string,
     prevTruckId: string,
-  ): Promise<TruckDTO[]>;
+  ): Promise<TruckPendingDTO[]>;
 }

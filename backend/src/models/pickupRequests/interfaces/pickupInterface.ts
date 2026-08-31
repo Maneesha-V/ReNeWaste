@@ -33,7 +33,7 @@ export interface IPickupRequest extends Document {
   completedAt?: Date | null;
   isPaused?: boolean;
   pauseUntil?: Date | null;
-  requestedFrequency? : string | null;
+  requestedFrequency?: string | null;
   requestType?: string | null;
   payment: IPayment;
   createdAt: Date;
@@ -56,12 +56,28 @@ export interface Address {
   longitude?: number | null;
 }
 export interface PopulatedUser {
-  _id: Types.ObjectId;
+  _id: mongoose.Types.ObjectId;
   firstName: string;
   lastName: string;
   addresses: Address[];
 }
-
+export interface PopulatedDriver {
+  _id: mongoose.Types.ObjectId;
+  name: string;
+  assignedZone: string;
+}
+export type PopulatedPickups = Omit<
+  IPickupRequestDocument,
+  "userId" | "driverId"
+> & {
+  userId: PopulatedUser;
+  driverId: PopulatedDriver | null;
+  userName: string;
+  userAddress: Address | undefined;
+  location: string;
+  driverName: string | null;
+  assignedZone: string | null;
+};
 export type PopulatedPickup = Omit<IPickupRequestDocument, "userId"> & {
   userId: PopulatedUser;
 };
@@ -85,9 +101,15 @@ export type FindDriverPlantTruckByIdReq = {
   truckId: string;
   plantId: string;
   driverId: string;
-}
+};
 export type PickupDriverFilterParamsRepo = {
   driverId: string;
+};
+export type UpdatePickupDateReq = {
+  driverId: string;
+  rescheduledPickupDate: string;
+  pickupTime: string;
+  status: string;
 };
 export type PickupStatusRepo =
   | "Pending"
@@ -96,72 +118,72 @@ export type PickupStatusRepo =
   | "Completed"
   | "Cancelled";
 
-  export type WasteTypeRepo = "Residential" | "Commercial";
+export type WasteTypeRepo = "Residential" | "Commercial";
 
-  export type StatusCounts = Record<PickupStatusRepo | "Active", number>;
-  
-  export type PickupStatusByWasteTypeRepo = Record<WasteTypeRepo, StatusCounts>;
-  export interface PopulatedPIckupPlansRepo
-    extends Omit<IPickupRequestDocument, "driverId" | "truckId" | "__v"> {
-    user: {
-      firstName: string;
-      lastName: string;
-      phone: string;
-    };
-    driverId?: IDriverDocument;
-    truckId?: ITruckDocument;
-    address: Address;
-  }
+export type StatusCounts = Record<PickupStatusRepo | "Active", number>;
 
-  export interface PopulatedUserPickupReqRepo  {
-    _id: string | Types.ObjectId;
-   userId: {
-      _id: string;
-      addresses: Address[];
-    };
-    driverId?: string;
-    wasteplantId?: string;
-    truckId?: string;
-    addressId: string;
-    wasteType: string;
-    originalPickupDate: Date;
-    rescheduledPickupDate?: Date;
-    pickupTime: string;
-    pickupId: string;
-    businessName?: string;
-    service?: string;
-    frequency?: string;
-    parentRequestId?: string;
-    status: string;
-    trackingStatus?: string | null;
-    eta?: {
-      text: string | null;
-      value: number | null;
-    };
-    completedAt: Date;
-    isPaused?: boolean;
-    pauseUntil?: Date | null;
-    requestedFrequency? : string | null;
-    requestType?: string | null;
-    payment: PaymentRepo;
-  }
-  export interface PaymentRepo {
-    status: string;
-    method: string;
-    razorpayOrderId: string | null;
-    razorpayPaymentId: string | null;
-    razorpaySignature: string | null;
-    amount: number;
-    paidAt: Date | null;
-    refundRequested: boolean;
-    refundStatus: string | null;
-    refundAt: Date | null;
-    razorpayRefundId: string | null;
-    inProgressExpiresAt: Date | null;
-    walletOrderId?: string | null;
-    walletRefundId?: string | null;
-  }
-  export type FilterReportRepo = {
+export type PickupStatusByWasteTypeRepo = Record<WasteTypeRepo, StatusCounts>;
+export interface PopulatedPIckupPlansRepo
+  extends Omit<IPickupRequestDocument, "driverId" | "truckId" | "__v"> {
+  user: {
+    firstName: string;
+    lastName: string;
+    phone: string;
+  };
+  driverId?: IDriverDocument;
+  truckId?: ITruckDocument;
+  address: Address;
+}
+
+export interface PopulatedUserPickupReqRepo {
+  _id: string | Types.ObjectId;
+  userId: {
+    _id: string;
+    addresses: Address[];
+  };
+  driverId?: string;
+  wasteplantId?: string;
+  truckId?: string;
+  addressId: string;
+  wasteType: string;
+  originalPickupDate: Date;
+  rescheduledPickupDate?: Date;
+  pickupTime: string;
+  pickupId: string;
+  businessName?: string;
+  service?: string;
+  frequency?: string;
+  parentRequestId?: string;
+  status: string;
+  trackingStatus?: string | null;
+  eta?: {
+    text: string | null;
+    value: number | null;
+  };
+  completedAt: Date;
+  isPaused?: boolean;
+  pauseUntil?: Date | null;
+  requestedFrequency?: string | null;
+  requestType?: string | null;
+  payment: PaymentRepo;
+}
+export interface PaymentRepo {
+  status: string;
+  method: string;
+  razorpayOrderId: string | null;
+  razorpayPaymentId: string | null;
+  razorpaySignature: string | null;
+  amount: number;
+  paidAt: Date | null;
+  refundRequested: boolean;
+  refundStatus: string | null;
+  refundAt: Date | null;
+  razorpayRefundId: string | null;
+  inProgressExpiresAt: Date | null;
+  walletOrderId?: string | null;
+  walletRefundId?: string | null;
+}
+export type FilterReportRepo = {
   from: string;
   to: string;
   plantId: string;
@@ -172,12 +194,12 @@ export type PickupFilterParamsRepo = {
   plantId: string;
 };
 export type FetchWPDashboardRepo = {
-    filter: string;
-    plantId: string;
-    from: string;
-    to: string;
-  }
-   export interface PickupTrendResultRepo {
+  filter: string;
+  plantId: string;
+  from: string;
+  to: string;
+};
+export interface PickupTrendResultRepo {
   date: string;
   totalPickups: number;
   residential: number;

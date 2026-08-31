@@ -15,6 +15,7 @@ import { MESSAGES, STATUS_CODES } from "../../utils/constantUtils";
 import { ApiError } from "../../utils/ApiError";
 import { ISubscriptionService } from "../../services/superAdmin/interface/ISubscriptionService";
 import { AuthRequest } from "../../dtos/base/BaseDTO";
+import { UploadApiResponse } from "cloudinary";
 
 @injectable()
 export class WastePlantController implements IWastePlantController {
@@ -61,7 +62,7 @@ export class WastePlantController implements IWastePlantController {
         );
       }
 
-      const uploadFromBuffer = (): Promise<any> => {
+      const uploadFromBuffer = (): Promise<UploadApiResponse> => {
         return new Promise((resolve, reject) => {
           const stream = cloudinary.uploader.upload_stream(
             {
@@ -288,7 +289,7 @@ export class WastePlantController implements IWastePlantController {
             MESSAGES.WASTEPLANT.ERROR.PDF_FILES_REQUIRED,
           );
         }
-        const uploadFromBuffer = (): Promise<any> => {
+        const uploadFromBuffer = (): Promise<UploadApiResponse> => {
           return new Promise((resolve, reject) => {
             const stream = cloudinary.uploader.upload_stream(
               {

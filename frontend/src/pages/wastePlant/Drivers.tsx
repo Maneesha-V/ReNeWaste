@@ -15,6 +15,7 @@ import PaginationSearch from "../../components/common/PaginationSearch";
 import { debounce } from "lodash";
 import { toast } from "react-toastify";
 import { getAxiosErrorMessage } from "../../utils/handleAxiosError";
+import { DriverDTO } from "../../types/driver/driverTypes";
 
 const Drivers: React.FC = () => {
   const dispatch = useAppDispatch();
@@ -126,7 +127,7 @@ const Drivers: React.FC = () => {
               <Table.Column
                 title="Action"
                 key="action"
-                render={(_: any, record: any) => (
+                render={(_: unknown, record: DriverDTO) => (
                   <div className="flex flex-wrap gap-2">
                     <Button
                       icon={<EditOutlined />}

@@ -10,7 +10,7 @@ export type DriverDTO = {
   licenseNumber: string;
   contact: string;
   experience: number;
-  status: string;
+  status: DriverStatus;
   licenseFront: string;
   licenseBack: string;
   role: string;
@@ -18,7 +18,7 @@ export type DriverDTO = {
   assignedTruckId?: string;
   assignedZone?: string;
   hasRequestedTruck?: boolean;
-  category: string;
+  category: CategoryType;
   isDeleted?: boolean;
 };
 export type ReturnTaluk = {
@@ -117,18 +117,20 @@ export type markReturnedProps = {
 export interface ValidationErrors {
   [field: string]: string;
 }
+export type DriverStatus = "Active" | "Inactive" | "Suspended";
+export type CategoryType = "Residential" | "Commercial" | "Pending";
 export type DriverFormData = {
   name: string;
   contact: string;
   email: string;
   licenseNumber: string;
   experience: number;
-  status: "Active" | "Inactive" | "Suspended";
+  status: DriverStatus;
   password: string;
   licenseFront?: File;
   licenseBack?: File;
   assignedZone: string;
-  category: "Residential" | "Commercial" | "Pending";
+  category: CategoryType;
 };
 export type PartialDriverFormData = Partial<DriverFormData>;
 export type FetchDriverPickupsReq = {

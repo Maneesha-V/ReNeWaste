@@ -4,7 +4,7 @@ import { useAppDispatch } from "../../redux/hooks";
 import {assignTruckToDriver, fetchTruckRequests, fetchTrucksForDriver } from "../../redux/slices/wastePlant/wastePlantTruckSlice";
 import { useSelector } from "react-redux";
 import { RootState } from "../../redux/store";
-import { TruckDTO } from "../../types/truck/truckTypes";
+import { PendingTruckDTO, TruckDTO } from "../../types/truck/truckTypes";
 
 const { Title } = Typography;
 const { Option } = Select;
@@ -76,11 +76,15 @@ const AssignNewTruck = () => {
     {
       title: "Action",
       key: "action",
-      render: (_: any, record: any) => (
+      render: (_: unknown, record: PendingTruckDTO) => (
         <Space>
           <Button
             type="primary"
-            onClick={() => showAssignModal(record.assignedDriver._id, record.assignedDriver.name, record._id)}
+            // onClick={() => showAssignModal(record.assignedDriver._id, record.assignedDriver.name, record._id)}
+            onClick={() => {
+              if(!record.assignedDriver) return;
+              showAssignModal(record.assignedDriver._id, record.assignedDriver.name, record._id)
+            }}
           >
             Assign
           </Button>

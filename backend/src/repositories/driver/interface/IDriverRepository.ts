@@ -23,7 +23,7 @@ export interface IDriverRepository {
   getDriverById(driverId: string): Promise<IDriverDocument | null>;
   updateDriverById(
     driverId: string,
-    data: any,
+    data: Partial<IDriverDocument>,
   ): Promise<IDriverDocument | null>;
   deleteDriverById(driverId: string): Promise<IDriverDocument>;
   fetchDriversByPlantId(wastePlantId: string): Promise<IDriverDocument[]>;

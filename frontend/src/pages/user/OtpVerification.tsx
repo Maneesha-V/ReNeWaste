@@ -9,8 +9,9 @@ import {
 import { useAppDispatch } from "../../redux/hooks";
 import { useNavigate } from "react-router-dom";
 import { getAxiosErrorMessage } from "../../utils/handleAxiosError";
+import { SignupRequest } from "../../types/user/userTypes";
 
-const OtpVerification = ({ formData }: { formData: any }) => {
+const OtpVerification = ({ formData }: { formData: SignupRequest }) => {
   const [otp, setOtp] = useState("");
   const [timer, setTimer] = useState(30);
   const [resendLoading, setResendLoading] = useState(false);

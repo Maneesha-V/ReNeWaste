@@ -31,7 +31,24 @@ export interface ISubscriptionPaymentDocument
     Document {
   _id: Types.ObjectId;
 }
+export type PopulatedPaymentDocument = Omit<
+  ISubscriptionPaymentDocument,
+  "wasteplantId" | "planId"
+> & {
+  wasteplantId: PopulatedWastePlantRepo;
+  planId: PopulatedPlanRepo;
+};
+export type PopulatedWastePlantRepo = {
+  _id: Types.ObjectId;
+  plantName: string;
+  ownerName: string;
+};
 
+export type PopulatedPlanRepo = {
+  _id: Types.ObjectId;
+  planName: string;
+  billingCycle: string;
+};
 export type CreateSubsptnPaymentPayload = {
   plantId: string;
   planId: string;

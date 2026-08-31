@@ -9,6 +9,7 @@ import {
   PaginatedResult,
   TruckAvailbleDTO,
   TruckDTO,
+  TruckPendingDTO,
 } from "../../dtos/truck/truckDTO";
 import { TruckMapper } from "../../mappers/TruckMapper";
 import { ApiError } from "../../utils/ApiError";
@@ -143,9 +144,9 @@ export class TruckService implements ITruckService {
     return TruckMapper.mapTruckDTO(truck);
   }
 
-  async pendingTruckReqsts(plantId: string): Promise<TruckDTO[]> {
+  async pendingTruckReqsts(plantId: string): Promise<TruckPendingDTO[]> {
     const trucks = await this.truckRepository.getMaintainanceTrucks(plantId);
-    return TruckMapper.mapTrucksDTO(trucks);
+    return TruckMapper.mapPendingTrucksDTO(trucks);
   }
 
   async availableTrucksForDriver(plantId: string): Promise<TruckDTO[]> {
@@ -157,7 +158,7 @@ export class TruckService implements ITruckService {
     driverId: string,
     truckId: string,
     prevTruckId: string,
-  ): Promise<TruckDTO[]> {
+  ): Promise<TruckPendingDTO[]> {
     const truck = await this.truckRepository.getTruckById(truckId);
     if (!truck) {
       throw new ApiError(
@@ -177,6 +178,7 @@ export class TruckService implements ITruckService {
       truckId,
       prevTruckId,
     );
-    return TruckMapper.mapTrucksDTO(updatedRequest);
+    // return TruckMapper.mapTrucksDTO(updatedRequest);
+    return TruckMapper.mapPendingTrucksDTO(updatedRequest);
   }
 }

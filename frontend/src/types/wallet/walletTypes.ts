@@ -73,6 +73,12 @@ export type GetWalletWPResp = {
   total: number;
   earnings: number;
 }
+export type GetWalletDriverResp = {
+  transactions: TransactionDTO[],
+  balance: number;
+  total: number;
+  rewards: number;
+}
 export type RevenueWPTrendDTO = { 
   totalRevenue: number;
   date: string; 

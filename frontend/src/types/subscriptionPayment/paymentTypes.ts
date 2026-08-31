@@ -37,6 +37,7 @@ export type SubscriptionPaymentHisDTO = {
   refundStatus: string;
   refundAt: Date | null;
   inProgressExpiresAt: Date | null;
+  razorpayRefundId: string | null;
 };
 export type RetryPaymentData = {
   planId: string;

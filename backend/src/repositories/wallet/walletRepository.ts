@@ -135,7 +135,7 @@ export class WalletRepository
     const { walletId, page, limit, search } = payload;
     const skip = (page - 1) * limit;
 
-    let searchMatch: any = {};
+    let searchMatch: PipelineStage.Match["$match"] = {};
 
     if (search && search.trim() !== "") {
       const trimmed = search.trim();
@@ -226,7 +226,7 @@ export class WalletRepository
     const { walletId, page, limit, search } = payload;
     const skip = (page - 1) * limit;
 
-    let searchMatch: any = {};
+    let searchMatch: PipelineStage.Match["$match"] = {};
 
     if (search && search.trim() !== "") {
       const trimmed = search.trim();
@@ -317,7 +317,7 @@ export class WalletRepository
     const { walletId, page, limit, search } = payload;
     const skip = (page - 1) * limit;
 
-    let searchMatch: any = {};
+    let searchMatch: PipelineStage.Match["$match"] = {};
 
     if (search && search.trim() !== "") {
       const trimmed = search.trim();
@@ -537,7 +537,7 @@ export class WalletRepository
     const { walletId, page, limit, search } = payload;
     const skip = (page - 1) * limit;
 
-    let searchMatch: any = {};
+    let searchMatch: PipelineStage.Match["$match"] = {};
 
     if (search && search.trim() !== "") {
       const trimmed = search.trim();

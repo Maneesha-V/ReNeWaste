@@ -3,6 +3,7 @@ import {
   ITruck,
   ITruckDocument,
   PaginatedTrucksResult,
+  PopulatedTruckDocument,
   ReturnFetchAllTrucksByPlantId,
 } from "../../../models/truck/interfaces/truckInterface";
 import { IDriverDocument } from "../../../models/driver/interfaces/driverInterface";
@@ -31,14 +32,14 @@ export interface ITruckRepository {
   ): Promise<ITruckDocument | null>;
   deleteTruckById(truckId: string): Promise<ITruckDocument | null>;
   reqTruckToWastePlant(driverId: string): Promise<IDriverDocument | null>;
-  getMaintainanceTrucks(plantId: string): Promise<ITruckDocument[]>;
+  getMaintainanceTrucks(plantId: string): Promise<PopulatedTruckDocument[]>;
   activeAvailableTrucks(plantId: string): Promise<ITruckDocument[]>;
   assignTruckToDriver(
     plantId: string,
     driverId: string,
     truckId: string,
     prevTruckId: string,
-  ): Promise<ITruckDocument[]>;
+  ): Promise<PopulatedTruckDocument[]>;
   updateAssignedDriver(
     truckId: string,
     driverId: string | Types.ObjectId,

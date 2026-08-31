@@ -1,18 +1,22 @@
 import { SubscriptionPaymentHisDTO } from "../subscriptionPayment/paymentTypes";
 
 export type SubsptnPlans = {
-  billingCycle?: string;
-  description?: string;
-  driverLimit?: number;
-  planName?: string;
-  price?: number;
-  trialDays?: number;
-  truckLimit?: number;
-  userLimit?: number;
-  status?: string;
-  isDeleted?: boolean;
+  billingCycle: string;
+  description: string;
+  driverLimit: number;
+  planName: string;
+  price: number;
+  trialDays: number;
+  truckLimit: number;
+  userLimit: number;
+  status: string;
+  isDeleted: boolean;
   _id: string;
 };
+export type SelectedPlan = {
+  plantData: PlantData | null;
+  subscriptionData: SubsptnPlans | null;
+}
 
 export type FetchSubsptnPlansResp = {
   success: boolean;
@@ -63,4 +67,17 @@ export type SubcptnPaymtPayload = {
   plantName: string;
   ownerName: string;
   license: string;
+};
+export type SubscriptionTableData = SubsptnPlans & {
+  // _id: string;
+  // planName: string;
+  // price: number;
+  // billingCycle: string;
+  // description: string;
+  // truckLimit: number;
+  // driverLimit: number;
+  // userLimit: number;
+  createdAt: string;
+  expiredAt: string;
+  plantStatus: string;
 };

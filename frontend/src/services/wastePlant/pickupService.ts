@@ -1,6 +1,6 @@
 import { axiosWasteplant } from "../../config/axiosClients";
 import { PickupCancelData } from "../../types/pickupReq/pickupTypes";
-import { FetchPickupReqParams } from "../../types/wasteplant/wastePlantTypes";
+import { FetchPickupReqParams, ReschedulePickupReq } from "../../types/wasteplant/wastePlantTypes";
 
 export const getPickups = async (params: FetchPickupReqParams) => {
   const response = await axiosWasteplant.get(
@@ -26,7 +26,7 @@ export const approvePickupService = async (
   );
   return response.data;
 };
-export const reschedulePickupService = async (formData: any) => {
+export const reschedulePickupService = async (formData: ReschedulePickupReq) => {
   const { pickupReqId, ...rest } = formData;
   const response = await axiosWasteplant.put(
     `/reschedule-pickup/${pickupReqId}`,

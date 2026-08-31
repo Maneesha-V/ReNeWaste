@@ -51,3 +51,12 @@ export type PopWasteCollectionDTO = {
   wasteType: string;
   returnedAt: Date | null;
 };
+export type PieChartData = {
+  type: string;
+  weight: number;
+};
+
+export type LineChartData = {
+  date: string;
+  collectedWeight: number;
+};

@@ -1,23 +1,24 @@
 import { useState } from "react";
 import Signup from "../../pages/user/Signup";
 import OtpVerification from "../../pages/user/OtpVerification";
+import { SignupRequest } from "../../types/user/userTypes";
 
 
 const OtpVerificationWrapper = () => {
   const [isOtpSent, setIsOtpSent] = useState(false);
-  const [formData, setFormData] = useState<any>(null); 
+  const [formData, setFormData] = useState<SignupRequest | null>(null); 
 
   return (
     <>
       {!isOtpSent ? (
         <Signup
-          onSignupSuccess={(data: any) => {
+          onSignupSuccess={(data) => {
             setIsOtpSent(true);
             setFormData(data);
           }}
         />
-      ) : (
-        <OtpVerification formData={formData} />
+      ) : (      
+        formData && <OtpVerification formData={formData} />
       )}
     </>
   );

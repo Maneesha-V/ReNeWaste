@@ -4,7 +4,7 @@ import {
   SubscriptionPaymentDTO,
   SubscriptionPaymentHisDTO,
 } from "../dtos/subscription/subscptnPaymentDTO";
-import { ISubscriptionPaymentDocument } from "../models/subsptnPayment/interface/subsptnPaymentInterface";
+import { ISubscriptionPaymentDocument, PopulatedPaymentDocument } from "../models/subsptnPayment/interface/subsptnPaymentInterface";
 
 export class SubscriptionPaymentMapper {
   static mapSubscptnPaymentDTO(
@@ -30,46 +30,84 @@ export class SubscriptionPaymentMapper {
       updatedAt: doc.updatedAt ?? null,
     };
   }
+  // static mapPopulatedPaymentHis(
+  //   doc: ISubscriptionPaymentDocument,
+  // ): SubscriptionPaymentHisDTO {
+  //   return {
+  //     _id: doc._id.toString(),
+  //     wasteplantId:
+  //       typeof doc.wasteplantId === "object" && "plantName" in doc.wasteplantId
+  //         ? {
+  //             _id: (doc.wasteplantId as any)._id.toString(),
+  //             plantName: (doc.wasteplantId as any).plantName || "",
+  //             ownerName: (doc.wasteplantId as any).ownerName || "",
+  //           }
+  //         : { _id: "", plantName: "", ownerName: "" },
+
+  //     planId:
+  //       typeof doc.planId === "object" && "planName" in doc.planId
+  //         ? {
+  //             _id: (doc.planId as any)._id.toString(),
+  //             planName: (doc.planId as any).planName || "",
+  //             billingCycle: (doc.planId as any).billingCycle || "",
+  //           }
+  //         : { _id: "", planName: "", billingCycle: "" },
+
+  //     status: doc.status ?? "Pending",
+  //     method: doc.method ?? "",
+  //     razorpayOrderId: doc.razorpayOrderId ?? "",
+  //     razorpayPaymentId: doc.razorpayPaymentId ?? "",
+  //     razorpaySignature: doc.razorpaySignature ?? "",
+  //     amount: doc.amount ?? 0,
+  //     paidAt: doc.paidAt ?? null,
+  //     expiredAt: doc.expiredAt ?? null,
+  //     refundRequested: doc.refundRequested ?? false,
+  //     refundStatus: doc.refundStatus ?? null,
+  //     razorpayRefundId: doc.razorpayRefundId ?? null,
+  //     refundAt: doc.refundAt ?? null,
+  //     inProgressExpiresAt: doc.inProgressExpiresAt ?? null,
+  //   };
+  // }
   static mapPopulatedPaymentHis(
-    doc: ISubscriptionPaymentDocument,
-  ): SubscriptionPaymentHisDTO {
-    return {
-      _id: doc._id.toString(),
-      wasteplantId:
-        typeof doc.wasteplantId === "object" && "plantName" in doc.wasteplantId
-          ? {
-              _id: (doc.wasteplantId as any)._id.toString(),
-              plantName: (doc.wasteplantId as any).plantName || "",
-              ownerName: (doc.wasteplantId as any).ownerName || "",
-            }
-          : { _id: "", plantName: "", ownerName: "" },
+  doc: PopulatedPaymentDocument,
+): SubscriptionPaymentHisDTO {
+  return {
+    _id: doc._id.toString(),
 
-      planId:
-        typeof doc.planId === "object" && "planName" in doc.planId
-          ? {
-              _id: (doc.planId as any)._id.toString(),
-              planName: (doc.planId as any).planName || "",
-              billingCycle: (doc.planId as any).billingCycle || "",
-            }
-          : { _id: "", planName: "", billingCycle: "" },
+    wasteplantId: {
+      _id: doc.wasteplantId._id.toString(),
+      plantName: doc.wasteplantId.plantName,
+      ownerName: doc.wasteplantId.ownerName,
+    },
 
-      status: doc.status ?? "Pending",
-      method: doc.method ?? "",
-      razorpayOrderId: doc.razorpayOrderId ?? "",
-      razorpayPaymentId: doc.razorpayPaymentId ?? "",
-      razorpaySignature: doc.razorpaySignature ?? "",
-      amount: doc.amount ?? 0,
-      paidAt: doc.paidAt ?? null,
-      expiredAt: doc.expiredAt ?? null,
-      refundRequested: doc.refundRequested ?? false,
-      refundStatus: doc.refundStatus ?? null,
-      razorpayRefundId: doc.razorpayRefundId ?? null,
-      refundAt: doc.refundAt ?? null,
-      inProgressExpiresAt: doc.inProgressExpiresAt ?? null,
-    };
-  }
-  static mapPopulatedList(
-    docs: ISubscriptionPaymentDocument[],
+    planId: {
+      _id: doc.planId._id.toString(),
+      planName: doc.planId.planName,
+      billingCycle: doc.planId.billingCycle,
+    },
+
+    status: doc.status ?? "Pending",
+    method: doc.method ?? "",
+    razorpayOrderId: doc.razorpayOrderId ?? "",
+    razorpayPaymentId: doc.razorpayPaymentId ?? "",
+    razorpaySignature: doc.razorpaySignature ?? "",
+    amount: doc.amount ?? 0,
+    paidAt: doc.paidAt ?? null,
+    expiredAt: doc.expiredAt ?? null,
+    refundRequested: doc.refundRequested ?? false,
+    refundStatus: doc.refundStatus ?? null,
+    razorpayRefundId: doc.razorpayRefundId ?? null,
+    refundAt: doc.refundAt ?? null,
+    inProgressExpiresAt: doc.inProgressExpiresAt ?? null,
+  };
+}
+  // static mapPopulatedList(
+  //   docs: ISubscriptionPaymentDocument[],
+  // ): SubscriptionPaymentHisDTO[] {
+  //   return docs.map((doc) => this.mapPopulatedPaymentHis(doc));
+  // }
+    static mapPopulatedList(
+    docs: PopulatedPaymentDocument[],
   ): SubscriptionPaymentHisDTO[] {
     return docs.map((doc) => this.mapPopulatedPaymentHis(doc));
   }

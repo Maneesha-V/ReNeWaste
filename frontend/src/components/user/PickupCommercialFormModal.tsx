@@ -44,17 +44,17 @@ const PickupCommercialFormModal: React.FC<PickupCommercialFormModalProps> = ({
   useEffect(() => {
     if (!isOpen) return;
 
-    if (user?.addresses?.length > 0 && user?.phone) {
+    if (user.addresses.length > 0 && user.phone) {
       setFormData((prev) => ({
         ...prev,
         phone: user.phone,
         service: serviceQuery
       } as PartialCommPickupReq ));
     }
-  }, [isOpen, user?.phone, user?.addresses, serviceQuery]);
+  }, [isOpen, user.phone, user.addresses, serviceQuery]);
   if (!isOpen || !user) return null;
 
-  const fullName = `${user?.firstName || ""} ${user?.lastName || ""}`;
+  const fullName = `${user.firstName || ""} ${user.lastName || ""}`;
 
   const handleNewAddressChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -67,8 +67,8 @@ const PickupCommercialFormModal: React.FC<PickupCommercialFormModalProps> = ({
     const [hour, minute] = value.split(":").map(Number);
     const totalMinutes = hour * 60 + minute;
   
-    const minTime = 9 * 60; // 9:00 AM
-    const maxTime = 18 * 60; // 6:00 PM
+    const minTime = 9 * 60; 
+    const maxTime = 18 * 60; 
   
     if (totalMinutes < minTime || totalMinutes > maxTime) {
       return "Pickup time must be between 9:00 AM and 6:00 PM.";

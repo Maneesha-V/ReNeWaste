@@ -2,6 +2,8 @@ import {
   ITruck,
   ITruckDocument,
   PaginatedTrucksResult,
+  PopulatedDriver,
+  PopulatedTruckDocument,
   ReturnFetchAllTrucksByPlantId,
 } from "../../models/truck/interfaces/truckInterface";
 import { TruckModel } from "../../models/truck/truckModel";
@@ -10,7 +12,7 @@ import { inject, injectable } from "inversify";
 import TYPES from "../../config/inversify/types";
 import BaseRepository from "../baseRepository/baseRepository";
 import { IDriverRepository } from "../driver/interface/IDriverRepository";
-import { Types } from "mongoose";
+import { FilterQuery, Types } from "mongoose";
 
 @injectable()
 export class TruckRepository
@@ -43,7 +45,7 @@ export class TruckRepository
 
     const searchRegex = new RegExp(search, "i");
 
-    const query: any = {
+    const query: FilterQuery<ITruckDocument> = {
       wasteplantId: plantId,
       isDeleted: false,
       $or: [
@@ -52,7 +54,7 @@ export class TruckRepository
         { status: { $regex: searchRegex } },
       ],
     };
-    if (!isNaN(Number(search))) {
+    if (!isNaN(Number(search)) && query.$or) {
       query.$or.push({ capacity: Number(search) });
     }
 
@@ -127,14 +129,21 @@ export class TruckRepository
       hasRequestedTruck: true,
     });
   }
-  async getMaintainanceTrucks(plantId: string) {
+  async getMaintainanceTrucks(plantId: string): Promise<PopulatedTruckDocument[]> {
     const trucks = await this.model
       .find({
         wasteplantId: plantId,
         status: "Maintenance",
       })
-      .populate("assignedDriver");
-    return trucks.filter((truck) => truck.assignedDriver !== null);
+      .populate<PopulatedDriver>("assignedDriver");
+    // return trucks.filter((truck) => truck.assignedDriver !== null);
+      return trucks.filter(
+    (
+      truck,
+    ): truck is typeof truck & {
+      assignedDriver: PopulatedDriver;
+    } => truck.assignedDriver != null,
+  );
   }
 
   async activeAvailableTrucks(plantId: string) {

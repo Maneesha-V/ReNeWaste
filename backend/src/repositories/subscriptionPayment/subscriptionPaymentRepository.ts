@@ -4,6 +4,9 @@ import {
   CreateSubsptnPaymentPayload,
   ISubscriptionPaymentDocument,
   PaymentUpdate,
+  PopulatedPaymentDocument,
+  PopulatedPlanRepo,
+  PopulatedWastePlantRepo,
   SubscriptionPaymentHisRepoResp,
   UpdateRefundStatusRepoReq,
   UpdateSubscptnPayload,
@@ -58,11 +61,23 @@ export class SubscriptionPaymentRepository
   }
   async findSubscriptionPayments(
     plantId: string,
-  ): Promise<ISubscriptionPaymentDocument[] | null> {
-    return await this.model
-      .find({ wasteplantId: plantId })
-      .populate({ path: "wasteplantId", select: "plantName ownerName" })
-      .populate({ path: "planId", select: "planName billingCycle" });
+  ): Promise<PopulatedPaymentDocument[]> {
+    // return await  this.model
+    //   .find({ wasteplantId: plantId })
+    //   .populate({ path: "wasteplantId", select: "plantName ownerName" })
+    //   .populate({ path: "planId", select: "planName billingCycle" });
+    const payments = await this.model
+    .find({ wasteplantId: plantId })
+    .populate({
+      path: "wasteplantId",
+      select: "plantName ownerName",
+    })
+    .populate({
+      path: "planId",
+      select: "planName billingCycle",
+    });
+
+  return payments as unknown as PopulatedPaymentDocument[];
   }
   async findSubscriptionPaymentById(
     id: string,
@@ -222,11 +237,15 @@ export class SubscriptionPaymentRepository
   }
   async findPlantSubscriptionPayment(plantId: string) {
     const now = new Date();
-    return await this.model.findOne({
-      wasteplantId: plantId,
+    // return await this.model.findOne({
+    //   wasteplantId: plantId,
       // status: {$or: ["Paid","Pending"]},
       // expiredAt : {$gt: now}
-    });
+    // });
+    return await this.model.findOne({
+      wasteplantId: plantId,
+    }).sort({paidAt: -1});
+
   }
   async updateSubptnPaymentStatus(
     subPayId: string,

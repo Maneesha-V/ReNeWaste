@@ -3,7 +3,6 @@ import { FilterQuery, ProjectionType, UpdateQuery } from "mongoose";
 export default interface IBaseRepository<T> {
   create(data: Partial<T>): Promise<T>;
   findById(id: string, useLean?: boolean): Promise<any>;
-  // findOne(filter: FilterQuery<T>): Promise<T | null>;
   findOne(
     filter: FilterQuery<T>,
     projection?: ProjectionType<T>,

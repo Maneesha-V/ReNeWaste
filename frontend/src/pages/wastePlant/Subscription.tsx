@@ -18,9 +18,13 @@ import { RazorpayResponse } from "../../types/pickupReq/paymentTypes";
 import { formatDateToDDMMYYYY } from "../../utils/formatDate";
 import { SubscriptionPaymentHisDTO } from "../../types/subscriptionPayment/paymentTypes";
 import { getAxiosErrorMessage } from "../../utils/handleAxiosError";
-import { SubcptnPaymtPayload } from "../../types/subscription/subscriptionTypes";
+import {
+  SubcptnPaymtPayload,
+  SubscriptionTableData,
+} from "../../types/subscription/subscriptionTypes";
 import SubscriptionPayModal from "../../components/wastePlant/SubscriptionPayModal";
 import CancelSubptnModal from "../../components/wastePlant/CancelSubptnModal";
+import { ColumnsType } from "antd/es/table";
 
 const { Title } = Typography;
 
@@ -41,12 +45,17 @@ const Subscription = () => {
   const [cancelSubsptn, setCancelSubsptn] = useState<string | null>(null);
 
   const { subscriptionData, plantData } = useSelector(
-    (state: RootState) => state.wastePlantSubscription.selectedPlan,
+    (state: RootState) => state.wastePlantSubscription,
   );
 
   const payments = useSelector(
     (state: RootState) => state.wastePlantSubscription.subPaymentsHis,
   );
+  // const selectedPlanData = useSelector(
+  //   (state: RootState) => state.wastePlantSubscription.selectedPlan,
+  // );
+  // const subscriptionData = selectedPlanData?.subscriptionData;
+  // const plantData = selectedPlanData?.plantData;
 
   console.log("subscriptionData", subscriptionData);
   console.log("plantData", plantData);
@@ -59,7 +68,13 @@ const Subscription = () => {
     if (subscriptionData) {
       const { truckLimit, driverLimit, userLimit, description } =
         subscriptionData;
-      setViewData({ truckLimit, driverLimit, userLimit, description });
+      // setViewData({ truckLimit, driverLimit, userLimit, description });
+      setViewData({
+        truckLimit: truckLimit ?? 0,
+        driverLimit: driverLimit ?? 0,
+        userLimit: userLimit ?? 0,
+        description: description ?? "",
+      });
       setIsModalVisible(true);
     }
   };
@@ -154,7 +169,8 @@ const Subscription = () => {
           },
         };
 
-        const razorpay = new (window as any).Razorpay(options);
+        // const razorpay = new (window as any).Razorpay(options);
+        const razorpay = new window.Razorpay(options);
         razorpay.open();
       }
     } catch (err) {
@@ -170,7 +186,7 @@ const Subscription = () => {
   const subActionColumn = {
     title: "Action",
     key: "action",
-    render: (record: any) => {
+    render: (_: unknown, record: SubscriptionTableData) => {
       const createdAt = new Date(record.createdAt);
       const now = new Date();
       const isAfter24Hours =
@@ -179,7 +195,7 @@ const Subscription = () => {
         (p: SubscriptionPaymentHisDTO) =>
           p.status?.trim().toLowerCase() === "pending",
       );
-  
+
       if (!isAfter24Hours) {
         return (
           <span style={{ color: "#8c8c8c" }}>Pay available after 24h</span>
@@ -194,17 +210,32 @@ const Subscription = () => {
         <Space>
           <Button
             type="primary"
-            onClick={() =>
+            // onClick={() =>
+            //   handlePay({
+            //     _id: subscriptionData?._id,
+            //     planName: subscriptionData?.planName,
+            //     billingCycle: subscriptionData?.billingCycle,
+            //     price: subscriptionData?.price,
+            //     plantName: plantData?.plantName,
+            //     ownerName: plantData?.ownerName,
+            //     license: plantData?.license,
+            //   })
+            // }
+            onClick={() => {
+              if (!subscriptionData || !plantData) {
+                return;
+              }
+
               handlePay({
-                _id: subscriptionData?._id,
-                planName: subscriptionData?.planName,
-                billingCycle: subscriptionData?.billingCycle,
-                price: subscriptionData?.price,
-                plantName: plantData?.plantName,
-                ownerName: plantData?.ownerName,
-                license: plantData?.license,
-              })
-            }
+                _id: subscriptionData._id!,
+                planName: subscriptionData.planName!,
+                billingCycle: subscriptionData.billingCycle!,
+                price: subscriptionData.price!,
+                plantName: plantData.plantName!,
+                ownerName: plantData.ownerName!,
+                license: plantData.license!,
+              });
+            }}
           >
             Pay
           </Button>
@@ -213,22 +244,29 @@ const Subscription = () => {
     },
   };
 
-
-  const expiryColumn = {
+  // const expiryColumn = {
+  const expiryColumn: ColumnsType<SubscriptionTableData>[number] = {
     title: "Expired At",
-    dataIndex: "expiryDate",
-    key: "expiryDate",
-    render: (_: any, record: any) => {
-      const expiryDate = record.expiredAt;
-      return (
-        <span style={{ color: "red", fontWeight: "bold" }}>
-          {expiryDate ? formatDateToDDMMYYYY(expiryDate) : "N/A"}
-        </span>
-      );
-    },
+    dataIndex: "expiredAt",
+    key: "expiredAt",
+    render: (_value, record) => (
+      <span style={{ color: "red", fontWeight: "bold" }}>
+        {record.expiredAt ? formatDateToDDMMYYYY(record.expiredAt) : "N/A"}
+      </span>
+    ),
+    // dataIndex: "expiryDate",
+    // key: "expiryDate",
+    // render: (_: any, record: PlantData) => {
+    //   const expiryDate = record.expiredAt;
+    //   return (
+    //     <span style={{ color: "red", fontWeight: "bold" }}>
+    //       {expiryDate ? formatDateToDDMMYYYY(expiryDate) : "N/A"}
+    //     </span>
+    //   );
+    // },
   };
 
-  const subPlanColumns = [
+  const subPlanColumns: ColumnsType<SubscriptionTableData> = [
     {
       title: "Plan Name",
       dataIndex: "planName",
@@ -238,7 +276,7 @@ const Subscription = () => {
       title: "Price",
       dataIndex: "price",
       key: "price",
-      render: (price: number) => `₹${price}`,
+      render: (price: number) => `₹${price ?? 0}`,
     },
     {
       title: "Billing Cycle",
@@ -280,13 +318,13 @@ const Subscription = () => {
       },
     },
   ];
- 
+
   const paidAtOnlyColumn = [
     {
       title: "Paid At",
       dataIndex: "paidAt",
       key: "paidAt",
-      render: (_: any, record: SubscriptionPaymentHisDTO) => {
+      render: (_: unknown, record: SubscriptionPaymentHisDTO) => {
         if (record.status?.toLowerCase() === "paid") {
           return <span>{formatDateToDDMMYYYY(record.paidAt)}</span>;
         }
@@ -294,12 +332,12 @@ const Subscription = () => {
       },
     },
   ];
-    const refundAtOnlyColumn = [
+  const refundAtOnlyColumn = [
     {
       title: "Refund At",
       dataIndex: "refundAt",
       key: "refundAt",
-      render: (_: any, record: SubscriptionPaymentHisDTO) => {
+      render: (_: unknown, record: SubscriptionPaymentHisDTO) => {
         if (record.refundStatus?.toLowerCase() === "refunded") {
           return <span>{formatDateToDDMMYYYY(record.refundAt)}</span>;
         }
@@ -311,7 +349,7 @@ const Subscription = () => {
     {
       title: "Action",
       key: "action",
-      render: (_: any, record: SubscriptionPaymentHisDTO) => {
+      render: (_: unknown, record: SubscriptionPaymentHisDTO) => {
         if (!record) return null;
 
         const status = record.status?.toLowerCase();
@@ -426,37 +464,36 @@ const Subscription = () => {
   const showPaidAtColumn = payments.some(
     (payment: SubscriptionPaymentHisDTO) => payment.status === "Paid",
   );
-   const showRefundAtColumn = payments.some(
+  const showRefundAtColumn = payments.some(
     (payment: SubscriptionPaymentHisDTO) => payment.refundStatus === "Refunded",
   );
   const showPaymentActionColumn = payments.some(
-  (payment: SubscriptionPaymentHisDTO) => {
-    const status = payment.status?.toLowerCase();
+    (payment: SubscriptionPaymentHisDTO) => {
+      const status = payment.status?.toLowerCase();
 
-    // Refund is currently active
-    if (payment.refundRequested) {
-      return true;
-    }
+      // Refund is currently active
+      if (payment.refundRequested) {
+        return true;
+      }
 
-    // Pending payment → Retry action
-    if (status === "pending") {
-      return true;
-    }
+      // Pending payment → Retry action
+      if (status === "pending") {
+        return true;
+      }
 
-    if (status === "paid" && payment.paidAt) {
-      const paidDate = new Date(payment.paidAt);
-      const now = new Date();
+      if (status === "paid" && payment.paidAt) {
+        const paidDate = new Date(payment.paidAt);
+        const now = new Date();
 
-      const diff = now.getTime() - paidDate.getTime();
-      const isWithin24Hours =
-        diff <= 24 * 60 * 60 * 1000;
+        const diff = now.getTime() - paidDate.getTime();
+        const isWithin24Hours = diff <= 24 * 60 * 60 * 1000;
 
-      return isWithin24Hours;
-    }
+        return isWithin24Hours;
+      }
 
-    return false;
-  }
-);
+      return false;
+    },
+  );
 
   const columns =
     plantData?.status === "Active"
@@ -466,22 +503,22 @@ const Subscription = () => {
     ...paymentColumns,
     ...(showPaidAtColumn ? paidAtOnlyColumn : []),
     ...(showRefundAtColumn ? refundAtOnlyColumn : []),
-     ...(showPaymentActionColumn ? paymentActionColumn : []),
+    ...(showPaymentActionColumn ? paymentActionColumn : []),
     // ...paymentActionColumn,
   ];
 
   return (
     <div style={{ padding: "24px" }}>
       <Title level={3}>Your Subscription Plan</Title>
-      {subscriptionData ? (
-        <Table
+      {subscriptionData && plantData ? (
+        <Table<SubscriptionTableData>
           columns={columns}
           dataSource={[
             {
               ...subscriptionData,
-              createdAt: plantData?.createdAt,
-              expiredAt: plantData?.expiredAt,
-              plantStatus: plantData?.status,
+              createdAt: plantData.createdAt,
+              expiredAt: plantData.expiredAt,
+              plantStatus: plantData.status,
             },
           ]}
           rowKey="_id"

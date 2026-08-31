@@ -2,8 +2,9 @@ import {
   ITruckExtDocument,
   TruckAvailbleDTO,
   TruckDTO,
+  TruckPendingDTO,
 } from "../dtos/truck/truckDTO";
-import { ITruckDocument } from "../models/truck/interfaces/truckInterface";
+import { ITruckDocument, PopulatedTruckDocument } from "../models/truck/interfaces/truckInterface";
 
 export class TruckMapper {
   static mapTruckDTO(doc: ITruckDocument): TruckDTO {
@@ -22,6 +23,29 @@ export class TruckMapper {
   }
   static mapTrucksDTO(docs: ITruckDocument[]): TruckDTO[] {
     return docs.map((doc) => this.mapTruckDTO(doc));
+  }
+  static mapPendingTrucksDTO(docs: PopulatedTruckDocument[]): TruckPendingDTO[] {
+    return docs.map((doc) => this.mapPendingTruckDTO(doc));
+  }
+  static mapPendingTruckDTO(doc: PopulatedTruckDocument): TruckPendingDTO {
+    return {
+      _id: doc._id.toString(),
+      name: doc.name ?? "",
+      vehicleNumber: doc.vehicleNumber ?? "",
+      capacity: doc.capacity,
+      assignedDriver: doc.assignedDriver
+      ? {
+          _id: doc.assignedDriver._id.toString(),
+          name: doc.assignedDriver.name,
+          assignedZone: doc.assignedDriver.assignedZone,
+        }
+      : undefined,
+      wasteplantId: doc.wasteplantId?.toString(),
+      status: doc.status ?? "Pending",
+      isReturned: doc.isReturned,
+      tareWeight: doc.tareWeight,
+      isDeleted: doc.isDeleted,
+    };
   }
   static mapAvailableTruckDTO(doc: ITruckExtDocument): TruckAvailbleDTO {
     return {

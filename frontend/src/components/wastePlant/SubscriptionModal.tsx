@@ -44,19 +44,17 @@ const SubscriptionModal: React.FC<SubscriptionModalProps> = ({
         return;
       }
 
-      // 2. Load Razorpay script
       await loadRazorpayScript();
 
-      // 3. Setup Razorpay options
       const options = {
         key: import.meta.env.VITE_RAZORPAY_KEY_ID,
         amount: paymentOrder.amount, // amount in paise
         currency: paymentOrder.currency,
         name: "ReNeWaste",
-        description: selectedPlan.planName,
+        description: selectedPlan.planName ?? "Subscription Plan",
         order_id: paymentOrder.orderId,
         handler: async function (response: RazorpayResponse) {
-          // 4. On success → verify payment
+    
           console.log("response", response);
 
           const { razorpay_order_id, razorpay_payment_id, razorpay_signature } =
@@ -88,8 +86,8 @@ const SubscriptionModal: React.FC<SubscriptionModalProps> = ({
         theme: { color: "#4CAF50" },
       };
 
-      // 5. Open Razorpay Checkout
-      const rzp = new (window as any).Razorpay(options);
+      // const rzp = new (window as any).Razorpay(options);
+      const rzp = new window.Razorpay(options);
       rzp.open();
     } catch (err) {
       const msg = getAxiosErrorMessage(err);

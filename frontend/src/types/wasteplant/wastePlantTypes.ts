@@ -97,9 +97,9 @@ export type PaymentRecord = {
     amount: number;
     paidAt: Date;
     refundRequested?: boolean;
-    refundStatus?: string;
+    refundStatus: string | null;
     refundAt?: Date;
-    inProgressExpiresAt: Date;
+    inProgressExpiresAt: Date | null;
     walletOrderId?: string | null;
   };
   driverName?: string;
@@ -134,6 +134,14 @@ export type ApprovePickupResp = {
 export type ReschedulePickupResp = MsgSuccessResp & {
   updatedPickup: PickupReqDTO;
 };
+export type ReschedulePickupReq = {
+   driverId: string;
+    assignedZone: string;
+    status: string;
+    rescheduledPickupDate: string;
+    pickupTime: string;
+    pickupReqId: string;
+}
 export type PickupCancelResp = {
   message: string;
   result: PickupReqDTO;

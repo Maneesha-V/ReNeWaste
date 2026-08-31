@@ -147,7 +147,7 @@ const WastePlants: React.FC = () => {
               bordered
               className="shadow-sm"
               pagination={false}
-              rowClassName={(record: any) => {
+              rowClassName={(record: ReturnAdminWastePlant) => {
                 const daysLeft = record.latestSubscription?.daysLeft;
                 if (
                   daysLeft !== undefined &&
@@ -188,7 +188,7 @@ const WastePlants: React.FC = () => {
                 title="Status"
                 dataIndex="status"
                 key="status"
-                render={(_: any, record: any) => {
+                render={(_: unknown, record: ReturnAdminWastePlant) => {
                   const status = record.plantData.status;
                   return (
                     <span
@@ -209,7 +209,7 @@ const WastePlants: React.FC = () => {
               <Table.Column
                 title="Action"
                 key="action"
-                render={(_: any, record: any) => (
+                render={(_: unknown, record: ReturnAdminWastePlant) => (
                   <div className="flex flex-wrap gap-2">
                     <Button
                       icon={<EditOutlined />}

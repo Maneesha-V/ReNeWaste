@@ -13,7 +13,7 @@ export interface IDriverController {
     res: Response,
     next: NextFunction,
   ): Promise<void>;
-  updateDriver(req: Request, res: Response, next: NextFunction): Promise<void>;
+  updateDriver(req: AuthRequest, res: Response, next: NextFunction): Promise<void>;
   deleteDriverById(
     req: AuthRequest,
     res: Response,

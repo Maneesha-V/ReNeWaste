@@ -18,7 +18,6 @@ import { MsgResponse, PaginationPayload } from "../../../types/common/commonType
 
 interface PickupState {
   pickups: PickupPlansResp[];
-  selectedPickup: any;
   eta: string | null;
   loading: boolean;
   message: string | null;
@@ -28,7 +27,6 @@ interface PickupState {
 
 const initialState: PickupState = {
   pickups: [],
-  selectedPickup: null,
   eta: null,
   loading: false,
   message: null,

@@ -12,17 +12,18 @@ import {
 } from "../../../services/wastePlant/truckService";
 import { MsgSuccessResp, PaginationPayload } from "../../../types/common/commonTypes";
 import { getAxiosErrorMessage } from "../../../utils/handleAxiosError";
-import { AssignTruckToDriverResp, DeleteTruckResp, FetchAvailableTrucksResp, FetchTruckByIdResp, FetchTruckRequestsResp, FetchTrucksForDriverResp, FetchTrucksResp, TruckDTO, UpdateTruckResp } from "../../../types/truck/truckTypes";
+import { AssignTruckToDriverResp, DeleteTruckResp, FetchAvailableTrucksResp, FetchTruckByIdResp, FetchTruckRequestsResp, FetchTrucksForDriverResp, FetchTrucksResp, PendingTruckDTO, TruckAvailbleDTO, TruckDTO, UpdateTruckResp } from "../../../types/truck/truckTypes";
 
 interface TruckState {
-  truckRequests: TruckDTO[] | [];
+  truckRequests: PendingTruckDTO[] | [];
   availableTrucks: TruckDTO[] | [];
-  trucks: any;
+  trucks: TruckDTO[];
   truck: TruckDTO | {};
   loading: boolean;
   message: string | null;
   error: string | null;
   total: number;
+  availabletrucksForDriver: TruckAvailbleDTO[];
 }
 
 const initialState: TruckState = {
@@ -34,6 +35,7 @@ const initialState: TruckState = {
   message: null,
   error: null,
   total: 0,
+  availabletrucksForDriver: [],
 };
 
 export const addTruck = createAsyncThunk<
@@ -221,7 +223,8 @@ const wastePlantTruckSlice = createSlice({
         console.log("action",action.payload);
         
         state.loading = false;
-        state.trucks = action.payload.trucks;
+        // state.trucks = action.payload.trucks;
+        state.availabletrucksForDriver = action.payload.trucks;
       })
       .addCase(fetchAvailableTrucks.rejected, (state, action) => {
         state.loading = false;

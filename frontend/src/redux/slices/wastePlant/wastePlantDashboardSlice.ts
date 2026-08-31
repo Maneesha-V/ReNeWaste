@@ -1,7 +1,7 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { getDashboard } from "../../../services/wastePlant/dashboardService";
 import { getAxiosErrorMessage } from "../../../utils/handleAxiosError";
-import { DashboardDataResp } from "../../../types/common/commonTypes";
+import { DashboardDataResp, DashPickupStatus } from "../../../types/common/commonTypes";
 import { PickupTrendResult, WPDashboardReq } from "../../../types/wasteplant/wastePlantTypes";
 import { RevenueWPTrendDTO } from "../../../types/wallet/walletTypes";
 import { ServiceRatingSummaryDTO } from "../../../types/rating/ratingTypes";
@@ -17,7 +17,7 @@ interface DashboardState {
     totalWasteCollected: { totalResidWaste: number; totalCommWaste: number };
     totalRevenue: number;
   };
-  pickupStatus: any;
+  pickupStatus: DashPickupStatus | null;
   pickupTrends: PickupTrendResult[];
   revenueTrends: RevenueWPTrendDTO[];
   ratings: ServiceRatingSummaryDTO | null;
@@ -68,16 +68,6 @@ const wasteplantDashboardSlice = createSlice({
       .addCase(fetchDashboardData.pending, (state) => {
         state.loading = true;
       })
-      // .addCase(fetchDashboardData.fulfilled, (state, action) => {
-      //   console.log("action", action);
-      //   state.loading = false;
-      //   const { drivers, trucks, pickupStatus, revenue, totalWasteCollected } = action.payload;
-      //   state.drivers = drivers;
-      //   state.trucks = trucks;
-      //   state.pickups = pickupStatus;
-      //   state.revenue = revenue;
-      //   state.waste = totalWasteCollected;
-      // })
       .addCase(fetchDashboardData.fulfilled, (state, action) => {
         state.loading = false;
         state.summary = action.payload.summary;

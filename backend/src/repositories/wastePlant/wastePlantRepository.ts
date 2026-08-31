@@ -10,7 +10,7 @@ import { IWastePlantRepository } from "./interface/IWastePlantRepository";
 import TYPES from "../../config/inversify/types";
 import { IOtpRepository } from "../otp/interface/IOtpRepository";
 import { IOtp } from "../../models/user/interfaces/otpInterface";
-import mongoose from "mongoose";
+import mongoose, { FilterQuery } from "mongoose";
 
 @injectable()
 export class WastePlantRepository
@@ -54,7 +54,7 @@ export class WastePlantRepository
   async getAllWastePlants(data: PaginationInputReq) {
     const { page, limit, search, minCapacity, maxCapacity } = data;
     const searchRegex = new RegExp(search, "i");
-    const query: any = {
+    const query: FilterQuery<IWastePlantDocument> = {
       isDeleted: false,
       $or: [
         { plantName: { $regex: searchRegex } },
@@ -64,7 +64,7 @@ export class WastePlantRepository
         { status: { $regex: searchRegex } },
       ],
     };
-    if (!isNaN(Number(search))) {
+    if (!isNaN(Number(search)) && query.$or) {
       query.$or.push({ capacity: Number(search) });
     }
 
@@ -84,7 +84,6 @@ export class WastePlantRepository
   }
   async getWastePlantById(id: string, session?: mongoose.ClientSession) {
     const query = this.model.findById(id);
-    console.log({query});
     
     if(session){
       query.session(session)

@@ -21,7 +21,7 @@ interface DashboardState {
   loading: boolean;
   error: string | null;
   summary: DashboardSummary | null;
-  supportInfo: any;
+  supportInfo: DriverSupportInfo | null;
   earnRewardFilter: DriverEarnRewardStat[];
 }
 

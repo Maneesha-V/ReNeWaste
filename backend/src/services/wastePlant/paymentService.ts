@@ -564,11 +564,9 @@ export class PaymentService implements IPaymentService {
     };
   }
   async refundPayment(plantId: string, data: RefundDataReq) {
-
     const pickupReq = await this.pickupRepository.getPickupById(
       data.pickupReqId,
     );
-
 
     if (pickupReq.wasteplantId?.toString() !== plantId) {
       throw new ApiError(
@@ -593,152 +591,152 @@ export class PaymentService implements IPaymentService {
     const accountId = pickupReq.userId.toString();
     const accountType = "User";
     // try {
-      if (payment.method === "Wallet") {
-        const wallet = await this._walletRepository.findWallet(
-          accountId,
-          accountType,
-        );
-        if (!wallet) {
-          throw new ApiError(
-            STATUS_CODES.NOT_FOUND,
-            MESSAGES.COMMON.ERROR.WALLET_NOT_FOUND,
-          );
-        }
-        const pickupTansaction = wallet.transactions.find(
-          (tx) =>
-            tx.subType === "PickupPayment" &&
-            // tx.pickupReqId?.toString() === pickupReq._id.toString() &&
-            tx.pickupReqId?.equals(pickupReq._id) &&
-            tx.method === "Wallet",
-        );
-        if (!pickupTansaction) {
-          throw new ApiError(
-            STATUS_CODES.NOT_FOUND,
-            MESSAGES.COMMON.ERROR.TRANSACTION_NOT_FOUND,
-          );
-        }
-        wallet.holdingBalance -= payment.amount;
-        wallet.balance += payment.amount;
-
-        wallet.transactions.push({
-          type: "Credit",
-          subType: "Refund",
-          method: "Wallet",
-          pickupReqId: pickupReq._id,
-          amount: pickupReq.payment.amount,
-          description: `Refund for Pickup ID ${pickupReq.pickupId}`,
-          refundStatus: "Refunded",
-          refundAt: new Date(),
-        });
-
-        await wallet.save();
-
-        payment.refundStatus = "Refunded";
-        payment.refundAt = new Date();
-        payment.walletRefundId = `wallet_refund_${Date.now()}`;
-
-        pickupReq.status = "Cancelled";
-        await pickupReq.save();
-      } else if (payment.method === "Razorpay") {
-        if (
-          payment.razorpayPaymentId !== data.razorpayPaymentId ||
-          payment.amount !== data.amount
-        ) {
-          throw new ApiError(
-            STATUS_CODES.BAD_REQUEST,
-            MESSAGES.SUPERADMIN.ERROR.PAYMENT_DET_NOT_MATCH,
-          );
-        }
-
-        const paymentDetails = await this.razorpay.payments.fetch(
-          data.razorpayPaymentId,
-        );
-
-        if (paymentDetails.status !== "captured") {
-          throw new ApiError(
-            STATUS_CODES.BAD_REQUEST,
-            MESSAGES.SUPERADMIN.ERROR.PAYMENT_NOT_CAPTURE,
-          );
-        }
-
-        if (process.env.NODE_ENV === "production") {
-          const refund = await this.razorpay.payments.refund(
-            data.razorpayPaymentId,
-            { amount: paymentDetails.amount, speed: "normal" },
-          );
-          payment.razorpayRefundId = refund.id;
-        } else {
-          console.log("Simulating refund success in TEST MODE");
-          payment.razorpayRefundId = `test_refund_${Date.now()}`;
-        }
-
-        const wallet = await this._walletRepository.findWallet(
-          accountId,
-          accountType,
-        );
-        if (!wallet) {
-          throw new ApiError(
-            STATUS_CODES.NOT_FOUND,
-            MESSAGES.COMMON.ERROR.WALLET_NOT_FOUND,
-          );
-        }
-
-        const pickupTansaction = wallet.transactions.find(
-          (tx) =>
-            tx.subType === "PickupPayment" &&
-            // tx.pickupReqId?.toString() === pickupReq._id.toString() &&
-            tx.pickupReqId?.equals(pickupReq._id) &&
-            tx.method === "Razorpay",
-        );
-
-        if (!pickupTansaction) {
-          throw new ApiError(
-            STATUS_CODES.NOT_FOUND,
-            MESSAGES.COMMON.ERROR.TRANSACTION_NOT_FOUND,
-          );
-        }
-        wallet.holdingBalance -= payment.amount;
-
-        wallet.transactions.push({
-          type: "Credit",
-          subType: "ExternalRefund",
-          method: "Razorpay",
-          pickupReqId: pickupReq._id,
-          amount: payment.amount,
-          description: `Refund via Razorpay for Pickup ${pickupReq.pickupId}`,
-          refundStatus: "Refunded",
-          refundAt: new Date(),
-        });
-        await wallet.save();
-        pickupReq.status = "Cancelled";
-        payment.refundStatus = "Refunded";
-        payment.refundAt = new Date();
-        await pickupReq.save();
-      } else {
+    if (payment.method === "Wallet") {
+      const wallet = await this._walletRepository.findWallet(
+        accountId,
+        accountType,
+      );
+      if (!wallet) {
         throw new ApiError(
-    STATUS_CODES.BAD_REQUEST,
-    MESSAGES.SUPERADMIN.ERROR.UNSUPPORTED_PAYMENT_METHOD,
-  );
+          STATUS_CODES.NOT_FOUND,
+          MESSAGES.COMMON.ERROR.WALLET_NOT_FOUND,
+        );
+      }
+      const pickupTansaction = wallet.transactions.find(
+        (tx) =>
+          tx.subType === "PickupPayment" &&
+          // tx.pickupReqId?.toString() === pickupReq._id.toString() &&
+          tx.pickupReqId?.equals(pickupReq._id) &&
+          tx.method === "Wallet",
+      );
+      if (!pickupTansaction) {
+        throw new ApiError(
+          STATUS_CODES.NOT_FOUND,
+          MESSAGES.COMMON.ERROR.TRANSACTION_NOT_FOUND,
+        );
+      }
+      wallet.holdingBalance -= payment.amount;
+      wallet.balance += payment.amount;
+
+      wallet.transactions.push({
+        type: "Credit",
+        subType: "Refund",
+        method: "Wallet",
+        pickupReqId: pickupReq._id,
+        amount: pickupReq.payment.amount,
+        description: `Refund for Pickup ID ${pickupReq.pickupId}`,
+        refundStatus: "Refunded",
+        refundAt: new Date(),
+      });
+
+      await wallet.save();
+
+      payment.refundStatus = "Refunded";
+      payment.refundAt = new Date();
+      payment.walletRefundId = `wallet_refund_${Date.now()}`;
+
+      pickupReq.status = "Cancelled";
+      await pickupReq.save();
+    } else if (payment.method === "Razorpay") {
+      if (
+        payment.razorpayPaymentId !== data.razorpayPaymentId ||
+        payment.amount !== data.amount
+      ) {
+        throw new ApiError(
+          STATUS_CODES.BAD_REQUEST,
+          MESSAGES.SUPERADMIN.ERROR.PAYMENT_DET_NOT_MATCH,
+        );
       }
 
-      const io = globalThis.io;
-      const userId = pickupReq.userId.toString();
-      const userMessage = `Refund processed successfully for Pickup ID ${pickupReq.pickupId}. Amount ₹${payment.amount} has been refunded.`;
-      const userNotification =
-        await this.notificationRepository.createNotification({
-          receiverId: userId,
-          receiverType: "user",
-          senderId: plantId,
-          senderType: "wasteplant",
-          message: userMessage,
-          type: "pickup_refund-completed",
-        });
+      const paymentDetails = await this.razorpay.payments.fetch(
+        data.razorpayPaymentId,
+      );
 
-      if (io) {
-        io.to(`${userId}`).emit("newNotification", userNotification);
+      if (paymentDetails.status !== "captured") {
+        throw new ApiError(
+          STATUS_CODES.BAD_REQUEST,
+          MESSAGES.SUPERADMIN.ERROR.PAYMENT_NOT_CAPTURE,
+        );
       }
 
-      return PickupRequestMapper.mapPickupReqDTO(pickupReq);
+      if (process.env.NODE_ENV === "production") {
+        const refund = await this.razorpay.payments.refund(
+          data.razorpayPaymentId,
+          { amount: paymentDetails.amount, speed: "normal" },
+        );
+        payment.razorpayRefundId = refund.id;
+      } else {
+        console.log("Simulating refund success in TEST MODE");
+        payment.razorpayRefundId = `test_refund_${Date.now()}`;
+      }
+
+      const wallet = await this._walletRepository.findWallet(
+        accountId,
+        accountType,
+      );
+      if (!wallet) {
+        throw new ApiError(
+          STATUS_CODES.NOT_FOUND,
+          MESSAGES.COMMON.ERROR.WALLET_NOT_FOUND,
+        );
+      }
+
+      const pickupTansaction = wallet.transactions.find(
+        (tx) =>
+          tx.subType === "PickupPayment" &&
+          // tx.pickupReqId?.toString() === pickupReq._id.toString() &&
+          tx.pickupReqId?.equals(pickupReq._id) &&
+          tx.method === "Razorpay",
+      );
+
+      if (!pickupTansaction) {
+        throw new ApiError(
+          STATUS_CODES.NOT_FOUND,
+          MESSAGES.COMMON.ERROR.TRANSACTION_NOT_FOUND,
+        );
+      }
+      wallet.holdingBalance -= payment.amount;
+
+      wallet.transactions.push({
+        type: "Credit",
+        subType: "ExternalRefund",
+        method: "Razorpay",
+        pickupReqId: pickupReq._id,
+        amount: payment.amount,
+        description: `Refund via Razorpay for Pickup ${pickupReq.pickupId}`,
+        refundStatus: "Refunded",
+        refundAt: new Date(),
+      });
+      await wallet.save();
+      pickupReq.status = "Cancelled";
+      payment.refundStatus = "Refunded";
+      payment.refundAt = new Date();
+      await pickupReq.save();
+    } else {
+      throw new ApiError(
+        STATUS_CODES.BAD_REQUEST,
+        MESSAGES.SUPERADMIN.ERROR.UNSUPPORTED_PAYMENT_METHOD,
+      );
+    }
+
+    const io = globalThis.io;
+    const userId = pickupReq.userId.toString();
+    const userMessage = `Refund processed successfully for Pickup ID ${pickupReq.pickupId}. Amount ₹${payment.amount} has been refunded.`;
+    const userNotification =
+      await this.notificationRepository.createNotification({
+        receiverId: userId,
+        receiverType: "user",
+        senderId: plantId,
+        senderType: "wasteplant",
+        message: userMessage,
+        type: "pickup_refund-completed",
+      });
+
+    if (io) {
+      io.to(`${userId}`).emit("newNotification", userNotification);
+    }
+
+    return PickupRequestMapper.mapPickupReqDTO(pickupReq);
     // } catch (error: any) {
     //   // console.error("Refund failed:", JSON.stringify(error, null, 2));
     //   // throw new Error(error?.error?.description || "Refund failed");

@@ -12,6 +12,7 @@ import {
   verifyOtp,
 } from "../../redux/slices/superAdmin/superAdminSlice";
 import { SendOtpError } from "../../types/common/commonTypes";
+import { RootState } from "../../redux/store";
 
 const ForgotPassword = () => {
   const [step, setStep] = useState(1);
@@ -28,19 +29,30 @@ const ForgotPassword = () => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
 
-  const { loading } = useSelector((state: any) => state.user);
-
+  const { loading } = useSelector((state: RootState) => state.user);
   useEffect(() => {
-    let countdown: NodeJS.Timeout;
     if (timer > 0) {
-      countdown = setInterval(() => {
+      const countdown = setInterval(() => {
         setTimer((prev) => prev - 1);
       }, 1000);
-    } else {
-      setCanResend(true);
+
+      return () => clearInterval(countdown);
     }
-    return () => clearInterval(countdown);
+
+    setCanResend(true);
   }, [timer]);
+  
+  // useEffect(() => {
+  //   let countdown: NodeJS.Timeout;
+  //   if (timer > 0) {
+  //     countdown = setInterval(() => {
+  //       setTimer((prev) => prev - 1);
+  //     }, 1000);
+  //   } else {
+  //     setCanResend(true);
+  //   }
+  //   return () => clearInterval(countdown);
+  // }, [timer]);
 
   const handleSendOtp = () => {
     if (!email.trim()) {

@@ -32,7 +32,7 @@ import { SubsptnPlans } from "../../../types/subscription/subscriptionTypes";
 
 interface WastePlantState {
   wastePlantWithSubPlan: ReturnAdminWastePlant[];
-  wastePlant: WasteplantDTO;
+  wastePlant: WasteplantDTO | null;
   subscriptionPlans: SubsptnPlans[];
   loading: boolean;
   message: string | null;
@@ -42,7 +42,7 @@ interface WastePlantState {
 
 const initialState: WastePlantState = {
   wastePlantWithSubPlan: [],
-  wastePlant: {},
+  wastePlant: null,
   subscriptionPlans: [],
   loading: false,
   message: null,
@@ -256,6 +256,7 @@ const superAdminWastePlantSlice = createSlice({
       .addCase(fetchWastePlantById.pending, (state) => {
         state.loading = true;
         state.error = null;
+        state.wastePlant = null;
       })
       .addCase(fetchWastePlantById.fulfilled, (state, action) => {
         state.loading = false;

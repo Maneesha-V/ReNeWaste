@@ -10,7 +10,7 @@ import {
 } from "../../../services/wastePlant/pickupService";
 import { getAxiosErrorMessage } from "../../../utils/handleAxiosError";
 import { PickupCancelData, PickupReqDTO } from "../../../types/pickupReq/pickupTypes";
-import { ApprovePickupPayload, ApprovePickupResp, FetchDriversByPlaceResp, FetchPickupReqParams, FetchPickupResp, ModifyPickupResp, PickupCancelResp, ReschedulePickupResp } from "../../../types/wasteplant/wastePlantTypes";
+import { ApprovePickupPayload, ApprovePickupResp, FetchDriversByPlaceResp, FetchPickupReqParams, FetchPickupResp, ModifyPickupResp, PickupCancelResp, ReschedulePickupReq, ReschedulePickupResp } from "../../../types/wasteplant/wastePlantTypes";
 import { DriverDTO } from "../../../types/driver/driverTypes";
 
 interface PickupState {
@@ -86,11 +86,11 @@ ApprovePickupPayload,
 );
 export const reschedulePickup = createAsyncThunk<
 ReschedulePickupResp,
-any,
+ReschedulePickupReq,
 {rejectValue: {error: string}}
 >(
   "wastePlantPickup/reschedulePickup ",
-  async (formData: any, { rejectWithValue }) => {
+  async (formData: ReschedulePickupReq, { rejectWithValue }) => {
     try {
       const response = await reschedulePickupService(formData);
       return response;
@@ -105,7 +105,7 @@ PickupCancelResp,
 PickupCancelData,
 {rejectValue: {error: string}}
 >(
-  "wastePlantPickup/cancelPickupReq ",
+  "wastePlantPickup/cancelPickupReq",
   async ({ pickupReqId, reason }: PickupCancelData, { rejectWithValue }) => {
     try {
       const response = await cancelPickupReqById({ pickupReqId, reason });

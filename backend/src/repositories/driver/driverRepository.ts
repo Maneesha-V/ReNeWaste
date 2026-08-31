@@ -1,4 +1,4 @@
-import { Types } from "mongoose";
+import mongoose, { FilterQuery, Types } from "mongoose";
 import { DriverModel } from "../../models/driver/driverModel";
 import {
   IDriver,
@@ -52,8 +52,8 @@ export class DriverRepository
   ): Promise<PaginatedDriversResult> {
     const searchRegex = new RegExp(search, "i");
 
-    const query: any = {
-      wasteplantId: plantId,
+    const query: FilterQuery<IDriverDocument> = {
+      wasteplantId: new mongoose.Types.ObjectId(plantId),
       isDeleted: false,
       $or: [
         { name: { $regex: searchRegex } },
@@ -62,7 +62,7 @@ export class DriverRepository
       ],
     };
     if (!isNaN(Number(search))) {
-      query.$or.push({ experience: Number(search) });
+      query.$or?.push({ experience: Number(search) });
     }
 
     const skip = (page - 1) * limit;
@@ -95,7 +95,7 @@ export class DriverRepository
   }
   async updateDriverById(
     driverId: string,
-    data: any,
+    data: Partial<IDriverDocument>,
   ): Promise<IDriverDocument | null> {
     return await this.model.findByIdAndUpdate(driverId, data, { new: true });
   }

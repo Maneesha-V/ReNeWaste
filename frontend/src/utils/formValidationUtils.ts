@@ -1,6 +1,7 @@
 import { FormErrors } from "../types/common/commonTypes";
+import { SignupRequest } from "../types/user/userTypes";
 
-export const validateForm = (values: any): { isValid: boolean; errors: FormErrors } => {
+export const validateForm = (values: SignupRequest): { isValid: boolean; errors: FormErrors } => {
   let errors: FormErrors = {};
   let isValid = true;
 

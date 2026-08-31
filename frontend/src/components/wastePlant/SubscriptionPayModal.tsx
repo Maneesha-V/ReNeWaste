@@ -22,13 +22,12 @@ const SubscriptionPayModal = ({
   if (!plan) return null;
   console.log("plan", plan);
 
-
   const handlePayment = async () => {
     console.log("handlePayment called");
     console.log("User plan:", plan);
-          const { paymentOrder } = await dispatch(
-            createSubscriptionOrder(plan._id)
-          ).unwrap();
+    const { paymentOrder } = await dispatch(
+      createSubscriptionOrder(plan._id),
+    ).unwrap();
     const res = await loadRazorpayScript();
     console.log("Razorpay script load result:", res);
     if (!res) {
@@ -57,17 +56,17 @@ const SubscriptionPayModal = ({
               planId: plan._id,
               amount: plan.price,
               billingCycle: plan.billingCycle,
-            })
+            }),
           )
             .unwrap()
             .then((res) => {
-              dispatch(updateSubPaymentStatus(res?.updatePayment))
+              dispatch(updateSubPaymentStatus(res?.updatePayment));
               // dispatch(fetchSubscrptnPayments());
 
               Swal.fire("Success", "Payment successful!", "success").then(
                 () => {
                   onClose();
-                }
+                },
               );
             })
             .catch(() => {
@@ -87,93 +86,94 @@ const SubscriptionPayModal = ({
         },
       };
 
-      const razorpay = new (window as any).Razorpay(options);
+      // const razorpay = new (window as any).Razorpay(options);
+      const razorpay = new window.Razorpay(options);
       razorpay.open();
     }
   };
   const handlePlansModal = () => {
     onClose();
-    setShowPlansModal(true)
-  }
+    setShowPlansModal(true);
+  };
   return (
     <>
-    <Modal
-      title="Confirm Subscription Payment"
-      open={visible}
-      onCancel={onClose}
-      footer={null}
-      centered
-    >
-      <div className="bg-white rounded-xl shadow-lg p-6 space-y-5 text-gray-800">
-        <div className="text-center">
-          <h2 className="text-2xl font-bold text-green-700 mb-1">
-            Confirm Your Subscription
-          </h2>
-          <p className="text-sm text-gray-500">
-            Please review the details before proceeding with payment.
-          </p>
-        </div>
-        {/* plant details */}
-        <div>
-          <h3 className="text-lg font-semibold text-gray-700 border-b pb-1 mb-3">
-            🏭 Plant Details
-          </h3>
-          <div className="grid gap-3">
-            <div className="flex justify-between">
-              <span className="font-semibold">Wasteplant Name:</span>
-              <span>{plan.plantName}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="font-semibold">Wasteplant License:</span>
-              <span>{plan.license}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="font-semibold">Owner Name:</span>
-              <span>{plan.ownerName}</span>
+      <Modal
+        title="Confirm Subscription Payment"
+        open={visible}
+        onCancel={onClose}
+        footer={null}
+        centered
+      >
+        <div className="bg-white rounded-xl shadow-lg p-6 space-y-5 text-gray-800">
+          <div className="text-center">
+            <h2 className="text-2xl font-bold text-green-700 mb-1">
+              Confirm Your Subscription
+            </h2>
+            <p className="text-sm text-gray-500">
+              Please review the details before proceeding with payment.
+            </p>
+          </div>
+          {/* plant details */}
+          <div>
+            <h3 className="text-lg font-semibold text-gray-700 border-b pb-1 mb-3">
+              🏭 Plant Details
+            </h3>
+            <div className="grid gap-3">
+              <div className="flex justify-between">
+                <span className="font-semibold">Wasteplant Name:</span>
+                <span>{plan.plantName}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="font-semibold">Wasteplant License:</span>
+                <span>{plan.license}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="font-semibold">Owner Name:</span>
+                <span>{plan.ownerName}</span>
+              </div>
             </div>
           </div>
-        </div>
-        {/* subscription details */}
-        <div>
-          <h3 className="text-lg font-semibold text-gray-700 border-b pb-1 mb-3">
-            📦 Subscription Details
-          </h3>
-          <div className="grid gap-3">
-            <div className="flex justify-between">
-              <span className="font-semibold">Subscription Plan:</span>
-              <span>{plan.planName}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="font-semibold">Billing Cycle:</span>
-              <span>{plan.billingCycle}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="font-semibold">Amount:</span>
-              <span className="text-lg font-bold text-green-700">
-                ₹{plan.price}
-              </span>
+          {/* subscription details */}
+          <div>
+            <h3 className="text-lg font-semibold text-gray-700 border-b pb-1 mb-3">
+              📦 Subscription Details
+            </h3>
+            <div className="grid gap-3">
+              <div className="flex justify-between">
+                <span className="font-semibold">Subscription Plan:</span>
+                <span>{plan.planName}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="font-semibold">Billing Cycle:</span>
+                <span>{plan.billingCycle}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="font-semibold">Amount:</span>
+                <span className="text-lg font-bold text-green-700">
+                  ₹{plan.price}
+                </span>
+              </div>
             </div>
           </div>
+          <button
+            onClick={handlePayment}
+            className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-md transition duration-200"
+          >
+            Pay ₹{plan.price} Now
+          </button>
+          <button
+            onClick={handlePlansModal}
+            className="w-full border border-green-600 text-green-700 font-medium py-2 px-4 rounded-md hover:bg-green-50 transition duration-200"
+          >
+            Choose Other Plans
+          </button>
         </div>
-        <button
-          onClick={handlePayment}
-          className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-md transition duration-200"
-        >
-          Pay ₹{plan.price} Now
-        </button>
-        <button
-  onClick={handlePlansModal}
-  className="w-full border border-green-600 text-green-700 font-medium py-2 px-4 rounded-md hover:bg-green-50 transition duration-200"
->
-  Choose Other Plans
-</button>
-      </div>
-    </Modal>
-    <SubscriptionModal
-            visible={showPlansModal}
-            onClose={() => setShowPlansModal(false)}
-          />
-          </>
+      </Modal>
+      <SubscriptionModal
+        visible={showPlansModal}
+        onClose={() => setShowPlansModal(false)}
+      />
+    </>
   );
 };
 

@@ -19,7 +19,9 @@ import {
   PickupFilterParamsRepo,
   PickupTrendResultRepo,
   PopulatedPIckupPlansRepo,
+  PopulatedPickups,
   PopulatedUserPickupReqRepo,
+  UpdatePickupDateReq,
 } from "../../../models/pickupRequests/interfaces/pickupInterface";
 import { FetchPaymentPayloadRepo, PaginatedPaymentsResultRepo } from "../../../models/pickupRequests/interfaces/paymentInterface";
 import { PaginationInputReq } from "../../../models/wastePlant/interfaces/wastePlantInterface";
@@ -35,7 +37,7 @@ export interface IPickupRepository {
   ): Promise<IPickupRequestDocument>;
   getPickupsByPlantId(
     filters: PickupFilterParamsRepo,
-  ): Promise<IPickupRequestDocument[]>;
+  ): Promise<PopulatedPickups[]>;
   updatePickupStatusAndDriver(
     pickupReqId: string,
     updateData: { status: string; driverId: string; truckId: string },
@@ -43,7 +45,7 @@ export interface IPickupRepository {
   updatePickupRequest(pickupReqId: string): Promise<IPickupRequestDocument>;
   updatePickupDate(
     pickupReqId: string,
-    updateData: any,
+    updateData: UpdatePickupDateReq,
   ): Promise<IPickupRequestDocument>;
   getPickupsByDriverId(
     filters: PickupDriverFilterParamsRepo,

@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { useAppDispatch } from "../../redux/hooks";
 import { driverLogin } from "../../redux/slices/driver/driverSlice";
 import { LoginRequest } from "../../types/common/commonTypes";
+import { getAxiosErrorMessage } from "../../utils/handleAxiosError";
 
 const LoginDriver = () => {
   const [formData, setFormData] = useState<LoginRequest>({
@@ -31,8 +32,9 @@ const LoginDriver = () => {
     try {
       await dispatch(driverLogin(formData)).unwrap();
       navigate("/driver/dashboard")
-    } catch(error: any){
-      toast.error(error || "Login failed. Please try again.");
+    } catch(error){
+      const err = getAxiosErrorMessage(error)
+      toast.error(err || "Login failed. Please try again.");
     }
   };
 

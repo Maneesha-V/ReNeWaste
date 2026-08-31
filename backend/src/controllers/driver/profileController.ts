@@ -40,6 +40,7 @@ export class ProfileController implements IProfileController {
     try {
       const driverId = req.user?.id;
       const updatedData = req.body;
+      
       if (!driverId) {
         throw new ApiError(
           STATUS_CODES.UNAUTHORIZED,

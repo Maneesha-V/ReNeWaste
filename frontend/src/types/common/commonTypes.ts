@@ -76,6 +76,7 @@ export type NotificationBadgeProps = {
 export interface ValidationErrors {
   [field: string]: string;
 }
+export type ValidationValue = string | number | boolean | string[] | null | undefined;
 export type DashboardDataResp = {
   summary: {
     totalDrivers: {
@@ -128,6 +129,26 @@ export type DashboardDataResp = {
   revenueTrends: RevenueWPTrendDTO[];
   ratings: ServiceRatingSummaryDTO;
 };
+export type DashPickupStatus = {
+    // pickupStatus: {
+    Residential: {
+      Pending: number;
+      Scheduled: number;
+      Rescheduled: number;
+      Completed: number;
+      Cancelled: number;
+      Active: number;
+    };
+    Commercial: {
+      Pending: number;
+      Scheduled: number;
+      Rescheduled: number;
+      Completed: number;
+      Cancelled: number;
+      Active: number;
+    };
+  // };
+}
 export type FormErrors = {
   firstName?: string;
   lastName?: string;
@@ -193,3 +214,9 @@ export interface UpdateUserServiceAdd {
   state: string;
   pincode: string;
 }
+export type StatusConfig = {
+  color: string;
+  bg: string;
+  border: string;
+  label: string;
+};

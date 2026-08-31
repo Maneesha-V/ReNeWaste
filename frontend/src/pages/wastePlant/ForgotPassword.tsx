@@ -12,6 +12,7 @@ import {
   verifyOtp,
 } from "../../redux/slices/wastePlant/wastePlantSlice";
 import { SendOtpError } from "../../types/common/commonTypes";
+import { RootState } from "../../redux/store";
 
 const ForgotPassword = () => {
   const [step, setStep] = useState(1);
@@ -28,10 +29,22 @@ const ForgotPassword = () => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
 
-  const { loading } = useSelector((state: any) => state.user);
+  const { loading } = useSelector((state: RootState) => state.user);
+
+  // useEffect(() => {
+  //   let countdown: NodeJS.Timeout;
+  //   if (timer > 0) {
+  //     countdown = setInterval(() => {
+  //       setTimer((prev) => prev - 1);
+  //     }, 1000);
+  //   } else {
+  //     setCanResend(true);
+  //   }
+  //   return () => clearInterval(countdown);
+  // }, [timer]);
 
   useEffect(() => {
-    let countdown: NodeJS.Timeout;
+    let countdown: ReturnType<typeof setInterval>;
     if (timer > 0) {
       countdown = setInterval(() => {
         setTimer((prev) => prev - 1);
@@ -176,8 +189,8 @@ const ForgotPassword = () => {
               {resendLoading
                 ? "Resending..."
                 : canResend
-                ? "Resend OTP"
-                : `Resend OTP (${timer}s)`}
+                  ? "Resend OTP"
+                  : `Resend OTP (${timer}s)`}
             </button>
           </div>
         )}

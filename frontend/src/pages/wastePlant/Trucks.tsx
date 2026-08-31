@@ -15,6 +15,7 @@ import usePagination from "../../hooks/usePagination";
 import debounce from "lodash/debounce";
 import { toast } from "react-toastify";
 import { getAxiosErrorMessage } from "../../utils/handleAxiosError";
+import { TruckDTO } from "../../types/truck/truckTypes";
 
 const Trucks: React.FC = () => {
   const dispatch = useAppDispatch();
@@ -131,7 +132,7 @@ const Trucks: React.FC = () => {
               <Table.Column
                 title="Action"
                 key="action"
-                render={(_: any, record: any) => (
+                render={(_, record: TruckDTO) => (
                   <div className="flex flex-wrap gap-2">
                     <Button
                       icon={<EditOutlined />}

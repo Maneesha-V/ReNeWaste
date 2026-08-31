@@ -22,32 +22,29 @@ import { getAxiosErrorMessage } from "../../utils/handleAxiosError";
 const PayNow = ({ onClose }: PayNowProps) => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
-const [paymentMethod, setPaymentMethod] = useState("");
- const { paymentOrder, error, pickup, amount } = useSelector(
-    (state: RootState) => state.userPayment
+  const [paymentMethod, setPaymentMethod] = useState("");
+  const { paymentOrder, error, pickup, amount } = useSelector(
+    (state: RootState) => state.userPayment,
   );
   console.log("paymentOrder", paymentOrder);
   console.log("pickup", pickup);
   console.log("amount", amount);
 
-useEffect(() => {
-  if (error) {
-    Swal.fire({
-      icon: "error",
-      title: "Payment Error",
-      text: error,
-      confirmButtonColor: "#d33",
-    }).then(() => {
-      dispatch(clearPaymentError());
-      if (
-        error.includes("already in progress")
-      ) {
-        onClose();
-      }
-    })
-    
-  }
-}, [error, dispatch, onClose]);
+  useEffect(() => {
+    if (error) {
+      Swal.fire({
+        icon: "error",
+        title: "Payment Error",
+        text: error,
+        confirmButtonColor: "#d33",
+      }).then(() => {
+        dispatch(clearPaymentError());
+        if (error.includes("already in progress")) {
+          onClose();
+        }
+      });
+    }
+  }, [error, dispatch, onClose]);
   useEffect(() => {
     const initiatePayment = async () => {
       if (!pickup || !amount) {
@@ -55,24 +52,25 @@ useEffect(() => {
         return;
       }
 
-       if (paymentMethod === "Razorpay" && pickup._id) {
-        await dispatch(createPaymentOrder({ 
-          amount, 
-          pickupReqId: pickup._id, 
-          method: paymentMethod })).unwrap();
-       }
+      if (paymentMethod === "Razorpay" && pickup._id) {
+        await dispatch(
+          createPaymentOrder({
+            amount,
+            pickupReqId: pickup._id,
+            method: paymentMethod,
+          }),
+        ).unwrap();
+      }
       // const pickupReqId = pickup._id;
 
       // if(pickupReqId) {
       //   console.log("Dispatching payment:", { amount, pickupReqId });
       //   await dispatch(createPaymentOrder({ amount, pickupReqId, method: paymentMethod })).unwrap();
       // }
-  
     };
 
     initiatePayment();
   }, [pickup, amount, navigate, dispatch, onClose, paymentMethod]);
- 
 
   const loadRazorpayScript = () => {
     return new Promise((resolve, reject) => {
@@ -90,9 +88,18 @@ useEffect(() => {
       toast("Razorpay SDK failed to load.");
       return;
     }
+    if (!paymentOrder) {
+      toast("Payment order not found.");
+      return;
+    }
+
+    if (!paymentOrder.orderId) {
+      toast("Payment order ID is missing.");
+      return;
+    }
     console.log("Razorpay Key:", import.meta.env.VITE_RAZORPAY_KEY_ID);
     if (paymentOrder) {
-      const options = {
+      const options : RazorpayOptions = {
         key: import.meta.env.VITE_RAZORPAY_KEY_ID,
         amount: paymentOrder.amount * 100,
         currency: paymentOrder.currency,
@@ -112,18 +119,11 @@ useEffect(() => {
               razorpay_signature,
               pickupReqId: paymentOrder.pickupReqId,
               amount: paymentOrder.amount,
-            })
+            }),
           )
             .unwrap()
             .then((res) => {
-              console.log("verify---res",res);
-              
-              // dispatch(
-              //   updatePickupPaymentStatus({
-              //     pickupReqId: res.updatedPayment.pickupReqId,
-              //     updatedPayment: res.updatedPayment.payment,
-              //   })
-              // );
+              console.log("verify---res", res);
 
               Swal.fire({
                 icon: "success",
@@ -155,40 +155,38 @@ useEffect(() => {
         },
       };
 
-      const razorpay = new (window as any).Razorpay(options);
+      //  const razorpay = new (window as any).Razorpay(options);
+      const razorpay = new window.Razorpay(options);
       razorpay.open();
     }
   };
- const handleWalletPayment = async (amount: number, pickupReqId: string) => {
-  try {
-
-    const res = await dispatch(
-      verifyWalletPayment({
-        pickupReqId,
-        amount,
-        method: paymentMethod,
-      })
-    ).unwrap();
-   Swal.fire({
-      icon: "success",
-      title: "Payment Successful!",
-      text: res.message || "Your payment was verified successfully.",
-      confirmButtonColor: "#28a745",
-    })
-.then(() => {
-      navigate("/pickup-plans", { state: { refresh: true } });
-      onClose();
-    });
-  
-  } catch (err) {
-    Swal.fire({
-      icon: "error",
-      title: "Wallet Payment Failed",
-      text: getAxiosErrorMessage(err),
-      confirmButtonColor: "#d33",
-    });
-  }
-};
+  const handleWalletPayment = async (amount: number, pickupReqId: string) => {
+    try {
+      const res = await dispatch(
+        verifyWalletPayment({
+          pickupReqId,
+          amount,
+          method: paymentMethod,
+        }),
+      ).unwrap();
+      Swal.fire({
+        icon: "success",
+        title: "Payment Successful!",
+        text: res.message || "Your payment was verified successfully.",
+        confirmButtonColor: "#28a745",
+      }).then(() => {
+        navigate("/pickup-plans", { state: { refresh: true } });
+        onClose();
+      });
+    } catch (err) {
+      Swal.fire({
+        icon: "error",
+        title: "Wallet Payment Failed",
+        text: getAxiosErrorMessage(err),
+        confirmButtonColor: "#d33",
+      });
+    }
+  };
 
   return (
     <div className="min-h-screen bg-green-100 flex items-center justify-center p-4">
@@ -309,41 +307,49 @@ useEffect(() => {
             >
               Pay ₹{amount} Now
             </button> */}
-              {/* Payment Method Selection */}
-  <div className="flex justify-center gap-4 mb-4">
-    <button
-      className={`px-4 py-2 rounded border ${
-        paymentMethod === "Wallet" ? "bg-green-600 text-white" : "bg-gray-100 border-gray-300"
-      }`}
-      onClick={() => setPaymentMethod("Wallet")}
-    >
-      Pay with Wallet
-    </button>
-    <button
-      className={`px-4 py-2 rounded border ${
-        paymentMethod === "Razorpay" ? "bg-green-600 text-white" : "bg-gray-100"
-      }`}
-      onClick={() => setPaymentMethod("Razorpay")}
-    >
-      Pay with Razorpay
-    </button>
-  </div>
-   {/* Proceed Button */}
-  <button
-    className="bg-green-600 hover:bg-green-700 text-white font-semibold px-6 py-2 rounded w-full cursor-pointer disabled:bg-gray-300 disabled:cursor-not-allowed"
-    onClick={() => {
-      if (paymentMethod === "Razorpay") {
-        handlePayment();
-      } else if (paymentMethod === "Wallet" && amount !== null && pickup?._id) {
-        handleWalletPayment(amount, pickup?._id);
-      }
-    }}
-    disabled={!paymentMethod}
-  >
-    {paymentMethod
-      ? `Pay ₹${amount} with ${paymentMethod === "Wallet" ? "Wallet" : "Razorpay"}`
-      : "Select Payment Method"}
-  </button>
+            {/* Payment Method Selection */}
+            <div className="flex justify-center gap-4 mb-4">
+              <button
+                className={`px-4 py-2 rounded border ${
+                  paymentMethod === "Wallet"
+                    ? "bg-green-600 text-white"
+                    : "bg-gray-100 border-gray-300"
+                }`}
+                onClick={() => setPaymentMethod("Wallet")}
+              >
+                Pay with Wallet
+              </button>
+              <button
+                className={`px-4 py-2 rounded border ${
+                  paymentMethod === "Razorpay"
+                    ? "bg-green-600 text-white"
+                    : "bg-gray-100"
+                }`}
+                onClick={() => setPaymentMethod("Razorpay")}
+              >
+                Pay with Razorpay
+              </button>
+            </div>
+            {/* Proceed Button */}
+            <button
+              className="bg-green-600 hover:bg-green-700 text-white font-semibold px-6 py-2 rounded w-full cursor-pointer disabled:bg-gray-300 disabled:cursor-not-allowed"
+              onClick={() => {
+                if (paymentMethod === "Razorpay") {
+                  handlePayment();
+                } else if (
+                  paymentMethod === "Wallet" &&
+                  amount !== null &&
+                  pickup?._id
+                ) {
+                  handleWalletPayment(amount, pickup?._id);
+                }
+              }}
+              disabled={!paymentMethod}
+            >
+              {paymentMethod
+                ? `Pay ₹${amount} with ${paymentMethod === "Wallet" ? "Wallet" : "Razorpay"}`
+                : "Select Payment Method"}
+            </button>
           </div>
         </div>
       </div>

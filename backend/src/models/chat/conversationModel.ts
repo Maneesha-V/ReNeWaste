@@ -1,5 +1,5 @@
 import mongoose, { model, Schema } from "mongoose";
-import { IConversationDocument } from "./interfaces/conversationInterface";
+import { IConversationDocument, IParticipant } from "./interfaces/conversationInterface";
 
 const participantSchema = new Schema(
   {
@@ -29,7 +29,7 @@ const conversationSchema = new Schema(
   },
 );
 
-function arrayLimit(val: any[]) {
+function arrayLimit(val: IParticipant[]): boolean {
   return val.length === 2;
 }
 

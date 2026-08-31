@@ -16,7 +16,7 @@ const ProfileDriver = () => {
   console.log("driver",driver);
   
   useEffect(() => {
-    dispatch(fetchDriverProfile() as any);
+    dispatch(fetchDriverProfile());
   }, [dispatch]);
   const handleEdit = () => {
     navigate("/driver/edit-profile");

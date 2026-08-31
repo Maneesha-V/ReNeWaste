@@ -153,7 +153,6 @@ export type CommPickupReqArgs = {
 export interface PickupReqDTO  {
   _id: string;
   userId: string;
-  // driverId?: string;
   driverId?: {
     _id: string;
     name: string;
@@ -161,7 +160,7 @@ export interface PickupReqDTO  {
   };
   wasteplantId?: string;
   truckId?: string;
-  addressId: string;
+  addressId: string;  
   wasteType: string;
   originalPickupDate: Date;
   rescheduledPickupDate?: Date;
@@ -181,4 +180,8 @@ export interface PickupReqDTO  {
   pauseUntil?: Date | null;
   requestedFrequency? : string | null;
   requestType?: string | null;
+  location?: string;
+  parentRequestId?: string | null;
+  userName: string;
+  userAddress: Address;
 }

@@ -22,21 +22,23 @@ import {
 } from "../../../types/driver/driverTypes";
 
 interface DriverState {
-  driver: any;
+  driver: DriverDTO | null;
   taluk: string;
   loading: boolean;
   message: string | null;
   error: string | null;
   total: number;
+  drivers: DriverDTO[];
 }
 
 const initialState: DriverState = {
-  driver: [],
+  driver: null,
   taluk: "",
   loading: false,
   message: null,
   error: null,
   total: 0,
+  drivers: [],
 };
 
 export const getCreateDriver = createAsyncThunk<
@@ -157,7 +159,7 @@ const wastePlantDriverSlice = createSlice({
       })
       .addCase(fetchDrivers.fulfilled, (state, action) => {
         state.loading = false;
-        state.driver = action.payload.drivers;
+        state.drivers = action.payload.drivers;
         state.total = action.payload.total;
       })
       .addCase(fetchDrivers.rejected, (state, action) => {
@@ -170,7 +172,7 @@ const wastePlantDriverSlice = createSlice({
       })
       .addCase(addDriver.fulfilled, (state, action) => {
         state.loading = false;
-        state.driver = action.payload || [];
+        state.message = action.payload.message;
       })
       .addCase(addDriver.rejected, (state, action) => {
         state.loading = false;
@@ -197,7 +199,8 @@ const wastePlantDriverSlice = createSlice({
       })
       .addCase(updateDriver.fulfilled, (state, action) => {
         state.loading = false;
-        state.driver = action.payload;
+        state.driver = action.payload.data;
+        state.message = action.payload.message;
       })
       .addCase(updateDriver.rejected, (state, action) => {
         state.loading = false;
@@ -205,7 +208,7 @@ const wastePlantDriverSlice = createSlice({
       })
       .addCase(deleteDriver.fulfilled, (state, action) => {
         state.message = action.payload.message;
-        state.driver = state.driver.filter((d: DriverDTO) => {
+        state.drivers = state.drivers.filter((d: DriverDTO) => {
           return d._id !== action.payload.updatedDriver._id;
         });
       });

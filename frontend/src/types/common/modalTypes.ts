@@ -3,6 +3,10 @@ import { modifyCommPickReq, PickupCancelData, PickupReqDTO } from "../pickupReq/
 import { SubcptnPaymtPayload } from "../subscription/subscriptionTypes";
 import { MeasureDataPayload } from "../wasteCollections/wasteCollectionTypes";
 import { AddMoneyReq } from "../wallet/walletTypes";
+import { PaymentRecord, ReschedulePickupReq } from "../wasteplant/wastePlantTypes";
+import { UserResp } from "../user/userTypes";
+import { DriverDTO } from "../driver/driverTypes";
+import { cancelSubPayReq } from "../../redux/slices/wastePlant/wastePlantSubscriptionSlice";
 
 export type AdminHeaderProps = {
   collapsed: boolean;
@@ -21,13 +25,13 @@ export type PickupCommercialFormModalProps = {
   onClose: () => void;
   selectedDate: string | null;
   serviceQuery: string | null;
-  user: any;
+  user: UserResp;
 }
 export type PickupResidentialFormModalProps = {
   isOpen: boolean;
   onClose: () => void;
   selectedDate: string | null;
-  user: any;
+  user: UserResp;
 }
 export interface TrackModalProps {
   visible: boolean;
@@ -39,7 +43,8 @@ export interface TrackModalProps {
 export type PayNowProps = {
   onClose: () => void;
 };
-export type CancelPickupModalProps = {
+
+export interface CancelPickupModalProps {
   visible: boolean;
   onClose: () => void;
   pickupId: string | null;
@@ -84,17 +89,18 @@ export interface CancelSubptnModalProps {
   visible: boolean;
   onClose: () => void;
   subPayId: string | null;
-  cancelAction: (args: any) => any;
+  // cancelAction: (args: SubscptnCancelReq) => any;
+  cancelAction: typeof cancelSubPayReq;
 }
 export interface DriverChatWindowProps {
-  driver: any;
+  driver: DriverDTO;
   wasteplantId: string;
 }
 export interface ReschedulePickupModalProps {
   visible: boolean;
   onClose: () => void;
-  pickup: any;
-  onSubmit: (formData: any) => void;
+  pickup: PickupReqDTO;
+  onSubmit: (formData: ReschedulePickupReq) => void;
 }
 export type DriverHeaderProps = {
   collapsed: boolean;
@@ -140,4 +146,17 @@ export interface ModifyRequestModalProps {
   pickup: PickupReqDTO | null;
   onApprove: (pickupReqId: string) => void;
   onReject: (pickupReqId: string) => void;
+}
+export interface AssignDriverModalProps {
+  visible: boolean;
+  onClose: () => void;
+  pickup: PickupReqDTO;
+  onSuccess: () => void;
+}
+export interface WPRefundModalProps {
+  visible: boolean;
+  onClose: () => void;
+  record: PaymentRecord;
+  onUpdateStatus: (status: string) => void;
+  onRefund: () => void;
 }

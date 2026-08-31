@@ -1,6 +1,6 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { getAxiosErrorMessage } from "../../../utils/handleAxiosError";
-import { TransactionDTO } from "../../../types/wallet/walletTypes";
+import { GetWalletDriverResp, TransactionDTO } from "../../../types/wallet/walletTypes";
 import { PaginationPayload } from "../../../types/common/commonTypes";
 import { getWalletService } from "../../../services/driver/walletService";
 
@@ -24,7 +24,7 @@ interface WalletState {
   };
   
   export const getWallet = createAsyncThunk<
-    any,
+    GetWalletDriverResp,
     PaginationPayload,
     { rejectValue: { error: string } }
   >("driverWallet/getWallet", async (

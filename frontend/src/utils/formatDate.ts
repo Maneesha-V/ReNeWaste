@@ -15,36 +15,37 @@ export const disablePastDates = (current: dayjs.Dayjs) => {
   return current && current < dayjs().startOf("day");
 };
 
-export const disableTimesAfterFive = (current: any) => {
-  const now = dayjs();
-  const selectedDay = current ? dayjs(current) : null;
+// export const disableTimesAfterFive = (current: any) => {
+//   const now = dayjs();
+//   const selectedDay = current ? dayjs(current) : null;
 
-  const isToday = selectedDay && selectedDay.isSame(now, "day");
+//   const isToday = selectedDay && selectedDay.isSame(now, "day");
 
-  const disabledHours: number[] = [];
+//   const disabledHours: number[] = [];
 
-  for (let i = 0; i < 24; i++) {
-    if (i < 9 || i > 17 || (isToday && i < now.hour())) {
-      disabledHours.push(i);
-    }
-  }
+//   for (let i = 0; i < 24; i++) {
+//     if (i < 9 || i > 17 || (isToday && i < now.hour())) {
+//       disabledHours.push(i);
+//     }
+//   }
 
-  const disabledMinutes = (selectedHour: number) => {
-    if (isToday && selectedHour === now.hour()) {
-      const minutes: number[] = [];
-      for (let i = 0; i < now.minute(); i++) {
-        minutes.push(i);
-      }
-      return minutes;
-    }
-    return [];
-  };
+//   const disabledMinutes = (selectedHour: number) => {
+//     if (isToday && selectedHour === now.hour()) {
+//       const minutes: number[] = [];
+//       for (let i = 0; i < now.minute(); i++) {
+//         minutes.push(i);
+//       }
+//       return minutes;
+//     }
+//     return [];
+//   };
 
-  return {
-    disabledHours: () => disabledHours,
-    disabledMinutes,
-  };
-};
+//   return {
+//     disabledHours: () => disabledHours,
+//     disabledMinutes,
+//   };
+// };
+
 export function formatTimeTo12Hour(timeStr: string): string {
   const [hourStr, minute] = timeStr.split(":");
   let hour = parseInt(hourStr, 10);

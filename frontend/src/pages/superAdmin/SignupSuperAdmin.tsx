@@ -47,11 +47,6 @@ const SignupSuperAdmin: React.FC = () => {
       console.log("Submitted Data:", formData);
       const result = await dispatch(superAdminSignup(formData)).unwrap();
       console.log("result",result);
-      
-      // if (typeof result.payload === "string") {
-      //   showErrorToast(result.payload);
-      //   return;
-      // }
       toast.success(result?.message);
       setTimeout(() => navigate("/super-admin/"), 1500);
 

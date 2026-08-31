@@ -27,7 +27,7 @@ const EditDriver = () => {
     (state: RootState) => state.wastePlantDriver
   );
   const [formData, setFormData] = useState<PartialDriverFormData>({});
-  const taluk = useSelector((state: any) => state.wastePlantDriver.taluk);
+  const taluk = useSelector((state: RootState) => state.wastePlantDriver.taluk);
   console.log("driver", driver);
 
   const [assignedZones, setAssignedZones] = useState<string[]>([]);

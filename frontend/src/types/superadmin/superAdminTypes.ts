@@ -42,7 +42,7 @@ export type FetchSuperAdminDashboardResp = {
   success: string;
 }
 export interface WasteplantDTO {
-  _id?: string;
+  _id: string;
   plantName?: string;
   ownerName?: string;
   location?: string;
@@ -59,7 +59,7 @@ export interface WasteplantDTO {
   subscriptionPlan?: string; 
   password?: string;
   services?: string[];
-  isBlocked?: boolean;
+  isBlocked: boolean;
   blockedAt?: Date;
   autoUnblockAt?: Date;
   unblockNotificationSent?: Boolean;

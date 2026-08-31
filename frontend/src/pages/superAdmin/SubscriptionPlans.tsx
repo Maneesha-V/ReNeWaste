@@ -16,6 +16,7 @@ import { getAxiosErrorMessage } from "../../utils/handleAxiosError";
 import PaginationSearch from "../../components/common/PaginationSearch";
 import usePagination from "../../hooks/usePagination";
 import { debounce } from "lodash";
+import { SubsptnPlans } from "../../types/subscription/subscriptionTypes";
 
 const SubscriptionPlans = () => {
   const dispatch = useAppDispatch();
@@ -27,12 +28,7 @@ const SubscriptionPlans = () => {
 
   const { currentPage, setCurrentPage, pageSize, search, setSearch } =
     usePagination();
-  // const debouncedFetchSubscriptionPlans = useCallback(
-  //   debounce((page: number, limit: number, query: string) => {
-  //     dispatch(fetchSubscriptionPlans({ page, limit, search: query }));
-  //   }, 500),
-  //   [dispatch]
-  // );
+
     const debouncedFetchSubscriptionPlans = useMemo(
       () =>
     debounce((page: number, limit: number, query: string) => {
@@ -149,7 +145,7 @@ const SubscriptionPlans = () => {
             <Table.Column
               title="Actions"
               key="actions"
-              render={(_, record: any) => (
+              render={(_, record: SubsptnPlans) => (
                 <div className="flex flex-wrap gap-2">
                   <Button
                     icon={<EditOutlined />}

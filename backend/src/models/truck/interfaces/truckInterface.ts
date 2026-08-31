@@ -27,3 +27,14 @@ export type ReturnFetchAllTrucksByPlantId = {
   inactive: number;
   maintenance: number;
 };
+export type PopulatedDriver = {
+  _id: Types.ObjectId;
+  name: string;
+  assignedZone: string;
+};
+export type PopulatedTruckDocument = Omit<
+  ITruckDocument,
+  "assignedDriver"
+> & {
+  assignedDriver: PopulatedDriver;
+};
