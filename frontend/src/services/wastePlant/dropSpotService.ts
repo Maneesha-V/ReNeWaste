@@ -1,4 +1,5 @@
 import { axiosWasteplant } from "../../config/axiosClients";
+import { API_ROUTES } from "../../constants/apiRoutes";
 import { PaginationPayload } from "../../types/common/commonTypes";
 import {
   DropSpotFormValues,
@@ -8,7 +9,7 @@ import {
 export const createDropSpotService = async (
   dropSpotData: DropSpotFormValues
 ) => {
-  const response = await axiosWasteplant.post(`/add-drop-spot`, dropSpotData);
+  const response = await axiosWasteplant.post(API_ROUTES.WASTE_PLANT.ADD_DROP_SPOT, dropSpotData);
   return response.data;
 };
 
@@ -17,21 +18,21 @@ export const fetchDropSpotsService = async ({
   limit,
   search,
 }: PaginationPayload) => {
-  const response = await axiosWasteplant.get(`/drop-spots`, {
+  const response = await axiosWasteplant.get(API_ROUTES.WASTE_PLANT.DROPSPOTS, {
     params: { page, limit, search },
   });
 
   return response.data;
 };
 export const fetchDropSpotByIdService = async (dropSpotId: string) => {
-  const response = await axiosWasteplant.get(`/edit-drop-spot/${dropSpotId}`);
+  const response = await axiosWasteplant.get(`${API_ROUTES.WASTE_PLANT.EDIT_DROP_SPOT}/${dropSpotId}`);
   console.log("Thunk response", response);
   return response.data;
 };
 
 export const deleteDropSpotServive = async (dropSpotId: string) => {
   const response = await axiosWasteplant.delete(
-    `/delete-drop-spot/${dropSpotId}`
+    `${API_ROUTES.WASTE_PLANT.DELETE_DROP_SPOT}/${dropSpotId}`
   );
   return response.data.data;
 };
@@ -41,7 +42,7 @@ export const updateDropSpotServive = async ({
   data,
 }: updateDropSpotReq) => {
   const response = await axiosWasteplant.patch(
-    `/edit-drop-spot/${dropSpotId}`,
+    `${API_ROUTES.WASTE_PLANT.EDIT_DROP_SPOT}/${dropSpotId}`,
     data
   );
   return response.data;

@@ -1,19 +1,20 @@
 import { axiosDriver } from "../../config/axiosClients";
+import { API_ROUTES } from "../../constants/apiRoutes";
 import { FetchEtaReq, UpdateAddressLatLngReq, UpdateTrackingStatusReq } from "../../types/driver/driverTypes";
 
 export const getDriverPickups = async () => {
   const response = await axiosDriver.get(
-    `/alloted-pickups`
+    API_ROUTES.DRIVER.ALLOTED_PICKUPS
   );
   return response.data;
 };
 
 export const markPickupService = async (pickupReqId: string) => {
-  const response = await axiosDriver.put(`/pickup-complete/${pickupReqId}`);
+  const response = await axiosDriver.put(`${API_ROUTES.DRIVER.PICKUP_COMPLETE}/${pickupReqId}`);
   return response.data;
 };
 export const fetchPickupByIdService = async (pickupReqId: string) => {
-  const response = await axiosDriver.get(`/track-pickup/${pickupReqId}`);
+  const response = await axiosDriver.get(`${API_ROUTES.DRIVER.TRACK_PICKUP}/${pickupReqId}`);
   return response.data;
 };
 export const fetchEtaService = async (data: FetchEtaReq) => {

@@ -1,8 +1,9 @@
 import { axiosWasteplant } from "../../config/axiosClients";
+import { API_ROUTES } from "../../constants/apiRoutes";
 import { LoginRequest } from "../../types/user/userTypes";
 
 export const loginWastePlant = async (wastePlantData: LoginRequest) => {
-    const response = await axiosWasteplant.post(`/`, wastePlantData);
+    const response = await axiosWasteplant.post(API_ROUTES.WASTE_PLANT.LOGIN, wastePlantData);
     if (response.data) {
       localStorage.setItem("token", response.data.token);
       localStorage.setItem("role", response.data.role);
@@ -16,7 +17,7 @@ export const loginWastePlant = async (wastePlantData: LoginRequest) => {
 
 export const logoutWastePlant = async () => {
     const response = await axiosWasteplant.post(
-      `/logout`,
+      API_ROUTES.WASTE_PLANT.LOGOUT,
       {}
     );
     localStorage.removeItem("token"); 
@@ -26,22 +27,22 @@ export const logoutWastePlant = async () => {
     return response.data;
 };
 export const sendOtpService = async (email: string) => {
-    const response = await axiosWasteplant.post(`/send-otp`, { email });
+    const response = await axiosWasteplant.post(API_ROUTES.WASTE_PLANT.SEND_OTP, { email });
     console.log("response", response);
     return response.data;
 };
 export const resendOtpService = async (email: string) => {
-    const response = await axiosWasteplant.post(`/resend-otp`, { email });
+    const response = await axiosWasteplant.post(API_ROUTES.WASTE_PLANT.RESEND_OTP, { email });
     console.log("respp", response);
 
     return response.data;
 };
 export const verifyOtpService = async (email: string, otp: string) => {
-    const { data } = await axiosWasteplant.post(`/verify-otp`, { email, otp });
+    const { data } = await axiosWasteplant.post(API_ROUTES.WASTE_PLANT.VERIFY_OTP, { email, otp });
     return data;
 };
 export const resetPasswordService = async (email: string, password: string) => {
-    const response = await axiosWasteplant.post(`/reset-password`, {
+    const response = await axiosWasteplant.post(API_ROUTES.WASTE_PLANT.RESET_PASSWORD, {
       email,
       password,
     });

@@ -1,4 +1,5 @@
 import { axiosWasteplant } from "../../config/axiosClients";
+import { API_ROUTES } from "../../constants/apiRoutes";
 import { PaginationPayload } from "../../types/common/commonTypes";
 import {
   RefundPaymntPayload,
@@ -14,7 +15,7 @@ export const fetchPaymentsService = async ({
   limit,
   search,
 }: PaginationPayload) => {
-  const response = await axiosWasteplant.get(`/payment`, {
+  const response = await axiosWasteplant.get(API_ROUTES.WASTE_PLANT.PAYMENTS, {
     params: { page, limit, search },
   });
   console.log("res", response);
@@ -22,7 +23,7 @@ export const fetchPaymentsService = async ({
   return response.data;
 };
 export const createPaymentOrderService = async (planId: string) => {
-  const response = await axiosWasteplant.post(`/payment/create-order`, {
+  const response = await axiosWasteplant.post(API_ROUTES.WASTE_PLANT.PAYMENT_CREATE_ORDER, {
     planId,
   });
   console.log("res", response);
@@ -33,7 +34,7 @@ export const createPaymentOrderService = async (planId: string) => {
 export const verifyPaymentService = async (
   paymentData: SubptnVerifyPaymenReq,
 ) => {
-  const response = await axiosWasteplant.post(`/payment/verify`, {
+  const response = await axiosWasteplant.post(API_ROUTES.WASTE_PLANT.PAYMENT_VERIFY, {
     paymentData,
   });
   console.log("response", response);
@@ -41,7 +42,7 @@ export const verifyPaymentService = async (
   return response.data;
 };
 export const getAllPayments = async () => {
-  const response = await axiosWasteplant.get(`/subscptn-payments`);
+  const response = await axiosWasteplant.get(API_ROUTES.WASTE_PLANT.SUBSCRIPTION_PAYMENTS);
   return response.data;
 };
 export const repayService = async ({
@@ -49,7 +50,7 @@ export const repayService = async ({
   amount,
   subPaymtId,
 }: RetryPaymentData) => {
-  const response = await axiosWasteplant.post(`/payment/repay`, {
+  const response = await axiosWasteplant.post(API_ROUTES.WASTE_PLANT.PAYMENT_REPAY, {
     planId,
     amount,
     subPaymtId,
@@ -62,7 +63,7 @@ export const repayService = async ({
 export const updateRefundStatusService = async (
   statusUpdateData: UpdateStatusPayload,
 ) => {
-  const response = await axiosWasteplant.post(`/payment/update-status`, {
+  const response = await axiosWasteplant.post(API_ROUTES.WASTE_PLANT.PAYMENT_UPDATE_STATUS, {
     statusUpdateData,
   });
   console.log("response", response);
@@ -73,7 +74,7 @@ export const updateRefundStatusService = async (
 export const triggerPickupRefundService = async (
   refundDataReq: RefundPaymntPayload,
 ) => {
-  const response = await axiosWasteplant.post(`/payment/refund`, refundDataReq);
+  const response = await axiosWasteplant.post(API_ROUTES.WASTE_PLANT.PAYMENT_REFUND, refundDataReq);
   console.log("res", response);
   return response.data;
 };
