@@ -133,6 +133,7 @@ const Subscription = () => {
                 planId: subPlanId,
                 amount: repayAmt,
                 billingCycle,
+                subscriptionPaymentId: subPaymtId
               }),
             )
               .unwrap()
@@ -244,7 +245,6 @@ const Subscription = () => {
     },
   };
 
-  // const expiryColumn = {
   const expiryColumn: ColumnsType<SubscriptionTableData>[number] = {
     title: "Expired At",
     dataIndex: "expiredAt",
@@ -504,7 +504,6 @@ const Subscription = () => {
     ...(showPaidAtColumn ? paidAtOnlyColumn : []),
     ...(showRefundAtColumn ? refundAtOnlyColumn : []),
     ...(showPaymentActionColumn ? paymentActionColumn : []),
-    // ...paymentActionColumn,
   ];
 
   return (

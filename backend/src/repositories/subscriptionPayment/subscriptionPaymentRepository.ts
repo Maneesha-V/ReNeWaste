@@ -39,9 +39,10 @@ export class SubscriptionPaymentRepository
     return newPayment;
   }
   async updateSubscriptionPayment(data: UpdateSubscptnPayload) {
-    const { planId, paymentUpdate, plantId } = data;
+    const { planId, paymentUpdate, plantId, subscriptionPaymentId} = data;
     const updatedPayment = await this.model.findOneAndUpdate(
       {
+        _id: subscriptionPaymentId,
         planId: planId,
         wasteplantId: plantId,
       },

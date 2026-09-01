@@ -71,8 +71,8 @@ export type SubptnVerifyPaymenReq = {
   razorpay_signature: string;
   planId: string;
   amount?: number;
-  // subPaymtId?: string;
   billingCycle?: string;
+  subscriptionPaymentId: string;
 }
 export type SubptnVerifyPaymenResp = MsgSuccessResp & {
   updatePayment: {

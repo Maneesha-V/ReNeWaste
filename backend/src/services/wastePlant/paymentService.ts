@@ -174,6 +174,7 @@ export class PaymentService implements IPaymentService {
 
   async verifyPaymentService(data: VerifyPaymtReq): Promise<VerifyPaymtResp> {
     const { paymentData, plantId } = data;
+    console.log({ paymentData });
 
     const body = `${paymentData.razorpay_order_id}|${paymentData.razorpay_payment_id}`;
     const expectedSignature = crypto
@@ -214,6 +215,7 @@ export class PaymentService implements IPaymentService {
         planId: paymentData.planId,
         paymentUpdate,
         plantId,
+        subscriptionPaymentId: paymentData.subscriptionPaymentId,
       });
     const plant = await this.wastePlantRepository.getWastePlantById(plantId);
     if (!plant) {
@@ -273,29 +275,30 @@ export class PaymentService implements IPaymentService {
           accountType,
         );
       }
-      if (!adminWallet) {
-        throw new ApiError(
-          STATUS_CODES.NOT_FOUND,
-          MESSAGES.COMMON.ERROR.WALLET_NOT_FOUND,
-        );
-      }
-      adminWallet.balance += paymentData.amount;
-
-      adminWallet.transactions.push({
-        amount: paymentData.amount,
-        description: `Subscription payment of ${plant.plantName}, Plan:(${plant.subscriptionPlan}, ${paymentData.billingCycle})`,
-        type: "Debit",
-        subType: "SubscriptionPayment",
-        status: "Paid",
-        method: "Razorpay",
-        razorpayOrderId: paymentData.razorpay_order_id,
-        razorpayPaymentId: paymentData.razorpay_payment_id,
-        razorpaySignature: paymentData.razorpay_signature,
-        paidAt: new Date(),
-      });
-
-      await adminWallet.save();
     }
+    if (!adminWallet) {
+      throw new ApiError(
+        STATUS_CODES.NOT_FOUND,
+        MESSAGES.COMMON.ERROR.WALLET_NOT_FOUND,
+      );
+    }
+    adminWallet.balance += paymentData.amount;
+
+    adminWallet.transactions.push({
+      amount: paymentData.amount,
+      description: `Subscription payment of ${plant.plantName}, Plan:(${plant.subscriptionPlan}, ${paymentData.billingCycle})`,
+      type: "Credit",
+      subType: "SubscriptionPayment",
+      status: "Paid",
+      method: "Razorpay",
+      razorpayOrderId: paymentData.razorpay_order_id,
+      razorpayPaymentId: paymentData.razorpay_payment_id,
+      razorpaySignature: paymentData.razorpay_signature,
+      paidAt: new Date(),
+    });
+
+    await adminWallet.save();
+
     return {
       subPayId: updatedPayment._id.toString(),
       expiredAt: updatedPayment.expiredAt,

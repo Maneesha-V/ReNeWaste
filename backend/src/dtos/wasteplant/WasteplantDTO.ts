@@ -111,6 +111,7 @@ export type PaymentData = {
   planId: string;
   amount: number;
   billingCycle: string;
+  subscriptionPaymentId: string;
 };
 export type VerifyPaymtReq = {
   paymentData: PaymentData;

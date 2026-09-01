@@ -56,6 +56,7 @@ const SubscriptionPayModal = ({
               planId: plan._id,
               amount: plan.price,
               billingCycle: plan.billingCycle,
+              subscriptionPaymentId: paymentOrder.subscriptionPaymentId
             }),
           )
             .unwrap()

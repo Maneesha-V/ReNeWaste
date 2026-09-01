@@ -84,6 +84,7 @@ export type UpdateSubscptnPayload = {
   planId: string;
   paymentUpdate: PaymentUpdate;
   plantId: string;
+  subscriptionPaymentId: string;
 };
 
 export interface PopulatedWasteplant {
