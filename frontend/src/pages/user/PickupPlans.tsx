@@ -69,7 +69,7 @@ const PickupPlans = () => {
   } | null>(null);
 
   const dispatch = useAppDispatch();
-  const { pickups, total, loading } = useSelector(
+  const { pickups, total, isInitialLoading } = useSelector(
     (state: RootState) => state.userPickups,
   );
   const location = useLocation();
@@ -127,25 +127,12 @@ const PickupPlans = () => {
   const handleCancel = async (pickup: PickupPlansResp) => {
     console.log("---pickup", pickup);
 
-    // if (
-    //   pickup.wasteType === "Commercial" &&
-    //   (pickup.status === "Scheduled" || pickup.status === "Rescheduled")
-    // ) {
-    //   setSelectedPickup(pickup);
-    //   setModifyComModalVisible(true);
-    //   return;
-    // }
-
     if (pickup.payment?.status === "Paid") {
       setCancelPickup(pickup._id);
       setCancelModalVisible(true);
       return;
     }
 
-    // if (pickup?.payment?.status === "Paid") {
-    //   setCancelPickup(pickup._id);
-    //   setCancelModalVisible(true);
-    // }
 
     try {
       const res = await dispatch(cancelPickupPlan(pickup._id)).unwrap();
@@ -185,14 +172,6 @@ const PickupPlans = () => {
       setSelectedPickup(null);
       setModifyComModalVisible(false);
 
-      dispatch(
-        fetchtPickupPlans({
-          page: currentPage,
-          limit: pageSize,
-          search,
-          filter: statusFilter,
-        }),
-      );
     } catch (err) {
       toast.error(getAxiosErrorMessage(err));
     }
@@ -205,185 +184,19 @@ const PickupPlans = () => {
     setIsPayNowModalOpen(true);
   };
 
+const visiblePickups = pickups.filter((pickup) => {
+  const paymentStatus = pickup.payment?.status;
+  const paidAt = pickup.payment?.paidAt;
+
+  return !(paymentStatus === "Pending" && !paidAt);
+});
+
   const renderPickupCards = (pickups: PickupPlansResp[]) => {
     if (pickups.length === 0) {
       return <Empty description="No pickup plans available." />;
     }
 
     return (
-      // <Row gutter={[16, 16]}>
-      //   {pickups.map((pickup: PickupPlansResp, index: number) => (
-      //     <Col key={index} xs={24}>
-      //       <Card
-      //         hoverable
-      //         title={pickup.pickupId}
-      //         className="rounded-lg shadow-lg"
-      //         extra={(() => {
-      //           const status = pickup?.payment?.status;
-      //           const expiresAt = pickup?.payment?.inProgressExpiresAt
-      //             ? new Date(pickup?.payment?.inProgressExpiresAt)
-      //             : null;
-      //           const orderId = pickup?.payment?.razorpayOrderId;
-      //           const now = new Date();
-
-      //           const isCooldown = expiresAt && expiresAt > now;
-      //           const isCooldownExpired = !expiresAt || expiresAt <= now;
-
-      //           const isRetryCase = status === "Pending" && !!orderId;
-      //           const today = new Date();
-      //           today.setHours(0, 0, 0, 0);
-
-      //           const pickupDate = new Date(pickup.originalPickupDate);
-      //           pickupDate.setHours(0, 0, 0, 0);
-
-      //           const canUpdate =
-      //             pickup.status === "Pending" &&
-      //             pickup.wasteType === "Commercial" &&
-      //             pickup.requestType === null &&
-      //             pickupDate > today;
-
-      //           return (
-      //             <>
-      //               {/* PAY button only if not paid AND cooldown expired */}
-      //               {(pickup.status === "Scheduled" ||
-      //                 pickup.status === "Rescheduled") &&
-      //               pickup.payment?.status !== "Paid" &&
-      //               // status === "Pending" &&
-      //               isCooldownExpired &&
-      //               !isRetryCase ? (
-      //                 <Button
-      //                   type="primary"
-      //                   className="mr-2"
-      //                   onClick={() => handlePay(pickup)}
-      //                 >
-      //                   Pay
-      //                 </Button>
-      //               ) : status === "Pending" && isCooldown && !isRetryCase ? (
-      //                 <div className="bg-orange-50 border border-orange-300 p-2 rounded text-sm text-orange-700 font-medium mb-2">
-      //                   Payment already initiated. Please wait
-      //                   {!isNaN(expiresAt.getTime()) && (
-      //                     <>
-      //                       {" "}
-      //                       until{" "}
-      //                       <strong>
-      //                         {expiresAt.toLocaleTimeString([], {
-      //                           hour: "2-digit",
-      //                           minute: "2-digit",
-      //                         })}
-      //                       </strong>
-      //                     </>
-      //                   )}{" "}
-      //                   to try again.
-      //                 </div>
-      //               ) : null}
-
-      //               {/* TRACK or CANCEL button */}
-      //               {pickup.status === "Cancelled" ||
-      //               pickup.payment
-      //                 ?.refundRequested ? null : pickup.trackingStatus ? (
-      //                 <Button
-      //                   type="primary"
-      //                   onClick={() => handleTrackClick(pickup)}
-      //                 >
-      //                   {pickup.trackingStatus === "Completed" &&
-      //                   pickup.payment?.status === "Paid"
-      //                     ? "View"
-      //                     : "Track"}
-      //                 </Button>
-      //               ) : (
-      //                 !(status === "Pending" && isCooldown && !isRetryCase) && (
-      //                   <Popconfirm
-      //                     title="Are you sure to cancel this pickup?"
-      //                     okText="Yes"
-      //                     cancelText="No"
-      //                     onConfirm={() => handleCancel(pickup)}
-      //                     okType="danger"
-      //                   >
-      //                     <Button type="default" danger>
-      //                       Cancel
-      //                     </Button>
-      //                   </Popconfirm>
-      //                 )
-      //               )}
-      //               {/* UPDATE button */}
-      //               {canUpdate && (
-      //                 <Popconfirm
-      //                   title="Are you sure to update this pickup?"
-      //                   okText="Yes"
-      //                   cancelText="No"
-      //                   onConfirm={() => handleUpdate(pickup)}
-      //                   okType="danger"
-      //                 >
-      //                   <Button type="primary" className="ml-2">
-      //                     Update
-      //                   </Button>
-      //                 </Popconfirm>
-      //               )}
-      //             </>
-      //           );
-      //         })()}
-      //       >
-      //         <Meta
-      //           title={`Pickup Date: ${
-      //             pickup.rescheduledPickupDate
-      //               ? formatDateToDDMMYYYY(pickup.rescheduledPickupDate)
-      //               : formatDateToDDMMYYYY(pickup.originalPickupDate)
-      //           }`}
-      //           description={
-      //             <>
-      //               <p>Pickup Time: {formatTimeTo12Hour(pickup.pickupTime)}</p>
-      //               <p>Waste Type: {pickup.wasteType}</p>
-
-      //               {pickup?.payment?.status === "Paid" && (
-      //                 <>
-      //                   <p>
-      //                     Payment Status:{" "}
-      //                     <span className="text-green-600">
-      //                       {pickup?.payment?.status}
-      //                     </span>
-      //                   </p>
-      //                 </>
-      //               )}
-      //               <p>
-      //                 Pickup Status:{" "}
-      //                 <span
-      //                   className={
-      //                     pickup.status === "Scheduled" ||
-      //                     pickup.status === "Rescheduled"
-      //                       ? "text-green-600"
-      //                       : pickup.status === "Completed"
-      //                         ? "text-blue-600"
-      //                         : pickup.status === "Cancelled"
-      //                           ? "text-red-600"
-      //                           : "text-yellow-500"
-      //                   }
-      //                 >
-      //                   {pickup.status === "Scheduled" ||
-      //                   pickup.status === "Rescheduled"
-      //                     ? "Assigned Driver"
-      //                     : pickup.status === "Completed"
-      //                       ? "Completed"
-      //                       : pickup.status === "Cancelled"
-      //                         ? "Cancelled"
-      //                         : "Not Assigned Yet"}
-      //                 </span>
-      //               </p>
-
-      //               {pickup?.trackingStatus && (
-      //                 <>
-      //                   <p>Driver Name: {pickup?.driverId?.name}</p>
-      //                   <p>Driver Contact: {pickup?.driverId?.contact}</p>
-      //                   <p>Vehicle Name: {pickup?.truckId?.name}</p>
-      //                   <p>Vehicle Number: {pickup?.truckId?.vehicleNumber}</p>
-      //                 </>
-      //               )}
-      //             </>
-      //           }
-      //         />
-      //       </Card>
-      //     </Col>
-      //   ))}
-      // </Row>
       <Row gutter={[16, 20]}>
         {pickups.map((pickup: PickupPlansResp, index: number) => {
           const paymentStatus = pickup?.payment?.status;
@@ -809,12 +622,13 @@ const PickupPlans = () => {
           filterValue={statusFilter}
           onFilterChange={setStatusFilter}
         />
-        {loading ? (
+        {isInitialLoading ? (
           <div className="text-center mt-4">
             <Spin />
           </div>
-        ) : pickups.length > 0 ? (
-          renderPickupCards(pickups)
+        ) : 
+        pickups.length > 0 ? (
+          renderPickupCards(visiblePickups)
         ) : (
           <Empty
             image={Empty.PRESENTED_IMAGE_SIMPLE}

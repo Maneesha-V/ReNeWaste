@@ -22,7 +22,7 @@ interface WalletState {
   loading: boolean;
   message: string | null;
   error: string | null;
-  transactions: TransactionDTO[] | [];
+  transactions: TransactionDTO[];
   total: number;
   balance: number;
 }
@@ -94,6 +94,21 @@ const userWalletSlice = createSlice({
   name: "userWallet",
   initialState,
   reducers: {
+    updateWalletTransactionStatus: (state, action) => {
+      const { transaction, balance } = action.payload;
+      state.balance = balance;
+      state.transactions.unshift(transaction)
+    },
+    updateWalletRetryTransactionStatus: (state, action) => {
+      const { transaction, balance, transactionId } = action.payload;
+      state.balance = balance;
+      const index = state.transactions.findIndex(
+        (trans)=>trans._id === transactionId
+      );
+      if(index !== -1){
+        state.transactions[index] = transaction;
+      }
+    }
   },
   extraReducers: (builder) => {
     builder
@@ -135,5 +150,7 @@ const userWalletSlice = createSlice({
       })
   },
 });
+
+export const { updateWalletTransactionStatus, updateWalletRetryTransactionStatus } = userWalletSlice.actions;
 
 export default userWalletSlice.reducer;

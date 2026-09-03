@@ -61,7 +61,7 @@ export const createPaymentOrder = createAsyncThunk<
       const msg = getAxiosErrorMessage(err);
       return rejectWithValue({ error: msg });
     }
-  }
+  },
 );
 
 export const verifyPayment = createAsyncThunk<
@@ -82,28 +82,39 @@ export const verifyWalletPayment = createAsyncThunk<
   VerifyWalletPaymentResp,
   VerifyWalletPaymentReq,
   { rejectValue: { error: string } }
->("userPayment/verifyWalletPayment", async (paymentData, { rejectWithValue }) => {
-  try {
-    const response = await verifyWalletPaymentService(paymentData);
-    return response;
-  } catch (err) {
-    const msg = getAxiosErrorMessage(err);
-    return rejectWithValue({ error: msg });
-  }
-});
+>(
+  "userPayment/verifyWalletPayment",
+  async (paymentData, { rejectWithValue }) => {
+    try {
+      const response = await verifyWalletPaymentService(paymentData);
+      return response;
+    } catch (err) {
+      const msg = getAxiosErrorMessage(err);
+      return rejectWithValue({ error: msg });
+    }
+  },
+);
 export const getAllPayments = createAsyncThunk<
   ReturnGetAllPayments,
   PaginationPayload,
   { rejectValue: { error: string } }
->("userPayment/getAllPayments", async ({ page, limit, search, filter }, { rejectWithValue }) => {
-  try {
-    const response = await getAllPaymentsService({page, limit, search, filter});
-    return response;
-  } catch (err) {
-    const msg = getAxiosErrorMessage(err);
-    return rejectWithValue({ error: msg });
-  }
-});
+>(
+  "userPayment/getAllPayments",
+  async ({ page, limit, search, filter }, { rejectWithValue }) => {
+    try {
+      const response = await getAllPaymentsService({
+        page,
+        limit,
+        search,
+        filter,
+      });
+      return response;
+    } catch (err) {
+      const msg = getAxiosErrorMessage(err);
+      return rejectWithValue({ error: msg });
+    }
+  },
+);
 export const repay = createAsyncThunk<
   RepaymentOrderResponse,
   { pickupReqId: string; amount: number },
@@ -121,7 +132,7 @@ export const downloadReceipt = createAsyncThunk<
   Blob,
   string,
   { rejectValue: { error: string } }
->("userPayment/downloadReceipt", async ( pickupReqId, { rejectWithValue }) => {
+>("userPayment/downloadReceipt", async (pickupReqId, { rejectWithValue }) => {
   try {
     const response = await downloadReceiptService(pickupReqId);
     return response;
@@ -142,6 +153,15 @@ const userPaymentSlice = createSlice({
       state.pickup = action.payload.pickup;
       state.amount = action.payload.amount;
     },
+    updateRetryPickupPaymentStatus: (state, action) => {
+      const { pickupReqId, payment } = action.payload;
+      const index = state.payments.findIndex(
+        (p: PaymentSummary) => p._id === pickupReqId,
+      );
+      if (index !== -1) {
+        state.payments[index].payment = payment;
+      }
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -153,6 +173,7 @@ const userPaymentSlice = createSlice({
       .addCase(createPaymentOrder.fulfilled, (state, action) => {
         state.loading = false;
         state.paymentOrder = action.payload;
+        state.error = null;
       })
       .addCase(createPaymentOrder.rejected, (state, action) => {
         state.loading = false;
@@ -168,6 +189,7 @@ const userPaymentSlice = createSlice({
       .addCase(verifyPayment.fulfilled, (state, action) => {
         state.loading = false;
         state.message = action.payload.message;
+        state.error = null;
       })
       .addCase(verifyPayment.rejected, (state, action) => {
         state.loading = false;
@@ -177,7 +199,7 @@ const userPaymentSlice = createSlice({
         state.loading = true;
         state.error = null;
       })
-      .addCase(getAllPayments.fulfilled, (state, action) => {   
+      .addCase(getAllPayments.fulfilled, (state, action) => {
         state.loading = false;
         state.payments = action.payload.payments;
         state.total = action.payload.total;
@@ -204,6 +226,10 @@ const userPaymentSlice = createSlice({
   },
 });
 
-export const { setPaymentData, clearPaymentError } = userPaymentSlice.actions;
+export const {
+  setPaymentData,
+  clearPaymentError,
+  updateRetryPickupPaymentStatus,
+} = userPaymentSlice.actions;
 
 export default userPaymentSlice.reducer;

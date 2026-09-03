@@ -23,6 +23,7 @@ interface PickupState {
   message: string | null;
   error: string | null;
   total: number;
+  isInitialLoading: boolean;
 }
 
 const initialState: PickupState = {
@@ -32,6 +33,7 @@ const initialState: PickupState = {
   message: null,
   error: null,
   total: 0,
+  isInitialLoading: false
 };
 export const fetchtPickupPlans = createAsyncThunk<
   PickupPlansResponse,
@@ -105,12 +107,12 @@ const userPickupSlice = createSlice({
   initialState,
   reducers: {
     updatePickupPaymentStatus: (state, action) => {
-      const { pickupReqId, updatedPayment } = action.payload;
+      const { pickupReqId, payment } = action.payload;
       const index = state.pickups.findIndex(
         (p: PickupPlansResp) => p._id === pickupReqId
       );
       if (index !== -1) {
-        state.pickups[index].payment = updatedPayment;
+        state.pickups[index].payment = payment;
       }
     },
     updateCancelPickupStatus: (state, action) => {
@@ -146,17 +148,17 @@ const userPickupSlice = createSlice({
   extraReducers: (builder) => {
     builder
       .addCase(fetchtPickupPlans.pending, (state) => {
-        state.loading = true;
+        state.isInitialLoading = true;
         state.error = null;
         state.pickups = [];
       })
       .addCase(fetchtPickupPlans.fulfilled, (state, action) => {
-        state.loading = false;
+        state.isInitialLoading = false;
         state.pickups = action.payload.pickups;
         state.total = action.payload.total;
       })
       .addCase(fetchtPickupPlans.rejected, (state, action) => {
-        state.loading = false;
+        state.isInitialLoading = false;
         state.error =
           (action.payload as { error: string })?.error ||
           "Fetch pickup plans failed.";

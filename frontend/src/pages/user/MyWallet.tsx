@@ -6,6 +6,8 @@ import {
   createAddMoneyOrder,
   getWallet,
   retryAddMoney,
+  updateWalletRetryTransactionStatus,
+  updateWalletTransactionStatus,
   verifyWalletAddPayment,
 } from "../../redux/slices/user/userWalletSlice";
 import { getAxiosErrorMessage } from "../../utils/handleAxiosError";
@@ -27,7 +29,7 @@ const MyWallet = () => {
   const dispatch = useAppDispatch();
   const [showModal, setShowModal] = useState(false);
   const { transactions, total, balance } = useSelector(
-    (state: RootState) => state.userWallet
+    (state: RootState) => state.userWallet,
   );
   const { currentPage, setCurrentPage, pageSize, search, setSearch } =
     usePagination();
@@ -36,7 +38,7 @@ const MyWallet = () => {
       debounce((page: number, limit: number, query: string) => {
         dispatch(getWallet({ page, limit, search: query }));
       }, 500),
-    []
+    [],
   );
   useEffect(() => {
     debouncedFetchWallet(currentPage, pageSize, search);
@@ -45,16 +47,6 @@ const MyWallet = () => {
       debouncedFetchWallet.cancel();
     };
   }, [currentPage, pageSize, search]);
-
-  const refreshWallet = () => {
-    dispatch(
-      getWallet({
-        page: currentPage,
-        limit: pageSize,
-        search,
-      })
-    );
-  };
 
   const handleAddMoney = async (data: AddMoneyReq) => {
     try {
@@ -87,17 +79,22 @@ const MyWallet = () => {
                 razorpay_signature,
                 walletId,
                 amount,
-              })
+              }),
             )
               .unwrap()
               .then((res) => {
+                dispatch(
+                  updateWalletTransactionStatus({
+                    balance: res.walletVerPayOrder.balance,
+                    transaction: res.walletVerPayOrder.transaction,
+                  }),
+                );
                 Swal.fire({
                   icon: "success",
                   title: "Payment Successful!",
                   text: `₹${res.walletVerPayOrder.amount} ${res.message}`,
                   confirmButtonColor: "#28a745",
                 });
-                refreshWallet();
               })
               .then(() => {
                 setShowModal(false);
@@ -124,7 +121,6 @@ const MyWallet = () => {
         razorpay.on("modal.closed", function () {
           console.warn("Razorpay modal closed by user.");
           toast.info("Payment window closed.");
-          refreshWallet();
         });
 
         razorpay.open();
@@ -143,7 +139,7 @@ const MyWallet = () => {
   const handleRetry = async (transactionId: string) => {
     try {
       const retryOrderResp = await dispatch(
-        retryAddMoney(transactionId)
+        retryAddMoney(transactionId),
       ).unwrap();
 
       const sdkLoaded = await loadRazorpayScript();
@@ -174,17 +170,23 @@ const MyWallet = () => {
                 razorpay_signature,
                 walletId,
                 amount,
-              })
+              }),
             )
               .unwrap()
               .then((res) => {
+                dispatch(
+                  updateWalletRetryTransactionStatus({
+                    balance: res.walletVerPayOrder.balance,
+                    transactionId: res.walletVerPayOrder.transactionId,
+                    transaction: res.walletVerPayOrder.transaction,
+                  }),
+                );
                 Swal.fire({
                   icon: "success",
                   title: "Payment Successful!",
                   text: `₹${res.walletVerPayOrder.amount} ${res.message}`,
                   confirmButtonColor: "#28a745",
                 });
-                refreshWallet();
               })
               .catch((err) => {
                 Swal.fire({
@@ -208,7 +210,6 @@ const MyWallet = () => {
         razorpay.on("modal.closed", function () {
           console.warn("Razorpay modal closed by user.");
           toast.info("Payment window closed.");
-          refreshWallet();
         });
 
         razorpay.open();
@@ -261,14 +262,13 @@ const MyWallet = () => {
                 </tr>
               </thead>
               <tbody>
-                {transactions &&
-                transactions.length > 0 ? (
+                {transactions && transactions.length > 0 ? (
                   transactions.map((txn, idx) => (
                     <tr key={idx}>
                       <td className="p-3 border-b">
                         {(() => {
                           const { date, time } = extractDateAndTime24H(
-                            txn.paidAt ? txn.paidAt : txn.updatedAt
+                            txn.paidAt ? txn.paidAt : txn.updatedAt,
                           );
                           return `${date} ${time}`;
                         })()}
@@ -293,10 +293,10 @@ const MyWallet = () => {
                             txn.status === "Paid"
                               ? "text-green-500"
                               : txn.status === "Pending"
-                              ? "text-yellow-500"
-                              : txn.status === "InProgress"
-                              ? "text-orange-500"
-                              : "text-red-500"
+                                ? "text-yellow-500"
+                                : txn.status === "InProgress"
+                                  ? "text-orange-500"
+                                  : "text-red-500"
                           }`}
                         >
                           {txn.refundStatus ? txn.refundStatus : txn.status}

@@ -37,7 +37,6 @@ const TrackModal = ({
     longitude: number;
   } | null>(null);
   const currentStep = statusToStep(localTrackingStatus);
-  // const socket = useSocket();
   const socket = useSafeSocket(); 
   useEffect(() => {
     if (visible && trackingStatus) {

@@ -181,6 +181,7 @@ export class WalletService implements IWalletService {
       amount,
       balance: userWallet.balance,
       transactionId: transaction._id.toString(),
+      transaction: WalletMapper.mapTransactionDTO(transaction)
     };
   }
   async getWallet(

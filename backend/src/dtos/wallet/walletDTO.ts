@@ -64,6 +64,7 @@ export type VerifyWalletAddPaymentResp = {
   amount: number;
   balance: number;
   transactionId: string;
+  transaction: TransactionDTO;
 };
 export type RetryWalletAddPaymentResp = {
   orderId: string;

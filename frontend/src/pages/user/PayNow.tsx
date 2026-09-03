@@ -1,4 +1,3 @@
-import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import {
   formatDateToDDMMYYYY,
@@ -18,9 +17,9 @@ import Swal from "sweetalert2";
 import { PayNowProps } from "../../types/common/modalTypes";
 import { RazorpayResponse } from "../../types/pickupReq/paymentTypes";
 import { getAxiosErrorMessage } from "../../utils/handleAxiosError";
+import { updatePickupPaymentStatus } from "../../redux/slices/user/userPickupSlice";
 
 const PayNow = ({ onClose }: PayNowProps) => {
-  const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const [paymentMethod, setPaymentMethod] = useState("");
   const { paymentOrder, error, pickup, amount } = useSelector(
@@ -45,14 +44,13 @@ const PayNow = ({ onClose }: PayNowProps) => {
       });
     }
   }, [error, dispatch, onClose]);
-  useEffect(() => {
-    const initiatePayment = async () => {
-      if (!pickup || !amount) {
-        navigate("/pickup-plans", { replace: true });
-        return;
-      }
 
-      if (paymentMethod === "Razorpay" && pickup._id) {
+  useEffect(() => {
+    if (!pickup?._id || !amount || paymentMethod !== "Razorpay") {
+      return;
+    }
+    const initiatePayment = async () => {
+      try {
         await dispatch(
           createPaymentOrder({
             amount,
@@ -60,17 +58,13 @@ const PayNow = ({ onClose }: PayNowProps) => {
             method: paymentMethod,
           }),
         ).unwrap();
+      } catch (error) {
+        console.error("Payment order creation failed:", error);
       }
-      // const pickupReqId = pickup._id;
-
-      // if(pickupReqId) {
-      //   console.log("Dispatching payment:", { amount, pickupReqId });
-      //   await dispatch(createPaymentOrder({ amount, pickupReqId, method: paymentMethod })).unwrap();
-      // }
     };
 
     initiatePayment();
-  }, [pickup, amount, navigate, dispatch, onClose, paymentMethod]);
+  }, [pickup?._id, amount, paymentMethod, dispatch]);
 
   const loadRazorpayScript = () => {
     return new Promise((resolve, reject) => {
@@ -99,7 +93,7 @@ const PayNow = ({ onClose }: PayNowProps) => {
     }
     console.log("Razorpay Key:", import.meta.env.VITE_RAZORPAY_KEY_ID);
     if (paymentOrder) {
-      const options : RazorpayOptions = {
+      const options: RazorpayOptions = {
         key: import.meta.env.VITE_RAZORPAY_KEY_ID,
         amount: paymentOrder.amount * 100,
         currency: paymentOrder.currency,
@@ -124,14 +118,19 @@ const PayNow = ({ onClose }: PayNowProps) => {
             .unwrap()
             .then((res) => {
               console.log("verify---res", res);
-
+              dispatch(
+                updatePickupPaymentStatus({
+                  pickupReqId: res.updatedPayment.pickupReqId,
+                  payment: res.updatedPayment.payment,
+                }),
+              );
               Swal.fire({
                 icon: "success",
                 title: "Payment Successful!",
                 text: res.message || "Your payment was verified successfully.",
                 confirmButtonColor: "#28a745",
               }).then(() => {
-                navigate("/pickup-plans", { state: { refresh: true } });
+                // navigate("/pickup-plans", { state: { refresh: true } });
                 onClose();
               });
             })
@@ -162,22 +161,32 @@ const PayNow = ({ onClose }: PayNowProps) => {
   };
   const handleWalletPayment = async (amount: number, pickupReqId: string) => {
     try {
-      const res = await dispatch(
+      await dispatch(
         verifyWalletPayment({
           pickupReqId,
           amount,
           method: paymentMethod,
         }),
-      ).unwrap();
-      Swal.fire({
-        icon: "success",
-        title: "Payment Successful!",
-        text: res.message || "Your payment was verified successfully.",
-        confirmButtonColor: "#28a745",
-      }).then(() => {
-        navigate("/pickup-plans", { state: { refresh: true } });
-        onClose();
-      });
+      )
+        .unwrap()
+        .then((res) => {
+          dispatch(
+            updatePickupPaymentStatus({
+              pickupReqId: res.walletPickupPayResp.pickupReqId,
+              payment: res.walletPickupPayResp.payment,
+            }),
+          );
+          // navigate("/pickup-plans", { state: { refresh: true } });
+          Swal.fire({
+            icon: "success",
+            title: "Payment Successful!",
+            text: res.message || "Your payment was verified successfully.",
+            confirmButtonColor: "#28a745",
+          });
+        })
+        .then(() => {
+          onClose();
+        });
     } catch (err) {
       Swal.fire({
         icon: "error",

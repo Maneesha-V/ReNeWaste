@@ -8,13 +8,13 @@ import {
   downloadReceipt,
   getAllPayments,
   repay,
+  updateRetryPickupPaymentStatus,
   verifyPayment,
 } from "../../redux/slices/user/userPaymentSlice";
 import { formatDateToDDMMYYYY } from "../../utils/formatDate";
 import { useAppDispatch } from "../../redux/hooks";
 import { toast } from "react-toastify";
 import Swal from "sweetalert2";
-import { useNavigate } from "react-router-dom";
 import {
   PaymentSummary,
   RazorpayResponse,
@@ -26,7 +26,6 @@ import { Pagination } from "antd";
 import { loadRazorpayScript } from "../../utils/razorpayUtils";
 
 const Payments = () => {
-  const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const { payments, total, error } = useSelector(
     (state: RootState) => state.userPayment,
@@ -73,28 +72,49 @@ const Payments = () => {
   console.log("payments", payments);
 
   const handleRetry = async (pickupReqId: string, amount: number) => {
-    const response = await dispatch(repay({ pickupReqId, amount })).unwrap();
+    const response = await dispatch(
+      repay({ pickupReqId, amount }),
+    ).unwrap();
 
-    const { orderId, amount: repayAmt, pickupReqId: pickupId } = response;
+    const {
+      orderId,
+      amount: repayAmt,
+      pickupReqId: pickupId,
+    } = response;
+
     console.log("razorpayOrderId", repayAmt, orderId);
-    const res = await loadRazorpayScript();
-    if (!res) {
+
+    const loaded = await loadRazorpayScript();
+
+    if (!loaded) {
       toast("Razorpay SDK failed to load.");
       return;
     }
-    if (orderId && repayAmt) {
-      const options = {
-        key: import.meta.env.VITE_RAZORPAY_KEY_ID,
-        amount: repayAmt * 100,
-        currency: "INR",
-        name: "ReNeWaste",
-        description: "Payment for Pickup Request",
-        order_id: orderId,
-        handler: function (response: RazorpayResponse) {
+
+    if (!orderId || !repayAmt || !pickupId) {
+      toast("Invalid payment details.");
+      return;
+    }
+
+    const options: RazorpayOptions = {
+      key: import.meta.env.VITE_RAZORPAY_KEY_ID,
+      amount: repayAmt * 100,
+      currency: "INR",
+      name: "ReNeWaste",
+      description: "Payment for Pickup Request",
+      order_id: orderId,
+
+      handler: async (response: RazorpayResponse) => {
+        try {
           console.log("Payment successful", response);
-          const { razorpay_order_id, razorpay_payment_id, razorpay_signature } =
-            response;
-          dispatch(
+
+          const {
+            razorpay_order_id,
+            razorpay_payment_id,
+            razorpay_signature,
+          } = response;
+
+          const result = await dispatch(
             verifyPayment({
               razorpay_order_id,
               razorpay_payment_id,
@@ -102,42 +122,54 @@ const Payments = () => {
               pickupReqId: pickupId,
               amount: repayAmt,
             }),
-          )
-            .unwrap()
-            .then((res) => {
-              console.log("resss", res);
+          ).unwrap();
 
-              Swal.fire({
-                icon: "success",
-                title: "Payment Successful!",
-                text: res.message || "Your payment was verified successfully.",
-                confirmButtonColor: "#28a745",
-              }).then(() => {
-                navigate("/payment-history");
-              });
-            })
-            .catch((error) => {
-              Swal.fire({
-                icon: "error",
-                title: "Payment Failed",
-                text: error || "Payment verification failed. Please try again.",
-                confirmButtonColor: "#d33",
-              });
-            });
-        },
-        prefill: {
-          name: "Renewaste",
-          email: "renewaste@example.com",
-          contact: "9999999999",
-        },
-        notes: {},
-      };
+          console.log("resss", result);
 
-      // const razorpay = new (window as any).Razorpay(options);
-      const razorpay = new window.Razorpay(options);
-      razorpay.open();
-    }
-  };
+          await dispatch(
+            updateRetryPickupPaymentStatus({
+              pickupReqId: result.updatedPayment.pickupReqId,
+              payment: result.updatedPayment.payment,
+            }),
+          );
+
+          await Swal.fire({
+            icon: "success",
+            title: "Payment Successful!",
+            text:
+              result.message ||
+              "Your payment was verified successfully.",
+            confirmButtonColor: "#28a745",
+          });
+
+          // navigate("/payment-history");
+        } catch (error) {
+          console.error("Payment verification failed:", error);
+
+          Swal.fire({
+            icon: "error",
+            title: "Payment Failed",
+            text:
+              typeof error === "string"
+                ? error
+                : "Payment verification failed. Please try again.",
+            confirmButtonColor: "#d33",
+          });
+        }
+      },
+
+      prefill: {
+        name: "Renewaste",
+        email: "renewaste@example.com",
+        contact: "9999999999",
+      },
+
+      notes: {},
+    };
+
+    const razorpay = new window.Razorpay(options);
+    razorpay.open();
+};
   const handleDownload = async (pickupReqId: string, pickupId: string) => {
     const blob = await dispatch(downloadReceipt(pickupReqId)).unwrap();
 
@@ -168,144 +200,6 @@ const Payments = () => {
           paymentStatusFilterValue={statusFilter}
           onPaymentStatusFilterChange={setStatusFilter}
         />
-
-        {/* {payments && payments.length > 0 ? (
-          <div className="grid md:grid-cols-1 gap-6">
-            {payments.map((payment: PaymentSummary) => (
-              <div
-                key={payment._id}
-                className="bg-white border border-green-300 rounded-lg shadow p-6 space-y-4"
-              >
-                <div className="flex justify-between items-center">
-                  <h2 className="text-xl font-semibold text-green-800">
-                    Amount: ₹{payment?.payment?.amount}
-                  </h2>
-
-                  {payment?.payment?.refundStatus === null ? (
-                    <span
-                      className={`px-3 py-1 text-sm rounded-full font-medium ${
-                        payment?.payment?.status === "Paid"
-                          ? "bg-green-100 text-green-700 border border-green-500"
-                          : "bg-red-100 text-red-700 border border-red-500"
-                      }`}
-                    >
-                      {payment?.payment?.status}
-                    </span>
-                  ) : (
-                    <span
-                      className={`px-3 py-1 text-sm rounded-full font-medium ${
-                        payment?.payment?.refundStatus === "Pending"
-                          ? "bg-yellow-100 text-yellow-700 border border-yellow-500"
-                          : payment?.payment?.refundStatus === "Processing"
-                            ? "bg-blue-100 text-blue-700 border border-blue-500"
-                            : "bg-purple-100 text-purple-700 border border-purple-500"
-                      }`}
-                    >
-                      Refund Status: {payment?.payment?.refundStatus}
-                    </span>
-                  )}
-                </div>
-
-                <div className="text-gray-700">
-                  {(payment?.payment?.walletOrderId ||
-                    payment?.payment?.razorpayOrderId) && (
-                    <p>
-                      <strong>Order ID:</strong>{" "}
-                      {payment?.payment?.walletOrderId ||
-                        payment?.payment?.razorpayOrderId}
-                    </p>
-                  )}
-                  <p>
-                    <strong>Pickup ID:</strong> {payment.pickupId}
-                  </p>
-                  <p>
-                    <strong>Waste Type:</strong> {payment.wasteType}
-                  </p>
-                  {payment.payment.status === "Paid" && (
-                    <>
-                      {payment.payment.refundRequested &&
-                      payment.payment.refundStatus !== null ? (
-                        <p>
-                          <strong>Refund Date:</strong>{" "}
-                          {formatDateToDDMMYYYY(payment?.payment?.refundAt)}
-                        </p>
-                      ) : (
-                        <p>
-                          <strong>Payment Date:</strong>{" "}
-                          {formatDateToDDMMYYYY(payment?.payment?.paidAt)}
-                        </p>
-                      )}
-                    </>
-                  )}
-                  <p>
-                    <strong>Payment Method:</strong> {payment?.payment?.method}
-                  </p>
-                  {payment?.payment?.status === "Paid" && (
-                    <button
-                      onClick={() =>
-                        handleDownload(payment._id, payment.pickupId)
-                      }
-                      className="bg-green-600 hover:bg-green-700 text-white px-3 py-2 mt-2 rounded"
-                    >
-                      Download Receipt
-                    </button>
-                  )}
-                </div>
-
-                {(() => {
-                  const status = payment?.payment?.status;
-                  const expiresAt = payment?.payment?.inProgressExpiresAt
-                    ? new Date(payment?.payment?.inProgressExpiresAt)
-                    : null;
-                  const now = new Date();
-
-                  if (status === "Pending" && expiresAt && expiresAt > now) {
-                    return (
-                      <p className="text-sm text-orange-600">
-                        You’ve already initiated a payment. Please wait a few
-                        minutes
-                        {!isNaN(expiresAt.getTime()) && (
-                          <>
-                            {" "}
-                            (until{" "}
-                            <strong>
-                              {expiresAt.toLocaleTimeString([], {
-                                hour: "2-digit",
-                                minute: "2-digit",
-                              })}
-                            </strong>
-                            )
-                          </>
-                        )}{" "}
-                        to retry.
-                      </p>
-                    );
-                  }
-
-                  if (
-                    status === "Pending" &&
-                    (!expiresAt || expiresAt <= now)
-                  ) {
-                    return (
-                      <button
-                        className="bg-red-500 hover:bg-red-700 text-white px-4 py-2 rounded"
-                        onClick={() =>
-                          handleRetry(payment._id, payment?.payment?.amount)
-                        }
-                      >
-                        Retry Payment
-                      </button>
-                    );
-                  }
-
-                  return null;
-                })()}
-              </div>
-            ))}
-          </div>
-        ) : (
-          <p className="text-center text-gray-600">No payments found.</p>
-        )} */}
 
 {payments && payments.length > 0 ? (
   <div className="space-y-5">

@@ -98,5 +98,8 @@ pickupReqId: string;
 }
 export type VerifyWalletPaymentResp = {
  message: string;
- walletPickupPayResp: PickupReqPayment;
+ walletPickupPayResp: {
+  pickupReqId: string;
+  payment: PickupReqPayment;
+ }
 }
