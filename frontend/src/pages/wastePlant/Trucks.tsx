@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo } from "react";
-import { Table, Button, Popconfirm, Spin, Pagination } from "antd";
+import { Table, Button, Popconfirm, Pagination } from "antd";
 import { EditOutlined, DeleteOutlined, PlusOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 import { useAppDispatch } from "../../redux/hooks";
@@ -20,7 +20,7 @@ import { TruckDTO } from "../../types/truck/truckTypes";
 const Trucks: React.FC = () => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
-  const { trucks, total, loading, error } = useSelector(
+  const { trucks, total, error } = useSelector(
     (state: RootState) => state.wastePlantTruck
   );
   const { currentPage, setCurrentPage, pageSize, search, setSearch } =

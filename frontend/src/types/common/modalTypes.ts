@@ -3,7 +3,7 @@ import { modifyCommPickReq, PickupCancelData, PickupReqDTO } from "../pickupReq/
 import { SubcptnPaymtPayload } from "../subscription/subscriptionTypes";
 import { MeasureDataPayload } from "../wasteCollections/wasteCollectionTypes";
 import { AddMoneyReq } from "../wallet/walletTypes";
-import { PaymentRecord, ReschedulePickupReq } from "../wasteplant/wastePlantTypes";
+import { PaymentRecord } from "../wasteplant/wastePlantTypes";
 import { UserResp } from "../user/userTypes";
 import { DriverDTO } from "../driver/driverTypes";
 import { cancelSubPayReq } from "../../redux/slices/wastePlant/wastePlantSubscriptionSlice";

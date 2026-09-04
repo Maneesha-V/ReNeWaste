@@ -68,6 +68,7 @@ const SubscriptionModal: React.FC<SubscriptionModalProps> = ({
               planId: selectedPlan._id,
               amount: selectedPlan.price,
               billingCycle: selectedPlan.billingCycle,
+              subscriptionPaymentId: paymentOrder.subscriptionPaymentId
             })
           )
             .unwrap()
