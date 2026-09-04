@@ -128,7 +128,7 @@ const AddDriver = () => {
       toast.success(result?.message);
       setTimeout(() => {
         navigate("/waste-plant/drivers");
-      }, 2000);
+      }, 1000);
     } catch (error) {
       toast.error(getAxiosErrorMessage(error));
     }

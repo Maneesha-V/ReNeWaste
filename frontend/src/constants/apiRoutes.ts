@@ -117,6 +117,10 @@ export const API_ROUTES = {
     ASSIGN_TRUCK: "/assign-truck",
     USERS: "/users",
     WALLET: "wallet",
+    WALLET_CREATE_ORDER: "/wallet/create-order",
+    WALLET_VERIFY: "/wallet/verify-payment",
+    WALLET_RETRY: "/wallet/retry",
+
   },
 
   SUPER_ADMIN: {

@@ -20,7 +20,7 @@ import { DriverDTO } from "../../types/driver/driverTypes";
 const Drivers: React.FC = () => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
-  const { driver, loading, error, total } = useSelector(
+  const { drivers, loading, error, total } = useSelector(
     (state: RootState) => state.wastePlantDriver
   );
 
@@ -82,13 +82,13 @@ const Drivers: React.FC = () => {
       ) : (
         <div className="overflow-x-auto space-y-2">
           <PaginationSearch onSearchChange={setSearch} searchValue={search} />
-          {loading ? (
+          {/* {loading ? (
             <div className="flex justify-center p-4">
               <Spin />
             </div>
-          ) : (
+          ) : ( */}
             <Table
-              dataSource={Array.isArray(driver) ? driver : []}
+              dataSource={drivers}
               rowKey="_id"
               bordered
               className="shadow-sm"
@@ -150,7 +150,7 @@ const Drivers: React.FC = () => {
                 )}
               />
             </Table>
-          )}
+          {/* )} */}
           <div className="flex justify-end pt-4">
             <Pagination
               current={currentPage}

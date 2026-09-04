@@ -134,7 +134,7 @@ const EditDriver = () => {
       ).unwrap();
  
       toast.success(result?.message);
-      setTimeout(() => navigate("/waste-plant/drivers"), 2000);
+      setTimeout(() => navigate("/waste-plant/drivers"), 1000);
     } catch(error) {
       toast.error(getAxiosErrorMessage(error));
     }

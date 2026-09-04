@@ -23,7 +23,8 @@ export const walletTransactionSchema: Schema<IWalletTransactionDocument> =
           "Refund",
           "UserDeposit",
           "ExternalRefund",
-          "SubscriptionPayment"
+          "SubscriptionPayment",
+          "WPDeposit"
         ],
         required: true,
       },

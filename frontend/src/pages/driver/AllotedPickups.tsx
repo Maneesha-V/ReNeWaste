@@ -23,8 +23,6 @@ const AllotedPickups = () => {
     (state: RootState) => state.driverPickups
   );
 
-  // console.log("category", driverCategory);
-
   useEffect(() => {
     dispatch(fetchDriverPickups());
   }, [dispatch]);

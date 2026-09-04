@@ -380,4 +380,22 @@ router.get(
   checkNotBlocked,
   plantWalletCtrl.getWallet.bind(plantWalletCtrl),  
 );
+router.post(
+  "/wallet/create-order",
+  authenticateWastePlant as RequestHandler,
+  checkNotBlocked,
+  plantWalletCtrl.createAddMoneyOrder.bind(plantWalletCtrl),
+);
+router.post(
+  "/wallet/verify-payment",
+  authenticateWastePlant as RequestHandler,
+  checkNotBlocked,
+  plantWalletCtrl.verifyWalletAddPayment.bind(plantWalletCtrl),
+);
+router.post(
+  "/wallet/retry",
+  authenticateWastePlant as RequestHandler,
+  checkNotBlocked,
+  plantWalletCtrl.retryWalletAddPayment.bind(plantWalletCtrl), 
+);
 export default router;

@@ -92,7 +92,7 @@ const Trucks: React.FC = () => {
       ) : (
         <div className="overflow-x-auto space-y-2">
           <PaginationSearch onSearchChange={setSearch} searchValue={search} />
-          <Spin spinning={loading}>
+          {/* <Spin spinning={loading}> */}
             <Table
               dataSource={Array.isArray(trucks) ? trucks : []}
               rowKey="_id"
@@ -155,7 +155,7 @@ const Trucks: React.FC = () => {
                 )}
               />
             </Table>
-          </Spin>
+          {/* </Spin> */}
           <div className="flex justify-end pt-4">
             <Pagination
               current={currentPage}

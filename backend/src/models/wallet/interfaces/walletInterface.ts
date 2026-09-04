@@ -2,7 +2,7 @@ import mongoose, { Document, Types } from "mongoose";
 
 export interface IWalletTransaction {
   type: "Credit"| "Debit";
-  subType: "PickupPayment"| "Settlement"|"SettlementEarning" | "DriverEarning"| "Withdrawal"| "Refund"|"ExternalRefund" |"UserDeposit" | "SubscriptionPayment";
+  subType: "PickupPayment"| "Settlement"|"SettlementEarning" | "DriverEarning"| "Withdrawal"| "Refund"|"ExternalRefund" |"UserDeposit" | "SubscriptionPayment" | "WPDeposit";
   pickupReqId?: mongoose.Types.ObjectId;
   amount: number;
   description: string;

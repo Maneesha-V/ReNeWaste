@@ -6,6 +6,7 @@ import { useSelector } from "react-redux";
 import {
   approvePickup,
   fetchDriversByPlace,
+  updateAssignDriverPickupReq,
 } from "../../redux/slices/wastePlant/wastePlantPickupSlice";
 import { fetchAvailableTrucks } from "../../redux/slices/wastePlant/wastePlantTruckSlice";
 import { toast } from "react-toastify";
@@ -22,7 +23,6 @@ const AssignDriverModal = ({
   visible,
   onClose,
   pickup,
-  onSuccess,
 }: AssignDriverModalProps) => {
   const dispatch = useAppDispatch();
   const [selectedDriver, setSelectedDriver] = useState<string | null>(null);
@@ -90,9 +90,11 @@ const AssignDriverModal = ({
       console.log("result",result);
 
       toast.success(result?.message);
-   
 
-      onSuccess();
+      dispatch(updateAssignDriverPickupReq({
+        pickup: result.result
+      }));
+
       onClose();
     } catch (err) {
       toast.error(getAxiosErrorMessage(err));

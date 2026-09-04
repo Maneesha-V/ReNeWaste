@@ -13,6 +13,7 @@ import { toast } from "react-toastify";
 import {
   fetchDriversByPlace,
   reschedulePickup,
+  updateAssignDriverPickupReq,
 } from "../../redux/slices/wastePlant/wastePlantPickupSlice";
 import { getAxiosErrorMessage } from "../../utils/handleAxiosError";
 import { DriverDTO } from "../../types/driver/driverTypes";
@@ -22,7 +23,6 @@ const ReschedulePickupModal = ({
   visible,
   onClose,
   pickup,
-  onSubmit,
 }: ReschedulePickupModalProps) => {
   const [form] = Form.useForm();
   const dispatch = useAppDispatch();
@@ -109,7 +109,10 @@ const ReschedulePickupModal = ({
 
       const res = await dispatch(reschedulePickup(formData)).unwrap();
       toast.success(res?.message);
-      onSubmit(formData);
+      // onSubmit(formData);
+      dispatch(updateAssignDriverPickupReq({
+        pickup: res.updatedPickup
+      }));
       onClose();
       form.resetFields();
     } catch (err) {

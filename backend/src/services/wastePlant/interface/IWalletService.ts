@@ -1,4 +1,11 @@
-import { GetWalletWPResp } from "../../../dtos/wallet/walletDTO";
+import {
+  AddMoneyToWalletReq,
+  CreateWalletOrderResp,
+  GetWalletWPResp,
+  RetryWalletAddPaymentResp,
+  VerifyWalletAddPaymentReq,
+  VerifyWalletAddPaymentResp,
+} from "../../../dtos/wallet/walletDTO";
 
 export interface IWalletService {
   getWallet(
@@ -6,6 +13,17 @@ export interface IWalletService {
     accountType: string,
     page: number,
     limit: number,
-    search: string
+    search: string,
   ): Promise<GetWalletWPResp>;
+  createAddMoneyOrder(
+    payload: AddMoneyToWalletReq,
+  ): Promise<CreateWalletOrderResp>;
+  verifyWalletAddPayment(
+    payload: VerifyWalletAddPaymentReq,
+  ): Promise<VerifyWalletAddPaymentResp>;
+  retryWalletAddPayment(
+    accountId: string,
+    accountType: string,
+    transactionId: string,
+  ): Promise<RetryWalletAddPaymentResp>;
 }

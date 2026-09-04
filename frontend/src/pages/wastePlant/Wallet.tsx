@@ -4,16 +4,29 @@ import {
   ReloadOutlined,
   RiseOutlined,
 } from "@ant-design/icons";
-import React, { useEffect, useMemo } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useAppDispatch } from "../../redux/hooks";
 import { useSelector } from "react-redux";
 import { RootState } from "../../redux/store";
-import { getWallet } from "../../redux/slices/wastePlant/wastePlantWalletSlice";
+import {
+  createAddMoneyOrder,
+  getWallet,
+  retryAddMoney,
+  updateWPWalletRetryTransactionStatus,
+  updateWPWalletTransactionStatus,
+  verifyWalletAddPayment,
+} from "../../redux/slices/wastePlant/wastePlantWalletSlice";
 import { extractDateAndTime24H } from "../../utils/formatDate";
 import PaginationSearch from "../../components/common/PaginationSearch";
 import usePagination from "../../hooks/usePagination";
 import debounce from "lodash/debounce";
-import { TransactionDTO } from "../../types/wallet/walletTypes";
+import { AddMoneyReq, TransactionDTO } from "../../types/wallet/walletTypes";
+import AddMoneyModal from "../../components/common/AddMoneyModal";
+import { loadRazorpayScript } from "../../utils/razorpayUtils";
+import { toast } from "react-toastify";
+import { RazorpayResponse } from "../../types/pickupReq/paymentTypes";
+import Swal from "sweetalert2";
+import { getAxiosErrorMessage } from "../../utils/handleAxiosError";
 
 const { Title, Text } = Typography;
 
@@ -25,6 +38,7 @@ const Wallet: React.FC = () => {
 
   const { currentPage, setCurrentPage, pageSize, search, setSearch } =
     usePagination();
+  const [showModal, setShowModal] = useState(false);
   console.log({ transactions, balance, total, earnings });
 
   const debouncedFetchWallet = useMemo(
@@ -41,6 +55,181 @@ const Wallet: React.FC = () => {
       debouncedFetchWallet.cancel();
     };
   }, [currentPage, pageSize, search]);
+
+  const handleAddMoney = async (data: AddMoneyReq) => {
+    try {
+      const orderResp = await dispatch(createAddMoneyOrder(data)).unwrap();
+      const sdkLoaded = await loadRazorpayScript();
+      if (!sdkLoaded) {
+        toast("Razorpay SDK failed to load.");
+        return;
+      }
+      if (orderResp) {
+        const { orderId, amount, currency, walletId } = orderResp;
+        const options = {
+          key: import.meta.env.VITE_RAZORPAY_KEY_ID,
+          amount: amount * 100,
+          currency: currency,
+          name: "Renewaste",
+          description: "Wallet payment.",
+          order_id: orderId,
+          handler: function (response: RazorpayResponse) {
+            const {
+              razorpay_order_id,
+              razorpay_payment_id,
+              razorpay_signature,
+            } = response;
+
+            dispatch(
+              verifyWalletAddPayment({
+                razorpay_order_id,
+                razorpay_payment_id,
+                razorpay_signature,
+                walletId,
+                amount,
+              }),
+            )
+              .unwrap()
+              .then((res) => {
+                dispatch(
+                  updateWPWalletTransactionStatus({
+                    balance: res.walletVerPayOrder.balance,
+                    transaction: res.walletVerPayOrder.transaction,
+                  }),
+                );
+                Swal.fire({
+                  icon: "success",
+                  title: "Payment Successful!",
+                  text: `₹${res.walletVerPayOrder.amount} ${res.message}`,
+                  confirmButtonColor: "#28a745",
+                });
+              })
+              .then(() => {
+                setShowModal(false);
+              })
+              .catch((err) => {
+                Swal.fire({
+                  icon: "error",
+                  title: "Wallet Payment Failed",
+                  text:
+                    err?.error ||
+                    "Payment verification failed. Please try again.",
+                  confirmButtonColor: "#d33",
+                });
+              });
+          },
+          prefill: {},
+          theme: {
+            color: "#28a745",
+          },
+        };
+
+        const razorpay = new window.Razorpay(options);
+        razorpay.on("modal.closed", function () {
+          console.warn("Razorpay modal closed by user.");
+          toast.info("Payment window closed.");
+        });
+
+        razorpay.open();
+        setShowModal(false);
+      }
+    } catch (err) {
+      console.error(err);
+      Swal.fire({
+        icon: "error",
+        title: "Unexpected error",
+        text: getAxiosErrorMessage(err),
+        confirmButtonColor: "#d33",
+      });
+    }
+  };
+  const handleRetry = async (transactionId: string) => {
+    try {
+      const retryOrderResp = await dispatch(
+        retryAddMoney(transactionId),
+      ).unwrap();
+
+      const sdkLoaded = await loadRazorpayScript();
+      if (!sdkLoaded) {
+        toast("Razorpay SDK failed to load.");
+        return;
+      }
+      if (retryOrderResp) {
+        const { orderId, amount, currency, walletId } = retryOrderResp;
+        const options = {
+          key: import.meta.env.VITE_RAZORPAY_KEY_ID,
+          amount: amount * 100,
+          currency: currency,
+          name: "Renewaste",
+          description: "Wallet payment.",
+          order_id: orderId,
+          handler: function (response: RazorpayResponse) {
+            const {
+              razorpay_order_id,
+              razorpay_payment_id,
+              razorpay_signature,
+            } = response;
+
+            dispatch(
+              verifyWalletAddPayment({
+                razorpay_order_id,
+                razorpay_payment_id,
+                razorpay_signature,
+                walletId,
+                amount,
+              }),
+            )
+              .unwrap()
+              .then((res) => {
+                dispatch(
+                  updateWPWalletRetryTransactionStatus({
+                    balance: res.walletVerPayOrder.balance,
+                    transactionId: res.walletVerPayOrder.transactionId,
+                    transaction: res.walletVerPayOrder.transaction,
+                  }),
+                );
+                Swal.fire({
+                  icon: "success",
+                  title: "Payment Successful!",
+                  text: `₹${res.walletVerPayOrder.amount} ${res.message}`,
+                  confirmButtonColor: "#28a745",
+                });
+              })
+              .catch((err) => {
+                Swal.fire({
+                  icon: "error",
+                  title: "Payment Failed",
+                  text:
+                    err?.error ||
+                    "Payment verification failed. Please try again.",
+                  confirmButtonColor: "#d33",
+                });
+              });
+          },
+          prefill: {},
+          theme: {
+            color: "#28a745",
+          },
+        };
+
+        const razorpay = new window.Razorpay(options);
+        razorpay.on("modal.closed", function () {
+          console.warn("Razorpay modal closed by user.");
+          toast.info("Payment window closed.");
+        });
+
+        razorpay.open();
+      }
+    } catch (err) {
+      console.error(err);
+      Swal.fire({
+        icon: "error",
+        title: "Unexpected error",
+        text: getAxiosErrorMessage(err),
+        confirmButtonColor: "#d33",
+      });
+    }
+  };
 
   const columns = [
     {
@@ -68,7 +257,8 @@ const Wallet: React.FC = () => {
       title: "Date",
       key: "date",
       render: (record: TransactionDTO) => {
-        const dateValue = record.refundAt || record.paidAt;
+        const dateValue = record.paidAt ? record.paidAt : record.updatedAt;
+        
         if (!dateValue) return "-";
         const { date, time } = extractDateAndTime24H(dateValue);
         return (
@@ -87,14 +277,34 @@ const Wallet: React.FC = () => {
           <Text
             style={{
               color:
-                statusValue === "Paid" || statusValue === "Refund"
+                statusValue === "Paid" || statusValue === "Refunded"
                   ? "green"
-                  : "orange",
+                  : statusValue === "Pending"
+                    ? "orange"
+                    : statusValue === "InProgress"
+                      ? "#f97316"
+                      : "red",
             }}
           >
             {statusValue}
           </Text>
         );
+      },
+    },
+    {
+      title: "Action",
+      key: "action",
+      render: (record: TransactionDTO) => {
+        return record.status === "InProgress" ? (
+          <Button
+            type="primary"
+            danger
+            size="small"
+            onClick={() => handleRetry(record._id)}
+          >
+            Retry
+          </Button>
+        ) : null;
       },
     },
   ];
@@ -121,14 +331,14 @@ const Wallet: React.FC = () => {
               <Title level={4} style={{ margin: 0 }}>
                 Wallet Balance
               </Title>
-              </div>
+            </div>
 
-             <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3">
               <RiseOutlined style={{ fontSize: 24, color: "green" }} />
               <Title level={5} style={{ margin: 0, color: "green" }}>
                 Earnings: ₹{earnings}
               </Title>
-              </div>
+            </div>
           </div>
 
           <Title level={2} className="!m-0 !text-blue-500 text-3xl sm:text-4xl">
@@ -136,12 +346,17 @@ const Wallet: React.FC = () => {
           </Title>
 
           <div className="flex flex-col sm:flex-row gap-3">
-            {/* Add money button optional for wasteplant */}
-            <Button type="primary"  className="w-full sm:w-auto">Add Money</Button>
-
-            <Button type="default" icon={<ReloadOutlined />}  className="w-full sm:w-auto">
-              Refresh
+            <Button
+              onClick={() => setShowModal(true)}
+              type="primary"
+              className="w-full sm:w-auto"
+            >
+              Add Money
             </Button>
+
+            {/* <Button type="default" icon={<ReloadOutlined />}  className="w-full sm:w-auto">
+              Refresh
+            </Button> */}
           </div>
         </Space>
       </Card>
@@ -162,14 +377,14 @@ const Wallet: React.FC = () => {
         }}
       >
         <div className="overflow-x-auto">
-        <Table
-          columns={columns}
-          dataSource={transactions}
-          pagination={false}
-          scroll={{ x: "max-content" }}
-          style={{ marginTop: 16 }}
-          rowKey={(record) => record._id}
-        />
+          <Table
+            columns={columns}
+            dataSource={transactions}
+            pagination={false}
+            scroll={{ x: "max-content" }}
+            style={{ marginTop: 16 }}
+            rowKey={(record) => record._id}
+          />
         </div>
         <div
           className="flex justify-center sm:justify-end items-center py-4"
@@ -184,6 +399,12 @@ const Wallet: React.FC = () => {
           />
         </div>
       </Card>
+
+      <AddMoneyModal
+        isOpen={showModal}
+        onClose={() => setShowModal(false)}
+        onSubmit={handleAddMoney}
+      />
     </div>
   );
 };

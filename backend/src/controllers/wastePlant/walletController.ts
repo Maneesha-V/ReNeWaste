@@ -49,4 +49,91 @@ export class WalletController implements IWalletController {
       next(error);
     }
   }
+  async createAddMoneyOrder(
+    req: AuthRequest,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> {
+    try {
+      const accountId = req.user?.id;
+      const accountType = "WastePlant";
+
+      const { data } = req.body;
+
+      if (!accountId) {
+        throw new ApiError(
+          STATUS_CODES.UNAUTHORIZED,
+          MESSAGES.COMMON.ERROR.UNAUTHORIZED,
+        );
+      }
+      const walletPayOrder = await this._walletService.createAddMoneyOrder({
+        accountId,
+        accountType,
+        data,
+      });
+
+      res.status(STATUS_CODES.CREATED).json(walletPayOrder);
+    } catch (error) {
+      next(error);
+    }
+  }
+  async verifyWalletAddPayment(
+    req: AuthRequest,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> {
+    try {
+      const accountId = req.user?.id;
+      const accountType = "WastePlant";
+
+      const { data } = req.body;
+
+      if (!accountId) {
+        throw new ApiError(
+          STATUS_CODES.UNAUTHORIZED,
+          MESSAGES.COMMON.ERROR.UNAUTHORIZED,
+        );
+      }
+      const walletVerPayOrder =
+        await this._walletService.verifyWalletAddPayment({
+          accountId,
+          accountType,
+          data,
+        });
+
+      res.status(STATUS_CODES.SUCCESS).json({
+        message: MESSAGES.COMMON.SUCCESS.ADD_TO_WALLET,
+        walletVerPayOrder,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+  async retryWalletAddPayment(
+    req: AuthRequest,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> {
+    try {
+      const accountId = req.user?.id;
+      const accountType = "WastePlant";
+      const transactionId = req.body.transactionId;
+
+      if (!accountId) {
+        throw new ApiError(
+          STATUS_CODES.UNAUTHORIZED,
+          MESSAGES.COMMON.ERROR.UNAUTHORIZED,
+        );
+      }
+      const retryAddMoneyResp = await this._walletService.retryWalletAddPayment(
+        accountId,
+        accountType,
+        transactionId,
+      );
+
+      res.status(STATUS_CODES.SUCCESS).json(retryAddMoneyResp);
+    } catch (error) {
+      next(error);
+    }
+  }
 }

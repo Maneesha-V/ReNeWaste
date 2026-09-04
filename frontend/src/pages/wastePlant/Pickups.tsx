@@ -239,23 +239,21 @@ const Pickups = () => {
                 />
               </>
             )}
-            {statusTab === "Scheduled" ||
-              (statusTab === "Rescheduled" && (
+            {(statusTab === "Scheduled" ||
+              statusTab === "Rescheduled")&& (
                 <>
                   <Table.Column
                     title="Assigned Driver"
-                    // dataIndex="driverName"
                     key="driverName"
                     render={(_, record) => record.driverId?.name || "-"}
                   />
                   <Table.Column
                     title="Assigned Zone"
-                    // dataIndex="assignedZone"
                     key="assignedZone"
                     render={(_, record) => record.driverId?.assignedZone || "-"}
                   />
                 </>
-              ))}
+              )}
             <Table.Column
               title="Status"
               dataIndex="status"
@@ -370,11 +368,6 @@ const Pickups = () => {
         visible={modalVisible}
         onClose={() => setModalVisible(false)}
         pickup={selectedPickup}
-        onSuccess={() =>
-          dispatch(
-            fetchPickupReqsts({ wasteType: activeTab, status: statusTab }),
-          )
-        }
       />
       )}
       { pickupToReschedule && (
@@ -382,11 +375,6 @@ const Pickups = () => {
         visible={rescheduleModalVisible}
         onClose={() => setRescheduleModalVisible(false)}
         pickup={pickupToReschedule}
-        onSubmit={() => {
-          dispatch(
-            fetchPickupReqsts({ wasteType: activeTab, status: statusTab }),
-          );
-        }}
       />
       )}
 

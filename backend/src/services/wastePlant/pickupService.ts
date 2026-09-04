@@ -42,8 +42,6 @@ export class PickupService implements IPickupService {
   ): Promise<PickupReqGetDTO[]> {
     const pickups = await this.pickupRepository.getPickupsByPlantId(filters);
     console.log("WP-Pickups",pickups);
-    
-    // return PickupRequestMapper.mapPickupReqsGetDTO(pickups);
     return PickupRequestMapper.mapPopulatedPickupReqsDTO(pickups);
   }
 

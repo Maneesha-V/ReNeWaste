@@ -14,9 +14,9 @@ import { ApprovePickupPayload, ApprovePickupResp, FetchDriversByPlaceResp, Fetch
 import { DriverDTO } from "../../../types/driver/driverTypes";
 
 interface PickupState {
-  pickups: PickupReqDTO[] | [];
+  pickups: PickupReqDTO[];
   pickup: PickupReqDTO | {};
-  drivers: DriverDTO[] | [];
+  drivers: DriverDTO[];
   loading: boolean;
   message: string | null;
   error: string | null;
@@ -176,7 +176,15 @@ const wastePlantPickupSlice = createSlice({
       if(pickup){
         pickup.requestType = null;
       }
-    }
+    },
+    updateAssignDriverPickupReq: (state, action) => {
+      const { pickup } = action.payload;
+      const pickupReqId = pickup._id;
+      const index = state.pickups.findIndex((p) => p._id === pickupReqId)
+      if(index !== -1){
+        state.pickups[index] = pickup;
+      }
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -241,6 +249,8 @@ const wastePlantPickupSlice = createSlice({
   },
 });
 
-export const { updateModifyButton } = wastePlantPickupSlice.actions;
+export const { 
+  updateModifyButton, updateAssignDriverPickupReq 
+} = wastePlantPickupSlice.actions;
 
 export default wastePlantPickupSlice.reducer;

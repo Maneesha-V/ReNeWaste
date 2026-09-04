@@ -32,8 +32,7 @@ const InputMessage = ({
       console.log("Cancel Reason:", values.reason);
        console.log("Respon:", res);
       toast.success(res.message);
-      await dispatch(updateCancelPickupReason({ pickupReqId: pickupId, payment: res.payment }))
-      // onSuccess();
+      await dispatch(updateCancelPickupReason({ pickupReqId: pickupId, payment: res.payment }));
       form.resetFields();
       onClose();
     } catch (err) {

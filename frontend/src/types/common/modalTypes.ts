@@ -100,7 +100,6 @@ export interface ReschedulePickupModalProps {
   visible: boolean;
   onClose: () => void;
   pickup: PickupReqDTO;
-  onSubmit: (formData: ReschedulePickupReq) => void;
 }
 export type DriverHeaderProps = {
   collapsed: boolean;
@@ -151,7 +150,6 @@ export interface AssignDriverModalProps {
   visible: boolean;
   onClose: () => void;
   pickup: PickupReqDTO;
-  onSuccess: () => void;
 }
 export interface WPRefundModalProps {
   visible: boolean;
