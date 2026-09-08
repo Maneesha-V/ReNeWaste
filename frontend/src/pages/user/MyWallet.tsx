@@ -116,7 +116,6 @@ const MyWallet = () => {
           },
         };
 
-        // const razorpay = new (window as any).Razorpay(options);
         const razorpay = new window.Razorpay(options);
         razorpay.on("modal.closed", function () {
           console.warn("Razorpay modal closed by user.");
@@ -205,7 +204,6 @@ const MyWallet = () => {
           },
         };
 
-        // const razorpay = new (window as any).Razorpay(options);
         const razorpay = new window.Razorpay(options);
         razorpay.on("modal.closed", function () {
           console.warn("Razorpay modal closed by user.");

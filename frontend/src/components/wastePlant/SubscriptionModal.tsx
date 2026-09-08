@@ -87,7 +87,6 @@ const SubscriptionModal: React.FC<SubscriptionModalProps> = ({
         theme: { color: "#4CAF50" },
       };
 
-      // const rzp = new (window as any).Razorpay(options);
       const rzp = new window.Razorpay(options);
       rzp.open();
     } catch (err) {

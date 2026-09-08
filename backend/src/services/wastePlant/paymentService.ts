@@ -740,16 +740,5 @@ export class PaymentService implements IPaymentService {
     }
 
     return PickupRequestMapper.mapPickupReqDTO(pickupReq);
-    // } catch (error: any) {
-    //   // console.error("Refund failed:", JSON.stringify(error, null, 2));
-    //   // throw new Error(error?.error?.description || "Refund failed");
-    //   console.error("========== REFUND ERROR ==========");
-    //   console.error("RAW ERROR:", error);
-    //   console.error("MESSAGE:", error?.message);
-    //   console.error("STACK:", error?.stack);
-    //   console.error("==================================");
-
-    //   throw error; // DO NOT wrap again
-    // }
   }
 }

@@ -28,11 +28,6 @@ import { useAppDispatch } from "../../redux/hooks";
 import { formatDateToDDMMYYYY } from "../../utils/formatDate";
 import { LineChartData, PieChartData, PopWasteCollectionDTO } from "../../types/wasteCollections/wasteCollectionTypes";
 
-// declare module "jspdf" {
-//   interface jsPDF {
-//     autoTable: (options: any) => jsPDF;
-//   }
-// }
 
 const WasteReports = () => {
   const dispatch = useAppDispatch();

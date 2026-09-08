@@ -89,7 +89,6 @@ export interface CancelSubptnModalProps {
   visible: boolean;
   onClose: () => void;
   subPayId: string | null;
-  // cancelAction: (args: SubscptnCancelReq) => any;
   cancelAction: typeof cancelSubPayReq;
 }
 export interface DriverChatWindowProps {

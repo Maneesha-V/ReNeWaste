@@ -65,61 +65,7 @@ export class PickupRepository
     });
     return await newPickup.save();
   }
-  // async getPickupsByPlantId(
-  //   filters: PickupFilterParamsRepo,
-  // ): Promise<IPickupRequestDocument[]> {
-  //   const { plantId, status, wasteType } = filters;
 
-  //   const query: FilterQuery<IPickupRequestDocument> = {
-  //     wasteplantId: new mongoose.Types.ObjectId(plantId),
-  //     status,
-  //     isPaused: false
-  //   };
-
-  //   if (wasteType) {
-  //     query.wasteType = wasteType;
-  //   }
-
-  //   const pickups = await this.model
-  //     .find(query)
-  //     .populate({
-  //       path: "userId",
-  //       select: "firstName lastName addresses",
-  //     })
-  //     .populate({
-  //       path: "driverId",
-  //       select: "name assignedZone",
-  //     })
-  //   .sort({ createdAt: -1 });
-   
-  //   return pickups.map((pickup: any) => {
-  //     const pickupObj = pickup.toObject();
-
-  //     const userName = pickup.userId
-  //       ? `${pickup.userId.firstName} ${pickup.userId.lastName}`
-  //       : "Unknown";
-
-  //     const userAddress = pickup.userId?.addresses?.find(
-  //       (address: any) =>
-  //         address._id.toString() === pickup.addressId?.toString(),
-  //     );
-  //     console.log("userAddress", userAddress);
-
-  //     const location = userAddress?.location || "Unknown";
-
-  //     const driverName = pickup.driverId?.name || null;
-  //     const assignedZone = pickup.driverId?.assignedZone || null;
-
-  //     return {
-  //       ...pickupObj,
-  //       userName,
-  //       userAddress,
-  //       location,
-  //       driverName,
-  //       assignedZone,
-  //     };
-  //   });
-  // }
 async getPickupsByPlantId(
   filters: PickupFilterParamsRepo,
 ): Promise<PopulatedPickups[]> {

@@ -154,7 +154,6 @@ const PayNow = ({ onClose }: PayNowProps) => {
         },
       };
 
-      //  const razorpay = new (window as any).Razorpay(options);
       const razorpay = new window.Razorpay(options);
       razorpay.open();
     }

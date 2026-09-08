@@ -1,10 +1,5 @@
 import { RuleObject } from "antd/es/form";
 
-// export const validatePlanName = (_: any, value: string) => {
-//     const regex = /^[A-Za-z0-9 ]+$/;
-//     if (!value || regex.test(value)) return Promise.resolve();
-//     return Promise.reject("Only alphabets, numbers, and spaces allowed");
-//   };
 export const validatePlanName = (
   _: RuleObject,
   value: string,

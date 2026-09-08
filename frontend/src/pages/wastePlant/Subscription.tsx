@@ -170,7 +170,6 @@ const Subscription = () => {
           },
         };
 
-        // const razorpay = new (window as any).Razorpay(options);
         const razorpay = new window.Razorpay(options);
         razorpay.open();
       }
@@ -254,16 +253,6 @@ const Subscription = () => {
         {record.expiredAt ? formatDateToDDMMYYYY(record.expiredAt) : "N/A"}
       </span>
     ),
-    // dataIndex: "expiryDate",
-    // key: "expiryDate",
-    // render: (_: any, record: PlantData) => {
-    //   const expiryDate = record.expiredAt;
-    //   return (
-    //     <span style={{ color: "red", fontWeight: "bold" }}>
-    //       {expiryDate ? formatDateToDDMMYYYY(expiryDate) : "N/A"}
-    //     </span>
-    //   );
-    // },
   };
 
   const subPlanColumns: ColumnsType<SubscriptionTableData> = [
