@@ -117,8 +117,6 @@ export class PaymentController implements IPaymentController {
           STATUS_CODES.SERVER_ERROR,
           MESSAGES.SUPERADMIN.ERROR.INVALID_REF_STAT,
         );
-        // res.status(400).json({ error: "Invalid refund status." });
-        // return;
       }
 
       const statusUpdate = await this.paymentService.refundPayment({

@@ -96,7 +96,7 @@ export class TruckController implements ITruckController {
       }
       const { driverId } = req.query;
       if (typeof driverId !== "string") {
-        res.status(400).json({ message: "Invalid or missing driverId" });
+        res.status(STATUS_CODES.BAD_REQUEST).json({ message: "Invalid or missing driverId" });
         return;
       }
 
@@ -161,7 +161,7 @@ export class TruckController implements ITruckController {
       );
 
       if (!updatedTruck) {
-        res.status(404).json({ message: "Truck not found" });
+        res.status(STATUS_CODES.NOT_FOUND).json({ message: "Truck not found" });
         return;
       }
       res.status(STATUS_CODES.SUCCESS).json({
@@ -278,7 +278,7 @@ export class TruckController implements ITruckController {
           prevTruckId,
         );
 
-      res.status(200).json({
+      res.status(STATUS_CODES.SUCCESS).json({
         updatedRequests,
         success: true,
         message: MESSAGES.WASTEPLANT.SUCCESS.ASSIGN_TRUCK_DRIVER,

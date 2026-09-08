@@ -2,6 +2,7 @@ import { Request, Response, NextFunction, ErrorRequestHandler } from "express";
 import { AxiosError } from "axios";
 import axios from "axios";
 import { ApiError } from "../utils/ApiError";
+import { STATUS_CODES } from "../utils/constantUtils";
 
 export const errorHandler: ErrorRequestHandler = (
   err: unknown,
@@ -11,7 +12,7 @@ export const errorHandler: ErrorRequestHandler = (
 ): void => {
   if (axios.isAxiosError(err)) {
     res
-      .status(502)
+      .status(STATUS_CODES.BAD_GATEWAY)
       .json({ message: "External API error", detail: err.message });
     return;
   }
@@ -23,13 +24,10 @@ export const errorHandler: ErrorRequestHandler = (
 
   if (err instanceof Error) {
     console.error("Unexpected error:", err);
-    res.status(500).json({ message: err.message });
+    res.status(STATUS_CODES.SERVER_ERROR).json({ message: err.message });
     return;
   }
 
-  res.status(500).json({ message: "An unknown error occurred" });
+  res.status(STATUS_CODES.SERVER_ERROR).json({ message: "An unknown error occurred" });
 };
 
-// function isAxiosError(error: unknown): error is AxiosError {
-//   return typeof error === "object" && error !== null && "isAxiosError" in error;
-// }

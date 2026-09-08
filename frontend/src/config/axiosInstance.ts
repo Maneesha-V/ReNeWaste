@@ -1,4 +1,5 @@
 import axios, { AxiosInstance } from "axios";
+import { STATUS_CODES } from "../constants/apiRoutes";
 
 type Role = "driver" | "superadmin" | "user" | "wasteplant";
 
@@ -21,9 +22,6 @@ export const createAxiosInstance = ({
 }: AxiosConfig): AxiosInstance => {
   const instance = axios.create({
     baseURL,
-    // headers: {
-    //   "Content-Type": "application/json",
-    // },
     withCredentials: true,
   });
 
@@ -62,10 +60,8 @@ export const createAxiosInstance = ({
     async (error) => {
       const originalRequest = error.config;
 
-      // 🔑 Handle 401 (unauthorized)
-      // if (error.response?.status === 401 && !originalRequest._retry) {
       if (
-        error.response?.status === 401 &&
+        error.response?.status === STATUS_CODES.UNAUTHORIZED &&
         !originalRequest._retry &&
         !originalRequest.url?.includes(refreshTokenEndpoint)
       ) {
@@ -76,8 +72,6 @@ export const createAxiosInstance = ({
 
           localStorage.setItem("token", newAccessToken);
 
-          // instance.defaults.headers.common["Authorization"] = `Bearer ${newAccessToken}`;
-          // originalRequest.headers["Authorization"] = `Bearer ${newAccessToken}`;
           originalRequest.headers = originalRequest.headers || {};
           originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
           return instance(originalRequest);
@@ -88,7 +82,7 @@ export const createAxiosInstance = ({
       }
 
       // 🔑 Handle 403 (blocked)
-      if (error.response?.status === 403) {
+      if (error.response?.status === STATUS_CODES.FORBIDDEN) {
         console.log("error", error);
 
         const reason = error.response.data?.reason;

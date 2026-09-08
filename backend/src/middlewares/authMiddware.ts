@@ -6,6 +6,7 @@ import { DriverModel } from "../models/driver/driverModel";
 import { WastePlantModel } from "../models/wastePlant/wastePlantModel";
 import { ApiError } from "../utils/ApiError";
 import { AuthRequest } from "../dtos/base/BaseDTO";
+import { STATUS_CODES } from "../utils/constantUtils";
 
 export const authenticateUser = async (
   req: AuthRequest,
@@ -16,7 +17,7 @@ export const authenticateUser = async (
     const token = req.header("Authorization")?.replace("Bearer ", "");
     console.log("Received Token:", token);
     if (!token)
-      return res.status(401).json({ error: "No token, authorization denied" });
+      return res.status(STATUS_CODES.UNAUTHORIZED).json({ error: "No token, authorization denied" });
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET!) as {
       userId: string;
@@ -26,7 +27,7 @@ export const authenticateUser = async (
     req.user = { id: decoded.userId, role: decoded.role };
     next();
   } catch (err) {
-    next(new ApiError(401, "Invalid token"));
+    next(new ApiError(STATUS_CODES.UNAUTHORIZED, "Invalid token"));
   }
 };
 
@@ -40,7 +41,7 @@ export const authenticateSuperAdmin = async (
     console.log("Received Token:", token);
 
     if (!token)
-      return res.status(401).json({ error: "No token, authorization denied" });
+      return res.status(STATUS_CODES.UNAUTHORIZED).json({ error: "No token, authorization denied" });
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET!) as {
       userId: string;
@@ -55,13 +56,13 @@ export const authenticateSuperAdmin = async (
     console.log("superadmin Found:", superadmin);
 
     if (!superadmin) {
-      return res.status(404).json({ error: "SuperAdmin not found" });
+      return res.status(STATUS_CODES.NOT_FOUND).json({ error: "SuperAdmin not found" });
     }
 
     req.user = { id: superadmin._id.toString(), role: superadmin.role };
     next();
   } catch (error) {
-    res.status(401).json({ error: "Invalid token" });
+    res.status(STATUS_CODES.UNAUTHORIZED).json({ error: "Invalid token" });
   }
 };
 export const authenticateDriver = async (
@@ -72,7 +73,7 @@ export const authenticateDriver = async (
   try {
     const token = req.header("Authorization")?.replace("Bearer ", "");
     if (!token)
-      return res.status(401).json({ error: "No token, authorization denied" });
+      return res.status(STATUS_CODES.UNAUTHORIZED).json({ error: "No token, authorization denied" });
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET!) as {
       userId: string;
@@ -84,14 +85,14 @@ export const authenticateDriver = async (
     ).select("-password");
     console.log("driver Found:", driver);
     if (!driver) {
-      return res.status(404).json({ error: "Driver not found" });
+      return res.status(STATUS_CODES.NOT_FOUND).json({ error: "Driver not found" });
     }
     req.user = { id: driver._id.toString(), role: driver.role };
 
     next();
   } catch (error) {
     console.error("Authentication Error:", error);
-    res.status(401).json({ error: "Invalid token" });
+    res.status(STATUS_CODES.UNAUTHORIZED).json({ error: "Invalid token" });
   }
 };
 export const authenticateWastePlant = async (
@@ -102,7 +103,7 @@ export const authenticateWastePlant = async (
   try {
     const token = req.header("Authorization")?.replace("Bearer ", "");
     if (!token)
-      return res.status(401).json({ error: "No token, authorization denied" });
+      return res.status(STATUS_CODES.UNAUTHORIZED).json({ error: "No token, authorization denied" });
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET!) as {
       userId: string;
@@ -111,15 +112,14 @@ export const authenticateWastePlant = async (
     const wastePlant = await WastePlantModel.findById(
       new mongoose.Types.ObjectId(decoded.userId),
     ).select("-password");
-    // console.log("plant Found:", wastePlant);
     if (!wastePlant) {
-      return res.status(404).json({ error: "wastePlant not found" });
+      return res.status(STATUS_CODES.NOT_FOUND).json({ error: "wastePlant not found" });
     }
     req.user = { id: wastePlant._id.toString(), role: wastePlant.role };
 
     next();
   } catch (error) {
     console.error("Authentication Error:", error);
-    res.status(401).json({ error: "Invalid token" });
+    res.status(STATUS_CODES.UNAUTHORIZED).json({ error: "Invalid token" });
   }
 };

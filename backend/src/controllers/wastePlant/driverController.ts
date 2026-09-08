@@ -48,16 +48,13 @@ export class DriverController implements IDriverController {
   ): Promise<void> {
     try {
       const plantId = req.user?.id;
-
-      // const { files } = req as any;
-      // const { files } = req
       const files = req.files as
         | {
             licenseFront?: Express.Multer.File[];
             licenseBack?: Express.Multer.File[];
           }
         | undefined;
-      // if (!files?.licenseFront || !files?.licenseBack) {
+
       if (!files?.licenseFront?.[0] || !files?.licenseBack?.[0]) {
         throw new ApiError(
           STATUS_CODES.BAD_REQUEST,
@@ -164,7 +161,6 @@ export class DriverController implements IDriverController {
   ): Promise<void> {
     try {
       const { driverId } = req.params;
-      // const { files } = req as any;
       const files = req.files as
         | {
             licenseFront?: Express.Multer.File[];
@@ -213,8 +209,6 @@ export class DriverController implements IDriverController {
           STATUS_CODES.NOT_FOUND,
           MESSAGES.DRIVER.ERROR.NOT_FOUND,
         );
-        // res.status(404).json({ message: "Driver not found" });
-        // return;
       }
 
       res.status(STATUS_CODES.SUCCESS).json({

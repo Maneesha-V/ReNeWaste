@@ -21,6 +21,7 @@ import "./cron/subscribeWastePlant";
 import "./cron/rechargeWastePlant";
 import "./cron/genCommPickup";
 import morganMiddleware from "./logger";
+import { STATUS_CODES } from "./utils/constantUtils";
 
 dotenv.config();
 
@@ -77,7 +78,7 @@ app.use("/api/waste-plant", wastePlantRoutes);
 app.use("/api/driver", driverRoutes);
 
 app.use((req, res, next) => {
-  next(new ApiError(404, "Route not found"));
+  next(new ApiError(STATUS_CODES.NOT_FOUND, "Route not found"));
 });
 
 app.use(errorHandler);

@@ -148,3 +148,8 @@ export const API_ROUTES = {
     DELETE_WASTE_PLANT: "/delete-waste-plant",
   },
 } as const;
+
+export const STATUS_CODES = {
+  UNAUTHORIZED: 401,
+  FORBIDDEN: 403,
+} as const
